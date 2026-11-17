@@ -479,7 +479,8 @@
       "kind": "window",
       "flip": false,
       "grille": true,
-      "wh": 1800
+      "wh": 1800,
+      "panes": 4
     }
   ],
   "deletedWalls": [
