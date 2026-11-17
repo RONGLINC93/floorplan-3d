@@ -449,16 +449,28 @@
       cursor: crosshair
     }
 
+    /* 光标统一：选择 = 原鼠标箭头；移动 = 四向箭头；其它绘制工具 = 十字。通配 * + !important 覆盖对象内联样式 */
     #plan.tool-draw {
-      cursor: crosshair
+      cursor: default
+    }
+
+    #plan.tool-draw[data-subtool="select"],
+    #plan.tool-draw[data-subtool="select"] * {
+      cursor: default !important
+    }
+
+    #plan.tool-draw[data-subtool="move"],
+    #plan.tool-draw[data-subtool="move"] * {
+      cursor: move !important
+    }
+
+    #plan.tool-draw:not([data-subtool="select"]):not([data-subtool="move"]),
+    #plan.tool-draw:not([data-subtool="select"]):not([data-subtool="move"]) * {
+      cursor: crosshair !important
     }
 
     #plan .wall {
       pointer-events: none
-    }
-
-    #plan.tool-draw[data-subtool="select"] .wall {
-      cursor: pointer
     }
 
     #plan.tool-draw .wall {
@@ -469,22 +481,8 @@
       filter: brightness(1.08)
     }
 
-    /* 设计-选择：空白处可拖出框选，用十字光标提示 */
-    #plan.tool-draw[data-subtool="select"] [data-bg],
-    #plan.tool-draw[data-subtool="select"] [data-room] {
-      cursor: crosshair
-    }
-
-    #plan .open {
-      cursor: move
-    }
-
     #plan.tool-select .room:hover {
       opacity: .82
-    }
-
-    #plan .furn {
-      cursor: move
     }
 
     @media (hover:hover) {
@@ -493,22 +491,20 @@
       }
     }
 
-    [data-handle] {
-      cursor: pointer
+    /* 尺寸手柄保留对应 resize 光标（提升特异性覆盖上面的通配规则） */
+    #plan.tool-draw [data-handle] {
+      cursor: pointer !important
     }
 
-    [data-handle=size] {
-      cursor: nwse-resize
+    #plan.tool-draw [data-handle=size],
+    #plan.tool-draw [data-handle=rectSize][data-corner=nw],
+    #plan.tool-draw [data-handle=rectSize][data-corner=se] {
+      cursor: nwse-resize !important
     }
 
-    [data-handle=rectSize][data-corner=nw],
-    [data-handle=rectSize][data-corner=se] {
-      cursor: nwse-resize
-    }
-
-    [data-handle=rectSize][data-corner=ne],
-    [data-handle=rectSize][data-corner=sw] {
-      cursor: nesw-resize
+    #plan.tool-draw [data-handle=rectSize][data-corner=ne],
+    #plan.tool-draw [data-handle=rectSize][data-corner=sw] {
+      cursor: nesw-resize !important
     }
 
     .scalebar {
@@ -2339,6 +2335,9 @@
               title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手）"
               data-en-title="Click to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Delete removes, Alt+drag starts anywhere)"
               data-en="Select"><i data-lucide="mouse-pointer-2"></i>选择</button>
+            <button class="btn chip" data-dt="move" title="移动：按住家具 / 墙 / 门窗 / 构件等拖动位置，多选后按住其中任一对象可整组移动；轻点仍可选中"
+              data-en-title="Move: drag furniture / walls / openings / structures to reposition; drag any selected item to move the whole group"
+              data-en="Move"><i data-lucide="move"></i>移动</button>
             <button class="btn chip" data-dt="rotate"
               title="旋转：点此工具后直接在画板上点选对象（可多选），点空白处或回车结束选择，再点基点；移动鼠标旋转，再点一下确认，也可输入角度回车"
               data-en-title="Rotate: click this tool, then click objects on the canvas (multiple OK). Click empty space or press Enter to finish picking, pick a base point, move to rotate, click to confirm — or type an angle"
@@ -2786,7 +2785,7 @@
     /* ======================= 多语言（中文 / English，默认中文） ======================= */
     const LANG_KEY = 'huxing-lang';
     const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字）/ English
-    const APP_VER = '1.0.10';                       // 应用版本号：release.py 发布后自动同步 manifest 的 version=
+    const APP_VER = '1.0.11';                       // 应用版本号：release.py 发布后自动同步 manifest 的 version=
     let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zh'; } catch (e) { return 'zh'; } })();
     // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
     const S2T_PHRASES = [['布置', '佈置'], ['布局', '佈局'], ['台面', '檯面'], ['复制', '複製']];
@@ -4451,6 +4450,20 @@
     };
     const isExtraLin = t => ['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path', 'thresh', 'flash', 'band', 'signbd'].includes(t);
     const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag'].includes(t);
+    const extraRot = e => e && e.type === 'park' ? ((+e.rot || 0) % 360) : 0;                 // 仅停车位支持整车旋转
+    function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
+      if (!deg) return { x, y };
+      const a = deg * Math.PI / 180, c = Math.cos(-a), s = Math.sin(-a), dx = x - cx, dy = y - cy;
+      return { x: cx + dx * c - dy * s, y: cy + dx * s + dy * c };
+    }
+    function extraBBox(e) {                                                                  // 矩形扩展构件的包围盒（含旋转后的四角）
+      const w = Math.max(100, e.w || 0), d = Math.max(100, e.d || 0), r = extraRot(e);
+      if (!r) return [e.x - w / 2, e.y - d / 2, e.x + w / 2, e.y + d / 2];
+      const a = r * Math.PI / 180, c = Math.cos(a), s = Math.sin(a);
+      const pts = [[-w / 2, -d / 2], [w / 2, -d / 2], [-w / 2, d / 2], [w / 2, d / 2]]
+        .map(([dx, dy]) => [e.x + dx * c - dy * s, e.y + dx * s + dy * c]);
+      return [Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1])), Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))];
+    }
     function extraName(e) { const n = EXTRA_NAME[e.type]; return n ? tr(n[0], n[1]) : tr('构件', 'Item'); }
     function renderExtras2() {
       const out = [], T = (x, y, txt, col, fs = 180) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" fill="${col}" stroke="#fbf9f4" stroke-width="${Math.round(fs * .22)}" paint-order="stroke" pointer-events="none">${txt}</text>`;
@@ -4544,7 +4557,9 @@
           const b1 = [tip[0] - ux * hl - nx * hw, tip[1] - uy * hl - ny * hw];
           inner += `<line x1="${tail[0]}" y1="${tail[1]}" x2="${b0[0] - nx * hw}" y2="${b0[1] - ny * hw}" stroke="${col}" stroke-width="1.4" stroke-opacity=".7" vector-effect="non-scaling-stroke"/>
             <polygon points="${tip[0]},${tip[1]} ${b0[0]},${b0[1]} ${b1[0]},${b1[1]}" fill="${col}" fill-opacity=".55"/>`;
-          inner += `<text x="${e.x - ux * al * .78}" y="${e.y - uy * al * .78 + 80}" font-size="300" font-weight="700" text-anchor="middle" fill="${col}" fill-opacity=".55" pointer-events="none">P${esc(String(e.no ?? 1))}</text>`;
+          const sw = Math.max(100, w / 2 - 150), sy = e.y + d / 2 - 150;   // 挡轮杆固定在车位局部下沿，随整车位一起旋转
+          inner += `<line x1="${e.x - sw}" y1="${sy}" x2="${e.x + sw}" y2="${sy}" stroke="${col}" stroke-width="3.5" stroke-opacity=".85" vector-effect="non-scaling-stroke"/>`;
+          inner += `<text x="${e.x}" y="${e.y + al * .78 + 80}" font-size="300" font-weight="700" text-anchor="middle" fill="${col}" fill-opacity=".55" pointer-events="none">P${esc(String(e.no ?? 1))}</text>`;
         } else if (e.type === 'pavilion' || e.type === 'carport') {  // 四角柱（凉亭 / 电动车棚）
           const r = Math.min(110, Math.min(w, d) * .1);
           [[x0, y0], [x0 + w, y0], [x0, y0 + d], [x0 + w, y0 + d]].forEach(([px, py]) =>
@@ -4579,8 +4594,10 @@
         const dash = e.type === 'pavilion' || e.type === 'carport' ? ' stroke-dasharray="160 70"'
           : ['slabhole', 'skylight', 'dormer'].includes(e.type) ? ' stroke-dasharray="90 60"'
             : e.type === 'shaft' ? ' stroke-dasharray="200 90"' : '';
+        const parkRot = e.type === 'park' ? ((+e.rot || 0) % 360) : 0;   // 整车位旋转：框 / 入口线 / 箭头 / 挡轮杆 / 编号一起转，dir 仍只控制箭头
+        const body = `<rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${col}" fill-opacity=".07" stroke="${col}" stroke-width="${on ? 2 : 1.1}"${dash} vector-effect="non-scaling-stroke"/>${inner}`;
         out.push(`<g data-extra="${e.id}" style="cursor:move">
-          <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${col}" fill-opacity=".07" stroke="${col}" stroke-width="${on ? 2 : 1.1}"${dash} vector-effect="non-scaling-stroke"/>${inner}
+          ${parkRot ? `<g transform="rotate(${parkRot} ${e.x} ${e.y})">${body}</g>` : body}
           ${T(e.x, y0 - 170, e.type === 'park' ? `${extraName(e)} ${Math.round(e.no ?? 1)}` : extraName(e), col)}</g>`);
       });
       return out.join('');
@@ -4829,7 +4846,7 @@
     }
 
     function rotateSel(deg) {                                    // 快捷 90° 整转（R 键 / 属性面板按钮 / 双击家具）：绕选区中心
-      if (is3D() ? m3dPreview : !(ui.tool === 'draw' && ui.drawTool === 'select')) return;   // 仅设计（含 3D 可编辑态）可用，预览只读
+      if (is3D() ? m3dPreview : !(ui.tool === 'draw' && ['select', 'move'].includes(ui.drawTool))) return;   // 仅设计（含 3D 可编辑态）可用，预览只读
       const list = rotTargets();
       if (!list.length) return;
       let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
@@ -5107,10 +5124,12 @@
             s += `<circle cx="${it.x}" cy="${it.y}" r="${r}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
           } else {
             const w = Math.max(100, it.w || 0), d = Math.max(100, it.d || 0), x0 = it.x - w / 2, y0 = it.y - d / 2, x1 = it.x + w / 2, y1 = it.y + d / 2;
-            s += `<rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
+            const rot = it.type === 'park' ? ((+it.rot || 0) % 360) : 0;   // 旋转的停车位：选中框 / 手柄一起转，手柄 data-corner 不变
+            let box = `<rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
             [['nw', x0, y0], ['ne', x1, y0], ['sw', x0, y1], ['se', x1, y1]].forEach(([corner, hx, hy]) => {
-              s += `<rect data-handle="extraCorner" data-corner="${corner}" x="${hx - 6 * hs * k}" y="${hy - 6 * hs * k}" width="${12 * hs * k}" height="${12 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整尺寸（对角固定）', 'Drag to resize (opposite corner fixed)')}</title></rect>`;
+              box += `<rect data-handle="extraCorner" data-corner="${corner}" x="${hx - 6 * hs * k}" y="${hy - 6 * hs * k}" width="${12 * hs * k}" height="${12 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整尺寸（对角固定）', 'Drag to resize (opposite corner fixed)')}</title></rect>`;
             });
+            s += rot ? `<g transform="rotate(${rot} ${it.x} ${it.y})">${box}</g>` : box;
             s += `<text x="${it.x}" y="${y0 - 16 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${Math.round(w)} × ${Math.round(d)}</text>`;
           }
         }
@@ -5159,7 +5178,7 @@
       const base = { type: t };
       if (t === 'slabhole') return { ...base, w: 800, d: 800, thick: 0, z: 0 };
       if (t === 'ac') return { ...base, w: 1200, d: 700, thick: 100, z: 0 };
-      if (t === 'park') return { ...base, w: 2500, d: 5000, no: 1, dir: 0 };
+      if (t === 'park') return { ...base, w: 2500, d: 5000, no: 1, dir: 0, rot: 0 };
       if (t === 'pavilion') return { ...base, w: 3000, d: 3000, h: 2600, col: 150 };
       if (t === 'skylight') return { ...base, w: 1200, d: 1200, z: 2800, h: 350 };
       if (t === 'apron') return { ...base, w: 600, h: 60 };
@@ -5221,7 +5240,8 @@
         if (e.type === 'skylight') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('凸起高度', 'Curb')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 350)}" min="80" max="1200" step="10"></label>`;
         if (e.type === 'pavilion' || e.type === 'carport') rows += `<label>${tr('檐高', 'Eave height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2600)}" min="1800" max="6000" step="50"></label><label>${tr('柱径', 'Column')} (mm)<input type="number" id="exC" value="${Math.round(e.col ?? 150)}" min="60" max="500" step="10"></label>`;
         if (e.type === 'park') rows += `<label>${tr('车位编号', 'Stall no.')}<input type="number" id="exNo" value="${Math.round(e.no ?? 1)}" min="1" max="999" step="1"></label>
-          <label>${tr('车头朝向', 'Head direction')}<select id="exDir">${[[0, tr('向上', 'Up')], [90, tr('向右', 'Right')], [180, tr('向下', 'Down')], [270, tr('向左', 'Left')]].map(([v, t]) => `<option value="${v}" ${((+e.dir || 0) % 360) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`;
+          <label>${tr('车头朝向', 'Head direction')}<select id="exDir">${[[0, tr('向前', 'Up')], [180, tr('向后', 'Down')]].map(([v, t]) => `<option value="${v}" ${((+e.dir || 0) % 360) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+          <label>${tr('车位旋转', 'Stall rotation')}<select id="exRot">${[[0, '0°'], [90, '90°'], [180, '180°'], [270, '270°']].map(([v, t]) => `<option value="${v}" ${((+e.rot || 0) % 360) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>`;
         if (e.type === 'shaft') rows += `<label>${tr('井壁厚', 'Wall')} (mm)<input type="number" id="exT" value="${Math.round(e.t ?? 120)}" min="60" max="400" step="10"></label><label>${tr('井高', 'Height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2800)}" min="300" max="12000" step="50"></label>`;
         if (e.type === 'lawn') rows += `<label>${tr('草皮厚', 'Turf')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 60)}" min="10" max="400" step="10"></label>`;
         if (e.type === 'well2') rows += `<label>${tr('井深', 'Depth')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 900)}" min="100" max="4000" step="50"></label>
@@ -5233,7 +5253,7 @@
       }
       const tip = e.type === 'slabhole' ? tr('2D 为虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边。', 'Dashed outline with cross in 2D; a cored hole with upturn in 3D.')
         : e.type === 'ac' ? tr('设备平台 / 空调机位，3D 带百叶围板；可拖动整体移动，四角手柄改尺寸。', 'AC platform with louver panels in 3D. Drag to move, corner handles to resize.')
-          : e.type === 'park' ? tr('停车位 2D 画车位线、编号与车头朝向箭头，3D 为地面标线；朝向可在右侧改。', 'Parking stall: line work, number and head-direction arrow in 2D, ground marking in 3D.')
+          : e.type === 'park' ? tr('停车位 2D 画车位线、编号、车头朝向箭头与挡轮杆，3D 为黄色地面标线 + 挡轮杆；车头朝向只控制箭头，「车位旋转」让整个车位（含挡轮杆 / 编号）绕中心旋转 0/90/180/270°，适配横放车位。', 'Parking stall: lines, number, direction arrow and wheel stop in 2D; yellow ground markings and wheel stop in 3D. Head direction only rotates the arrow; "Stall rotation" turns the whole stall (incl. wheel stop / number) around its center by 0/90/180/270°, for horizontal stalls.')
             : e.type === 'pavilion' ? tr('凉亭 3D 生成立柱与顶盖，可拖动整体移动、四角手柄改尺寸。', 'Pavilion with posts and roof in 3D.')
               : e.type === 'skylight' ? tr('天窗 3D 在屋面生成凸起玻璃顶，可拖动整体移动。', 'Skylight with raised glazing in 3D.')
                 : e.type === 'apron' ? tr('散水沿建筑外墙布置，2D 画双线，3D 为向外找坡的混凝土带；端点手柄可改长度。', 'Apron: double lines in 2D, sloped concrete band in 3D.')
@@ -5303,6 +5323,7 @@
         upd('exC', (e, v) => e.col = v, 60, 500);
         upd('exNo', (e, v) => e.no = v, 1, 999);
         upd('exDir', (e, v) => e.dir = ((Math.round(v) % 360) + 360) % 360);
+        upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
       }
       $('#aDel').onclick = () => { ui.sel = { kind: 'extra', id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
@@ -6973,7 +6994,11 @@
     }
 
     /* ======================= 操作 ======================= */
-    function select(sel) { ui.sel = sel; ui.multi = []; renderPillars(); renderSel(); renderPanel(); renderNotes(); }   // 电梯高亮画在柱层，需一起重绘
+    function select(sel) {                                       // 电梯高亮画在柱层，需一起重绘
+      ui.sel = sel; ui.multi = [];
+      if (sel) setRightTab('prop');                              // 选中对象自动切到右侧「属性」页
+      renderPillars(); renderSel(); renderPanel(); renderNotes();
+    }
 
     /* ---------- 多选 / 框选（设计模式）---------- */
     const getS = id => (state.stairs || []).find(x => x.id === id);
@@ -7047,7 +7072,7 @@
         const e = (state.extras || []).find(x => x.id === it.id); if (!e) return null;
         if (isExtraLin(e.type)) return [Math.min(e.a[0], e.b[0]) - 400, Math.min(e.a[1], e.b[1]) - 400, Math.max(e.a[0], e.b[0]) + 400, Math.max(e.a[1], e.b[1]) + 400];
         if (isExtraPt(e.type)) { const r = Math.max(300, (+e.w || 100) / 2 + 200); return [e.x - r, e.y - r, e.x + r, e.y + r]; }
-        return [e.x - e.w / 2, e.y - e.d / 2, e.x + e.w / 2, e.y + e.d / 2];
+        return extraBBox(e);
       }
       if (['roof', 'pergola', 'deck', 'pool'].includes(it.kind)) {
         const o = outArr(it.kind).find(x => x.id === it.id); if (!o) return null;
@@ -7149,7 +7174,7 @@
       }).filter(Boolean);
     }
     function selectAllObjects() {                                   // Ctrl+A：全选家具 / 楼梯 / 柱子 / 自画墙
-      if (!(ui.tool === 'draw' && ui.drawTool === 'select')) return;
+      if (!(ui.tool === 'draw' && ['select', 'move'].includes(ui.drawTool))) return;
       const all = state.furniture.map(f => ({ kind: 'furn', id: f.id }))
         .concat((state.stairs || []).map(s => ({ kind: 'stair', id: s.id })),
           (state.pillars || []).map(c => ({ kind: 'pillar', id: c.id })),
@@ -7382,23 +7407,27 @@
       toast(on ? tr('已恢复墙体', 'Wall restored') : tr(`已标记拆除 ${Math.round(len)} mm 墙体`, `Marked ${Math.round(len)} mm of wall for removal`));
     }
 
+    function syncSubToolUI() {
+      svg.dataset.subtool = ui.drawTool;
+      $('#dirPad').hidden = ui.tool !== 'draw' || ui.drawTool === 'rotate';
+      document.querySelectorAll('#designTools .btn[data-dt]').forEach(x => x.classList.toggle('on', x.dataset.dt === ui.drawTool));
+    }
     function setTool(t) {
       if (t !== 'draw') { rotCancel(true); ui.rotPick = false; }  // 离开设计：取消未完成的旋转并还原几何
       ui.tool = t; ui.mA = null; ui.mCur = null; ui.dimA = null; ui.dimCur = null; ui.railA = null; ui.railCur = null; ui.beamA = null; ui.beamCur = null; ui.slabA = null; ui.slabCur = null; ui.parapetA = null; ui.parapetCur = null; ui.canopyA = null; ui.canopyCur = null; ui.rectA = null; ui.rectCur = null; ui.arcA = null; ui.arcCur = null; ui.gateA = null; ui.gateCur = null; ui.exA = null; ui.exCur = null; ui.ldA = null; ui.ldCur = null; wStart = wCur = null; renderDraw();
-      if (is3D()) {                                               // 3D 下「预览 / 设计」切换：设计只提供选择子工具，左侧仍固定家具库
+      if (is3D()) {                                               // 3D 下「预览 / 设计」切换；建筑工具 / 拖动与 2D 共用
         if (!entering3D) {                                        // 仅进入 3D 那一次同步不动预览态；入场动画期间用户点击也要即时生效
           m3dPreview = t !== 'draw';
           toolBefore3D = t === 'draw' ? 'draw' : (toolBefore3D === 'measure' ? 'measure' : 'select');   // 统一模式：3D 内切换即改写保存的模式，返回 2D 按它还原
           document.body.classList.toggle('m3dprev', m3dPreview);  // 预览整条隐藏选项夹（同步生效，无延迟）
           setRightTab(m3dPreview ? 'prop' : 'obj');
           $('#tip').textContent = m3dPreview ? TIP3DPREV() : TIPS()['3d'];
-        } else if (t === 'draw') ui.drawTool = 'select';
+        }                                                        // 进入 3D 不重置子工具：2D 选的「移动」/ 建筑工具带进 3D
       }
-      if (t === 'draw') svg.dataset.subtool = ui.drawTool;   // 点「设计」不强制切换左侧选项夹，保留用户当前页
+      syncSubToolUI();   // 子工具高亮 / data-subtool 始终跟随真实 ui.drawTool（退出 3D 回滚子工具时一并同步）
       syncArchHint();
-      if (!(t === 'draw' && ui.drawTool === 'select')) select(null);   // 离开「设计+选择」即取消选中（预览只读）
+      if (!(t === 'draw' && (ui.drawTool === 'select' || ui.drawTool === 'move'))) select(null);   // 离开「设计+选择/移动」即取消选中（预览只读）
       svg.setAttribute('class', 'tool-' + t);
-      $('#dirPad').hidden = t !== 'draw' || ui.drawTool === 'rotate';   // 直角 / 自由 只在设计模式显示，旋转时让位给角度框
       document.querySelectorAll('#tools .btn').forEach(b => b.classList.toggle('on', b.dataset.tool === t));
       syncEditGrp();
       syncModeHint();
@@ -7417,8 +7446,9 @@
     let hintTimer = 0;
     function syncModeHint() {
       const h = $('#modehint');
-      if (is3D()) {                                                // 3D：提示区分预览 / 设计
-        h.textContent = m3dPreview ? TIP3DPREV() : TIPS()['3d'];
+      if (is3D()) {                                                // 3D：提示区分预览 / 设计 / 移动
+        h.textContent = m3dPreview ? TIP3DPREV()
+          : (ui.drawTool === 'move' ? tr('3D 移动：按住对象沿地面拖动改位置 · Shift 锁轴 · 右击回到选择', '3D move: drag objects along the ground · Shift locks axis · right-click back to Select') : TIPS()['3d']);
         h.classList.add('show');
         clearTimeout(hintTimer);
         hintTimer = setTimeout(() => h.classList.remove('show'), 4000);
@@ -7435,7 +7465,10 @@
       const rotHint = ui.rotPick
         ? tr('旋转：点选要旋转的对象（可连续点选多个）· 点空白处或回车 / 右键结束选择并定基点 · Esc 退出', 'Rotate: click the objects to rotate (multiple OK) · click empty space or press Enter / right-click to finish · Esc exits')
         : tr('旋转：点一下基点 → 移动鼠标旋转 → 再点一下确认；也可在底部输入角度回车 · 默认 15° 吸附，Shift 自由角度 · Esc 取消', 'Rotate: pick a base point → move to rotate → click to confirm; or type an angle below and press Enter · 15° snap, Shift for free angle · Esc cancels');
-      const hint = ui.tool === 'draw' && ui.drawTool === 'rotate' ? rotHint : hints[ui.tool];
+      const moveHint = COARSE
+        ? tr('移动：按住对象拖到新位置 · 多选后按住其中任一对象整组移动 · Shift 直角移动', 'Move: drag an object to reposition · drag any selected item to move the group · Shift locks axis')
+        : tr('移动：按住家具 / 墙 / 门窗 / 构件拖动改位置 · 多选后按住其中任一对象整组移动 · Shift 锁定水平 / 垂直 · 右击回到选择', 'Move: drag furniture / walls / openings / structures to reposition · drag any selected item to move the group · Shift locks axis · right-click back to Select');
+      const hint = ui.tool === 'draw' && ui.drawTool === 'rotate' ? rotHint : (ui.tool === 'draw' && ui.drawTool === 'move' ? moveHint : hints[ui.tool]);
       h.textContent = hint || '';
       clearTimeout(hintTimer);
       if (!hint) { h.classList.remove('show'); return; }
@@ -8325,7 +8358,7 @@
         renderDraw(); return;
       }
       if (d.kind === 'pan') {
-        const editing = ui.tool === 'select' || (ui.tool === 'draw' && ui.drawTool === 'select');   // 预览 / 设计-选择子工具都可点选
+        const editing = ui.tool === 'select' || (ui.tool === 'draw' && ['select', 'move'].includes(ui.drawTool));   // 预览 / 设计-选择 / 移动都可点选
         if (!cancel && !d.moved && editing && !d.keepSel) {
           if (d.room) select({ kind: 'room', id: d.room });              // 点房间 → 选中该房间（预览与设计模式均可）
           else select(null);                                             // 点空白 → 失焦（预览与设计模式一致）
@@ -8879,7 +8912,7 @@
         else drawCommit(wStart, q);
         renderDraw(); return;
       }
-      const edit = ui.tool === 'draw' && ui.drawTool === 'select';   // 编辑仅在设计+选择子工具下
+      const edit = ui.tool === 'draw' && (ui.drawTool === 'select' || ui.drawTool === 'move');   // 选择：选中 / 改尺寸；移动：整体拖动
       if (edit && e.altKey) {                                      // Alt + 拖动 = 强制框选（起点压在家具 / 门窗 / 墙上也能框）
         drag = { kind: 'marquee', sx: e.clientX, sy: e.clientY, ax: p.x, ay: p.y, room: t.closest('[data-room]')?.dataset.room, add: e.shiftKey, mq: null, moved: false, keepSel: true };
         svg.setPointerCapture(e.pointerId); return;
@@ -8955,7 +8988,7 @@
         drag = { kind: 'ldEnd', id: ui.sel.id, end: +h.dataset.end, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
       } else if (h && ui.sel?.kind === 'extra' && h.dataset.handle === 'extraCorner') {
         const it = (state.extras || []).find(x => x.id === ui.sel.id);
-        if (it) drag = { kind: 'extraCorner', id: it.id, corner: h.dataset.corner, x0: it.x, y0: it.y, w0: it.w, d0: it.d, px: p.x, py: p.y, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
+        if (it) drag = { kind: 'extraCorner', id: it.id, corner: h.dataset.corner, x0: it.x, y0: it.y, w0: it.w, d0: it.d, rot: extraRot(it), px: p.x, py: p.y, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
       } else if (h && ui.sel?.kind === 'extra' && h.dataset.handle === 'extraEnd') {
         const it = (state.extras || []).find(x => x.id === ui.sel.id);
         if (it) drag = { kind: 'extraEnd', id: it.id, end: +h.dataset.end, a0: [...it.a], b0: [...it.b], sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
@@ -9105,6 +9138,10 @@
       } else {
         const room = t.closest('[data-room]');
         drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, x0: view.x0, y0: view.y0, room: room && room.dataset.room, moved: false };
+      }
+      if (ui.drawTool === 'select' && drag && (drag.kind === 'move' || drag.kind === 'multiMove' || /Move$/.test(drag.kind))) {
+        drag = null;                                            // 「选择」只选中 / 改尺寸，整体拖动交给「移动」工具
+        return;
       }
       svg.setPointerCapture(e.pointerId);
     }
@@ -9639,9 +9676,10 @@
         if (!drag.moved && !far) return;
         drag.moved = true;
         const e0 = (state.extras || []).find(x => x.id === drag.id); if (!e0) return;
-        const MIN = 100, c = drag.corner, { x0, y0, w0, d0 } = drag;
-        const q = axisLock({ x: c.includes('w') ? x0 - w0 / 2 : x0 + w0 / 2, y: c.includes('n') ? y0 - d0 / 2 : y0 + d0 / 2 }, p, e.shiftKey);
-        const dx = Math.round((q.x - drag.px) / 10) * 10, dy = Math.round((q.y - drag.py) / 10) * 10;
+        const MIN = 100, c = drag.corner, { x0, y0, w0, d0, rot } = drag;
+        const pl = unrotPoint(p.x, p.y, x0, y0, rot), p0 = unrotPoint(drag.px, drag.py, x0, y0, rot);   // 旋转车位：鼠标换算到局部坐标
+        const q = axisLock({ x: c.includes('w') ? x0 - w0 / 2 : x0 + w0 / 2, y: c.includes('n') ? y0 - d0 / 2 : y0 + d0 / 2 }, pl, e.shiftKey);
+        const dx = Math.round((q.x - p0.x) / 10) * 10, dy = Math.round((q.y - p0.y) / 10) * 10;
         let nx = x0, ny = y0, nw = w0, nd = d0;
         if (c.includes('w')) { nw = Math.max(MIN, w0 - dx); nx = x0 + (w0 - nw) / 2; }
         if (c.includes('e')) { nw = Math.max(MIN, w0 + dx); nx = x0 + (nw - w0) / 2; }
@@ -9754,7 +9792,7 @@
       else if (k === 'w') { setTool('draw'); setSubTool('wall'); }
       else if (k === 'f') fitView();
       else if (k === 'r') rotateSel(e.shiftKey ? -90 : 90);
-      else if (k === 'delete' || k === 'backspace') { e.preventDefault(); if (ui.tool === 'draw' && ui.drawTool === 'select') deleteSel(); }   // 仅设计模式可删，预览模式不动方案
+      else if (k === 'delete' || k === 'backspace') { e.preventDefault(); if (ui.tool === 'draw' && ['select', 'move'].includes(ui.drawTool)) deleteSel(); }   // 仅设计模式可删，预览模式不动方案
       else if (k === 'escape') {
         if (wStart) { wStart = wCur = null; renderDraw(); }
         else if (ui.mA) { ui.mA = null; renderMeasure(); }
@@ -9985,11 +10023,9 @@
       if (!['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path'].includes(dt)) { ui.exA = null; ui.exCur = null; }
       if (dt !== 'leader' && dt !== 'section') { ui.ldA = null; ui.ldCur = null; }
       if (!['balcony', 'planter', 'well', 'slabhole', 'ac', 'park', 'pavilion', 'skylight', 'shaft', 'lawn', 'well2', 'dormer', 'hatch', 'solar', 'equip'].includes(dt)) { ui.rectA = null; ui.rectCur = null; ui.rectKind = null; }
-      svg.dataset.subtool = dt;
-      $('#dirPad').hidden = ui.tool !== 'draw' || dt === 'rotate';   // 旋转时不需要方向模式，让位给角度输入框
-      if (dt !== 'select' && dt !== 'rotate') select(null);   // 切到创建类子工具时取消选中；旋转保留选中
+      syncSubToolUI();   // 子工具高亮 / data-subtool / 方向条统一由 ui.drawTool 驱动
+      if (dt !== 'select' && dt !== 'move' && dt !== 'rotate') select(null);   // 切到创建类子工具时取消选中；选择 / 移动 / 旋转保留选中
       else renderSel();                       // 按当前选中对象重画手柄（房间顶点 / 家具手柄立即出现）
-      document.querySelectorAll('#designTools .btn[data-dt]').forEach(x => x.classList.toggle('on', x.dataset.dt === dt));
       if (ui.tool === 'draw' && innerWidth <= 900) document.querySelector('aside.lib')?.classList.remove('open');   // 手机上选完工具收起抽屉
       syncModeHint();
       if (dt === 'rotate') {
@@ -10695,7 +10731,7 @@
         else if (typeof o.x === 'number' && typeof o.y === 'number') { o.x += dx; o.y += dy; }
       };
       host.addEventListener('pointerdown', e => {
-        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && ui.drawTool !== 'select' && ui.drawTool !== 'rotate')) return;   // 绘制态不启动对象拖动
+        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && ui.drawTool !== 'move')) return;   // 仅「移动」工具可拖动对象，与 2D 一致
         const h = pick(e), g = groundAt(e.clientX, e.clientY);
         if (!g) return;
         if (ui.sel.kind === 'furn') {
@@ -10718,7 +10754,7 @@
         if (objdrag && e.pointerId === objdrag.pid) {
           if (!objdrag.moved && Math.hypot(e.clientX - objdrag.sx, e.clientY - objdrag.sy) < TAP) return;
           const g = groundAt(e.clientX, e.clientY); if (!g) return;
-          objdrag.moved = true; cv.style.cursor = 'grabbing';
+          objdrag.moved = true; cv.style.cursor = 'move';
           const step = e.shiftKey ? 50 : 10, info = objdrag.openInfo;
           if (info) {                                                // 门窗：沿墙投影，改中心位置 / 原始门窗偏移
             const t = Math.round(((g.x - objdrag.gx) * info.axis[0] + (g.y - objdrag.gy) * info.axis[1]) / step) * step;
@@ -10740,13 +10776,13 @@
         if (!fdrag || e.pointerId !== fdrag.pid) return;
         if (!fdrag.moved && Math.hypot(e.clientX - fdrag.sx, e.clientY - fdrag.sy) < TAP) return;
         const f = getF(fdrag.id), g = groundAt(e.clientX, e.clientY); if (!f || !g) return;
-        fdrag.moved = true; cv.style.cursor = 'grabbing';
+        fdrag.moved = true; cv.style.cursor = 'move';
         [f.cx, f.cy] = snapMove(f, g.x - fdrag.ox, g.y - fdrag.oy);
         furnG.children.find(o => o.userData.fid === f.id)?.position.set(wx(f.cx), 0, wz(f.cy));   // 拖动中只挪模型，松手再整体同步
       });
       const endF = e => {
         if (objdrag && e.pointerId === objdrag.pid) {
-          const d = objdrag; objdrag = null; orbit.enabled = true; cv.style.cursor = '';
+          const d = objdrag; objdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool();
           const info = d.openInfo;
           let ok = false;
           if (d.moved && (d.dx || d.dy)) {
@@ -10758,7 +10794,7 @@
           return;
         }
         if (!fdrag || e.pointerId !== fdrag.pid) return;
-        const d = fdrag; fdrag = null; orbit.enabled = true; cv.style.cursor = '';
+        const d = fdrag; fdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool();
         if (d.moved) { commit(d.before); markDirty(); renderAll(); }
       };
       cv.addEventListener('pointerup', endF); cv.addEventListener('pointercancel', endF);
@@ -10775,7 +10811,7 @@
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
-        if (ui.tool === 'draw' && !m3dPreview && ui.drawTool !== 'select' && ui.drawTool !== 'rotate') {   // 3D 绘制：地面落点直接复用 2D 建筑工具
+        if (ui.tool === 'draw' && !m3dPreview && !['select', 'move', 'rotate'].includes(ui.drawTool)) {   // 3D 绘制：地面落点直接复用 2D 建筑工具
           const g = groundAt(e.clientX, e.clientY); if (g) window.drawAt3D?.({ x: g.x, y: g.y }, e.shiftKey);
           return;
         }
@@ -10801,15 +10837,31 @@
       const doorHi = new THREE.Mesh(new THREE.BoxGeometry(1, 1, 1), new THREE.MeshBasicMaterial({ color: '#b5653a', transparent: true, opacity: .26, depthWrite: false }));
       doorHi.visible = false; scene.add(doorHi); doorHiRef = doorHi;
       const doorTip = document.createElement('div'); doorTip.id = 'doorTip'; document.body.appendChild(doorTip);
+      // 光标三态：选择 = 系统默认箭头；移动 = 四向箭头；其它绘制工具 = 十字（与 2D 一致）
+      const cursorForTool = () => {
+        if (ui.tool === 'draw' && !m3dPreview) {
+          if (ui.drawTool === 'move') return 'move';
+          if (ui.drawTool !== 'select') return 'crosshair';
+        }
+        return '';
+      };
       let doorHover = null;
       const clearDoorHover = () => {
         if (doorHover) { doorHi.removeFromParent(); doorHi.visible = false; doorHover = null; }
-        cv.style.cursor = ''; doorTip.classList.remove('open');
+        cv.style.cursor = cursorForTool(); doorTip.classList.remove('open');
       };
       window.clearDoorHover = clearDoorHover;
       cv.addEventListener('pointermove', e => {
-        if (!active || anim || fdrag || opt.mode !== 'orbit' || e.pointerType !== 'mouse' || !matchMedia('(hover:hover)').matches) { clearDoorHover(); return; }
+        if (fdrag || objdrag) return;                           // 拖动中保留工具光标，不被悬停逻辑清掉
+        const baseCur = cursorForTool();
+        if (!active || anim || opt.mode !== 'orbit' || e.pointerType !== 'mouse' || !matchMedia('(hover:hover)').matches) { cv.style.cursor = baseCur; doorTip.classList.remove('open'); return; }
         const h = pick(e);
+        if (baseCur === 'move') {                               // 移动工具：四向箭头
+          clearDoorHover(); cv.style.cursor = 'move'; return;
+        }
+        if (baseCur === 'crosshair') {                          // 其它绘制工具：十字
+          clearDoorHover(); cv.style.cursor = 'crosshair'; return;
+        }
         if (h?.door && h.mesh) {
           if (doorHover !== h.mesh) {                                    // 换门：把高亮层挂到新门扇（随开门动画一起转）
             const p = h.mesh.geometry.parameters;
@@ -10818,14 +10870,14 @@
             h.mesh.add(doorHi);
             doorHover = h.mesh;
           }
-          cv.style.cursor = 'pointer';
+          cv.style.cursor = baseCur;                              // 光标服从当前工具：选择=原鼠标，移动=四箭头，绘制=十字
           doorTip.textContent = h.door.win
             ? (h.door.open ? tr('点击关窗', 'Click to close') : tr('点击开窗', 'Click to open'))
             : (h.door.open ? tr('点击关门', 'Click to close') : tr('点击开门', 'Click to open'));
           doorTip.classList.add('open');
           doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
         } else if (h?.flagSel || h?.flagHandle) {                      // 旗杆：同款气泡提示升 / 降旗
-          cv.style.cursor = 'pointer';
+          cv.style.cursor = baseCur;                              // 光标服从当前工具：选择=原鼠标，移动=四箭头，绘制=十字
           const ex = (state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle));
           const top = ex ? (ex.h ?? 6000) : 6000;
           const up = ex && (ex.flagY ?? Math.round(top * .9)) > top * .6;
@@ -12985,21 +13037,30 @@
             panel(x0 + .02, cz, d, Math.PI / 2); panel(x0 + w - .02, cz, d, Math.PI / 2);
             return;
           }
-          if (T3 === 'park') {                                  // 停车位：地面标线（四条边线 + 入口横线）
-            const m = mat('#e9e6dd', { roughness: .9 }), y = .02;
-            box(w, .01, .06, cx, y, z0 + .03, m); box(w, .01, .06, cx, y, z0 + d - .03, m);
-            box(.06, .01, d, x0 + .03, y, cz, m); box(.06, .01, d, x0 + w - .03, y, cz, m);
-            const ang = ((+e.dir || 0) % 360) * Math.PI / 180, md = Math.min(w, d);
+          if (T3 === 'park') {                                  // 停车位：地面标线（四条边线 + 入口横线，标准黄色）
+            const m = mat('#f2c531', { roughness: .85 }), y = .02;
+            const rot = ((+e.rot || 0) % 360);                    // 整车位旋转：所有标线 / 箭头 / 挡轮杆包进同一 Group 绕中心转
+            const grp = new THREE.Group(); grp.position.set(cx, 0, cz); grp.rotation.y = -rot * Math.PI / 180;
+            archUp.add(grp);
+            const lbox = (bw, bh, bd, x, yy, z, ry = 0) => {     // 相对车位中心的 box
+              const b = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), m);
+              b.position.set(x, yy, z); b.rotation.y = ry; b.castShadow = b.receiveShadow = true; grp.add(b); return b;
+            };
+            lbox(w, .01, .06, 0, y, -d / 2 + .03); lbox(w, .01, .06, 0, y, d / 2 - .03);
+            lbox(.06, .01, d, -w / 2 + .03, y, 0); lbox(.06, .01, d, w / 2 - .03, y, 0);
+            const ang = ((+e.dir || 0) % 360) * Math.PI / 180, md = Math.min(w, d);   // dir 只控制箭头，坐标相对车位中心
             const uX = Math.sin(ang), uZ = -Math.cos(ang);       // 0° = 朝上（-Z）
             const al = md * .55, ah = Math.max(.07, md * .18), ahw = Math.max(.05, md * .11), ay = y + .006;
-            box(al - ah, .008, .1, cx - uX * ah / 2, ay, cz - uZ * ah / 2, m, Math.PI / 2 - ang);   // 箭杆
-            const tX = cx + uX * al / 2, tZ = cz + uZ * al / 2, bX = cx + uX * (al / 2 - ah), bZ = cz + uZ * (al / 2 - ah);
+            lbox(al - ah, .008, .1, -uX * ah / 2, ay, -uZ * ah / 2, Math.PI / 2 - ang);   // 箭杆
+            const tX = uX * al / 2, tZ = uZ * al / 2, bX = uX * (al / 2 - ah), bZ = uZ * (al / 2 - ah);
             const pX = -uZ, pZ = uX, geo = new THREE.BufferGeometry();
             geo.setAttribute('position', new THREE.Float32BufferAttribute([
               tX, ay, tZ, bX - pX * ahw, ay, bZ - pZ * ahw, bX + pX * ahw, ay, bZ + pZ * ahw
             ], 3));
             geo.computeVertexNormals();
-            const tri = new THREE.Mesh(geo, m); tri.receiveShadow = true; archUp.add(tri);   // 箭头三角
+            const tri = new THREE.Mesh(geo, m); tri.receiveShadow = true; grp.add(tri);   // 箭头三角
+            const barW = Math.max(.3, w - .3);                    // 挡轮杆固定在车位局部下沿（+Z）
+            lbox(barW, .11, .14, 0, .075, d / 2 - .25);
             return;
           }
           if (T3 === 'pavilion') {                              // 凉亭：四角立柱 + 顶盖（外挑 150）
