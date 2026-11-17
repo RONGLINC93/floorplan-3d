@@ -2446,8 +2446,8 @@
             <button class="btn chip" data-dt="stair" title="点击放置一部直跑楼梯（默认 1000×4000，升 2800；方向/尺寸可在右侧改，漫游可走上去）"
               data-en-title="Click to place a straight stair (1000×4000, rise 2800 by default; direction / size editable, walkable in 3D)"
               data-en="Stair"><i data-lucide="arrow-up-narrow-wide"></i>楼梯</button>
-            <button class="btn chip" data-dt="stair2" title="点击放置双跑（U 形折返）楼梯：两跑并行、端部带休息平台，默认 1000×4000 升 2800"
-              data-en-title="Click to place a switchback (U-shaped) stair: two parallel flights with an end landing, 1000×4000, rise 2800"
+            <button class="btn chip" data-dt="stair2" title="点击放置双跑（U 形折返）楼梯：两跑并行、两端均带休息平台（远端折返、起点端到顶），默认 1000×4000 升 2800"
+              data-en-title="Click to place a switchback (U-shaped) stair: two parallel flights with landings at both ends (far-end turn, start-end arrival), 1000×4000, rise 2800"
               data-en="U-stair"><i data-lucide="corner-up-left"></i>双跑楼梯</button>
             <button class="btn chip" data-dt="stair3" title="点击放置三跑楼梯：折返两次、三跑并排、中间两块休息平台，默认 1000×5000 升 2800"
               data-en-title="Click to place a three-flight stair: two turns, three parallel flights with two landings, 1000×5000, rise 2800"
@@ -3821,8 +3821,7 @@
       const Wtot = cols * w + (cols - 1) * gap;              // 总宽（多跑并排，中间留 100 梯井）
       const land = w;                                        // 平台进深 = 梯宽
       const run = N === 1 ? s.len
-        : N === 2 ? Math.max(600, s.len - land)
-          : Math.max(600, s.len - 2 * land);                 // 三跑 / 正三跑：两端各一块平台，中间梯段同长
+        : Math.max(600, s.len - 2 * land);                   // 双跑 / 三跑 / 正三跑：两端各一块平台，中间梯段同长
       const zc = i => -Wtot / 2 + w / 2 + i * (w + gap);
       const H = s.rise ?? 2800;
       const runs = [], lands = [];
@@ -3836,11 +3835,12 @@
           const off = dbl ? (+s.landOff || 0) * w / 2 : 0;    // 偏向只对双平台生效（按半个梯宽平移，负 = 左）
           lands.push({ x0: xm, x1: s.len / 2, z0: off - zw / 2, z1: off + zw / 2, after: 0 });
         }
-      } else if (N === 2) {                                  // 双跑：一跑上行 → 端部平台 → 二跑折返上行
-        const xm = -s.len / 2 + run;
-        runs.push({ x0: -s.len / 2, x1: xm, dir: 1, z: zc(0) });
-        runs.push({ x0: xm, x1: -s.len / 2, dir: -1, z: zc(1) });   // 折返：从平台边缘回到起点端
-        lands.push({ x0: xm, x1: s.len / 2, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 });
+      } else if (N === 2) {                                  // 双跑：近端起步平台 → 一跑上行 → 远端平台折返 → 二跑上行回到近端平台
+        const xs = -s.len / 2 + land, xe = xs + run;
+        runs.push({ x0: xs, x1: xe, dir: 1, z: zc(0) });
+        runs.push({ x0: xe, x1: xs, dir: -1, z: zc(1) });   // 折返：从平台边缘回到起点端
+        lands.push({ x0: xe, x1: s.len / 2, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 });   // 远端平台：接一跑顶
+        lands.push({ x0: -s.len / 2, x1: xs, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 });  // 近端平台：接二跑顶（上层到达面）
       } else if (stack) {                                    // 正三跑：一跑 → 远端平台 → 二跑折返 → 近端平台 → 三跑叠在一跑正上方
         const xs = -s.len / 2 + land, xe = xs + run;
         runs.push({ x0: xs, x1: xe, dir: 1, z: zc(0) });
@@ -8490,8 +8490,12 @@
           return;
         }
         if (ui.drawTool === 'stair' || ui.drawTool === 'stair2' || ui.drawTool === 'stair3' || ui.drawTool === 'stair3s') {   // 楼梯：点哪里放哪里（直跑 / 双跑 / 三跑 / 正三跑）
+          const q = snapPoint(p, e.shiftKey), id = uid();
+          const runs = ui.drawTool === 'stair' ? 1 : ui.drawTool === 'stair2' ? 2 : 3, st = ui.drawTool === 'stair3s';
+          mutate(() => { state.stairs = state.stairs || []; state.stairs.push({ id, x: Math.round(q.x), y: Math.round(q.y), w: 1000, len: 4000, dir: 0, rise: 2800, runs, ...(st ? { stack: true } : {}) }); });
+          select({ kind: 'stair', id });
           toast(runs === 1 ? tr('已放直跑楼梯 · 方向/尺寸在右侧改，漫游可以走上去', 'Straight stair added · edit direction/size in the panel; walk up in 3D')
-            : runs === 2 ? tr('已放双跑楼梯（U 形折返）· 端部自动带休息平台', 'Double-run stair added (U-turn) with an end landing')
+            : runs === 2 ? tr('已放双跑楼梯（U 形折返）· 两端均带休息平台，端部折返、起点端到顶', 'Double-run stair added (U-turn) with landings at both ends — turn landing at the far end, arrival platform at the start end')
               : st ? tr('已放正三跑楼梯 · 第三跑叠在第一跑正上方，平面只占两跑宽', 'Stacked triple stair added · third run sits above the first, footprint = two runs wide')
                 : tr('已放三跑楼梯 · 折返两次，三跑并排、中间两块休息平台', 'Triple-run stair added with two landings'));
           return;
