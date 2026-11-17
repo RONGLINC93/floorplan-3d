@@ -543,7 +543,8 @@
       opacity: 0;
       transition: opacity .2s;
       pointer-events: none;
-      z-index: 20                  /* 提示信息始终压在左上角 / 顶部中间 / 右上角浮件之上 */
+      z-index: 20
+        /* 提示信息始终压在左上角 / 顶部中间 / 右上角浮件之上 */
     }
 
     .modehint.show {
@@ -2323,181 +2324,353 @@
           <h4 data-en="Rooms · click to fly there">房间 · 点击飞到该房间</h4>
           <div id="roomList"></div>
         </div>
-        <div class="archhint" id="libHint" hidden data-en="Preview mode: furniture cannot be added or edited. Switch to Design to edit.">当前为预览模式，家具不可添加或编辑；切到「设计」后即可操作。</div>
+        <div class="archhint" id="libHint" hidden
+          data-en="Preview mode: furniture cannot be added or edited. Switch to Design to edit.">
+          当前为预览模式，家具不可添加或编辑；切到「设计」后即可操作。</div>
         <div id="lib"></div>
       </div>
       <div id="libPaneArch" hidden>
-      <div class="archhint" id="archHint" data-en="Preview mode: tools are unavailable. Tap "Design" at the top to start editing.">当前为预览模式，工具暂不可用；点顶部「设计」后即可使用。</div>
-      <div id="designTools">
-        <div class="dtg"><div class="dth" data-en="Basics">基础</div>
-          <button class="btn chip on" data-dt="select"
-          title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手）"
-          data-en-title="Click to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Delete removes, Alt+drag starts anywhere)" data-en="Select"><i
-          data-lucide="mouse-pointer-2"></i>选择</button>
-          <button class="btn chip" data-dt="rotate" title="旋转：点此工具后直接在画板上点选对象（可多选），点空白处或回车结束选择，再点基点；移动鼠标旋转，再点一下确认，也可输入角度回车"
-          data-en-title="Rotate: click this tool, then click objects on the canvas (multiple OK). Click empty space or press Enter to finish picking, pick a base point, move to rotate, click to confirm — or type an angle" data-en="Rotate"><i
-          data-lucide="rotate-cw"></i>旋转</button>
-          <button class="btn chip" data-dt="wall" title="点击两点画一段墙，可连续画；也可先点起点，输入长度后回车。方向约束（直角 / 自由）在画板下方切换" data-en-title="Click two points to draw a wall segment (continuous); or click a start point, type a length and press Enter. Ortho / free constraint toggles below the canvas" data-en="Wall"><i
-          data-lucide="brick-wall"></i>画墙</button>
-          <button class="btn chip" data-dt="room" title="区域：点击两个对角点拉出一个矩形区域（地面），可用来定义客厅、卧室、厕所、过道、阳台等；可在属性面板改名称与地面材料" data-en-title="Room area: click two opposite corners to draw a rectangular floor zone (living room, bedroom, bathroom, corridor, balcony…); rename and set flooring in the panel" data-en="Room"><i
-          data-lucide="square"></i>区域</button>
-          <button class="btn chip" data-dt="paint" title="材质刷：先用「选择」点一个房间作为样板（或在右侧选好材料），再点其他房间逐个刷地面材料" data-en-title="Material brush: pick a sample room with Select (or choose the material on the right), then click other rooms to apply the flooring one by one" data-en="Paint"><i
-          data-lucide="paint-bucket"></i>材质刷</button>
+        <div class="archhint" id="archHint" data-en="Preview mode: tools are unavailable. Tap " Design" at the top to
+          start editing.">当前为预览模式，工具暂不可用；点顶部「设计」后即可使用。</div>
+        <div id="designTools">
+          <div class="dtg">
+            <div class="dth" data-en="Basics">基础</div>
+            <button class="btn chip on" data-dt="select"
+              title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手）"
+              data-en-title="Click to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Delete removes, Alt+drag starts anywhere)"
+              data-en="Select"><i data-lucide="mouse-pointer-2"></i>选择</button>
+            <button class="btn chip" data-dt="rotate"
+              title="旋转：点此工具后直接在画板上点选对象（可多选），点空白处或回车结束选择，再点基点；移动鼠标旋转，再点一下确认，也可输入角度回车"
+              data-en-title="Rotate: click this tool, then click objects on the canvas (multiple OK). Click empty space or press Enter to finish picking, pick a base point, move to rotate, click to confirm — or type an angle"
+              data-en="Rotate"><i data-lucide="rotate-cw"></i>旋转</button>
+            <button class="btn chip" data-dt="wall" title="点击两点画一段墙，可连续画；也可先点起点，输入长度后回车。方向约束（直角 / 自由）在画板下方切换"
+              data-en-title="Click two points to draw a wall segment (continuous); or click a start point, type a length and press Enter. Ortho / free constraint toggles below the canvas"
+              data-en="Wall"><i data-lucide="brick-wall"></i>画墙</button>
+            <button class="btn chip" data-dt="room" title="区域：点击两个对角点拉出一个矩形区域（地面），可用来定义客厅、卧室、厕所、过道、阳台等；可在属性面板改名称与地面材料"
+              data-en-title="Room area: click two opposite corners to draw a rectangular floor zone (living room, bedroom, bathroom, corridor, balcony…); rename and set flooring in the panel"
+              data-en="Room"><i data-lucide="square"></i>区域</button>
+            <button class="btn chip" data-dt="paint" title="材质刷：先用「选择」点一个房间作为样板（或在右侧选好材料），再点其他房间逐个刷地面材料"
+              data-en-title="Material brush: pick a sample room with Select (or choose the material on the right), then click other rooms to apply the flooring one by one"
+              data-en="Paint"><i data-lucide="paint-bucket"></i>材质刷</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Doors">门</div>
+            <button class="btn chip" data-dt="door" title="点击墙上的位置放一个 900mm 房门"
+              data-en-title="Click a wall to place a 900mm door" data-en="Door"><i
+                data-lucide="door-open"></i>房门</button>
+            <button class="btn chip" data-dt="dble" title="点击墙上的位置放一个 1500mm 双开门（两扇对开，3D 中点击可开合）"
+              data-en-title="Click a wall to place a 1500mm double door (two leaves, click to open / close in 3D)"
+              data-en="Double door"><i data-lucide="columns-2"></i>双开门</button>
+            <button class="btn chip" data-dt="zimu" title="点击墙上的位置放一个 1200mm 子母门（大扇 + 小扇，3D 中点击可开合）"
+              data-en-title="Click a wall to place a 1200mm unequal double door (wide + narrow leaf, click to open / close in 3D)"
+              data-en="Unequal door"><i data-lucide="panel-left"></i>子母门</button>
+            <button class="btn chip" data-dt="yak" title="点击墙上的位置开一个 1200mm 垭口（只有门洞和门套，没有门扇，可直接通行）"
+              data-en-title="Click a wall for a 1200mm cased opening (frame only, no leaf, walk-through)"
+              data-en="Cased opening"><i data-lucide="rectangle-horizontal"></i>垭口</button>
+            <button class="btn chip" data-dt="hole"
+              title="预留洞 / 窗洞：点击墙上的位置开一个无框洞口（默认 900 宽、窗台 900、洞高 900），2D 虚线示意，3D 只开洞不装窗"
+              data-en-title="Reserved opening: click a wall for a frameless opening (900 wide, sill 900, height 900 by default); dashed in 2D, hole only in 3D"
+              data-en="Opening"><i data-lucide="square-dashed"></i>预留洞</button>
+            <button class="btn chip" data-dt="arch" title="点击墙上的位置开一个 1200mm 拱形门洞（直段 2100 + 拱高 600，带弧形门套，无门扇，可直接通行）"
+              data-en-title="Click a wall for a 1200mm arched opening (straight 2100 + rise 600, arched frame, no leaf, walk-through)"
+              data-en="Arch opening"><i data-lucide="door-open"></i>拱形门洞</button>
+            <button class="btn chip" data-dt="sd" title="点击墙上的位置放一个 900mm 单扇推拉门（室内用，3D 中点击门扇可推开）"
+              data-en-title="Click a wall to place a 900mm single sliding door (indoor; click the leaf in 3D to slide it open)"
+              data-en="Slider"><i data-lucide="panel-right-close"></i>单扇推拉门</button>
+            <button class="btn chip" data-dt="fold" title="点击墙上的位置放一个 1800mm 折叠门（多扇折叠，3D 中显示为折起状态，可直接通行）"
+              data-en-title="Click a wall to place a 1800mm folding door (multi-leaf, shown folded in 3D, walk-through)"
+              data-en="Folding door"><i data-lucide="panel-right-open"></i>折叠门</button>
+            <button class="btn chip" data-dt="slid" title="点击墙上的位置放一个 2400mm 落地推拉门（通顶玻璃双扇，3D 中点击可开合）"
+              data-en-title="Click a wall to place a 2400mm floor-to-ceiling sliding glass door (two full-height leaves, click to open / close in 3D)"
+              data-en="Glass slider"><i data-lucide="arrow-left-right"></i>落地推拉门</button>
+            <button class="btn chip" data-dt="auto" title="自动感应门：点击墙面放置 2400mm 玻璃自动门（两扇对开），3D 中点击门扇可开合"
+              data-en-title="Automatic door: click a wall for a 2400mm glass auto door (two sliding leaves); click a leaf to open / close in 3D"
+              data-en="Auto door"><i data-lucide="move-horizontal"></i>自动门</button>
+            <button class="btn chip" data-dt="revolve" title="旋转门：点击墙面放置 2000mm 旋转门（十字四翼玻璃），3D 为圆筒玻璃与旋翼"
+              data-en-title="Revolving door: click a wall for a 2000mm revolving door (four glass wings); cylinder + wings in 3D"
+              data-en="Revolving door"><i data-lucide="rotate-cw"></i>旋转门</button>
+            <button class="btn chip" data-dt="elev" title="点击墙上的位置开一个 900mm 电梯门（金属中分双扇，3D 中点击可开合）"
+              data-en-title="Click a wall for a 900mm elevator door (metal centre-split leaves, click to open / close in 3D)"
+              data-en="Lift door"><i data-lucide="door-closed"></i>电梯门</button>
+            <button class="btn chip" data-dt="roller" title="点击墙上的位置开一个 1800mm 卷帘门（车库 / 店铺，3D 中常闭不可穿行）"
+              data-en-title="Click a wall for a 1800mm roller shutter (garage / shop; closed and blocking in 3D)"
+              data-en="Roller shutter"><i data-lucide="panel-top"></i>卷帘门</button>
+            <button class="btn chip" data-dt="entry" title="点击一个门洞（原始门洞或自画的门），把它设为入户门（全局唯一；再次点击其它门洞即转移）"
+              data-en-title="Click an opening (original or drawn) to set it as the entry door (unique; click another opening to move it)"
+              data-en="Entry"><i data-lucide="log-in"></i>入户</button>
+            <button class="btn chip" data-dt="seal" title="封洞：点击一个已有的门窗洞口把它封上（连同门扇 / 窗扇一起删除，相当于拆改中的封堵）"
+              data-en-title="Seal: click an existing door / window opening to fill it (removes the leaf too, as in renovation sealing)"
+              data-en="Seal"><i data-lucide="eraser"></i>封洞</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Windows">窗</div>
+            <button class="btn chip" data-dt="win" title="点击墙上的位置放一个 1200mm 窗户"
+              data-en-title="Click a wall to place a 1200mm window" data-en="Window"><i
+                data-lucide="blinds"></i>窗户</button>
+            <button class="btn chip" data-dt="hwin" title="点击墙上的位置放一个 1200mm 高窗（窗台抬高，默认 1400mm，适合卫生间 / 楼梯间）"
+              data-en-title="Click a wall to place a 1200mm high window (raised sill, 1400mm by default; for bathrooms / stairwells)"
+              data-en="High window"><i data-lucide="panel-top"></i>高窗</button>
+            <button class="btn chip" data-dt="swin" title="点击墙上的位置放一个 1500mm 推拉窗（双扇左右推拉，3D 中点击窗扇可推开）"
+              data-en-title="Click a wall to place a 1500mm sliding window (two sashes; click a sash in 3D to slide it open)"
+              data-en="Sliding window"><i data-lucide="arrow-left-right"></i>推拉窗</button>
+            <button class="btn chip" data-dt="fwin" title="点击墙上的位置放一个 1800mm 落地窗（通顶玻璃）"
+              data-en-title="Click a wall to place a 1800mm floor-to-ceiling window (full-height glass)"
+              data-en="Floor window"><i data-lucide="rectangle-vertical"></i>落地窗</button>
+            <button class="btn chip" data-dt="dwin" title="点击墙上的位置放一个 1500mm 门连窗（左侧门扇 + 右侧可开窗，3D 中可推开）"
+              data-en-title="Click a wall to place a 1500mm door with window (door leaf + openable window, openable in 3D)"
+              data-en="Door + window"><i data-lucide="gallery-vertical-end"></i>门连窗</button>
+            <button class="btn chip" data-dt="bay" title="点击墙上的位置放一个 1500mm 飘窗（窗台 500，向外凸出 600，进深与朝向可改）"
+              data-en-title="Click a wall to place a 1500mm bay window (sill 500, protrudes 600; depth and side editable)"
+              data-en="Bay window"><i data-lucide="app-window"></i>飘窗</button>
+            <button class="btn chip" data-dt="lbay"
+              title="转角飘窗：点击两面墙的直角转角处，生成一个整体的 转角飘窗（两段默认各 1200mm，进深 600、窗台 500、窗高 1200；窗台 / 窗高 / 进深两段共用，第二段宽度可单独改）"
+              data-en-title="Corner bay window: click a right-angle corner of two walls for one L-shaped unit with two legs (1200mm each by default); sill / height / depth shared, second leg width editable"
+              data-en="Corner bay"><i data-lucide="corner-up-right"></i>转角飘窗</button>
+            <button class="btn chip" data-dt="cornerwin" title="转角窗：点击两面墙的直角转角处，在两面墙上各放一樘 1200mm 落地玻璃（临空转角连续采光，无外凸）"
+              data-en-title="Corner window: click a right-angle corner; a 1200mm floor-to-ceiling pane on each wall (continuous corner glazing, no protrusion)"
+              data-en="Corner window"><i data-lucide="corner-down-right"></i>转角窗</button>
+            <button class="btn chip" data-dt="louver" title="点击墙上的位置放一个 1200mm 百叶窗（倾斜叶片，3D 中不可开启）"
+              data-en-title="Click a wall to place a 1200mm louver window (fixed blades, not openable in 3D)"
+              data-en="Louver"><i data-lucide="align-justify"></i>百叶窗</button>
+            <button class="btn chip" data-dt="cwin" title="点击墙上的位置放一个 900mm 圆窗（圆形洞口，窗台默认 900mm）"
+              data-en-title="Click a wall to place a 900mm round window (circular opening, sill 900mm by default)"
+              data-en="Round window"><i data-lucide="circle"></i>圆窗</button>
+            <button class="btn chip" data-dt="strip" title="带形窗：点击墙面放置一樘 3000mm 长条窗（窗台默认 600、窗高 1500，可拉长，3D 按约 1200 分格）"
+              data-en-title="Strip window: click a wall for a 3000mm ribbon window (sill 600, height 1500, stretchable; mullions every ~1200mm in 3D)"
+              data-en="Strip window"><i data-lucide="stretch-horizontal"></i>带形窗</button>
+            <button class="btn chip" data-dt="sill" title="窗台板：沿窗洞外侧点起点、终点；默认板宽 250、板厚 40、台面标高 900，3D 为出挑台面板"
+              data-en-title="Window board: click start and end along the outside of the opening; board 250 wide, 40 thick, top at 900; cantilevered board in 3D"
+              data-en="Window board"><i data-lucide="panel-right"></i>窗台板</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Stairs & Ramps">楼梯 · 坡道</div>
+            <button class="btn chip" data-dt="stair" title="点击放置一部直跑楼梯（默认 1000×4000，升 2800；方向/尺寸可在右侧改，漫游可走上去）"
+              data-en-title="Click to place a straight stair (1000×4000, rise 2800 by default; direction / size editable, walkable in 3D)"
+              data-en="Stair"><i data-lucide="arrow-up-narrow-wide"></i>楼梯</button>
+            <button class="btn chip" data-dt="stair2" title="点击放置双跑（U 形折返）楼梯：两跑并行、端部带休息平台，默认 1000×4000 升 2800"
+              data-en-title="Click to place a switchback (U-shaped) stair: two parallel flights with an end landing, 1000×4000, rise 2800"
+              data-en="U-stair"><i data-lucide="corner-up-left"></i>双跑楼梯</button>
+            <button class="btn chip" data-dt="stair3" title="点击放置三跑楼梯：折返两次、三跑并排、中间两块休息平台，默认 1000×5000 升 2800"
+              data-en-title="Click to place a three-flight stair: two turns, three parallel flights with two landings, 1000×5000, rise 2800"
+              data-en="3-flight stair"><i data-lucide="route"></i>三跑楼梯</button>
+            <button class="btn chip" data-dt="stair3s" title="点击放置正三跑楼梯：第三跑叠在第一跑正上方，平面只占两跑宽（1000×4000 升 2800）"
+              data-en-title="Click to place a stacked three-flight stair: third flight directly above the first, plan width of two flights (1000×4000, rise 2800)"
+              data-en="Stack stair"><i data-lucide="layers"></i>正三跑</button>
+            <button class="btn chip" data-dt="ramp" title="点击放置一段坡道（默认 1200×4000 升 600，坡度 / 方向可在右侧改）"
+              data-en-title="Click to place a ramp (1200×4000, rise 600 by default; slope / direction editable)"
+              data-en="Ramp"><i data-lucide="trending-up"></i>坡道</button>
+            <button class="btn chip" data-dt="steps" title="点击放置一组台阶（默认 1200 宽 × 1200 长，3 级共升 450，级数 / 方向可在右侧改）"
+              data-en-title="Click to place steps (1200 wide × 1200 long, 3 steps rising 450 by default; count / direction editable)"
+              data-en="Steps"><i data-lucide="chevrons-up"></i>台阶</button>
+            <button class="btn chip" data-dt="spiral"
+              title="螺旋楼梯：点击放置（默认外径 1400、升 2800，绕中心柱逐级盘旋）；外径 / 爬升 / 级数 / 转向 / 方向可在右侧改，3D 为中心柱 + 楔形踏步 + 螺旋扶手，漫游可上下"
+              data-en-title="Spiral stair: click to place (⌀1400, rise 2800 by default); steps wind around a centre post; diameter / rise / steps / turn editable in 3D with spiral handrail, walkable"
+              data-en="Spiral stair"><i data-lucide="shell"></i>螺旋楼梯</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Structure">结构 · 构件</div>
+            <button class="btn chip" data-dt="pillar" title="点击放置一根柱子（默认方柱 400mm，通顶并占位挡路；右侧可改圆/方与尺寸，可直接拖动）"
+              data-en-title="Click to place a column (400mm square by default, full height, blocks walking; round / square and size editable, draggable)"
+              data-en="Column"><i data-lucide="columns-3"></i>柱子</button>
+            <button class="btn chip" data-dt="beam" title="梁：第一次点起点，第二次点终点；默认 200 宽 × 300 高、底标高 2400，可在右侧调"
+              data-en-title="Beam: click start then end; 200 wide × 300 high, underside at 2400 by default, editable"
+              data-en="Beam"><i data-lucide="rectangle-horizontal"></i>梁</button>
+            <button class="btn chip" data-dt="slab" title="楼板 / 挑板：两次点击对角点生成矩形板；板厚、底标高可改（底标高改 0 即落地楼板）"
+              data-en-title="Slab / cantilever: click two opposite corners; thickness and underside editable (set underside to 0 for a floor slab)"
+              data-en="Slab"><i data-lucide="box"></i>楼板</button>
+            <button class="btn chip" data-dt="slabhole" title="楼板洞口：两次点击对角点；2D 虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边"
+              data-en-title="Slab opening: click two opposite corners; dashed outline with diagonal cross in 2D, hole with upstand cut into the slab in 3D"
+              data-en="Slab hole"><i data-lucide="square-dashed"></i>楼板洞口</button>
+            <button class="btn chip" data-dt="ceil" title="吊顶 / 局部下沉顶：两次点击对角点；默认板厚 150、底标高 2500，2D 虚线轮廓，3D 生成顶板"
+              data-en-title="Ceiling / dropped soffit: click two opposite corners; 150 thick, underside at 2500 by default; dashed outline in 2D, ceiling slab in 3D"
+              data-en="Ceiling"><i data-lucide="panel-top"></i>吊顶</button>
+            <button class="btn chip" data-dt="parapet" title="女儿墙：第一次点起点，第二次点终点；默认 120 厚 × 900 高、带压顶，长度 / 厚 / 高 / 底标高可改"
+              data-en-title="Parapet: click start then end; 120 thick × 900 high with coping by default; length / thickness / height / underside editable"
+              data-en="Parapet"><i data-lucide="fence"></i>女儿墙</button>
+            <button class="btn chip" data-dt="halfwall"
+              title="矮墙 / 半墙：第一次点起点，第二次点终点；默认 120 厚 × 1100 高、落地带压顶，适合电视半墙 / 卫生间隔断，长度 / 厚 / 高可改"
+              data-en-title="Half wall: click start then end; 120 thick × 1100 high with coping by default; for TV half-walls / bathroom partitions, length / thickness / height editable"
+              data-en="Half wall"><i data-lucide="brick-wall"></i>矮墙</button>
+            <button class="btn chip" data-dt="roof" title="屋顶：两次点击对角点，默认双坡屋顶（起坡高 1200、挑檐 500、檐口 2800），可切换单坡，起坡 / 挑檐可改"
+              data-en-title="Roof: click two opposite corners; gable roof by default (rise 1200, overhang 500, eave 2800), single-slope switchable; rise / overhang editable"
+              data-en="Roof"><i data-lucide="home"></i>屋顶</button>
+            <button class="btn chip" data-dt="arcwall" title="弧形墙：第一次点起点，第二次点终点，默认向左侧拱起 600mm；弧高 / 厚度 / 高度可改，可一键反向"
+              data-en-title="Arc wall: click start then end; bulges 600mm to the left by default; rise / thickness / height editable, one-click flip"
+              data-en="Arc wall"><i data-lucide="circle-dashed"></i>弧形墙</button>
+            <button class="btn chip" data-dt="rail" title="栏杆：第一次点起点，第二次点终点；默认 1000 高直杆，可换玻璃栏板，长度 / 高度可调"
+              data-en-title="Railing: click start then end; 1000-high posts by default, glass panel option; length / height adjustable"
+              data-en="Railing"><i data-lucide="fence"></i>栏杆</button>
+            <button class="btn chip" data-dt="part" title="玻璃隔断：第一次点起点，第二次点终点；默认 2400 高通高玻璃，带上下边框与竖梃，长度 / 高度可调"
+              data-en-title="Glass partition: click start then end; 2400-high full glass with top / bottom frames and mullions by default; length / height adjustable"
+              data-en="Partition"><i data-lucide="columns-2"></i>玻璃隔断</button>
+            <button class="btn chip" data-dt="drain"
+              title="线性排水沟 / 地漏：第一次点起点，第二次点终点；默认 80 宽，2D 带格栅横线，3D 为下沉槽体加不锈钢格栅，槽宽可改"
+              data-en-title="Linear drain: click start then end; 80 wide by default, grating lines in 2D, sunk channel + steel grating in 3D, width editable"
+              data-en="Drain"><i data-lucide="grip-horizontal"></i>排水沟</button>
+            <button class="btn chip" data-dt="niche"
+              title="壁龛：点击墙上的位置开一个内凹壁龛（默认 900 宽、窗台 900、高 700、进深 250），2D 虚线内凹符号，3D 生成龛体与边框"
+              data-en-title="Niche: click a wall for a recessed niche (900 wide, sill 900, 700 high, 250 deep by default); dashed symbol in 2D, niche body + frame in 3D"
+              data-en="Niche"><i data-lucide="between-vertical-end"></i>壁龛</button>
+            <button class="btn chip" data-dt="canopy"
+              title="雨棚：点击墙上的位置放置（默认沿墙 1500 宽、挑出 800、板厚 100、底标高 2400），朝点击的一侧挑出，长度 / 挑出 / 板厚 / 底标高可改"
+              data-en-title="Canopy: click a wall (1500 wide, projects 800, 100 thick, underside 2400 by default); projects to the clicked side; length / projection / thickness / underside editable"
+              data-en="Canopy"><i data-lucide="panel-top"></i>雨棚</button>
+            <button class="btn chip" data-dt="fence" title="围墙：第一次点起点，第二次点终点；默认 200 厚 × 1800 高，带压顶与立柱，长度 / 厚 / 高可改"
+              data-en-title="Perimeter wall: click start then end; 200 thick × 1800 high with coping and posts by default; length / thickness / height editable"
+              data-en="Wall"><i data-lucide="fence"></i>围墙</button>
+            <button class="btn chip" data-dt="gate"
+              title="院门：第一次点门洞起点，第二次点终点；默认 1800 高、双扇外开 30°，立柱 / 门扇 / 竖梃自动生成，开启角度可改"
+              data-en-title="Gate: click start then end of the opening; 1800 high, double leaves opening outward 30° by default; posts / leaves / mullions generated, opening angle editable"
+              data-en="Gate"><i data-lucide="door-closed"></i>院门</button>
+            <button class="btn chip" data-dt="pergola" title="廊架 / 花架：两次点击对角点，默认柱 150、梁高 2600，3D 生成立柱 + 纵向梁 + 横向椽条"
+              data-en-title="Pergola: click two opposite corners; posts 150, beams at 2600 by default; posts + beams + rafters in 3D"
+              data-en="Pergola"><i data-lucide="grid-3x3"></i>廊架</button>
+            <button class="btn chip" data-dt="deck" title="露台 / 木平台：两次点击对角点，默认板厚 150、落地，3D 为木纹板 + 板缝"
+              data-en-title="Deck: click two opposite corners; 150 thick, on the ground by default; timber boards with gaps in 3D"
+              data-en="Deck"><i data-lucide="square"></i>露台</button>
+            <button class="btn chip" data-dt="pool" title="泳池：两次点击对角点，默认深 1500、池边石 300，3D 为下沉池体 + 水面 + 池边"
+              data-en-title="Pool: click two opposite corners; 1500 deep, 300 coping by default; sunk pool + water + coping in 3D"
+              data-en="Pool"><i data-lucide="waves"></i>泳池</button>
+            <button class="btn chip" data-dt="lift"
+              title="电梯：点击放置（默认 2000×2000，门宽 900，门高 2100）；宽 / 深 / 高 / 停靠高度 / 门宽 / 门高 / 门位置 / 开门方向可改，3D 为井道 + 可点击开合的双扇门"
+              data-en-title="Lift: click to place (2000×2000, door 900 wide × 2100 high by default); size / height / door editable; shaft + click-to-open doors in 3D"
+              data-en="Lift"><i data-lucide="arrow-up-down"></i>电梯</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Outdoor & Equipment">室外 · 设备</div>
+            <button class="btn chip" data-dt="balcony"
+              title="阳台：点击墙上的位置放置（默认沿墙 1500、进深 1200），自动贴住墙面，靠墙的一边不做栏板；板厚 / 底标高 / 栏板高 / 栏板样式与栏板边可在右侧改"
+              data-en-title="Balcony: click a wall (1500 wide, 1200 deep by default); snaps to the wall, no railing on the wall side; slab / underside / railing height & style editable"
+              data-en="Balcony"><i data-lucide="land-plot"></i>阳台</button>
+            <button class="btn chip" data-dt="planter" title="花坛 / 种植池：两次点击对角点；壁厚 / 高 / 底标高可改，3D 中带种植土并占位挡路"
+              data-en-title="Planter: click two opposite corners; wall / height / underside editable, soil in 3D, blocks walking"
+              data-en="Planter"><i data-lucide="sprout"></i>花坛</button>
+            <button class="btn chip" data-dt="well" title="采光井 / 天井：两次点击对角点；默认 100 壁厚、2800 井高，2D 虚线加对角叉，3D 为四周井壁加顶部采光玻璃"
+              data-en-title="Light well: click two opposite corners; 100 walls, 2800 high by default; dashed + cross in 2D, well walls + top glazing in 3D"
+              data-en="Light well"><i data-lucide="sun"></i>采光井</button>
+            <button class="btn chip" data-dt="flue" title="烟道 / 风道：点击位置放置（默认 300×300、高 2800）；宽 / 进深 / 高 / 底标高可改"
+              data-en-title="Flue / duct: click to place (300×300, 2800 high by default); width / depth / height / underside editable"
+              data-en="Flue"><i data-lucide="air-vent"></i>烟道</button>
+            <button class="btn chip" data-dt="ac" title="设备平台 / 空调机位：两次点击对角点；默认 1200×700、板厚 100，3D 带百叶围板"
+              data-en-title="AC platform: click two opposite corners; 1200×700, 100 thick by default, louvred sides in 3D"
+              data-en="AC platform"><i data-lucide="air-vent"></i>设备平台</button>
+            <button class="btn chip" data-dt="park" title="停车位：两次点击对角点；2D 画车位线、编号与车头朝向箭头，3D 为地面标线，朝向可改"
+              data-en-title="Parking: click two opposite corners; stall lines, number and direction arrow in 2D, ground marking in 3D, direction editable"
+              data-en="Parking"><i data-lucide="car"></i>停车位</button>
+            <button class="btn chip" data-dt="pavilion" title="凉亭：两次点击对角点；2D 画柱位与顶轮廓，3D 生成立柱 + 顶盖"
+              data-en-title="Pavilion: click two opposite corners; post positions and roof outline in 2D, posts + roof in 3D"
+              data-en="Pavilion"><i data-lucide="tent"></i>凉亭</button>
+            <button class="btn chip" data-dt="apron" title="散水 / 明沟：第一次点起点，第二次点终点；默认 600 宽，2D 画双线散水，3D 为沿墙坡面"
+              data-en-title="Apron: click start then end; 600 wide by default; double-line apron in 2D, sloped strip along the wall in 3D"
+              data-en="Apron"><i data-lucide="grip-horizontal"></i>散水</button>
+            <button class="btn chip" data-dt="retain" title="挡土墙：第一次点起点，第二次点终点；默认 300 厚 × 1800 高，带压顶"
+              data-en-title="Retaining wall: click start then end; 300 thick × 1800 high with coping by default"
+              data-en="Retaining wall"><i data-lucide="brick-wall"></i>挡土墙</button>
+            <button class="btn chip" data-dt="skylight" title="天窗：两次点击对角点；2D 虚线加对角叉，3D 在屋面生成凸起玻璃天窗"
+              data-en-title="Skylight: click two opposite corners; dashed + cross in 2D, raised glazed skylight on the roof in 3D"
+              data-en="Skylight"><i data-lucide="sun-medium"></i>天窗</button>
+            <button class="btn chip" data-dt="gutter" title="天沟 / 檐沟：第一次点起点，第二次点终点；默认 300 宽，2D 画双线沟槽，3D 为排水沟槽"
+              data-en-title="Gutter: click start then end; 300 wide by default; double-line channel in 2D, gutter in 3D"
+              data-en="Gutter"><i data-lucide="grip-horizontal"></i>天沟</button>
+            <button class="btn chip" data-dt="spout" title="雨水管：点击放置一根贴墙落水管（默认直径 100、高 2800），可拖动"
+              data-en-title="Downspout: click to place a wall-hugging downpipe (⌀100, 2800 high by default), draggable"
+              data-en="Downspout"><i data-lucide="pipette"></i>雨水管</button>
+            <button class="btn chip" data-dt="signbd" title="门头广告牌：沿店面外墙点起点、终点；默认板厚 120、高 800、标高 2800，3D 为竖向招牌板"
+              data-en-title="Sign board: click start and end along the shopfront wall; 120 thick × 800 high at 2800 by default; vertical board in 3D"
+              data-en="Sign board"><i data-lucide="gallery-horizontal"></i>门头广告牌</button>
+            <button class="btn chip" data-dt="flag" title="旗杆：点击放置（默认杆径 120、高 6000），3D 为锥形杆 + 顶球 + 旗面，可拖动"
+              data-en-title="Flagpole: click to place (⌀120, 6000 high by default); tapered pole + finial + flag in 3D, draggable"
+              data-en="Flagpole"><i data-lucide="flag"></i>旗杆</button>
+            <button class="btn chip" data-dt="carport" title="电动车棚：两次点击对角点；默认 5000×3000、檐高 2500、柱径 100，3D 为钢柱 + 轻钢平顶"
+              data-en-title="Bike shed: click two opposite corners; 5000×3000, eave 2500, posts 100 by default; steel posts + flat roof in 3D"
+              data-en="Bike shed"><i data-lucide="warehouse"></i>电动车棚</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Details">结构细部</div>
+            <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），2D 实心方块加叉，3D 为小方柱"
+              data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); solid square with cross in 2D, small column in 3D"
+              data-en="Tie column"><i data-lucide="columns-3"></i>构造柱</button>
+            <button class="btn chip" data-dt="lintel" title="过梁：沿门窗洞口上方点起点、终点；默认 240 宽 × 200 高、底标高 2100，3D 为洞口上方梁"
+              data-en-title="Lintel: click start and end above a door / window opening; 240 wide × 200 high, underside 2100 by default; beam above the opening in 3D"
+              data-en="Lintel"><i data-lucide="move-horizontal"></i>过梁</button>
+            <button class="btn chip" data-dt="seam" title="变形缝 / 沉降缝：点起点，再点终点；默认缝宽 40，2D 虚线缝带，3D 为地面窄缝"
+              data-en-title="Movement joint: click start then end; 40 wide by default; dashed band in 2D, narrow floor gap in 3D"
+              data-en="Joint"><i data-lucide="scan-line"></i>变形缝</button>
+            <button class="btn chip" data-dt="shaft" title="管道井 / 水井：两次点击对角点；默认井壁 120、井高 2800，2D 虚线内框加叉，3D 为四壁井道"
+              data-en-title="Service shaft: click two opposite corners; 120 walls, 2800 high by default; dashed inner frame + cross in 2D, four-wall shaft in 3D"
+              data-en="Shaft"><i data-lucide="container"></i>管道井</button>
+            <button class="btn chip" data-dt="eave" title="挑檐 / 封檐板：沿屋缘点起点、终点；默认挑出 600、板厚 120、标高 2800"
+              data-en-title="Eave / fascia: click start and end along the roof edge; 600 projection, 120 thick, at 2800 by default"
+              data-en="Eave"><i data-lucide="panel-top"></i>挑檐</button>
+            <button class="btn chip" data-dt="thresh" title="门槛石 / 挡水条：沿门口 / 卫生间门口点起点、终点；默认 60 宽 × 20 高，可调"
+              data-en-title="Threshold / water bar: click start and end across a doorway; 60 wide × 20 high by default, editable"
+              data-en="Threshold"><i data-lucide="square"></i>门槛石</button>
+            <button class="btn chip" data-dt="flash" title="泛水线 / 防水卷材带：沿屋面与外墙交界点起点、终点；默认 300 宽，2D 虚线带"
+              data-en-title="Flashing: click start and end along the roof–wall junction; 300 wide by default, dashed band in 2D"
+              data-en="Flashing"><i data-lucide="scan-line"></i>泛水线</button>
+            <button class="btn chip" data-dt="band" title="檐口线脚 / 腰线：沿外墙点起点、终点；默认 200 宽 × 150 高、标高 2000，3D 为墙面装饰横带"
+              data-en-title="Cornice / band: click start and end along the facade; 200 wide × 150 high at 2000 by default; decorative band in 3D"
+              data-en="Cornice"><i data-lucide="panel-right"></i>檐口线脚</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Landscape">室外景观</div>
+            <button class="btn chip" data-dt="tree" title="景观树：点击放置（默认冠幅 900、树高 3000），2D 双层树冠，3D 为树干与球状树冠"
+              data-en-title="Tree: click to place (canopy 900, height 3000 by default); two-ring canopy in 2D, trunk + rounded crown in 3D"
+              data-en="Tree"><i data-lucide="tree-pine"></i>景观树</button>
+            <button class="btn chip" data-dt="path" title="园路 / 铺装带：点起点，再点终点；默认路宽 1200，2D 双线加铺装分格，3D 为地面薄板"
+              data-en-title="Garden path: click start then end; 1200 wide by default; double line with paving joints in 2D, thin paving in 3D"
+              data-en="Path"><i data-lucide="footprints"></i>园路</button>
+            <button class="btn chip" data-dt="lawn" title="草坪 / 软景色块：两次点击对角点；2D 点状草纹，3D 为绿色草皮薄层"
+              data-en-title="Lawn: click two opposite corners; dotted grass texture in 2D, thin green turf in 3D"
+              data-en="Lawn"><i data-lucide="flower-2"></i>草坪</button>
+            <button class="btn chip" data-dt="well2"
+              title="雨水井 / 检查井 / 化粪池：两次点击对角点；默认 700×700、深 900，2D 圆井盖加十字，3D 为井圈与井盖"
+              data-en-title="Drain well: click two opposite corners; 700×700, 900 deep by default; round cover + cross in 2D, ring + cover in 3D"
+              data-en="Drain well"><i data-lucide="circle-dot"></i>雨水井</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Roof Equipment">屋顶设备</div>
+            <button class="btn chip" data-dt="dormer" title="老虎窗：两次点击对角点；默认 1200×1500、屋面标高 2800、窗高 900，3D 生成窗箱与双坡小顶"
+              data-en-title="Dormer: click two opposite corners; 1200×1500 at roof level 2800, window 900 high by default; window box + gable in 3D"
+              data-en="Dormer"><i data-lucide="building-2"></i>老虎窗</button>
+            <button class="btn chip" data-dt="chimney" title="烟囱：点击放置（默认 400×400、出屋面 1200），3D 为方柱与压顶"
+              data-en-title="Chimney: click to place (400×400, 1200 above the roof by default); square stack with coping in 3D"
+              data-en="Chimney"><i data-lucide="factory"></i>烟囱</button>
+            <button class="btn chip" data-dt="hatch" title="屋面检修口：两次点击对角点；默认 700×700、翻边高 250，3D 为翻边与盖板"
+              data-en-title="Roof hatch: click two opposite corners; 700×700, upstand 250 high by default; upstand + cover in 3D"
+              data-en="Hatch"><i data-lucide="grid-2x2"></i>检修口</button>
+            <button class="btn chip" data-dt="solar" title="太阳能热水器：两次点击对角点；默认 2000×1600，3D 为斜置集热板与水箱"
+              data-en-title="Solar heater: click two opposite corners; 2000×1600 by default; tilted collector + tank in 3D"
+              data-en="Solar"><i data-lucide="sun-medium"></i>太阳能</button>
+            <button class="btn chip" data-dt="equip" title="屋面设备基础：两次点击对角点；默认 1500×1000、基础厚 150、设备高 800，3D 为基础与机组体量"
+              data-en-title="Equipment base: click two opposite corners; 1500×1000, base 150 thick, unit 800 high by default; base + unit mass in 3D"
+              data-en="Base"><i data-lucide="warehouse"></i>设备基础</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Annotations">标注</div>
+            <button class="btn chip" data-dt="dim" title="尺寸标注：第一次点起点，第二次点终点，自动标出两点距离；可选中拖动 / 删除"
+              data-en-title="Dimension: click start then end to mark the distance automatically; select to drag / delete"
+              data-en="Dimension"><i data-lucide="ruler"></i>尺寸标注</button>
+            <button class="btn chip" data-dt="level" title="标高：点击位置放一个标高符号，可改标高值与文字；可拖动 / 删除"
+              data-en-title="Level: click to place a level marker; value and text editable, draggable / deletable"
+              data-en="Level"><i data-lucide="triangle"></i>标高</button>
+            <button class="btn chip" data-dt="text" title="点击平面图放置文字标注；选中后可在右侧改文字、字号与位置"
+              data-en-title="Click the plan to place a text note; text / size / position editable in the panel"
+              data-en="Note"><i data-lucide="type"></i>文字标注</button>
+            <button class="btn chip" data-dt="north" title="指北针：点击放置或移动位置，朝向角度可在右侧改"
+              data-en-title="North arrow: click to place or move; angle editable in the panel" data-en="North"><i
+                data-lucide="compass"></i>指北针</button>
+            <button class="btn chip" data-dt="axgrid" title="轴网：两次点击对角点生成建筑轴网与轴号（默认轴距 3000，可在右侧改轴距 / 外延，2D 专用）"
+              data-en-title="Axis grid: click two opposite corners to generate grid lines and bubbles (spacing 3000 by default; spacing / extension editable, 2D only)"
+              data-en="Axes"><i data-lucide="layout-grid"></i>轴网</button>
+            <button class="btn chip" data-dt="leader" title="引线标注：先点锚点，再点文字位置；文字可在右侧改，两端手柄可拖动调整"
+              data-en-title="Leader: click the anchor point, then the text position; text editable, both end handles draggable"
+              data-en="Leader"><i data-lucide="type"></i>引线标注</button>
+            <button class="btn chip" data-dt="section" title="剖切符号：先点剖切起点，再点终点；自动编号，粗剖切线加两端短划，编号在右侧可改"
+              data-en-title="Section mark: click start then end of the section line; auto-numbered, bold line with end ticks, number editable"
+              data-en="Section"><i data-lucide="milestone"></i>剖切符号</button>
+          </div>
         </div>
-        <div class="dtg"><div class="dth" data-en="Doors">门</div>
-          <button class="btn chip" data-dt="door" title="点击墙上的位置放一个 900mm 房门" data-en-title="Click a wall to place a 900mm door" data-en="Door"><i data-lucide="door-open"></i>房门</button>
-          <button class="btn chip" data-dt="dble" title="点击墙上的位置放一个 1500mm 双开门（两扇对开，3D 中点击可开合）" data-en-title="Click a wall to place a 1500mm double door (two leaves, click to open / close in 3D)" data-en="Double door"><i data-lucide="columns-2"></i>双开门</button>
-          <button class="btn chip" data-dt="zimu" title="点击墙上的位置放一个 1200mm 子母门（大扇 + 小扇，3D 中点击可开合）" data-en-title="Click a wall to place a 1200mm unequal double door (wide + narrow leaf, click to open / close in 3D)" data-en="Unequal door"><i data-lucide="panel-left"></i>子母门</button>
-          <button class="btn chip" data-dt="yak" title="点击墙上的位置开一个 1200mm 垭口（只有门洞和门套，没有门扇，可直接通行）" data-en-title="Click a wall for a 1200mm cased opening (frame only, no leaf, walk-through)" data-en="Cased opening"><i data-lucide="rectangle-horizontal"></i>垭口</button>
-          <button class="btn chip" data-dt="hole" title="预留洞 / 窗洞：点击墙上的位置开一个无框洞口（默认 900 宽、窗台 900、洞高 900），2D 虚线示意，3D 只开洞不装窗" data-en-title="Reserved opening: click a wall for a frameless opening (900 wide, sill 900, height 900 by default); dashed in 2D, hole only in 3D" data-en="Opening"><i data-lucide="square-dashed"></i>预留洞</button>
-          <button class="btn chip" data-dt="arch" title="点击墙上的位置开一个 1200mm 拱形门洞（直段 2100 + 拱高 600，带弧形门套，无门扇，可直接通行）" data-en-title="Click a wall for a 1200mm arched opening (straight 2100 + rise 600, arched frame, no leaf, walk-through)" data-en="Arch opening"><i data-lucide="door-open"></i>拱形门洞</button>
-          <button class="btn chip" data-dt="sd" title="点击墙上的位置放一个 900mm 单扇推拉门（室内用，3D 中点击门扇可推开）" data-en-title="Click a wall to place a 900mm single sliding door (indoor; click the leaf in 3D to slide it open)" data-en="Slider"><i
-          data-lucide="panel-right-close"></i>单扇推拉门</button>
-          <button class="btn chip" data-dt="fold" title="点击墙上的位置放一个 1800mm 折叠门（多扇折叠，3D 中显示为折起状态，可直接通行）" data-en-title="Click a wall to place a 1800mm folding door (multi-leaf, shown folded in 3D, walk-through)" data-en="Folding door"><i
-          data-lucide="panel-right-open"></i>折叠门</button>
-          <button class="btn chip" data-dt="slid" title="点击墙上的位置放一个 2400mm 落地推拉门（通顶玻璃双扇，3D 中点击可开合）" data-en-title="Click a wall to place a 2400mm floor-to-ceiling sliding glass door (two full-height leaves, click to open / close in 3D)" data-en="Glass slider"><i
-          data-lucide="arrow-left-right"></i>落地推拉门</button>
-          <button class="btn chip" data-dt="auto" title="自动感应门：点击墙面放置 2400mm 玻璃自动门（两扇对开），3D 中点击门扇可开合" data-en-title="Automatic door: click a wall for a 2400mm glass auto door (two sliding leaves); click a leaf to open / close in 3D" data-en="Auto door"><i data-lucide="move-horizontal"></i>自动门</button>
-          <button class="btn chip" data-dt="revolve" title="旋转门：点击墙面放置 2000mm 旋转门（十字四翼玻璃），3D 为圆筒玻璃与旋翼" data-en-title="Revolving door: click a wall for a 2000mm revolving door (four glass wings); cylinder + wings in 3D" data-en="Revolving door"><i data-lucide="rotate-cw"></i>旋转门</button>
-          <button class="btn chip" data-dt="elev" title="点击墙上的位置开一个 900mm 电梯门（金属中分双扇，3D 中点击可开合）" data-en-title="Click a wall for a 900mm elevator door (metal centre-split leaves, click to open / close in 3D)" data-en="Lift door"><i
-          data-lucide="door-closed"></i>电梯门</button>
-          <button class="btn chip" data-dt="roller" title="点击墙上的位置开一个 1800mm 卷帘门（车库 / 店铺，3D 中常闭不可穿行）" data-en-title="Click a wall for a 1800mm roller shutter (garage / shop; closed and blocking in 3D)" data-en="Roller shutter"><i
-          data-lucide="panel-top"></i>卷帘门</button>
-          <button class="btn chip" data-dt="entry" title="点击一个门洞（原始门洞或自画的门），把它设为入户门（全局唯一；再次点击其它门洞即转移）" data-en-title="Click an opening (original or drawn) to set it as the entry door (unique; click another opening to move it)" data-en="Entry"><i
-          data-lucide="log-in"></i>入户</button>
-          <button class="btn chip" data-dt="seal" title="封洞：点击一个已有的门窗洞口把它封上（连同门扇 / 窗扇一起删除，相当于拆改中的封堵）" data-en-title="Seal: click an existing door / window opening to fill it (removes the leaf too, as in renovation sealing)" data-en="Seal"><i data-lucide="eraser"></i>封洞</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Windows">窗</div>
-          <button class="btn chip" data-dt="win" title="点击墙上的位置放一个 1200mm 窗户" data-en-title="Click a wall to place a 1200mm window" data-en="Window"><i data-lucide="blinds"></i>窗户</button>
-          <button class="btn chip" data-dt="hwin" title="点击墙上的位置放一个 1200mm 高窗（窗台抬高，默认 1400mm，适合卫生间 / 楼梯间）" data-en-title="Click a wall to place a 1200mm high window (raised sill, 1400mm by default; for bathrooms / stairwells)" data-en="High window"><i data-lucide="panel-top"></i>高窗</button>
-          <button class="btn chip" data-dt="swin" title="点击墙上的位置放一个 1500mm 推拉窗（双扇左右推拉，3D 中点击窗扇可推开）" data-en-title="Click a wall to place a 1500mm sliding window (two sashes; click a sash in 3D to slide it open)" data-en="Sliding window"><i data-lucide="arrow-left-right"></i>推拉窗</button>
-          <button class="btn chip" data-dt="fwin" title="点击墙上的位置放一个 1800mm 落地窗（通顶玻璃）" data-en-title="Click a wall to place a 1800mm floor-to-ceiling window (full-height glass)" data-en="Floor window"><i
-          data-lucide="rectangle-vertical"></i>落地窗</button>
-          <button class="btn chip" data-dt="dwin" title="点击墙上的位置放一个 1500mm 门连窗（左侧门扇 + 右侧可开窗，3D 中可推开）" data-en-title="Click a wall to place a 1500mm door with window (door leaf + openable window, openable in 3D)" data-en="Door + window"><i data-lucide="gallery-vertical-end"></i>门连窗</button>
-          <button class="btn chip" data-dt="bay" title="点击墙上的位置放一个 1500mm 飘窗（窗台 500，向外凸出 600，进深与朝向可改）" data-en-title="Click a wall to place a 1500mm bay window (sill 500, protrudes 600; depth and side editable)" data-en="Bay window"><i data-lucide="app-window"></i>飘窗</button>
-          <button class="btn chip" data-dt="lbay" title="转角飘窗：点击两面墙的直角转角处，生成一个整体的 转角飘窗（两段默认各 1200mm，进深 600、窗台 500、窗高 1200；窗台 / 窗高 / 进深两段共用，第二段宽度可单独改）" data-en-title="Corner bay window: click a right-angle corner of two walls for one L-shaped unit with two legs (1200mm each by default); sill / height / depth shared, second leg width editable" data-en="Corner bay"><i data-lucide="corner-up-right"></i>转角飘窗</button>
-          <button class="btn chip" data-dt="cornerwin" title="转角窗：点击两面墙的直角转角处，在两面墙上各放一樘 1200mm 落地玻璃（临空转角连续采光，无外凸）" data-en-title="Corner window: click a right-angle corner; a 1200mm floor-to-ceiling pane on each wall (continuous corner glazing, no protrusion)" data-en="Corner window"><i data-lucide="corner-down-right"></i>转角窗</button>
-          <button class="btn chip" data-dt="louver" title="点击墙上的位置放一个 1200mm 百叶窗（倾斜叶片，3D 中不可开启）" data-en-title="Click a wall to place a 1200mm louver window (fixed blades, not openable in 3D)" data-en="Louver"><i data-lucide="align-justify"></i>百叶窗</button>
-          <button class="btn chip" data-dt="cwin" title="点击墙上的位置放一个 900mm 圆窗（圆形洞口，窗台默认 900mm）" data-en-title="Click a wall to place a 900mm round window (circular opening, sill 900mm by default)" data-en="Round window"><i data-lucide="circle"></i>圆窗</button>
-          <button class="btn chip" data-dt="strip" title="带形窗：点击墙面放置一樘 3000mm 长条窗（窗台默认 600、窗高 1500，可拉长，3D 按约 1200 分格）" data-en-title="Strip window: click a wall for a 3000mm ribbon window (sill 600, height 1500, stretchable; mullions every ~1200mm in 3D)" data-en="Strip window"><i data-lucide="stretch-horizontal"></i>带形窗</button>
-          <button class="btn chip" data-dt="sill" title="窗台板：沿窗洞外侧点起点、终点；默认板宽 250、板厚 40、台面标高 900，3D 为出挑台面板" data-en-title="Window board: click start and end along the outside of the opening; board 250 wide, 40 thick, top at 900; cantilevered board in 3D" data-en="Window board"><i data-lucide="panel-right"></i>窗台板</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Stairs & Ramps">楼梯 · 坡道</div>
-          <button class="btn chip" data-dt="stair" title="点击放置一部直跑楼梯（默认 1000×4000，升 2800；方向/尺寸可在右侧改，漫游可走上去）" data-en-title="Click to place a straight stair (1000×4000, rise 2800 by default; direction / size editable, walkable in 3D)" data-en="Stair"><i
-          data-lucide="arrow-up-narrow-wide"></i>楼梯</button>
-          <button class="btn chip" data-dt="stair2" title="点击放置双跑（U 形折返）楼梯：两跑并行、端部带休息平台，默认 1000×4000 升 2800" data-en-title="Click to place a switchback (U-shaped) stair: two parallel flights with an end landing, 1000×4000, rise 2800" data-en="U-stair"><i
-          data-lucide="corner-up-left"></i>双跑楼梯</button>
-          <button class="btn chip" data-dt="stair3" title="点击放置三跑楼梯：折返两次、三跑并排、中间两块休息平台，默认 1000×5000 升 2800" data-en-title="Click to place a three-flight stair: two turns, three parallel flights with two landings, 1000×5000, rise 2800" data-en="3-flight stair"><i
-          data-lucide="route"></i>三跑楼梯</button>
-          <button class="btn chip" data-dt="stair3s" title="点击放置正三跑楼梯：第三跑叠在第一跑正上方，平面只占两跑宽（1000×4000 升 2800）" data-en-title="Click to place a stacked three-flight stair: third flight directly above the first, plan width of two flights (1000×4000, rise 2800)" data-en="Stack stair"><i
-          data-lucide="layers"></i>正三跑</button>
-          <button class="btn chip" data-dt="ramp" title="点击放置一段坡道（默认 1200×4000 升 600，坡度 / 方向可在右侧改）" data-en-title="Click to place a ramp (1200×4000, rise 600 by default; slope / direction editable)" data-en="Ramp"><i
-          data-lucide="trending-up"></i>坡道</button>
-          <button class="btn chip" data-dt="steps" title="点击放置一组台阶（默认 1200 宽 × 1200 长，3 级共升 450，级数 / 方向可在右侧改）" data-en-title="Click to place steps (1200 wide × 1200 long, 3 steps rising 450 by default; count / direction editable)" data-en="Steps"><i
-          data-lucide="chevrons-up"></i>台阶</button>
-          <button class="btn chip" data-dt="spiral" title="螺旋楼梯：点击放置（默认外径 1400、升 2800，绕中心柱逐级盘旋）；外径 / 爬升 / 级数 / 转向 / 方向可在右侧改，3D 为中心柱 + 楔形踏步 + 螺旋扶手，漫游可上下" data-en-title="Spiral stair: click to place (⌀1400, rise 2800 by default); steps wind around a centre post; diameter / rise / steps / turn editable in 3D with spiral handrail, walkable" data-en="Spiral stair"><i
-          data-lucide="shell"></i>螺旋楼梯</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Structure">结构 · 构件</div>
-          <button class="btn chip" data-dt="pillar" title="点击放置一根柱子（默认方柱 400mm，通顶并占位挡路；右侧可改圆/方与尺寸，可直接拖动）" data-en-title="Click to place a column (400mm square by default, full height, blocks walking; round / square and size editable, draggable)" data-en="Column"><i
-          data-lucide="columns-3"></i>柱子</button>
-          <button class="btn chip" data-dt="beam" title="梁：第一次点起点，第二次点终点；默认 200 宽 × 300 高、底标高 2400，可在右侧调" data-en-title="Beam: click start then end; 200 wide × 300 high, underside at 2400 by default, editable" data-en="Beam"><i
-          data-lucide="rectangle-horizontal"></i>梁</button>
-          <button class="btn chip" data-dt="slab" title="楼板 / 挑板：两次点击对角点生成矩形板；板厚、底标高可改（底标高改 0 即落地楼板）" data-en-title="Slab / cantilever: click two opposite corners; thickness and underside editable (set underside to 0 for a floor slab)" data-en="Slab"><i
-          data-lucide="box"></i>楼板</button>
-          <button class="btn chip" data-dt="slabhole" title="楼板洞口：两次点击对角点；2D 虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边" data-en-title="Slab opening: click two opposite corners; dashed outline with diagonal cross in 2D, hole with upstand cut into the slab in 3D" data-en="Slab hole"><i data-lucide="square-dashed"></i>楼板洞口</button>
-          <button class="btn chip" data-dt="ceil" title="吊顶 / 局部下沉顶：两次点击对角点；默认板厚 150、底标高 2500，2D 虚线轮廓，3D 生成顶板" data-en-title="Ceiling / dropped soffit: click two opposite corners; 150 thick, underside at 2500 by default; dashed outline in 2D, ceiling slab in 3D" data-en="Ceiling"><i
-          data-lucide="panel-top"></i>吊顶</button>
-          <button class="btn chip" data-dt="parapet" title="女儿墙：第一次点起点，第二次点终点；默认 120 厚 × 900 高、带压顶，长度 / 厚 / 高 / 底标高可改" data-en-title="Parapet: click start then end; 120 thick × 900 high with coping by default; length / thickness / height / underside editable" data-en="Parapet"><i
-          data-lucide="fence"></i>女儿墙</button>
-          <button class="btn chip" data-dt="halfwall" title="矮墙 / 半墙：第一次点起点，第二次点终点；默认 120 厚 × 1100 高、落地带压顶，适合电视半墙 / 卫生间隔断，长度 / 厚 / 高可改" data-en-title="Half wall: click start then end; 120 thick × 1100 high with coping by default; for TV half-walls / bathroom partitions, length / thickness / height editable" data-en="Half wall"><i
-          data-lucide="brick-wall"></i>矮墙</button>
-          <button class="btn chip" data-dt="roof" title="屋顶：两次点击对角点，默认双坡屋顶（起坡高 1200、挑檐 500、檐口 2800），可切换单坡，起坡 / 挑檐可改" data-en-title="Roof: click two opposite corners; gable roof by default (rise 1200, overhang 500, eave 2800), single-slope switchable; rise / overhang editable" data-en="Roof"><i
-          data-lucide="home"></i>屋顶</button>
-          <button class="btn chip" data-dt="arcwall" title="弧形墙：第一次点起点，第二次点终点，默认向左侧拱起 600mm；弧高 / 厚度 / 高度可改，可一键反向" data-en-title="Arc wall: click start then end; bulges 600mm to the left by default; rise / thickness / height editable, one-click flip" data-en="Arc wall"><i
-          data-lucide="circle-dashed"></i>弧形墙</button>
-          <button class="btn chip" data-dt="rail" title="栏杆：第一次点起点，第二次点终点；默认 1000 高直杆，可换玻璃栏板，长度 / 高度可调" data-en-title="Railing: click start then end; 1000-high posts by default, glass panel option; length / height adjustable" data-en="Railing"><i
-          data-lucide="fence"></i>栏杆</button>
-          <button class="btn chip" data-dt="part" title="玻璃隔断：第一次点起点，第二次点终点；默认 2400 高通高玻璃，带上下边框与竖梃，长度 / 高度可调" data-en-title="Glass partition: click start then end; 2400-high full glass with top / bottom frames and mullions by default; length / height adjustable" data-en="Partition"><i
-          data-lucide="columns-2"></i>玻璃隔断</button>
-          <button class="btn chip" data-dt="drain" title="线性排水沟 / 地漏：第一次点起点，第二次点终点；默认 80 宽，2D 带格栅横线，3D 为下沉槽体加不锈钢格栅，槽宽可改" data-en-title="Linear drain: click start then end; 80 wide by default, grating lines in 2D, sunk channel + steel grating in 3D, width editable" data-en="Drain"><i
-          data-lucide="grip-horizontal"></i>排水沟</button>
-          <button class="btn chip" data-dt="niche" title="壁龛：点击墙上的位置开一个内凹壁龛（默认 900 宽、窗台 900、高 700、进深 250），2D 虚线内凹符号，3D 生成龛体与边框" data-en-title="Niche: click a wall for a recessed niche (900 wide, sill 900, 700 high, 250 deep by default); dashed symbol in 2D, niche body + frame in 3D" data-en="Niche"><i
-          data-lucide="between-vertical-end"></i>壁龛</button>
-          <button class="btn chip" data-dt="canopy" title="雨棚：点击墙上的位置放置（默认沿墙 1500 宽、挑出 800、板厚 100、底标高 2400），朝点击的一侧挑出，长度 / 挑出 / 板厚 / 底标高可改" data-en-title="Canopy: click a wall (1500 wide, projects 800, 100 thick, underside 2400 by default); projects to the clicked side; length / projection / thickness / underside editable" data-en="Canopy"><i
-          data-lucide="panel-top"></i>雨棚</button>
-          <button class="btn chip" data-dt="fence" title="围墙：第一次点起点，第二次点终点；默认 200 厚 × 1800 高，带压顶与立柱，长度 / 厚 / 高可改" data-en-title="Perimeter wall: click start then end; 200 thick × 1800 high with coping and posts by default; length / thickness / height editable" data-en="Wall"><i
-          data-lucide="fence"></i>围墙</button>
-          <button class="btn chip" data-dt="gate" title="院门：第一次点门洞起点，第二次点终点；默认 1800 高、双扇外开 30°，立柱 / 门扇 / 竖梃自动生成，开启角度可改" data-en-title="Gate: click start then end of the opening; 1800 high, double leaves opening outward 30° by default; posts / leaves / mullions generated, opening angle editable" data-en="Gate"><i
-          data-lucide="door-closed"></i>院门</button>
-          <button class="btn chip" data-dt="pergola" title="廊架 / 花架：两次点击对角点，默认柱 150、梁高 2600，3D 生成立柱 + 纵向梁 + 横向椽条" data-en-title="Pergola: click two opposite corners; posts 150, beams at 2600 by default; posts + beams + rafters in 3D" data-en="Pergola"><i
-          data-lucide="grid-3x3"></i>廊架</button>
-          <button class="btn chip" data-dt="deck" title="露台 / 木平台：两次点击对角点，默认板厚 150、落地，3D 为木纹板 + 板缝" data-en-title="Deck: click two opposite corners; 150 thick, on the ground by default; timber boards with gaps in 3D" data-en="Deck"><i
-          data-lucide="square"></i>露台</button>
-          <button class="btn chip" data-dt="pool" title="泳池：两次点击对角点，默认深 1500、池边石 300，3D 为下沉池体 + 水面 + 池边" data-en-title="Pool: click two opposite corners; 1500 deep, 300 coping by default; sunk pool + water + coping in 3D" data-en="Pool"><i
-          data-lucide="waves"></i>泳池</button>
-          <button class="btn chip" data-dt="lift" title="电梯：点击放置（默认 2000×2000，门宽 900，门高 2100）；宽 / 深 / 高 / 停靠高度 / 门宽 / 门高 / 门位置 / 开门方向可改，3D 为井道 + 可点击开合的双扇门" data-en-title="Lift: click to place (2000×2000, door 900 wide × 2100 high by default); size / height / door editable; shaft + click-to-open doors in 3D" data-en="Lift"><i
-          data-lucide="arrow-up-down"></i>电梯</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Outdoor & Equipment">室外 · 设备</div>
-          <button class="btn chip" data-dt="balcony" title="阳台：点击墙上的位置放置（默认沿墙 1500、进深 1200），自动贴住墙面，靠墙的一边不做栏板；板厚 / 底标高 / 栏板高 / 栏板样式与栏板边可在右侧改" data-en-title="Balcony: click a wall (1500 wide, 1200 deep by default); snaps to the wall, no railing on the wall side; slab / underside / railing height & style editable" data-en="Balcony"><i
-          data-lucide="land-plot"></i>阳台</button>
-          <button class="btn chip" data-dt="planter" title="花坛 / 种植池：两次点击对角点；壁厚 / 高 / 底标高可改，3D 中带种植土并占位挡路" data-en-title="Planter: click two opposite corners; wall / height / underside editable, soil in 3D, blocks walking" data-en="Planter"><i
-          data-lucide="sprout"></i>花坛</button>
-          <button class="btn chip" data-dt="well" title="采光井 / 天井：两次点击对角点；默认 100 壁厚、2800 井高，2D 虚线加对角叉，3D 为四周井壁加顶部采光玻璃" data-en-title="Light well: click two opposite corners; 100 walls, 2800 high by default; dashed + cross in 2D, well walls + top glazing in 3D" data-en="Light well"><i
-          data-lucide="sun"></i>采光井</button>
-          <button class="btn chip" data-dt="flue" title="烟道 / 风道：点击位置放置（默认 300×300、高 2800）；宽 / 进深 / 高 / 底标高可改" data-en-title="Flue / duct: click to place (300×300, 2800 high by default); width / depth / height / underside editable" data-en="Flue"><i
-          data-lucide="air-vent"></i>烟道</button>
-          <button class="btn chip" data-dt="ac" title="设备平台 / 空调机位：两次点击对角点；默认 1200×700、板厚 100，3D 带百叶围板" data-en-title="AC platform: click two opposite corners; 1200×700, 100 thick by default, louvred sides in 3D" data-en="AC platform"><i data-lucide="air-vent"></i>设备平台</button>
-          <button class="btn chip" data-dt="park" title="停车位：两次点击对角点；2D 画车位线、编号与车头朝向箭头，3D 为地面标线，朝向可改" data-en-title="Parking: click two opposite corners; stall lines, number and direction arrow in 2D, ground marking in 3D, direction editable" data-en="Parking"><i data-lucide="car"></i>停车位</button>
-          <button class="btn chip" data-dt="pavilion" title="凉亭：两次点击对角点；2D 画柱位与顶轮廓，3D 生成立柱 + 顶盖" data-en-title="Pavilion: click two opposite corners; post positions and roof outline in 2D, posts + roof in 3D" data-en="Pavilion"><i data-lucide="tent"></i>凉亭</button>
-          <button class="btn chip" data-dt="apron" title="散水 / 明沟：第一次点起点，第二次点终点；默认 600 宽，2D 画双线散水，3D 为沿墙坡面" data-en-title="Apron: click start then end; 600 wide by default; double-line apron in 2D, sloped strip along the wall in 3D" data-en="Apron"><i data-lucide="grip-horizontal"></i>散水</button>
-          <button class="btn chip" data-dt="retain" title="挡土墙：第一次点起点，第二次点终点；默认 300 厚 × 1800 高，带压顶" data-en-title="Retaining wall: click start then end; 300 thick × 1800 high with coping by default" data-en="Retaining wall"><i data-lucide="brick-wall"></i>挡土墙</button>
-          <button class="btn chip" data-dt="skylight" title="天窗：两次点击对角点；2D 虚线加对角叉，3D 在屋面生成凸起玻璃天窗" data-en-title="Skylight: click two opposite corners; dashed + cross in 2D, raised glazed skylight on the roof in 3D" data-en="Skylight"><i data-lucide="sun-medium"></i>天窗</button>
-          <button class="btn chip" data-dt="gutter" title="天沟 / 檐沟：第一次点起点，第二次点终点；默认 300 宽，2D 画双线沟槽，3D 为排水沟槽" data-en-title="Gutter: click start then end; 300 wide by default; double-line channel in 2D, gutter in 3D" data-en="Gutter"><i data-lucide="grip-horizontal"></i>天沟</button>
-          <button class="btn chip" data-dt="spout" title="雨水管：点击放置一根贴墙落水管（默认直径 100、高 2800），可拖动" data-en-title="Downspout: click to place a wall-hugging downpipe (⌀100, 2800 high by default), draggable" data-en="Downspout"><i data-lucide="pipette"></i>雨水管</button>
-          <button class="btn chip" data-dt="signbd" title="门头广告牌：沿店面外墙点起点、终点；默认板厚 120、高 800、标高 2800，3D 为竖向招牌板" data-en-title="Sign board: click start and end along the shopfront wall; 120 thick × 800 high at 2800 by default; vertical board in 3D" data-en="Sign board"><i data-lucide="gallery-horizontal"></i>门头广告牌</button>
-          <button class="btn chip" data-dt="flag" title="旗杆：点击放置（默认杆径 120、高 6000），3D 为锥形杆 + 顶球 + 旗面，可拖动" data-en-title="Flagpole: click to place (⌀120, 6000 high by default); tapered pole + finial + flag in 3D, draggable" data-en="Flagpole"><i data-lucide="flag"></i>旗杆</button>
-          <button class="btn chip" data-dt="carport" title="电动车棚：两次点击对角点；默认 5000×3000、檐高 2500、柱径 100，3D 为钢柱 + 轻钢平顶" data-en-title="Bike shed: click two opposite corners; 5000×3000, eave 2500, posts 100 by default; steel posts + flat roof in 3D" data-en="Bike shed"><i data-lucide="warehouse"></i>电动车棚</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Details">结构细部</div>
-          <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），2D 实心方块加叉，3D 为小方柱" data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); solid square with cross in 2D, small column in 3D" data-en="Tie column"><i data-lucide="columns-3"></i>构造柱</button>
-          <button class="btn chip" data-dt="lintel" title="过梁：沿门窗洞口上方点起点、终点；默认 240 宽 × 200 高、底标高 2100，3D 为洞口上方梁" data-en-title="Lintel: click start and end above a door / window opening; 240 wide × 200 high, underside 2100 by default; beam above the opening in 3D" data-en="Lintel"><i data-lucide="move-horizontal"></i>过梁</button>
-          <button class="btn chip" data-dt="seam" title="变形缝 / 沉降缝：点起点，再点终点；默认缝宽 40，2D 虚线缝带，3D 为地面窄缝" data-en-title="Movement joint: click start then end; 40 wide by default; dashed band in 2D, narrow floor gap in 3D" data-en="Joint"><i data-lucide="scan-line"></i>变形缝</button>
-          <button class="btn chip" data-dt="shaft" title="管道井 / 水井：两次点击对角点；默认井壁 120、井高 2800，2D 虚线内框加叉，3D 为四壁井道" data-en-title="Service shaft: click two opposite corners; 120 walls, 2800 high by default; dashed inner frame + cross in 2D, four-wall shaft in 3D" data-en="Shaft"><i data-lucide="container"></i>管道井</button>
-          <button class="btn chip" data-dt="eave" title="挑檐 / 封檐板：沿屋缘点起点、终点；默认挑出 600、板厚 120、标高 2800" data-en-title="Eave / fascia: click start and end along the roof edge; 600 projection, 120 thick, at 2800 by default" data-en="Eave"><i data-lucide="panel-top"></i>挑檐</button>
-          <button class="btn chip" data-dt="thresh" title="门槛石 / 挡水条：沿门口 / 卫生间门口点起点、终点；默认 60 宽 × 20 高，可调" data-en-title="Threshold / water bar: click start and end across a doorway; 60 wide × 20 high by default, editable" data-en="Threshold"><i data-lucide="square"></i>门槛石</button>
-          <button class="btn chip" data-dt="flash" title="泛水线 / 防水卷材带：沿屋面与外墙交界点起点、终点；默认 300 宽，2D 虚线带" data-en-title="Flashing: click start and end along the roof–wall junction; 300 wide by default, dashed band in 2D" data-en="Flashing"><i data-lucide="scan-line"></i>泛水线</button>
-          <button class="btn chip" data-dt="band" title="檐口线脚 / 腰线：沿外墙点起点、终点；默认 200 宽 × 150 高、标高 2000，3D 为墙面装饰横带" data-en-title="Cornice / band: click start and end along the facade; 200 wide × 150 high at 2000 by default; decorative band in 3D" data-en="Cornice"><i data-lucide="panel-right"></i>檐口线脚</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Landscape">室外景观</div>
-          <button class="btn chip" data-dt="tree" title="景观树：点击放置（默认冠幅 900、树高 3000），2D 双层树冠，3D 为树干与球状树冠" data-en-title="Tree: click to place (canopy 900, height 3000 by default); two-ring canopy in 2D, trunk + rounded crown in 3D" data-en="Tree"><i data-lucide="tree-pine"></i>景观树</button>
-          <button class="btn chip" data-dt="path" title="园路 / 铺装带：点起点，再点终点；默认路宽 1200，2D 双线加铺装分格，3D 为地面薄板" data-en-title="Garden path: click start then end; 1200 wide by default; double line with paving joints in 2D, thin paving in 3D" data-en="Path"><i data-lucide="footprints"></i>园路</button>
-          <button class="btn chip" data-dt="lawn" title="草坪 / 软景色块：两次点击对角点；2D 点状草纹，3D 为绿色草皮薄层" data-en-title="Lawn: click two opposite corners; dotted grass texture in 2D, thin green turf in 3D" data-en="Lawn"><i data-lucide="flower-2"></i>草坪</button>
-          <button class="btn chip" data-dt="well2" title="雨水井 / 检查井 / 化粪池：两次点击对角点；默认 700×700、深 900，2D 圆井盖加十字，3D 为井圈与井盖" data-en-title="Drain well: click two opposite corners; 700×700, 900 deep by default; round cover + cross in 2D, ring + cover in 3D" data-en="Drain well"><i data-lucide="circle-dot"></i>雨水井</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Roof Equipment">屋顶设备</div>
-          <button class="btn chip" data-dt="dormer" title="老虎窗：两次点击对角点；默认 1200×1500、屋面标高 2800、窗高 900，3D 生成窗箱与双坡小顶" data-en-title="Dormer: click two opposite corners; 1200×1500 at roof level 2800, window 900 high by default; window box + gable in 3D" data-en="Dormer"><i data-lucide="building-2"></i>老虎窗</button>
-          <button class="btn chip" data-dt="chimney" title="烟囱：点击放置（默认 400×400、出屋面 1200），3D 为方柱与压顶" data-en-title="Chimney: click to place (400×400, 1200 above the roof by default); square stack with coping in 3D" data-en="Chimney"><i data-lucide="factory"></i>烟囱</button>
-          <button class="btn chip" data-dt="hatch" title="屋面检修口：两次点击对角点；默认 700×700、翻边高 250，3D 为翻边与盖板" data-en-title="Roof hatch: click two opposite corners; 700×700, upstand 250 high by default; upstand + cover in 3D" data-en="Hatch"><i data-lucide="grid-2x2"></i>检修口</button>
-          <button class="btn chip" data-dt="solar" title="太阳能热水器：两次点击对角点；默认 2000×1600，3D 为斜置集热板与水箱" data-en-title="Solar heater: click two opposite corners; 2000×1600 by default; tilted collector + tank in 3D" data-en="Solar"><i data-lucide="sun-medium"></i>太阳能</button>
-          <button class="btn chip" data-dt="equip" title="屋面设备基础：两次点击对角点；默认 1500×1000、基础厚 150、设备高 800，3D 为基础与机组体量" data-en-title="Equipment base: click two opposite corners; 1500×1000, base 150 thick, unit 800 high by default; base + unit mass in 3D" data-en="Base"><i data-lucide="warehouse"></i>设备基础</button>
-        </div>
-        <div class="dtg"><div class="dth" data-en="Annotations">标注</div>
-          <button class="btn chip" data-dt="dim" title="尺寸标注：第一次点起点，第二次点终点，自动标出两点距离；可选中拖动 / 删除" data-en-title="Dimension: click start then end to mark the distance automatically; select to drag / delete" data-en="Dimension"><i
-          data-lucide="ruler"></i>尺寸标注</button>
-          <button class="btn chip" data-dt="level" title="标高：点击位置放一个标高符号，可改标高值与文字；可拖动 / 删除" data-en-title="Level: click to place a level marker; value and text editable, draggable / deletable" data-en="Level"><i
-          data-lucide="triangle"></i>标高</button>
-          <button class="btn chip" data-dt="text" title="点击平面图放置文字标注；选中后可在右侧改文字、字号与位置" data-en-title="Click the plan to place a text note; text / size / position editable in the panel" data-en="Note"><i
-          data-lucide="type"></i>文字标注</button>
-          <button class="btn chip" data-dt="north" title="指北针：点击放置或移动位置，朝向角度可在右侧改" data-en-title="North arrow: click to place or move; angle editable in the panel" data-en="North"><i
-          data-lucide="compass"></i>指北针</button>
-          <button class="btn chip" data-dt="axgrid" title="轴网：两次点击对角点生成建筑轴网与轴号（默认轴距 3000，可在右侧改轴距 / 外延，2D 专用）" data-en-title="Axis grid: click two opposite corners to generate grid lines and bubbles (spacing 3000 by default; spacing / extension editable, 2D only)" data-en="Axes"><i
-          data-lucide="layout-grid"></i>轴网</button>
-          <button class="btn chip" data-dt="leader" title="引线标注：先点锚点，再点文字位置；文字可在右侧改，两端手柄可拖动调整" data-en-title="Leader: click the anchor point, then the text position; text editable, both end handles draggable" data-en="Leader"><i data-lucide="type"></i>引线标注</button>
-          <button class="btn chip" data-dt="section" title="剖切符号：先点剖切起点，再点终点；自动编号，粗剖切线加两端短划，编号在右侧可改" data-en-title="Section mark: click start then end of the section line; auto-numbered, bold line with end ticks, number editable" data-en="Section"><i data-lucide="milestone"></i>剖切符号</button>
-        </div>
-      </div>
     </aside>
 
     <main id="stage" class="loading">
@@ -2518,19 +2691,22 @@
         <g id="gDraw" pointer-events="none"></g>
         <g id="gSel"></g>
       </svg>
-      <div id="noteEditor" style="display:none;position:absolute;z-index:20;background:#fffdf9;border:1.5px solid #b5653a;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.15);padding:4px 6px;">
-        <input id="noteEditorInput" type="text" maxlength="60" style="border:none;outline:none;background:transparent;font-size:13px;min-width:120px;max-width:300px;padding:2px 0;color:inherit;">
+      <div id="noteEditor"
+        style="display:none;position:absolute;z-index:20;background:#fffdf9;border:1.5px solid #b5653a;border-radius:4px;box-shadow:0 4px 14px rgba(0,0,0,.15);padding:4px 6px;">
+        <input id="noteEditorInput" type="text" maxlength="60"
+          style="border:none;outline:none;background:transparent;font-size:13px;min-width:120px;max-width:300px;padding:2px 0;color:inherit;">
       </div>
       <div class="grp" id="tools">
         <button class="btn on" data-tool="select" title="预览：浏览方案，不可编辑 (V)" data-en-title="Preview: browse only (V)"
           data-en="Preview">预览</button>
-        <button class="btn only2d" data-tool="measure" title="测量 (M)" data-en-title="Measure (M)" data-en="Measure">测量</button>
+        <button class="btn only2d" data-tool="measure" title="测量 (M)" data-en-title="Measure (M)"
+          data-en="Measure">测量</button>
         <button class="btn" data-tool="draw" title="设计：选择 / 画墙 / 房门 / 窗户 (W)"
           data-en-title="Design: select / draw walls, doors / windows (W)" data-en="Design">设计</button>
       </div>
       <div class="grp only3d" id="sunPad"><label class="range"><span data-en="Sun">日照</span> <input type="range"
-            id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span id="sunT">10:00</span></label><button
-          class="btn chip" data-t="night" data-en="Night">夜景</button></div>
+            id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span
+            id="sunT">10:00</span></label><button class="btn chip" data-t="night" data-en="Night">夜景</button></div>
       <div class="only2d" id="rotPad" title="旋转平面视图">
         <button class="rotarrow up" data-rot="0" title="平面朝上（0°）">▲</button>
         <button class="rotarrow right" data-rot="90" title="顺时针转 90°">▶</button>
@@ -2568,7 +2744,8 @@
       <div id="wallLenBox"><input id="wallLen" type="number" min="10" step="10" placeholder="长度"><span>mm</span><span
           class="muted">Enter 确认 · Esc 取消</span></div>
       <div id="rotAngleBox"><span>角度</span><input id="rotAngle" type="number" step="1" placeholder="0"><span>°</span>
-        <span class="muted">Enter 确认 · Esc 取消</span><button class="btn" id="rotOk">应用</button></div>
+        <span class="muted">Enter 确认 · Esc 取消</span><button class="btn" id="rotOk">应用</button>
+      </div>
       <div id="dirPad" class="only2d" hidden>
         <button class="btn on" id="wallOrtho" title="直角：绘制线段与拖动对象都只走水平或垂直（适合大多数户型）；按住 Shift 同效"><i
             data-lucide="corner-down-right"></i>直角</button>
@@ -2596,7 +2773,9 @@
       <span id="hover" class="only2d"></span>
       <span class="spacer"></span>
       <span id="tip"></span>
-      <span class="copy"><b data-en="Floor Plan Designer">户型装修设计</b> v<span id="appVer"></span> · © 2026 RONGLINC93 · <a href="https://github.com/RONGLINC93/floorplan-3d" target="_blank" rel="noopener" data-en="GitHub">GitHub 仓库</a></span>
+      <span class="copy"><b data-en="Floor Plan Designer">户型装修设计</b> v<span id="appVer"></span> · © 2026 RONGLINC93 · <a
+          href="https://github.com/RONGLINC93/floorplan-3d" target="_blank" rel="noopener" data-en="GitHub">GitHub
+          仓库</a></span>
     </footer>
   </div>
   <div id="toast"></div>
@@ -3288,10 +3467,12 @@
           const u = [dx / L, dy / L], n = [-u[1], u[0]], side = leg.flip ? -1 : 1, ov = [n[0] * side, n[1] * side];
           const Pc = leg.lc === -1 ? P0 : P1, Pf = leg.lc === -1 ? P1 : P0, h = wg.T / 2;   // Pc 转角端，Pf 远端
           const at = (p, d) => [p[0] + ov[0] * d, p[1] + ov[1] * d];
-          return { u, ov, T: wg.T,
+          return {
+            u, ov, T: wg.T,
             Ic: at(Pc, -h), If: at(Pf, -h),                        // 靠房间一侧的墙面
             Wc: at(Pc, h), Wf: at(Pf, h),                          // 靠窗一侧的墙面
-            Qc: at(Pc, dep), Qf: at(Pf, dep) };                    // 外沿窗线
+            Qc: at(Pc, dep), Qf: at(Pf, dep)
+          };                    // 外沿窗线
         });
         if (info.some(x => !x) || info.length < 2) return '';
         const a = info[0], b = info[1];
@@ -4630,7 +4811,7 @@
       const t = e.target; if (!t || !t.closest) return null;
       const fEl = t.closest('[data-fid]'); if (fEl) return { kind: 'furn', id: fEl.dataset.fid };
       const map = [['rail', 'rail'], ['beam', 'beam'], ['parapet', 'parapet'], ['canopy', 'canopy'], ['dim', 'dim'],
-        ['stair', 'stair'], ['pillar', 'pillar'], ['lift', 'lift'], ['slab', 'slab'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue']];
+      ['stair', 'stair'], ['pillar', 'pillar'], ['lift', 'lift'], ['slab', 'slab'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue']];
       for (const [kind, attr] of map) {
         const el = t.closest('[data-' + attr + ']');
         if (el) return { kind, id: el.dataset[attr] };
@@ -4793,16 +4974,16 @@
             }
           });
         } else {
-        const wg = o && openingWallGeom(o.wall);
-        if (wg) {
-          const [P0, P1] = segPts(wg.A, wg.B, o.c, o.c + o.w), g = cwGeom([P0[0], P0[1], P1[0], P1[1]]);
-          s += g.rot
-            ? `<rect x="${-g.len / 2}" y="${-wg.T / 2}" width="${g.len}" height="${wg.T}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none" transform="translate(${g.cx} ${g.cy}) rotate(${g.rot})"/>`
-            : `<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none"/>`;
-          if (ui.tool === 'draw' && ui.drawTool === 'select')   // 设计模式：两端手柄拖动调宽
-            s += `<circle data-handle="openEnd" data-end="0" cx="${P0[0]}" cy="${P0[1]}" r="${8 * k}" fill="#fff" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5"><title>${tr('拖动调整门窗宽度', 'Drag to resize opening')}</title></circle>
+          const wg = o && openingWallGeom(o.wall);
+          if (wg) {
+            const [P0, P1] = segPts(wg.A, wg.B, o.c, o.c + o.w), g = cwGeom([P0[0], P0[1], P1[0], P1[1]]);
+            s += g.rot
+              ? `<rect x="${-g.len / 2}" y="${-wg.T / 2}" width="${g.len}" height="${wg.T}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none" transform="translate(${g.cx} ${g.cy}) rotate(${g.rot})"/>`
+              : `<rect x="${g.x}" y="${g.y}" width="${g.w}" height="${g.h}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none"/>`;
+            if (ui.tool === 'draw' && ui.drawTool === 'select')   // 设计模式：两端手柄拖动调宽
+              s += `<circle data-handle="openEnd" data-end="0" cx="${P0[0]}" cy="${P0[1]}" r="${8 * k}" fill="#fff" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5"><title>${tr('拖动调整门窗宽度', 'Drag to resize opening')}</title></circle>
               <circle data-handle="openEnd" data-end="1" cx="${P1[0]}" cy="${P1[1]}" r="${8 * k}" fill="#fff" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5"><title>${tr('拖动调整门窗宽度', 'Drag to resize opening')}</title></circle>`;
-        }
+          }
         }
       } else if (ui.sel?.kind === 'bopen') {
         const r = bopenRect(ui.sel.id);
@@ -5518,7 +5699,7 @@
       let t = (P[0] - wall.a[0]) * ux + (P[1] - wall.a[1]) * uy;
       t = Math.max(0, Math.min(L, t));
       return [Math.round((wall.a[0] + ux * t + nx * side * wall.T / 2) / 10) * 10,
-              Math.round((wall.a[1] + uy * t + ny * side * wall.T / 2) / 10) * 10];
+      Math.round((wall.a[1] + uy * t + ny * side * wall.T / 2) / 10) * 10];
     }
     // 阳台贴墙：靠近墙时把矩形贴到墙面，并取消靠墙边的栏板
     function fitBalconyWall(b) {
@@ -6684,7 +6865,7 @@
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
       const runs = s.runs || 1, stack = !!s.stack, cur = stack ? '3s' : String(runs), lay = stairLayout(s);
       const types = [[1, tr('直跑', 'Straight')], [2, tr('双跑（U 形折返）', 'Double (U-turn)')],
-        [3, tr('三跑（三跑并排）', 'Triple (side by side)')], ['3s', tr('正三跑（第三跑叠一跑）', 'Stacked triple')], ['sp', tr('螺旋楼梯', 'Spiral')]];
+      [3, tr('三跑（三跑并排）', 'Triple (side by side)')], ['3s', tr('正三跑（第三跑叠一跑）', 'Stacked triple')], ['sp', tr('螺旋楼梯', 'Spiral')]];
       return `<section><h3>${tr('楼梯', 'Stair')}</h3>
     <div class="form">
       <label>${tr('梯型', 'Type')}<select id="sRuns">${types.map(([v, t]) => `<option value="${v}" ${cur === String(v) ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
@@ -6705,7 +6886,7 @@
       <label class="full">${tr('扶手材质', 'Handrail material')}<select id="sRailMat" ${s.rail === false ? 'disabled' : ''}>${[['wood', tr('木制', 'Wood')], ['steel', tr('不锈钢', 'Stainless steel')], ['glass', tr('玻璃栏板', 'Glass panel')]].map(([v, t]) => `<option value="${v}" ${(s.railMat || 'wood') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
     </div>
     <div class="muted" style="margin-top:8px">${tr(`共 ${lay.total} 级 · 踏步高 ${Math.round(lay.unit)} mm（升到高度 ÷ 总步数）· 每跑沿固定跑长均分踏步；直跑可带到达端平台（横向宽 1 梯宽；双平台横向 2 梯宽，可左右偏半格），双跑 / 三跑带折返平台（进深 = 梯宽），都从占地长度里扣，梯下都是空的。2D 里拖选中框右侧方块改长度、上方方块改梯宽。`,
-      `${lay.total} steps · ${Math.round(lay.unit)} mm rise each (set rise ÷ total steps); steps spread evenly along each run. Straight runs can have a top landing, double / triple runs get turning landings (depth = stair width, taken from the footprint); treads float with open underside. In 2D drag the right square to change length, the top square to change width.`)}</div>
+        `${lay.total} steps · ${Math.round(lay.unit)} mm rise each (set rise ÷ total steps); steps spread evenly along each run. Straight runs can have a top landing, double / triple runs get turning landings (depth = stair width, taken from the footprint); treads float with open underside. In 2D drag the right square to change length, the top square to change width.`)}</div>
     <div class="actions">
       ${lay.N > 1 ? `<button class="btn" id="aFlipZ" title="${tr('沿上行方向看，折返的一跑换到另一侧（旋转做不到）', 'Swap the return run to the other side')}">${tr('左右翻转', 'Flip L-R')}</button>` : ''}
       <button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上楼方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button>
@@ -6899,10 +7080,10 @@
       return out;
     }
     const MULTI_ATTR = [['fid', 'furn'], ['stair', 'stair'], ['pillar', 'pillar'], ['room', 'room'], ['wall', 'wall'], ['open', 'open'],
-      ['note', 'note'], ['dim', 'dim'], ['rail', 'rail'], ['beam', 'beam'], ['level', 'level'], ['slab', 'slab'],
-      ['parapet', 'parapet'], ['canopy', 'canopy'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue'],
-      ['lift', 'lift'], ['gate', 'gate'], ['arcwall', 'arcwall'], ['axgrid', 'axgrid'],
-      ['roof', 'roof'], ['pergola', 'pergola'], ['deck', 'deck'], ['pool', 'pool'], ['extra', 'extra']];
+    ['note', 'note'], ['dim', 'dim'], ['rail', 'rail'], ['beam', 'beam'], ['level', 'level'], ['slab', 'slab'],
+    ['parapet', 'parapet'], ['canopy', 'canopy'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue'],
+    ['lift', 'lift'], ['gate', 'gate'], ['arcwall', 'arcwall'], ['axgrid', 'axgrid'],
+    ['roof', 'roof'], ['pergola', 'pergola'], ['deck', 'deck'], ['pool', 'pool'], ['extra', 'extra']];
     const MULTI_SEL = MULTI_ATTR.map(([k]) => `[data-${k}]`).join(',');
     function multiHit(t) {                                          // 按下的对象是否属于当前多选（属于 → 整体拖动）
       if (ui.multi.length < 2) return null;
@@ -6993,8 +7174,10 @@
         const pids = new Set(ui.multi.filter(s => s.kind === 'pillar').map(s => s.id));
         const wids = new Set(ui.multi.filter(s => s.kind === 'wall').map(s => s.id));
         const rids = new Set(ui.multi.filter(s => s.kind === 'room').map(s => s.id));
-        const KINDS = { dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls',
-          note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', extra: 'extras' };
+        const KINDS = {
+          dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls',
+          note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', extra: 'extras'
+        };
         const kidSets = {};
         Object.keys(KINDS).forEach(k => kidSets[k] = new Set(ui.multi.filter(s => s.kind === k).map(s => s.id)));
         const outSets = ['roof', 'pergola', 'deck', 'pool'].map(k => [k, new Set(ui.multi.filter(s => s.kind === k).map(s => s.id))]);
@@ -7078,8 +7261,10 @@
         toast(tr('已删除房间 · Ctrl+Z 可撤销', 'Room deleted · Ctrl+Z to undo'));
       }
     }
-    const NUDGE_ARRS = { pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets', canopy: 'canopies',
-      balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates' };
+    const NUDGE_ARRS = {
+      pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets', canopy: 'canopies',
+      balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates'
+    };
     function nudgeObj(kind, id, dx, dy) {                           // 方向键微移：家具 / 各类构件 / 门窗（2D 与 3D 共用，可撤销）
       if (kind === 'furn') { const f = getF(id); if (!f) return false; mutate(() => { f.cx += dx; f.cy += dy; }); return true; }
       if (kind === 'wall' || kind === 'arcwall') {
@@ -7848,37 +8033,37 @@
                   ? tr(`已放单扇推拉门 ${Math.round(w)} mm · 点 3D 中的门扇可推开`, `Single sliding door ${Math.round(w)} mm added · click it in 3D to slide open`)
                   : kind === 'fold'
                     ? tr(`已放折叠门 ${Math.round(w)} mm · 点 3D 中的门扇可折起 / 展开`, `Folding door ${Math.round(w)} mm added · click it in 3D to fold / unfold`)
-                : kind === 'arch'
-                  ? tr(`已放拱形门洞 ${Math.round(w)} mm（直段 / 拱高可在右侧调）`, `Arched opening ${Math.round(w)} mm added (spring / rise editable in the panel)`)
-                  : kind === 'niche'
-                    ? tr(`已放壁龛 ${Math.round(w)} mm（窗台 / 高度 / 进深可在右侧调）`, `Niche ${Math.round(w)} mm added (sill / height / depth editable in the panel)`)
-                : kind === 'yak'
-                  ? tr(`已放垭口 ${Math.round(w)} mm（无门扇，可直接通行）`, `Cased opening ${Math.round(w)} mm added (walk-through)`)
-                  : kind === 'dble'
-                    ? tr(`已放双开门 ${Math.round(w)} mm · 点 3D 中的门可开合`, `Double door ${Math.round(w)} mm added · click it in 3D`)
-                    : kind === 'zimu'
-                      ? tr(`已放子母门 ${Math.round(w)} mm · 点 3D 中的门可开合`, `Unequal double door ${Math.round(w)} mm added · click it in 3D`)
-                      : kind === 'hwin'
-                        ? tr(`已放高窗 ${Math.round(w)} mm（窗台默认 1400 mm，可在右侧属性里调）`, `High window ${Math.round(w)} mm added (sill 1400 mm, editable in the panel)`)
-                        : kind === 'hole'
-                          ? tr(`已开预留洞 ${Math.round(w)} mm（无框无扇，洞口尺寸在右侧改）`, `Opening ${Math.round(w)} mm added (no frame or sash)`)
-                          : kind === 'swin'
-                            ? tr(`已放推拉窗 ${Math.round(w)} mm · 3D 中点窗扇可推开`, `Sliding window ${Math.round(w)} mm added · click a sash in 3D to slide it open`)
-                            : kind === 'auto'
-                              ? tr(`已放自动感应门 ${Math.round(w)} mm（双扇平移玻璃门）`, `Automatic sliding door ${Math.round(w)} mm added`)
-                              : kind === 'revolve'
-                                ? tr(`已放旋转门 ${Math.round(w)} mm（圆筒玻璃 + 十字旋翼）`, `Revolving door ${Math.round(w)} mm added`)
-                                : kind === 'strip'
-                                  ? tr(`已放带形窗 ${Math.round(w)} mm · 3D 按约 1200 分格`, `Strip window ${Math.round(w)} mm added · mullions every ~1200 in 3D`)
-                                  : kind === 'dwin'
-                          ? tr(`已放门连窗 ${Math.round(w)} mm · 点 3D 中的门扇 / 窗扇可开合`, `Door + window ${Math.round(w)} mm added`)
-                          : kind === 'louver'
-                            ? tr(`已放百叶窗 ${Math.round(w)} mm（窗台默认 900，可在右侧属性里调）`, `Louver window ${Math.round(w)} mm added (sill 900, editable in the panel)`)
-                            : kind === 'cwin'
-                              ? tr(`已放圆窗 ${Math.round(w)} mm（直径 = 宽度，窗台默认 900）`, `Round window ${Math.round(w)} mm added (diameter = width, sill 900)`)
-                              : kind === 'bay'
-                                ? tr(`已放飘窗 ${Math.round(w)} mm（窗台 500，向外凸出 600，进深 / 朝向可在右侧改）`, `Bay window ${Math.round(w)} mm added (sill 500, 600 deep; depth / side editable in the panel)`)
-                                : tr(`已放窗户 ${Math.round(w)} mm（窗台默认 900，可在属性里调）`, `Window ${Math.round(w)} mm added (sill 900, editable in the panel)`));
+                    : kind === 'arch'
+                      ? tr(`已放拱形门洞 ${Math.round(w)} mm（直段 / 拱高可在右侧调）`, `Arched opening ${Math.round(w)} mm added (spring / rise editable in the panel)`)
+                      : kind === 'niche'
+                        ? tr(`已放壁龛 ${Math.round(w)} mm（窗台 / 高度 / 进深可在右侧调）`, `Niche ${Math.round(w)} mm added (sill / height / depth editable in the panel)`)
+                        : kind === 'yak'
+                          ? tr(`已放垭口 ${Math.round(w)} mm（无门扇，可直接通行）`, `Cased opening ${Math.round(w)} mm added (walk-through)`)
+                          : kind === 'dble'
+                            ? tr(`已放双开门 ${Math.round(w)} mm · 点 3D 中的门可开合`, `Double door ${Math.round(w)} mm added · click it in 3D`)
+                            : kind === 'zimu'
+                              ? tr(`已放子母门 ${Math.round(w)} mm · 点 3D 中的门可开合`, `Unequal double door ${Math.round(w)} mm added · click it in 3D`)
+                              : kind === 'hwin'
+                                ? tr(`已放高窗 ${Math.round(w)} mm（窗台默认 1400 mm，可在右侧属性里调）`, `High window ${Math.round(w)} mm added (sill 1400 mm, editable in the panel)`)
+                                : kind === 'hole'
+                                  ? tr(`已开预留洞 ${Math.round(w)} mm（无框无扇，洞口尺寸在右侧改）`, `Opening ${Math.round(w)} mm added (no frame or sash)`)
+                                  : kind === 'swin'
+                                    ? tr(`已放推拉窗 ${Math.round(w)} mm · 3D 中点窗扇可推开`, `Sliding window ${Math.round(w)} mm added · click a sash in 3D to slide it open`)
+                                    : kind === 'auto'
+                                      ? tr(`已放自动感应门 ${Math.round(w)} mm（双扇平移玻璃门）`, `Automatic sliding door ${Math.round(w)} mm added`)
+                                      : kind === 'revolve'
+                                        ? tr(`已放旋转门 ${Math.round(w)} mm（圆筒玻璃 + 十字旋翼）`, `Revolving door ${Math.round(w)} mm added`)
+                                        : kind === 'strip'
+                                          ? tr(`已放带形窗 ${Math.round(w)} mm · 3D 按约 1200 分格`, `Strip window ${Math.round(w)} mm added · mullions every ~1200 in 3D`)
+                                          : kind === 'dwin'
+                                            ? tr(`已放门连窗 ${Math.round(w)} mm · 点 3D 中的门扇 / 窗扇可开合`, `Door + window ${Math.round(w)} mm added`)
+                                            : kind === 'louver'
+                                              ? tr(`已放百叶窗 ${Math.round(w)} mm（窗台默认 900，可在右侧属性里调）`, `Louver window ${Math.round(w)} mm added (sill 900, editable in the panel)`)
+                                              : kind === 'cwin'
+                                                ? tr(`已放圆窗 ${Math.round(w)} mm（直径 = 宽度，窗台默认 900）`, `Round window ${Math.round(w)} mm added (diameter = width, sill 900)`)
+                                                : kind === 'bay'
+                                                  ? tr(`已放飘窗 ${Math.round(w)} mm（窗台 500，向外凸出 600，进深 / 朝向可在右侧改）`, `Bay window ${Math.round(w)} mm added (sill 500, 600 deep; depth / side editable in the panel)`)
+                                                  : tr(`已放窗户 ${Math.round(w)} mm（窗台默认 900，可在属性里调）`, `Window ${Math.round(w)} mm added (sill 900, editable in the panel)`));
     }
     // 取墙的两端坐标（内置墙 / 自画墙统一）
     function wallEnds(ref) {
@@ -8938,8 +9123,10 @@
       }
     };
     window.drawAt3D = (p, shift) => {                              // 3D 地面落点 → 复用 2D 建筑工具的落点创建（两次点击定起终点）
-      const fake = { button: 0, pointerType: 'mouse', pointerId: -1, isPrimary: true, clientX: 0, clientY: 0,
-        shiftKey: !!shift, mm: p, target: { closest: () => null }, preventDefault() { }, stopPropagation() { } };
+      const fake = {
+        button: 0, pointerType: 'mouse', pointerId: -1, isPrimary: true, clientX: 0, clientY: 0,
+        shiftKey: !!shift, mm: p, target: { closest: () => null }, preventDefault() { }, stopPropagation() { }
+      };
       const cap = svg.setPointerCapture, rel = svg.releasePointerCapture;
       const keys = ['dimA', 'railA', 'beamA', 'slabA', 'parapetA', 'canopyA', 'rectA', 'arcA', 'gateA', 'exA', 'ldA'];
       const before = { w: wStart, s: keys.map(k => ui[k]) };
@@ -10207,7 +10394,7 @@
         if (!name) { toast(tr('请输入方案名称', 'Please enter a plan name')); return; }
         if (name === AUTO_NAME) { toast(tr('该名称保留给自动保存，请换一个', 'Reserved for autosave — pick another')); return; }
         if (plans.some(p => p.name === name) && name !== planName &&
-            !await uiConfirm(tr('已存在同名方案「' + name + '」，覆盖它？', 'A plan named "' + name + '" already exists. Overwrite?'), tr('覆盖', 'Overwrite'))) return;
+          !await uiConfirm(tr('已存在同名方案「' + name + '」，覆盖它？', 'A plan named "' + name + '" already exists. Overwrite?'), tr('覆盖', 'Overwrite'))) return;
         okB.disabled = true;
         try {
           const thumbSaved = await savePlanTo(name);
@@ -10256,7 +10443,7 @@
     /* 关闭方案：回到空白画板；服务器上已保存的方案不受影响，可随时「打开方案」载回 */
     $('#closePlan').onclick = async () => {
       if ((planName || state.furniture.length || state.walls.length || Object.keys(state.rooms).length) &&
-          !await uiConfirm(tr('关闭当前方案并回到空白画板？\n服务器上已保存的方案不受影响；尚未保存的修改会丢失。', 'Close the current plan and return to a blank canvas?\nSaved plans on the server are not affected; unsaved changes will be lost.'))) return;
+        !await uiConfirm(tr('关闭当前方案并回到空白画板？\n服务器上已保存的方案不受影响；尚未保存的修改会丢失。', 'Close the current plan and return to a blank canvas?\nSaved plans on the server are not affected; unsaved changes will be lost.'))) return;
       state = blankState();
       ui.sel = null;
       undoStack.length = 0; redoStack.length = 0;   // 关闭后无可撤销内容，撤销栈清空
@@ -10477,8 +10664,10 @@
       // 按住已选中的家具拖动：沿地面摆放（与 2D 共用网格和贴墙吸附）。
       // 在父元素上用捕获阶段监听，赶在 OrbitControls 之前关掉它，避免同时旋转镜头
       let fdrag = null, objdrag = null;
-      const OBJ_ARRS = { wall: 'walls', arcwall: 'arcWalls', pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets',
-        canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates' };
+      const OBJ_ARRS = {
+        wall: 'walls', arcwall: 'arcWalls', pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets',
+        canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates'
+      };
       const find3dObj = (kind, id) => {
         if (kind === 'wall' || kind === 'arcwall') {                 // 原始墙（wN）固定在户型里，不可拖动
           const pre = kind === 'wall' ? 'CW' : 'AW', arr = state[kind === 'wall' ? 'walls' : 'arcWalls'] || [];
@@ -10517,9 +10706,11 @@
           if (!h?.kind || h.kind !== ui.sel.kind || String(h.id) !== String(ui.sel.id)) return;
           const info = openDragInfo(h.kind, h.id);
           if (!info && !find3dObj(h.kind, h.id)) return;
-          objdrag = { kind: h.kind, id: h.id, pid: e.pointerId, sx: e.clientX, sy: e.clientY, gx: g.x, gy: g.y, dx: 0, dy: 0, moved: false, openInfo: info,
+          objdrag = {
+            kind: h.kind, id: h.id, pid: e.pointerId, sx: e.clientX, sy: e.clientY, gx: g.x, gy: g.y, dx: 0, dy: 0, moved: false, openInfo: info,
             targets: archUp.children.filter(o => o.userData.pick3d?.kind === h.kind && String(o.userData.pick3d.id) === String(h.id))
-              .map(o => ({ o, x: o.position.x, z: o.position.z })) };
+              .map(o => ({ o, x: o.position.x, z: o.position.z }))
+          };
         }
         orbit.enabled = false; fly = null; cv.setPointerCapture(e.pointerId);
       }, true);
@@ -12168,8 +12359,10 @@
           const sl = new THREE.Mesh(new THREE.BoxGeometry(L, hh / nS - .015, .05), slatMat);
           sl.position.set(0, -(k + .5) * hh / nS, 0); sl.castShadow = true; slatGrp.add(sl);
         }
-        const door = { slat: true, grp: slatGrp, open: false, cur: 1, a1: 0, a0: 1,       // cur 1=放下 0=卷起
-          mx: wx((P0[0] + P1[0]) / 2), mz: wz((P0[1] + P1[1]) / 2), ax: wx(P1[0]) - wx(P0[0]), az: wz(P1[1]) - wz(P0[1]) };
+        const door = {
+          slat: true, grp: slatGrp, open: false, cur: 1, a1: 0, a0: 1,       // cur 1=放下 0=卷起
+          mx: wx((P0[0] + P1[0]) / 2), mz: wz((P0[1] + P1[1]) / 2), ax: wx(P1[0]) - wx(P0[0]), az: wz(P1[1]) - wz(P0[1])
+        };
         housing.userData.door = door;
         slatGrp.children.forEach(sl => sl.userData.door = door);
         doors.push(door);
@@ -12367,8 +12560,10 @@
         const pw = L / 2 - .02, pg = new THREE.Group();       // 扇心向中缝收 1cm：两扇内框在中缝拼合不留缝
         const tnx = dz * sd * TT * .09, tnz = -dx * sd * TT * .09;   // 双轨：两扇各偏一侧墙厚，交错滑行不打架
         pg.position.set(mx + dx * sd * (L / 4 - .01) + tnx, 0, mz + dz * sd * (L / 4 - .01) + tnz); pg.rotation.y = rot;
-        const pdoor = { slide: true, win: true, open: false, cur: 0,
-          pivots: [{ g: pg, px: pg.position.x, pz: pg.position.z, ax: -dx * sd, az: -dz * sd, dist: L / 2 - .02 }] };
+        const pdoor = {
+          slide: true, win: true, open: false, cur: 0,
+          pivots: [{ g: pg, px: pg.position.x, pz: pg.position.z, ax: -dx * sd, az: -dz * sd, dist: L / 2 - .02 }]
+        };
         const pane = new THREE.Mesh(new THREE.BoxGeometry(pw, gh, .012), sg);
         pane.position.y = cy; pane.userData.door = pdoor; pg.add(pane);
         const bar = (w, h, ox, oy) => {                       // 扇框：左右竖梃 + 上下横梃
@@ -12584,7 +12779,7 @@
           [x0, x1].forEach(x => {
             const g = new THREE.BufferGeometry();
             g.setAttribute('position', new THREE.Float32BufferAttribute([x, hz, z0, x, hz, z1, x, hz + rise, zc], 3));
-            g.computeVertexNormals();             archUp.add(new THREE.Mesh(g, mat('#cfc8b8', { side: THREE.DoubleSide })));
+            g.computeVertexNormals(); archUp.add(new THREE.Mesh(g, mat('#cfc8b8', { side: THREE.DoubleSide })));
           });
         }
         markNew(s0, 'roof', r.id);
@@ -12681,245 +12876,245 @@
       (state.extras || []).forEach(e => {                    // 扩展构件：楼板洞口 / 设备平台 / 停车位 / 凉亭 / 天窗 / 散水 / 挡土墙 / 天沟 / 雨水管
         const s0 = archUp.children.length;
         try {
-        const T3 = e.type;
-        const box = (w, h, d, x, y, z, m, ry = 0) => {
-          const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
-          b.position.set(x, y, z); b.rotation.y = ry; b.castShadow = b.receiveShadow = true; archUp.add(b); return b;
-        };
-        if (isExtraPt(T3)) {                                  // 点构件：雨水管 / 构造柱 / 烟囱 / 景观树
-          const h = Math.max(.3, M(e.h || 2800)), px = wx(e.x), pz = wz(e.y);
-          if (T3 === 'tree') {                                // 景观树：树干 + 球状树冠
-            const r = Math.max(.15, M(e.w || 900) / 2), trunkM = mat('#7d6247', { roughness: .95 });
-            const tr = new THREE.Mesh(new THREE.CylinderGeometry(r * .1, r * .14, h * .62, 10), trunkM);
-            tr.position.set(px, h * .31, pz); tr.castShadow = true; archUp.add(tr);
-            [[h * .62, r], [h * .8, r * .72], [h * .95, r * .45]].forEach(([yy, rr]) => {
-              const c = new THREE.Mesh(new THREE.SphereGeometry(rr, 14, 10), mat('#6f8a5c', { roughness: .95 }));
-              c.position.set(px, yy, pz); c.castShadow = true; c.scale.y = .86; archUp.add(c);
-            });
-            return;
-          }
-          if (T3 === 'tiecol' || T3 === 'chimney') {          // 构造柱 / 烟囱：方柱（烟囱从屋面标高起）
-            const s = Math.max(.06, M(e.w || 240)), z = T3 === 'chimney' ? Math.max(0, M(e.z || 2800)) : 0;
-            const m = mat('#c2bbab', { roughness: .92 });
-            box(s, h, s, px, z + h / 2, pz, m);
-            if (T3 === 'chimney') {
-              box(s + .08, .08, s + .08, px, z + h + .04, pz, mat('#a9a293', { roughness: .9 }));
-              box(s * .5, .06, s * .5, px, z + h + .11, pz, mat('#4b453c', { roughness: 1 }));
-            }
-            return;
-          }
-          if (T3 === 'flag') {                                // 旗杆：底座 + 细杆 + 顶球 + 竖直旗面 + 升降手柄
-            const r = Math.max(.02, M(e.w || 120) / 2);
-            const base = new THREE.Mesh(new THREE.CylinderGeometry(r * 3.2, r * 4, .45, 16), mat('#c9c3b5', { roughness: .9 }));
-            base.position.set(px, .225, pz); base.castShadow = base.receiveShadow = true; archUp.add(base);
-            const pole = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.3, h, 10), mat('#d8d5cc', { metalness: .4, roughness: .5 }));
-            pole.position.set(px, .45 + (h - .45) / 2, pz); pole.castShadow = true; pole.userData.flagId = e.id; pole.userData.flagPoleFor = e.id; archUp.add(pole);   // flagPoleFor 供漫游高亮整杆
-            const ball = new THREE.Mesh(new THREE.SphereGeometry(r * 1.8, 10, 8), mat('#c8a45a', { metalness: .6, roughness: .35 }));
-            ball.position.set(px, h + r * 1.6, pz); ball.userData.flagId = e.id; archUp.add(ball);
-            const fw = Math.max(.5, h * .1), fh = fw * .62;   // 竖直旗面：宽 fw、高 fh，薄面朝 z，顶部贴旗面顶标高（可升降）
-            const fy = Math.min(h - .5, Math.max(.5, M(e.flagY ?? Math.round(h * 1000 * .9))));
-            const fb = box(fw, fh, .02, px + fw / 2 + r, fy - fh / 2, pz, mat('#a44e3d', { roughness: .8 }));
-            fb.userData.flagId = e.id; fb.userData.flagMeshFor = e.id;   // flagMeshFor 供升降动画逐帧定位
-            return;
-          }
-          const r = Math.max(.02, M(e.w || 100) / 2);
-          const pipeMat = mat('#9aa1a6', { metalness: .5, roughness: .45 });
-          const p = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), pipeMat);
-          p.position.set(px, h / 2, pz); p.castShadow = true; archUp.add(p);
-          [h * .3, h * .72].forEach(y => box(.09, .04, .05, px, y, pz, mat('#7d8489', { metalness: .5, roughness: .5 })));
-          if (e.hopper) {                                     // 顶部落水斗：上大下小两节方斗
-            box(r * 5, .14, r * 5, px, h + .07, pz, pipeMat);
-            box(r * 3, .1, r * 3, px, h + .16, pz, pipeMat);
-          }
-          return;
-        }
-        if (isExtraLin(T3)) {                                 // 线性构件：散水 / 挡土墙 / 天沟 / 过梁 / 变形缝 / 挑檐 / 窗台板 / 园路
-          const A = [wx(e.a[0]), wz(e.a[1])], B = [wx(e.b[0]), wz(e.b[1])];
-          const L = Math.hypot(B[0] - A[0], B[1] - A[1]); if (L < .1) return;
-          const rot = wallAngle(e.a, e.b), mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2;
-          const w = Math.max(.04, M(e.w || (T3 === 'retain' ? 300 : T3 === 'seam' ? 40 : 600))), h = Math.max(.02, M(e.h || 60));
-          if (T3 === 'retain') {                              // 挡土墙：实心墙 + 压顶
-            box(L, h, w, mx, h / 2, mz, mat('#b9b2a3', { roughness: .95 }), rot);
-            box(L + .02, .05, w + .06, mx, h + .025, mz, mat('#cdc6b6', { roughness: .9 }), rot);
-          } else if (T3 === 'gutter') {                       // 天沟：深色槽底 + 两侧沟壁
-            box(L, h, w, mx, h / 2, mz, mat('#8f8b80', { roughness: .9 }), rot);
-            const ny = [Math.sin(rot), Math.cos(rot)];          // 墙厚方向的单位向量（3D 中 x/z）
-            [-1, 1].forEach(sd => {
-              const off = sd * w / 2;
-              box(L, h + .04, .04, mx + ny[0] * off, (h + .04) / 2, mz + ny[1] * off, mat('#b6afa0', { roughness: .9 }), rot);
-            });
-          } else if (T3 === 'lintel' || T3 === 'eave' || T3 === 'sill' || T3 === 'thresh' || T3 === 'band' || T3 === 'signbd') {   // 过梁 / 挑檐 / 窗台板 / 门槛石 / 线脚 / 门头招牌：按标高悬空
-            const z = Math.max(0, M(e.z || (T3 === 'sill' ? 900 : T3 === 'lintel' ? 2100 : T3 === 'band' ? 2000 : T3 === 'signbd' ? 2800 : 0)));
-            box(L, h, w, mx, z + h / 2, mz, T3 === 'sill' || T3 === 'thresh'
-              ? mat('#ded6c6', { roughness: .75 })
-              : T3 === 'lintel' ? mat('#c2bbab', { roughness: .92 }) : T3 === 'signbd' ? mat('#44546a', { roughness: .7, metalness: .2 }) : mat('#a9a08e', { roughness: .9 }), rot);
-          } else if (T3 === 'seam') {                         // 变形缝：地面窄缝
-            box(L, .02, w, mx, .012, mz, mat('#5c554a', { roughness: 1 }), rot);
-          } else if (T3 === 'path') {                         // 园路：地面铺装薄板
-            box(L, h, w, mx, h / 2, mz, mat('#c9bfa9', { roughness: .95 }), rot);
-          } else {                                            // 散水：向外找坡的混凝土带
-            box(L, h, w, mx, h / 2, mz, mat('#cfc8b8', { roughness: .95 }), rot);
-          }
-          return;
-        }
-        const x0 = wx(e.x - e.w / 2), z0 = wz(e.y - e.d / 2), w = Math.max(.1, M(e.w || 100)), d = Math.max(.1, M(e.d || 100));
-        const cx = wx(e.x), cz = wz(e.y);
-        if (T3 === 'slabhole') {                              // 楼板洞口：深色洞口 + 四周翻边（视觉上在楼板上开洞）
-          const y = M(e.z || 0);
-          const voidM = mat('#2f2a24', { roughness: 1 });
-          const v = new THREE.Mesh(new THREE.BoxGeometry(w, .02, d), voidM);
-          v.position.set(cx, y + .012, cz); v.receiveShadow = true; archUp.add(v);
-          const rim = mat('#cfc7b6', { roughness: .9 });
-          box(w + .06, .06, .04, cx, y + .03, z0 - .02, rim); box(w + .06, .06, .04, cx, y + .03, z0 + d + .02, rim);
-          box(.04, .06, d + .06, x0 - .02, y + .03, cz, rim); box(.04, .06, d + .06, x0 + w + .02, y + .03, cz, rim);
-          return;
-        }
-        if (T3 === 'ac') {                                    // 设备平台：混凝土挑板 + 三面百叶围板
-          const th = Math.max(.04, M(e.thick || 100)), y = M(e.z || 0);
-          box(w, th, d, cx, y + th / 2, cz, mat('#c6bfae', { roughness: .95 }));
-          const lv = mat('#d9d4c8', { roughness: .8 }), n = Math.max(3, Math.round(d / .12));
-          const panel = (px, pz, pw, ry) => {
-            for (let i = 0; i < n; i++) {
-              const yy = y + th + (i + .5) * .09;
-              if (yy > y + th + .9) break;
-              box(pw, .05, .02, px, yy, pz, lv, ry);
-            }
-            box(pw, 1.0, .03, px, y + th + .5, pz, mat('#c9c3b6', { roughness: .8 }), ry);
+          const T3 = e.type;
+          const box = (w, h, d, x, y, z, m, ry = 0) => {
+            const b = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+            b.position.set(x, y, z); b.rotation.y = ry; b.castShadow = b.receiveShadow = true; archUp.add(b); return b;
           };
-          panel(cx, z0 + .02, w, 0); panel(cx, z0 + d - .02, w, 0);
-          panel(x0 + .02, cz, d, Math.PI / 2); panel(x0 + w - .02, cz, d, Math.PI / 2);
-          return;
-        }
-        if (T3 === 'park') {                                  // 停车位：地面标线（四条边线 + 入口横线）
-          const m = mat('#e9e6dd', { roughness: .9 }), y = .02;
-          box(w, .01, .06, cx, y, z0 + .03, m); box(w, .01, .06, cx, y, z0 + d - .03, m);
-          box(.06, .01, d, x0 + .03, y, cz, m); box(.06, .01, d, x0 + w - .03, y, cz, m);
-          const ang = ((+e.dir || 0) % 360) * Math.PI / 180, md = Math.min(w, d);
-          const uX = Math.sin(ang), uZ = -Math.cos(ang);       // 0° = 朝上（-Z）
-          const al = md * .55, ah = Math.max(.07, md * .18), ahw = Math.max(.05, md * .11), ay = y + .006;
-          box(al - ah, .008, .1, cx - uX * ah / 2, ay, cz - uZ * ah / 2, m, Math.PI / 2 - ang);   // 箭杆
-          const tX = cx + uX * al / 2, tZ = cz + uZ * al / 2, bX = cx + uX * (al / 2 - ah), bZ = cz + uZ * (al / 2 - ah);
-          const pX = -uZ, pZ = uX, geo = new THREE.BufferGeometry();
-          geo.setAttribute('position', new THREE.Float32BufferAttribute([
-            tX, ay, tZ, bX - pX * ahw, ay, bZ - pZ * ahw, bX + pX * ahw, ay, bZ + pZ * ahw
-          ], 3));
-          geo.computeVertexNormals();
-          const tri = new THREE.Mesh(geo, m); tri.receiveShadow = true; archUp.add(tri);   // 箭头三角
-          return;
-        }
-        if (T3 === 'pavilion') {                              // 凉亭：四角立柱 + 顶盖（外挑 150）
-          const h = Math.max(1.8, M(e.h || 2600)), cr = Math.max(.03, M(e.col || 150) / 2);
-          const colM = mat('#8d7a5f', { roughness: .85 }), roofM = mat('#7c6a52', { roughness: .9 });
-          [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
-            const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 12), colM);
-            c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
-          });
-          box(w, .1, d, cx, h + .05, cz, roofM);
-          box(w + .3, .12, d + .3, cx, h + .16, cz, mat('#6f5f49', { roughness: .9 }));
-          return;
-        }
-        if (T3 === 'carport') {                               // 电动车棚：四角钢柱 + 轻钢平顶
-          const h = Math.max(1.8, M(e.h || 2500)), cr = Math.max(.04, M(e.col || 100) / 2);
-          const colM = mat('#8a939b', { metalness: .45, roughness: .55 }), roofM = mat('#aab4bc', { roughness: .7, metalness: .2 });
-          [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
-            const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 10), colM);
-            c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
-          });
-          box(w + .25, .07, d + .25, cx, h + .035, cz, roofM);
-          box(w + .25, .05, .08, cx, h + .09, z0 - .12, roofM); box(w + .25, .05, .08, cx, h + .09, z0 + d + .12, roofM);
-          return;
-        }
-        if (T3 === 'skylight') {                              // 天窗：屋面翻边 + 凸起玻璃顶
-          const y = M(e.z || 2800), h = Math.max(.08, M(e.h || 350));
-          const rim = mat('#cfc7b6', { roughness: .9 });
-          box(w + .1, h, .1, cx, y + h / 2, z0 - .05, rim); box(w + .1, h, .1, cx, y + h / 2, z0 + d + .05, rim);
-          box(.1, h, d + .1, x0 - .05, y + h / 2, cz, rim); box(.1, h, d + .1, x0 + w + .05, y + h / 2, cz, rim);
-          const g = new THREE.Mesh(new THREE.BoxGeometry(w, .02, d), glassMat);
-          g.position.set(cx, y + h, cz); archUp.add(g);
-          [-.5, .5].forEach(t => box(.04, .03, d, cx + w * t, y + h + .02, cz, rim));
-          return;
-        }
-        if (T3 === 'shaft') {                                 // 管道井：四壁井道 + 顶部收口
-          const h = Math.max(.6, M(e.h || 2800)), t = Math.max(.06, M(e.t || 120)), m = mat('#c2bbab', { roughness: .95 });
-          box(w, h, t, cx, h / 2, z0 + t / 2, m); box(w, h, t, cx, h / 2, z0 + d - t / 2, m);
-          box(t, h, Math.max(.1, d - t * 2), x0 + t / 2, h / 2, cz, m); box(t, h, Math.max(.1, d - t * 2), x0 + w - t / 2, h / 2, cz, m);
-          box(w + .06, .06, d + .06, cx, h + .03, cz, mat('#a9a293', { roughness: .9 }));
-          return;
-        }
-        if (T3 === 'lawn') {                                  // 草坪：绿色草皮薄层
-          const h = Math.max(.01, M(e.h || 60));
-          box(w, h, d, cx, h / 2, cz, mat('#7d9668', { roughness: 1 }));
-          return;
-        }
-        if (T3 === 'well2') {                                 // 雨水井：井圈 + 井盖（篦子样式为 4 条篦条）
-          const r = Math.min(w, d) / 2 * .82;
-          const rim = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.12, r * 1.12, .12, 20), mat('#b3ac9c', { roughness: .95 }));
-          rim.position.set(cx, .06, cz); rim.receiveShadow = true; archUp.add(rim);
-          if (e.style === 'grate') {
-            const gm = mat('#6e6a60', { metalness: .4, roughness: .6 });
-            [-.72, -.24, .24, .72].forEach(t => {
-              const bar = new THREE.Mesh(new THREE.BoxGeometry(r * .22, .05, r * 1.8), gm);
-              bar.position.set(cx + r * t, .13, cz); bar.castShadow = true; archUp.add(bar);
+          if (isExtraPt(T3)) {                                  // 点构件：雨水管 / 构造柱 / 烟囱 / 景观树
+            const h = Math.max(.3, M(e.h || 2800)), px = wx(e.x), pz = wz(e.y);
+            if (T3 === 'tree') {                                // 景观树：树干 + 球状树冠
+              const r = Math.max(.15, M(e.w || 900) / 2), trunkM = mat('#7d6247', { roughness: .95 });
+              const tr = new THREE.Mesh(new THREE.CylinderGeometry(r * .1, r * .14, h * .62, 10), trunkM);
+              tr.position.set(px, h * .31, pz); tr.castShadow = true; archUp.add(tr);
+              [[h * .62, r], [h * .8, r * .72], [h * .95, r * .45]].forEach(([yy, rr]) => {
+                const c = new THREE.Mesh(new THREE.SphereGeometry(rr, 14, 10), mat('#6f8a5c', { roughness: .95 }));
+                c.position.set(px, yy, pz); c.castShadow = true; c.scale.y = .86; archUp.add(c);
+              });
+              return;
+            }
+            if (T3 === 'tiecol' || T3 === 'chimney') {          // 构造柱 / 烟囱：方柱（烟囱从屋面标高起）
+              const s = Math.max(.06, M(e.w || 240)), z = T3 === 'chimney' ? Math.max(0, M(e.z || 2800)) : 0;
+              const m = mat('#c2bbab', { roughness: .92 });
+              box(s, h, s, px, z + h / 2, pz, m);
+              if (T3 === 'chimney') {
+                box(s + .08, .08, s + .08, px, z + h + .04, pz, mat('#a9a293', { roughness: .9 }));
+                box(s * .5, .06, s * .5, px, z + h + .11, pz, mat('#4b453c', { roughness: 1 }));
+              }
+              return;
+            }
+            if (T3 === 'flag') {                                // 旗杆：底座 + 细杆 + 顶球 + 竖直旗面 + 升降手柄
+              const r = Math.max(.02, M(e.w || 120) / 2);
+              const base = new THREE.Mesh(new THREE.CylinderGeometry(r * 3.2, r * 4, .45, 16), mat('#c9c3b5', { roughness: .9 }));
+              base.position.set(px, .225, pz); base.castShadow = base.receiveShadow = true; archUp.add(base);
+              const pole = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.3, h, 10), mat('#d8d5cc', { metalness: .4, roughness: .5 }));
+              pole.position.set(px, .45 + (h - .45) / 2, pz); pole.castShadow = true; pole.userData.flagId = e.id; pole.userData.flagPoleFor = e.id; archUp.add(pole);   // flagPoleFor 供漫游高亮整杆
+              const ball = new THREE.Mesh(new THREE.SphereGeometry(r * 1.8, 10, 8), mat('#c8a45a', { metalness: .6, roughness: .35 }));
+              ball.position.set(px, h + r * 1.6, pz); ball.userData.flagId = e.id; archUp.add(ball);
+              const fw = Math.max(.5, h * .1), fh = fw * .62;   // 竖直旗面：宽 fw、高 fh，薄面朝 z，顶部贴旗面顶标高（可升降）
+              const fy = Math.min(h - .5, Math.max(.5, M(e.flagY ?? Math.round(h * 1000 * .9))));
+              const fb = box(fw, fh, .02, px + fw / 2 + r, fy - fh / 2, pz, mat('#a44e3d', { roughness: .8 }));
+              fb.userData.flagId = e.id; fb.userData.flagMeshFor = e.id;   // flagMeshFor 供升降动画逐帧定位
+              return;
+            }
+            const r = Math.max(.02, M(e.w || 100) / 2);
+            const pipeMat = mat('#9aa1a6', { metalness: .5, roughness: .45 });
+            const p = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), pipeMat);
+            p.position.set(px, h / 2, pz); p.castShadow = true; archUp.add(p);
+            [h * .3, h * .72].forEach(y => box(.09, .04, .05, px, y, pz, mat('#7d8489', { metalness: .5, roughness: .5 })));
+            if (e.hopper) {                                     // 顶部落水斗：上大下小两节方斗
+              box(r * 5, .14, r * 5, px, h + .07, pz, pipeMat);
+              box(r * 3, .1, r * 3, px, h + .16, pz, pipeMat);
+            }
+            return;
+          }
+          if (isExtraLin(T3)) {                                 // 线性构件：散水 / 挡土墙 / 天沟 / 过梁 / 变形缝 / 挑檐 / 窗台板 / 园路
+            const A = [wx(e.a[0]), wz(e.a[1])], B = [wx(e.b[0]), wz(e.b[1])];
+            const L = Math.hypot(B[0] - A[0], B[1] - A[1]); if (L < .1) return;
+            const rot = wallAngle(e.a, e.b), mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2;
+            const w = Math.max(.04, M(e.w || (T3 === 'retain' ? 300 : T3 === 'seam' ? 40 : 600))), h = Math.max(.02, M(e.h || 60));
+            if (T3 === 'retain') {                              // 挡土墙：实心墙 + 压顶
+              box(L, h, w, mx, h / 2, mz, mat('#b9b2a3', { roughness: .95 }), rot);
+              box(L + .02, .05, w + .06, mx, h + .025, mz, mat('#cdc6b6', { roughness: .9 }), rot);
+            } else if (T3 === 'gutter') {                       // 天沟：深色槽底 + 两侧沟壁
+              box(L, h, w, mx, h / 2, mz, mat('#8f8b80', { roughness: .9 }), rot);
+              const ny = [Math.sin(rot), Math.cos(rot)];          // 墙厚方向的单位向量（3D 中 x/z）
+              [-1, 1].forEach(sd => {
+                const off = sd * w / 2;
+                box(L, h + .04, .04, mx + ny[0] * off, (h + .04) / 2, mz + ny[1] * off, mat('#b6afa0', { roughness: .9 }), rot);
+              });
+            } else if (T3 === 'lintel' || T3 === 'eave' || T3 === 'sill' || T3 === 'thresh' || T3 === 'band' || T3 === 'signbd') {   // 过梁 / 挑檐 / 窗台板 / 门槛石 / 线脚 / 门头招牌：按标高悬空
+              const z = Math.max(0, M(e.z || (T3 === 'sill' ? 900 : T3 === 'lintel' ? 2100 : T3 === 'band' ? 2000 : T3 === 'signbd' ? 2800 : 0)));
+              box(L, h, w, mx, z + h / 2, mz, T3 === 'sill' || T3 === 'thresh'
+                ? mat('#ded6c6', { roughness: .75 })
+                : T3 === 'lintel' ? mat('#c2bbab', { roughness: .92 }) : T3 === 'signbd' ? mat('#44546a', { roughness: .7, metalness: .2 }) : mat('#a9a08e', { roughness: .9 }), rot);
+            } else if (T3 === 'seam') {                         // 变形缝：地面窄缝
+              box(L, .02, w, mx, .012, mz, mat('#5c554a', { roughness: 1 }), rot);
+            } else if (T3 === 'path') {                         // 园路：地面铺装薄板
+              box(L, h, w, mx, h / 2, mz, mat('#c9bfa9', { roughness: .95 }), rot);
+            } else {                                            // 散水：向外找坡的混凝土带
+              box(L, h, w, mx, h / 2, mz, mat('#cfc8b8', { roughness: .95 }), rot);
+            }
+            return;
+          }
+          const x0 = wx(e.x - e.w / 2), z0 = wz(e.y - e.d / 2), w = Math.max(.1, M(e.w || 100)), d = Math.max(.1, M(e.d || 100));
+          const cx = wx(e.x), cz = wz(e.y);
+          if (T3 === 'slabhole') {                              // 楼板洞口：深色洞口 + 四周翻边（视觉上在楼板上开洞）
+            const y = M(e.z || 0);
+            const voidM = mat('#2f2a24', { roughness: 1 });
+            const v = new THREE.Mesh(new THREE.BoxGeometry(w, .02, d), voidM);
+            v.position.set(cx, y + .012, cz); v.receiveShadow = true; archUp.add(v);
+            const rim = mat('#cfc7b6', { roughness: .9 });
+            box(w + .06, .06, .04, cx, y + .03, z0 - .02, rim); box(w + .06, .06, .04, cx, y + .03, z0 + d + .02, rim);
+            box(.04, .06, d + .06, x0 - .02, y + .03, cz, rim); box(.04, .06, d + .06, x0 + w + .02, y + .03, cz, rim);
+            return;
+          }
+          if (T3 === 'ac') {                                    // 设备平台：混凝土挑板 + 三面百叶围板
+            const th = Math.max(.04, M(e.thick || 100)), y = M(e.z || 0);
+            box(w, th, d, cx, y + th / 2, cz, mat('#c6bfae', { roughness: .95 }));
+            const lv = mat('#d9d4c8', { roughness: .8 }), n = Math.max(3, Math.round(d / .12));
+            const panel = (px, pz, pw, ry) => {
+              for (let i = 0; i < n; i++) {
+                const yy = y + th + (i + .5) * .09;
+                if (yy > y + th + .9) break;
+                box(pw, .05, .02, px, yy, pz, lv, ry);
+              }
+              box(pw, 1.0, .03, px, y + th + .5, pz, mat('#c9c3b6', { roughness: .8 }), ry);
+            };
+            panel(cx, z0 + .02, w, 0); panel(cx, z0 + d - .02, w, 0);
+            panel(x0 + .02, cz, d, Math.PI / 2); panel(x0 + w - .02, cz, d, Math.PI / 2);
+            return;
+          }
+          if (T3 === 'park') {                                  // 停车位：地面标线（四条边线 + 入口横线）
+            const m = mat('#e9e6dd', { roughness: .9 }), y = .02;
+            box(w, .01, .06, cx, y, z0 + .03, m); box(w, .01, .06, cx, y, z0 + d - .03, m);
+            box(.06, .01, d, x0 + .03, y, cz, m); box(.06, .01, d, x0 + w - .03, y, cz, m);
+            const ang = ((+e.dir || 0) % 360) * Math.PI / 180, md = Math.min(w, d);
+            const uX = Math.sin(ang), uZ = -Math.cos(ang);       // 0° = 朝上（-Z）
+            const al = md * .55, ah = Math.max(.07, md * .18), ahw = Math.max(.05, md * .11), ay = y + .006;
+            box(al - ah, .008, .1, cx - uX * ah / 2, ay, cz - uZ * ah / 2, m, Math.PI / 2 - ang);   // 箭杆
+            const tX = cx + uX * al / 2, tZ = cz + uZ * al / 2, bX = cx + uX * (al / 2 - ah), bZ = cz + uZ * (al / 2 - ah);
+            const pX = -uZ, pZ = uX, geo = new THREE.BufferGeometry();
+            geo.setAttribute('position', new THREE.Float32BufferAttribute([
+              tX, ay, tZ, bX - pX * ahw, ay, bZ - pZ * ahw, bX + pX * ahw, ay, bZ + pZ * ahw
+            ], 3));
+            geo.computeVertexNormals();
+            const tri = new THREE.Mesh(geo, m); tri.receiveShadow = true; archUp.add(tri);   // 箭头三角
+            return;
+          }
+          if (T3 === 'pavilion') {                              // 凉亭：四角立柱 + 顶盖（外挑 150）
+            const h = Math.max(1.8, M(e.h || 2600)), cr = Math.max(.03, M(e.col || 150) / 2);
+            const colM = mat('#8d7a5f', { roughness: .85 }), roofM = mat('#7c6a52', { roughness: .9 });
+            [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
+              const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 12), colM);
+              c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
             });
-          } else {
-            const cov = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .05, 20), mat('#6e6a60', { metalness: .4, roughness: .6 }));
-            cov.position.set(cx, .13, cz); cov.castShadow = true; archUp.add(cov);
+            box(w, .1, d, cx, h + .05, cz, roofM);
+            box(w + .3, .12, d + .3, cx, h + .16, cz, mat('#6f5f49', { roughness: .9 }));
+            return;
           }
-          return;
-        }
-        if (T3 === 'dormer') {                                // 老虎窗：窗箱 + 双坡小顶 + 正面玻璃
-          const y = Math.max(0, M(e.z || 2800)), bh = Math.max(.5, M(e.h || 900));
-          const wallM = mat('#d8d0bf', { roughness: .92 }), roofM = mat('#7c6a52', { roughness: .9 });
-          box(w, bh, d, cx, y + bh / 2, cz, wallM);
-          box(w * .68, bh * .62, .03, cx, y + bh * .4, z0 - .015, glassMat);
-          const rise = Math.max(.2, Math.min(w, d) * .16), panL = Math.hypot(d / 2, rise), ang = Math.atan2(rise, d / 2);
-          [-1, 1].forEach(sd => {
-            const m2 = new THREE.Mesh(new THREE.BoxGeometry(w + .18, .06, panL * 1.06), roofM);
-            m2.position.set(cx, y + bh + rise / 2, cz + sd * d / 4);
-            m2.rotation.x = -sd * ang; m2.castShadow = m2.receiveShadow = true; archUp.add(m2);
-          });
-          return;
-        }
-        if (T3 === 'hatch') {                                 // 检修口：四周翻边 + 盖板
-          const y = Math.max(0, M(e.z || 2800)), h = Math.max(.06, M(e.h || 250)), t = .1;
-          const m = mat('#cfc7b6', { roughness: .9 });
-          box(w + .1, h, t, cx, y + h / 2, z0 - .05, m); box(w + .1, h, t, cx, y + h / 2, z0 + d + .05, m);
-          box(t, h, d + .1, x0 - .05, y + h / 2, cz, m); box(t, h, d + .1, x0 + w + .05, y + h / 2, cz, m);
-          box(w, .05, d, cx, y + h + .025, cz, mat('#9a9488', { metalness: .35, roughness: .55 }));
-          return;
-        }
-        if (T3 === 'solar') {                                 // 太阳能：斜置集热板 + 支架 + 顶部水箱（水箱在高边）
-          const y = Math.max(0, M(e.z || 2800)), sh = Math.max(.08, M(e.h || 300));
-          const a = Math.PI / 7;                              // 集热板倾角 ~25.7°
-          const Wp = Math.max(.4, w * .9), Dp = Math.max(.4, d * .8), t = .05;
-          const frontZ = cz - d / 2 + Dp / 2;                 // 前檐（低边）在地面的投影 z
-          const backRise = Dp * Math.sin(a);                  // 后檐比前檐抬高
-          const g = new THREE.Group();
-          g.position.set(cx, y + sh, frontZ);                 // 组原点 = 面板前檐中点
-          const panel = new THREE.Group();                    // 以「前檐底沿」为枢轴倾斜
-          const pn = new THREE.Mesh(new THREE.BoxGeometry(Wp, t, Dp), mat('#2f4a6b', { metalness: .4, roughness: .3 }));
-          pn.position.set(0, t / 2, Dp / 2); pn.castShadow = pn.receiveShadow = true; panel.add(pn);
-          for (let i = 0; i < 8; i++) {                       // 集热板面上的真空管 / 板芯分格
-            const tube = new THREE.Mesh(new THREE.BoxGeometry(Wp * .94, .018, .025), mat('#3a6b8f', { metalness: .55, roughness: .25 }));
-            tube.position.set(0, t / 2 + .011, .06 + i * (Dp * .88 / 8)); tube.castShadow = true; panel.add(tube);
+          if (T3 === 'carport') {                               // 电动车棚：四角钢柱 + 轻钢平顶
+            const h = Math.max(1.8, M(e.h || 2500)), cr = Math.max(.04, M(e.col || 100) / 2);
+            const colM = mat('#8a939b', { metalness: .45, roughness: .55 }), roofM = mat('#aab4bc', { roughness: .7, metalness: .2 });
+            [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
+              const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 10), colM);
+              c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
+            });
+            box(w + .25, .07, d + .25, cx, h + .035, cz, roofM);
+            box(w + .25, .05, .08, cx, h + .09, z0 - .12, roofM); box(w + .25, .05, .08, cx, h + .09, z0 + d + .12, roofM);
+            return;
           }
-          panel.rotation.x = -a; g.add(panel);
-          const tank = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, Wp * .92, 18), mat('#c9ccd0', { metalness: .55, roughness: .32 }));
-          tank.rotation.z = Math.PI / 2;                        // 横置，沿 x 方向
-          tank.position.set(0, backRise + .22, Dp * Math.cos(a)); tank.castShadow = true; g.add(tank);
-          const legM = mat('#8d9095', { metalness: .5, roughness: .5 });
-          [[-1, 0], [1, 0]].forEach(([sd]) => box(.05, sh, .05, cx + sd * (Wp / 2 - .08), y + sh / 2, frontZ - .02, legM));
-          [[-1], [1]].forEach(([sd]) => box(.05, sh + backRise, .05, cx + sd * (Wp / 2 - .08), y + (sh + backRise) / 2, frontZ + Dp * Math.cos(a) + .02, legM));
-          archUp.add(g);
-          return;
-        }
-        if (T3 === 'equip') {                                 // 设备基础：混凝土基础 + 机组体量
-          const t = Math.max(.06, M(e.thick || 150)), y = M(e.z || 0), h = Math.max(.2, M(e.h || 800));
-          box(w, t, d, cx, y + t / 2, cz, mat('#c6bfae', { roughness: .95 }));
-          box(w * .78, h, d * .78, cx, y + t + h / 2, cz, mat('#b8bcbf', { metalness: .35, roughness: .5 }));
-          [-.28, 0, .28].forEach(f => box(w * .7, .02, .02, cx, y + t + h * (.45 + f), cz - d * .39 - .01, mat('#8b9094', { metalness: .4, roughness: .5 })));
-          return;
-        }
+          if (T3 === 'skylight') {                              // 天窗：屋面翻边 + 凸起玻璃顶
+            const y = M(e.z || 2800), h = Math.max(.08, M(e.h || 350));
+            const rim = mat('#cfc7b6', { roughness: .9 });
+            box(w + .1, h, .1, cx, y + h / 2, z0 - .05, rim); box(w + .1, h, .1, cx, y + h / 2, z0 + d + .05, rim);
+            box(.1, h, d + .1, x0 - .05, y + h / 2, cz, rim); box(.1, h, d + .1, x0 + w + .05, y + h / 2, cz, rim);
+            const g = new THREE.Mesh(new THREE.BoxGeometry(w, .02, d), glassMat);
+            g.position.set(cx, y + h, cz); archUp.add(g);
+            [-.5, .5].forEach(t => box(.04, .03, d, cx + w * t, y + h + .02, cz, rim));
+            return;
+          }
+          if (T3 === 'shaft') {                                 // 管道井：四壁井道 + 顶部收口
+            const h = Math.max(.6, M(e.h || 2800)), t = Math.max(.06, M(e.t || 120)), m = mat('#c2bbab', { roughness: .95 });
+            box(w, h, t, cx, h / 2, z0 + t / 2, m); box(w, h, t, cx, h / 2, z0 + d - t / 2, m);
+            box(t, h, Math.max(.1, d - t * 2), x0 + t / 2, h / 2, cz, m); box(t, h, Math.max(.1, d - t * 2), x0 + w - t / 2, h / 2, cz, m);
+            box(w + .06, .06, d + .06, cx, h + .03, cz, mat('#a9a293', { roughness: .9 }));
+            return;
+          }
+          if (T3 === 'lawn') {                                  // 草坪：绿色草皮薄层
+            const h = Math.max(.01, M(e.h || 60));
+            box(w, h, d, cx, h / 2, cz, mat('#7d9668', { roughness: 1 }));
+            return;
+          }
+          if (T3 === 'well2') {                                 // 雨水井：井圈 + 井盖（篦子样式为 4 条篦条）
+            const r = Math.min(w, d) / 2 * .82;
+            const rim = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.12, r * 1.12, .12, 20), mat('#b3ac9c', { roughness: .95 }));
+            rim.position.set(cx, .06, cz); rim.receiveShadow = true; archUp.add(rim);
+            if (e.style === 'grate') {
+              const gm = mat('#6e6a60', { metalness: .4, roughness: .6 });
+              [-.72, -.24, .24, .72].forEach(t => {
+                const bar = new THREE.Mesh(new THREE.BoxGeometry(r * .22, .05, r * 1.8), gm);
+                bar.position.set(cx + r * t, .13, cz); bar.castShadow = true; archUp.add(bar);
+              });
+            } else {
+              const cov = new THREE.Mesh(new THREE.CylinderGeometry(r, r, .05, 20), mat('#6e6a60', { metalness: .4, roughness: .6 }));
+              cov.position.set(cx, .13, cz); cov.castShadow = true; archUp.add(cov);
+            }
+            return;
+          }
+          if (T3 === 'dormer') {                                // 老虎窗：窗箱 + 双坡小顶 + 正面玻璃
+            const y = Math.max(0, M(e.z || 2800)), bh = Math.max(.5, M(e.h || 900));
+            const wallM = mat('#d8d0bf', { roughness: .92 }), roofM = mat('#7c6a52', { roughness: .9 });
+            box(w, bh, d, cx, y + bh / 2, cz, wallM);
+            box(w * .68, bh * .62, .03, cx, y + bh * .4, z0 - .015, glassMat);
+            const rise = Math.max(.2, Math.min(w, d) * .16), panL = Math.hypot(d / 2, rise), ang = Math.atan2(rise, d / 2);
+            [-1, 1].forEach(sd => {
+              const m2 = new THREE.Mesh(new THREE.BoxGeometry(w + .18, .06, panL * 1.06), roofM);
+              m2.position.set(cx, y + bh + rise / 2, cz + sd * d / 4);
+              m2.rotation.x = -sd * ang; m2.castShadow = m2.receiveShadow = true; archUp.add(m2);
+            });
+            return;
+          }
+          if (T3 === 'hatch') {                                 // 检修口：四周翻边 + 盖板
+            const y = Math.max(0, M(e.z || 2800)), h = Math.max(.06, M(e.h || 250)), t = .1;
+            const m = mat('#cfc7b6', { roughness: .9 });
+            box(w + .1, h, t, cx, y + h / 2, z0 - .05, m); box(w + .1, h, t, cx, y + h / 2, z0 + d + .05, m);
+            box(t, h, d + .1, x0 - .05, y + h / 2, cz, m); box(t, h, d + .1, x0 + w + .05, y + h / 2, cz, m);
+            box(w, .05, d, cx, y + h + .025, cz, mat('#9a9488', { metalness: .35, roughness: .55 }));
+            return;
+          }
+          if (T3 === 'solar') {                                 // 太阳能：斜置集热板 + 支架 + 顶部水箱（水箱在高边）
+            const y = Math.max(0, M(e.z || 2800)), sh = Math.max(.08, M(e.h || 300));
+            const a = Math.PI / 7;                              // 集热板倾角 ~25.7°
+            const Wp = Math.max(.4, w * .9), Dp = Math.max(.4, d * .8), t = .05;
+            const frontZ = cz - d / 2 + Dp / 2;                 // 前檐（低边）在地面的投影 z
+            const backRise = Dp * Math.sin(a);                  // 后檐比前檐抬高
+            const g = new THREE.Group();
+            g.position.set(cx, y + sh, frontZ);                 // 组原点 = 面板前檐中点
+            const panel = new THREE.Group();                    // 以「前檐底沿」为枢轴倾斜
+            const pn = new THREE.Mesh(new THREE.BoxGeometry(Wp, t, Dp), mat('#2f4a6b', { metalness: .4, roughness: .3 }));
+            pn.position.set(0, t / 2, Dp / 2); pn.castShadow = pn.receiveShadow = true; panel.add(pn);
+            for (let i = 0; i < 8; i++) {                       // 集热板面上的真空管 / 板芯分格
+              const tube = new THREE.Mesh(new THREE.BoxGeometry(Wp * .94, .018, .025), mat('#3a6b8f', { metalness: .55, roughness: .25 }));
+              tube.position.set(0, t / 2 + .011, .06 + i * (Dp * .88 / 8)); tube.castShadow = true; panel.add(tube);
+            }
+            panel.rotation.x = -a; g.add(panel);
+            const tank = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, Wp * .92, 18), mat('#c9ccd0', { metalness: .55, roughness: .32 }));
+            tank.rotation.z = Math.PI / 2;                        // 横置，沿 x 方向
+            tank.position.set(0, backRise + .22, Dp * Math.cos(a)); tank.castShadow = true; g.add(tank);
+            const legM = mat('#8d9095', { metalness: .5, roughness: .5 });
+            [[-1, 0], [1, 0]].forEach(([sd]) => box(.05, sh, .05, cx + sd * (Wp / 2 - .08), y + sh / 2, frontZ - .02, legM));
+            [[-1], [1]].forEach(([sd]) => box(.05, sh + backRise, .05, cx + sd * (Wp / 2 - .08), y + (sh + backRise) / 2, frontZ + Dp * Math.cos(a) + .02, legM));
+            archUp.add(g);
+            return;
+          }
+          if (T3 === 'equip') {                                 // 设备基础：混凝土基础 + 机组体量
+            const t = Math.max(.06, M(e.thick || 150)), y = M(e.z || 0), h = Math.max(.2, M(e.h || 800));
+            box(w, t, d, cx, y + t / 2, cz, mat('#c6bfae', { roughness: .95 }));
+            box(w * .78, h, d * .78, cx, y + t + h / 2, cz, mat('#b8bcbf', { metalness: .35, roughness: .5 }));
+            [-.28, 0, .28].forEach(f => box(w * .7, .02, .02, cx, y + t + h * (.45 + f), cz - d * .39 - .01, mat('#8b9094', { metalness: .4, roughness: .5 })));
+            return;
+          }
         } finally { markNew(s0, 'extra', e.id); }
       });
       (state.pillars || []).forEach(c => {                   // 柱子：方 / 圆 / L 形 / 十字形，从地面通到顶，占碰撞（漫游挡路）
@@ -13406,8 +13601,8 @@
           }
           continue;
         }
-        if (d.slat){                                        // 卷帘门：放下时挡路（洞口中线段判定），卷起后可穿行
-          if (!d.open){
+        if (d.slat) {                                        // 卷帘门：放下时挡路（洞口中线段判定），卷起后可穿行
+          if (!d.open) {
             const t = clamp01(((x - d.mx) * d.ax + (z - d.mz) * d.az) / (d.ax ** 2 + d.az ** 2));
             if (Math.hypot(x - (d.mx + t * d.ax), z - (d.mz + t * d.az)) < r * .8) return true;
           }
