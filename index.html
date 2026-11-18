@@ -10698,6 +10698,7 @@
 
     const stage = $('#stage'), host = $('#view3d');
     const OX = 6000, OY = 5300, H = 2.8, FOV = 45;       // 户型中心放在世界原点，层高 2.8 m
+    const BAY_DRIP = .06;                                // 飘窗顶板 / 窗台板外挑（挡雨滴水檐，上下同尺寸才齐平）
     const wx = x => (x - OX) / 1000, wz = y => (y - OY) / 1000, M = v => v / 1000;
     const SW = () => stage.clientWidth, SH = () => stage.clientHeight;
     const opt = { cut: 2.8, furn: true, labels: true, night: false, hour: 10, mode: 'orbit' };
@@ -12328,10 +12329,12 @@
         const cx = mx + nx * dep / 2, cz = mz + nz * dep / 2;
         const lcEnd = o.lcorner || 0;                         // 转角飘窗的转角端：台板收到洞口边，交给转角台板拼接
         if (!o.noPlate) {                                     // 转角飘窗（两段都在）时台板 / 坐板由 buildLBayCorner3D 整条生成，这里不再各段各出一块
-          const slabL = L + (lcEnd ? .03 : .06), slabOff = -lcEnd * .015;
-          const sx = cx + dx * slabOff, sz = cz + dz * slabOff;
-          [sill - .03, head + .03].forEach(y => {             // 上下窗台板：收薄到 60mm，避免窗洞四周一圈深色宽边框
-            const slab = new THREE.Mesh(new THREE.BoxGeometry(slabL, .06, dep + .03), frameMat);
+          const drip = BAY_DRIP;                              // 顶板 / 窗台板统一外挑（挡雨滴水），上下挑出同样尺寸
+          const slabL = L + (lcEnd ? .03 : .06), slabOff = -lcEnd * .015, slabD = dep + drip + .015;
+          const dOff = (drip - .015) / 2;                     // 进深从墙内侧 -15mm 挑到 dep + drip，中心随之外移
+          const sx = cx + dx * slabOff + nx * dOff, sz = cz + dz * slabOff + nz * dOff;
+          [sill - .03, head + .03].forEach(y => {             // 上下窗台板：厚 60mm，外挑起挡雨檐
+            const slab = new THREE.Mesh(new THREE.BoxGeometry(slabL, .06, slabD), frameMat);
             slab.position.set(sx, y, sz); slab.rotation.y = rot;
             slab.castShadow = slab.receiveShadow = true; archUp.add(slab);
           });
@@ -12750,8 +12753,9 @@
         const mesh = new THREE.Mesh(geo, m);
         mesh.position.y = y; mesh.castShadow = mesh.receiveShadow = true; archUp.add(mesh);
       };
-      band(bandPts(15, 15, 30), sill - .06, .06, frameMat);  // 下窗台板（与两段同一标高、同一外沿，整条不断缝）
-      band(bandPts(15, 15, 30), head, .06, frameMat);        // 上盖板
+      const dripMM = BAY_DRIP * 1000;                        // 与单段飘窗一致的外挑尺寸
+      band(bandPts(15, dripMM, 30), sill - .06, .06, frameMat);   // 下窗台板（与两段同一标高、同一外沿，整条不断缝）
+      band(bandPts(15, dripMM, 30), head, .06, frameMat);         // 上盖板：与窗台板同样挑出，上下齐平挡雨
       band(bandPts(0, 0, 0), sill, .04, mat('#e9e2d4', { roughness: .9 }));   // 窗台坐板：与玻璃内表面齐平
       [[X, a.Qc, a.ov], [X, b.Qc, b.ov]].forEach(([p, q, ov]) => {   // 转角两面玻璃也做成可开扇：铰在转角立柱上、向外推开
         addBaySash([wx(p[0]), wz(p[1])], [wx(q[0]), wz(q[1])], sill, wh, ov[0], ov[1]);
