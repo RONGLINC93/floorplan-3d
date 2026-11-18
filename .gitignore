@@ -32,7 +32,6 @@ __pycache__/
 *.zip
 *.tar.gz
 .fpk_stage/
-tools/bin/
 tools/deps/
 *.tar.gz
 app/www/
