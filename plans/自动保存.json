@@ -1,6 +1,11 @@
 {
   "furniture": [],
-  "rooms": {},
+  "rooms": {
+    "Xt1": {
+      "name": "区域测试",
+      "mat": "tile800"
+    }
+  },
   "demolished": [],
   "measures": [],
   "walls": [
@@ -90,7 +95,26 @@
     "s1"
   ],
   "bover": {},
-  "roomsExtra": [],
+  "roomsExtra": [
+    {
+      "id": "Xt1",
+      "poly": [
+        [
+          5000,
+          2000
+        ],
+        [
+          5000,
+          5000
+        ],
+        [
+          2000,
+          5000
+        ]
+      ],
+      "mat": "tile800"
+    }
+  ],
   "notes": [],
   "dims": [],
   "rails": [],
@@ -128,19 +152,9 @@
       "z": 1500,
       "x": 5000,
       "y": 8045,
-      "rcd": [
-        "rcd2p63"
-      ],
-      "mcb": [
-        "mcb1p16",
-        "mcb3p40"
-      ],
+      "rcd": [],
+      "mcb": [],
       "devices": [],
-      "devOrder": [
-        "mcb:mcb1p16",
-        "rcd:rcd2p63",
-        "mcb:mcb3p40"
-      ],
       "doorOpen": false,
       "ang": 120,
       "hinge": 1

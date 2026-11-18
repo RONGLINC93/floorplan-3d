@@ -1887,6 +1887,87 @@
       overflow: auto
     }
 
+    /* 强电箱开关列表 */
+    .bxlist {
+      max-height: 220px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      background: #fff;
+      border: 1px solid #eceae3;
+      border-radius: 8px;
+      padding: 2px 4px;
+      box-shadow: inset 0 1px 2px rgba(0, 0, 0, .03)
+    }
+
+    .bxrow {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 4px;
+      border-radius: 5px;
+      cursor: grab;
+      user-select: none
+    }
+
+    .bxrow:hover {
+      background: #f7f8fa
+    }
+
+    .bxrow.bxedit {
+      background: #fff4e3;
+      box-shadow: inset 2px 0 0 #e8833a
+    }
+
+    .bxdot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      flex-shrink: 0
+    }
+
+    .bxrow .bxnum {
+      width: 16px;
+      font-size: 10px;
+      color: #b6b1a7;
+      text-align: right
+    }
+
+    .bxrow .bxnm {
+      flex: 1;
+      font-size: 12px;
+      color: #4a443c;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis
+    }
+
+    .bxic {
+      width: 22px;
+      height: 20px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      border-radius: 5px;
+      cursor: pointer;
+      font-size: 11px;
+      line-height: 20px;
+      color: #8a8378;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0
+    }
+
+    .bxic:hover {
+      background: #edeae3;
+      color: #4a443c
+    }
+
+    .bxic.bxrm:hover {
+      background: #fbeae7;
+      color: #b03a2e
+    }
+
     #objPanel .obj-head {
       display: flex;
       align-items: center;
@@ -6798,6 +6879,7 @@
       $('#aDel').onclick = () => { ui.sel = { kind: 'lift', id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
+    let bxEditN = -1;                          // 强电箱开关列表：当前正在编辑的行号（-1 为无）
     function devShort(k) {                     // 自定义器件键（rcd2p63 / mcb1p40 等）转短标签（漏63 / 空40）
       const m = /^(rcd|mcb)(\d)p(\d+)$/i.exec(k || '');
       return m ? (m[1].toLowerCase() === 'rcd' ? '漏' : '空') + m[3] : '';
@@ -6830,20 +6912,26 @@
           const key = o.arr + ':' + o.k, idx = used[key] = (used[key] ?? -1) + 1;
           return { ...o, i: (b[o.arr] || []).indexOf(o.k, idx) };
         }).filter(o => o.i >= 0);
+        const edO = bxEditN >= 0 && b.devOrder ? String(b.devOrder[bxEditN]) : '';   // 编辑态：解析该行器件参数用于预填表单
+        const em = edO ? /^(rcd|mcb)(\d)p(n?)(\d+)$/i.exec(edO.slice(edO.indexOf(':') + 1)) : null;
         const rows = items.map(({ arr, i, k }, n) =>
-          `<div class="full" style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line)">
-            <span class="muted" style="width:26px;text-align:right">${n + 1}.</span>
-            <span style="flex:1">${esc(devDesc(k))}</span>
-            <button class="btn" data-boxrm="${ord.length ? 'ord:' + n : arr + ':' + i}" style="padding:2px 10px">${tr('移除', 'Remove')}</button>
+          `<div class="bxrow${n === bxEditN ? ' bxedit' : ''}" data-devrow="${n}" draggable="true">
+            <span class="bxdot" style="background:${/^rcd/i.test(k) ? '#d63a2a' : '#5b9bd5'}" title="${/^rcd/i.test(k) ? tr('漏电保护器', 'RCD') : tr('空气开关', 'MCB')}"></span>
+            <span class="bxnum">${n + 1}</span>
+            <span class="bxnm" title="${esc(devDesc(k))}">${esc(devDesc(k))}</span>
+            <button class="bxic" data-boxedit="${n}" title="${tr('编辑', 'Edit')}">✎</button>
+            <button class="bxic bxrm" data-boxrm="${ord.length ? 'ord:' + n : arr + ':' + i}" title="${tr('移除', 'Remove')}">✕</button>
           </div>`).join('')
           || `<div class="muted full">${tr('暂无器件，用下方自定义加入', 'No devices yet — add below')}</div>`;
         blocks = `<div class="full" style="grid-column:1/-1;margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:6px 10px">
-          <div class="muted" style="margin-bottom:4px">${tr('已加入开关', 'Added breakers')} · ${tr('点「移除」删除', 'click Remove to delete')}</div>${rows}
+          <div class="muted" style="margin-bottom:4px">${tr('已加入开关 · 拖拽行可排序，点「移除」删除', 'Added breakers · drag rows to reorder, click Remove to delete')}</div>
+          <div class="bxlist">${rows}</div>
           <div style="display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap">
-            <select id="bxDevT"><option value="mcb">${tr('空气开关', 'MCB')}</option><option value="rcd">${tr('漏电保护器', 'RCD')}</option></select>
-            <select id="bxDevP"><option value="1">1P</option><option value="2">2P</option><option value="3">3P</option></select>
-            <input type="number" id="bxDevA" value="16" min="6" max="125" step="1" style="width:72px"><span>A</span>
-            <button class="btn" id="bxDevAdd">${tr('加入', 'Add')}</button>
+            <select id="bxDevT"><option value="mcb"${em && em[1].toLowerCase() === 'mcb' ? ' selected' : ''}>${tr('空气开关', 'MCB')}</option><option value="rcd"${em && em[1].toLowerCase() === 'rcd' ? ' selected' : ''}>${tr('漏电保护器', 'RCD')}</option></select>
+            <select id="bxDevP">${[1, 2, 3].map(pv => `<option value="${pv}"${em && em[2] === String(pv) ? ' selected' : ''}>${pv}P</option>`).join('')}</select>
+            <input type="number" id="bxDevA" value="${em ? em[4] : 16}" min="6" max="125" step="1" style="width:72px"><span>A</span>
+            <button class="btn" id="bxDevAdd">${tr(bxEditN >= 0 ? '保存修改' : '加入', bxEditN >= 0 ? 'Save' : 'Add')}</button>
+            ${bxEditN >= 0 ? `<button class="btn" id="bxDevCancel">${tr('取消', 'Cancel')}</button>` : ''}
           </div></div>`;
       } else {
         const groups = [['devices', WEAK_DEVICES, tr('内部设备（可多选）', 'Internal devices (multi-select)')]];
@@ -6925,18 +7013,34 @@
       });
       const op = $('#bxOpen'); if (op) op.onchange = () => mutate(() => { const b = g(); if (b) b.doorOpen = op.value === '1'; });
       const hg = $('#bxHg'); if (hg) hg.onchange = () => mutate(() => { const b = g(); if (b) b.hinge = +hg.value; });
-      const addBtn = $('#bxDevAdd');               // 强电箱：自定义加入开关（类型 + 极数 + 电流）
+      const addBtn = $('#bxDevAdd');               // 强电箱：自定义加入开关（类型 + 极数 + 电流），编辑态为「保存修改」
       if (addBtn) addBtn.onclick = () => {
         mutate(() => {
           const b = g(); if (!b) return;
           const t = $('#bxDevT')?.value || 'mcb', p = +($('#bxDevP')?.value || 1);
           const a = Math.max(6, Math.min(125, Math.round(+($('#bxDevA')?.value) || 16)));
           const key = `${t}${p}p${a}`;
-          (b[t] = b[t] || []).push(key);
-          (b.devOrder = b.devOrder || []).push(t + ':' + key);   // 记录加入顺序
+          if (bxEditN >= 0 && b.devOrder && b.devOrder[bxEditN] !== undefined) {   // 编辑：替换该位置的器件，顺序不变
+            const o = String(b.devOrder[bxEditN]), c = o.indexOf(':'), ot = o.slice(0, c), ok = o.slice(c + 1);
+            const ol = b[ot] || [], oi = ol.indexOf(ok);
+            if (oi >= 0) ol.splice(oi, 1);
+            (b[t] = b[t] || []).push(key);
+            b.devOrder[bxEditN] = t + ':' + key;
+          } else {
+            (b[t] = b[t] || []).push(key);
+            (b.devOrder = b.devOrder || []).push(t + ':' + key);   // 记录加入顺序
+          }
         });
+        bxEditN = -1;
         renderPanel();
       };
+      const cBtn = $('#bxDevCancel'); if (cBtn) cBtn.onclick = () => { bxEditN = -1; renderPanel(); };
+      document.querySelectorAll('#panel [data-boxedit]').forEach(btn => btn.onclick = () => {   // 编辑：置为编辑态，表单参数由渲染时预填
+        const b = g(); if (!b) return;
+        if (!b.devOrder || !b.devOrder.length) b.devOrder = [...(b.rcd || []).map(k => 'rcd:' + k), ...(b.mcb || []).map(k => 'mcb:' + k)];
+        bxEditN = +btn.dataset.boxedit;
+        renderPanel();
+      });
       document.querySelectorAll('#panel [data-boxrm]').forEach(btn => btn.onclick = () => {
         mutate(() => {
           const b = g(); if (!b) return;
@@ -6959,6 +7063,26 @@
         renderPanel();
       });
       const fl = $('#bxFlip'); if (fl) fl.onclick = () => mutate(() => { const b = g(); if (b) flipBox(b); });
+      let dragN = -1;                              // 强电箱：开关列表拖拽排序（拖到目标行放下即插入到该位置）
+      document.querySelectorAll('#panel [data-devrow]').forEach(row => {
+        row.ondragstart = e => { dragN = +row.dataset.devrow; row.style.opacity = .4; e.dataTransfer.effectAllowed = 'move'; try { e.dataTransfer.setData('text/plain', row.dataset.devrow); } catch (err) { } };
+        row.ondragend = () => { row.style.opacity = ''; dragN = -1; };
+        row.ondragover = e => { e.preventDefault(); e.dataTransfer.dropEffect = 'move'; };
+        row.ondrop = e => {
+          e.preventDefault();
+          const from = dragN >= 0 ? dragN : +e.dataTransfer.getData('text/plain');
+          const to = +row.dataset.devrow;
+          if (!(from >= 0) || from === to) return;
+          mutate(() => {
+            const b = g(); if (!b) return;
+            if (!b.devOrder) b.devOrder = [...(b.rcd || []).map(k => 'rcd:' + k), ...(b.mcb || []).map(k => 'mcb:' + k)];   // 旧方案首次拖拽时补建顺序记录
+            if (from >= b.devOrder.length) return;
+            const [m] = b.devOrder.splice(from, 1);
+            b.devOrder.splice(to, 0, m);
+          });
+          renderPanel();
+        };
+      });
       $('#aDel').onclick = () => { ui.sel = { kind, id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
@@ -10527,7 +10651,13 @@
         if (!drag.moved && !far) return;
         drag.moved = true;
         const r = allRooms().find(r => r.id === ui.sel.id); if (!r) return;
-        const q = snapPoint(p, e.shiftKey);
+        const v0 = r.poly[drag.idx], q0 = snapPoint(p, false);   // 拖顶点受「直角 / 自由」约束
+        let q;
+        if (ui.wallFree) q = e.shiftKey ? axisLock(v0, q0, true) : q0;   // 自由：任意方向，Shift 临时锁水平 / 垂直
+        else {                                     // 直角：起步时锁一根轴，拖动期间不再切换（保持矩形），Shift 临时自由
+          if (drag.axis === undefined) drag.axis = e.shiftKey ? null : (Math.abs(q0.x - v0[0]) >= Math.abs(q0.y - v0[1]) ? 'x' : 'y');
+          q = drag.axis === 'x' ? { x: q0.x, y: v0[1] } : drag.axis === 'y' ? { x: v0[0], y: q0.y } : q0;
+        }
         const nv = [Math.round(q.x / 10) * 10, Math.round(q.y / 10) * 10];   // 10mm 网格取整
         if (r.id.startsWith('X')) { const cr = state.roomsExtra.find(x => x.id === r.id); if (cr) cr.poly[drag.idx] = nv; }
         else state.bover['R' + r.id] = r.poly.map((v, i) => i === drag.idx ? nv : v);   // 原始房间：顶点覆盖存 bover
