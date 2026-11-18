@@ -3150,13 +3150,19 @@
     const PASSIVE_STYLES = { socket: [SOCKET_STYLES, 'dual'], network: [NETWORK_STYLES, 'rj45'], floorSocket: [FLOOR_SOCKET_STYLES, 'pop'], trackSocket: [TRACK_SOCKET_STYLES, 'track2'], deskSocket: [DESK_SOCKET_STYLES, 'desk1'], wallSwitch: [SWITCH_STYLES, 's1w1'] };
     const isLightType = t => ![...PASSIVE_LAMP_TYPES, 'wallSwitch', 'switch'].includes(t);
     const isSwitchType = t => t === 'switch' || t === 'wallSwitch';
-    // 开关控制的灯：ctlMode='list' 时按显式选中的 id（ctl），否则按控制半径（旧方案兼容）
-    const switchTargets = sw => {
+    // 开关控制的灯：ctlMode='list' 时按显式选中的 id，否则按控制半径（旧方案兼容）
+    // gang：多联开关的第几联（0 起）。多联且 ctlByGang[gang] 已配置时只取该联；否则回退到整开关 ctl（兼容旧方案 / 未分联）。
+    // 不传 gang 时返回整开关控制的全部灯（各联并集），供既有关联线 / 反向列表 / 3D 整开关逻辑使用。
+    const switchTargets = (sw, gang) => {
       const lamps = state.lamps || [];
+      const gangs = (SWITCH_LAYOUT[sw.style || 's1w1'] || SWITCH_LAYOUT.s1w1)[0];
+      const perGang = gang != null && gangs > 1 && Array.isArray(sw.ctlByGang) && Array.isArray(sw.ctlByGang[gang]);
+      const ids = perGang ? sw.ctlByGang[gang] : (sw.ctl || []);
       if (sw.ctlMode === 'list') {
-        const ids = sw.ctl || [];
         return lamps.filter(x => isLightType(x.type) && ids.includes(x.id));
       }
+      // 按半径模式：单联走原半径；多联的某一联若已显式分灯，则尊重该联列表（半径只是默认来源，分联后按列表）
+      if (perGang) return lamps.filter(x => isLightType(x.type) && ids.includes(x.id));
       const R = Math.max(1, sw.r ?? 6000);                       // 2D 图面坐标即 mm，距离与 3D 米制换算等价
       return lamps.filter(x => isLightType(x.type) && Math.hypot(x.x - sw.x, x.y - sw.y) <= R);
     };
@@ -3250,6 +3256,8 @@
         l.z = Math.max(['floorSocket', 'deskSocket'].includes(l.type) ? 0 : 300, Math.min(['floorSocket', 'deskSocket'].includes(l.type) ? 8000 : 3600, Math.round(z0)));
         l.on = l.on !== false;
         l.links = Array.isArray(l.links) ? l.links : [];          // 双控 / 多控：关联开关 id 列表
+        // 多联开关各联独立受控灯：ctlByGang[g] = 第 g 联的灯 id 数组（g 从 0 起）。旧方案未配置则留空，用时回退到整开关 ctl。
+        l.ctlByGang = Array.isArray(l.ctlByGang) ? l.ctlByGang.map(g => Array.isArray(g) ? g.filter(x => typeof x === 'string') : []) : [];
       });
       s.demolished = s.demolished || []; s.measures = s.measures || [];
       s.walls = Array.isArray(s.walls) ? s.walls : [];
@@ -13058,7 +13066,9 @@
             const sx = -((gangs - 1) * gap) / 2 + i * gap;
             const rocker = new THREE.Mesh(new THREE.BoxGeometry(rw, .055, .01), (l.panelMat || 'plastic') === 'plastic' ? mat('#f5f0e6', { roughness: .5 }) : panelMat(l.panelMat));
             rocker.position.set(sx, Y - .006, .02); g.add(rocker);
-            const dot = new THREE.Mesh(new THREE.SphereGeometry(.006, 10, 8), glow); dot.position.set(sx, Y + .03, .017); g.add(dot);
+            if (gangs > 1) tagPick(rocker, 'lamp', l.id), rocker.userData.gang = i;   // 多联：每个翘板单独拾取，点哪联切哪联
+            const dotMat = glow.clone(); dotMat.userData = { ...glow.userData, gangRef: { sw: l, gang: i } }; lampGlowMats.push(dotMat);
+            const dot = new THREE.Mesh(new THREE.SphereGeometry(.006, 10, 8), dotMat); dot.position.set(sx, Y + .03, .017); g.add(dot);
             const marks = ways === 1 ? 0 : ways === 2 ? 1 : 2;      // 双控 1 点，多控 2 点
             for (let j = 0; j < marks; j++) {
               const mk = new THREE.Mesh(new THREE.BoxGeometry(.004, .004, .002), mat('#b5653a', { roughness: .8 }));
@@ -14801,7 +14811,7 @@
         if (o.userData.walkOnly || o.isLine || o.isLineSegments) continue;   // 漫游棱线 / 踢脚线只是辅助显示，不挡拾取（否则关着的门永远拾取不到）
         let sel = null;                                                  // 沿父链找通用构件标记 / 家具
         for (let p = o; p && p !== scene; p = p.parent) {
-          if (p.userData.pick3d) { sel = { ...p.userData.pick3d }; break; }
+          if (p.userData.pick3d) { sel = { ...p.userData.pick3d, ...(p.userData.gang != null ? { gang: p.userData.gang } : {}) }; break; }
           if (p.userData.fid) { sel = { fid: p.userData.fid }; break; }
         }
         if (o.userData.door) return { door: o.userData.door, dist: h.distance, mesh: o, ...(sel || {}) };   // 门扇：开合同时带回所属门窗 / 电梯 / 院门，供选中
