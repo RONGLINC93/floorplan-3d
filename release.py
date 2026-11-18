@@ -14,6 +14,7 @@ import os
 import re
 import subprocess
 import sys
+import time
 import urllib.error
 import urllib.parse
 import urllib.request
@@ -300,6 +301,15 @@ def main():
         print("[未完成] 仅完成本地构建；标签 " + ("已推送" if tag_ok else "未推送成功"))
         print("        Release 未创建，见上方说明")
     print("=======================================")
+    print("")
+    for i in range(5, 0, -1):                       # 倒计时退出：双击运行时窗口不至于一闪而过
+        print(f"\r[退出] {i} 秒后自动关闭，Ctrl+C 可立即退出…", end="", flush=True)
+        try:
+            time.sleep(1)
+        except KeyboardInterrupt:
+            print()
+            break
+    print()
     return 0
 
 
