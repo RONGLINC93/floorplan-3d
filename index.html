@@ -7716,7 +7716,7 @@
         const isEnd = cl === 0 || cl === 1;
         if (d > (isEnd ? endTol : tol)) return;
         const end = isEnd;                                  // 钳到端点的投影 = 墙角
-        if (!best || (end && !best.end) || (end === best.end && d < best.d)) best = { x: cx, y: cy, end, d };
+        if (!best || (end && !best.end) || (end === best.end && d < best.d)) best = { x: cx, y: cy, end, d, A, B };
       };
       WALLS.forEach((w, i) => {
         const id = 'w' + i;
@@ -7728,11 +7728,39 @@
         if (id === skip || state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
         test(w.a, w.b);
       });
-      return best && { x: best.x, y: best.y, end: best.end };
+      return best && { x: best.x, y: best.y, end: best.end, A: best.A, B: best.B };
     }
     // 画墙吸附：先按墙面边缘 / 10mm 网格吸附；直角模式锁水平 / 垂直，自由模式任意角度（Shift 临时锁轴）
     // 连续画墙时，终点靠近本链起点会自动吸到起点形成闭合
     let wallChainStart = null;                                 // 连续画墙的起点（闭合判定用）
+    // 吸墙时保持方向约束：把「起点 → 终点」的约束线（直角 / 锁轴 = 水平或垂直，自由 = 起点到光标的射线）
+    // 与被吸墙的中线求交，交点同时满足 ①严格沿约束方向 ②精确落在旧墙上；求不出交点（近平行 / 交点在墙段外 /
+    // 离光标太远）时返回 null，由调用方退回：直角模式保持严格锁轴不吸偏，自由模式退回投影点
+    function snapWallOnRay(start, q, ws, p, free) {
+      const A = ws.A, B = ws.B;
+      if (!A || !B || !start) return null;
+      const dx = B[0] - A[0], dy = B[1] - A[1];
+      let rx, ry;                                              // 约束射线方向（单位向量）
+      if (free) {
+        const d = Math.hypot(p.x - start.x, p.y - start.y);
+        if (d < 1) return null;
+        rx = (p.x - start.x) / d; ry = (p.y - start.y) / d;
+      } else {
+        const horiz = Math.abs(q.x - start.x) >= Math.abs(q.y - start.y);   // 与 axisLock 同一判轴
+        rx = horiz ? 1 : 0; ry = horiz ? 0 : 1;
+      }
+      const cr = rx * dy - ry * dx, wx = A[0] - start.x, wy = A[1] - start.y;
+      if (Math.abs(cr) < 1e-6) {                               // 射线与墙平行：只有墙正好压在约束线上才吸
+        if (Math.abs(wx * ry - wy * rx) >= 2) return null;
+        return free ? { x: ws.x, y: ws.y } : { x: rx ? ws.x : start.x, y: rx ? start.y : ws.y };
+      }
+      const t = (wx * dy - wy * dx) / cr;                      // 交点在射线上的参数
+      const u = (wx * ry - wy * rx) / cr;                      // 交点在墙线上的参数
+      if (t < -1e-6 || u < 0 || u > 1) return null;
+      const hx = start.x + rx * t, hy = start.y + ry * t;
+      if (Math.hypot(hx - p.x, hy - p.y) > 64 / view.s) return null;   // 交点离光标太远时不强吸，避免终点跳变
+      return { x: hx, y: hy };
+    }
     function snapDraw(p, shift) {
       const q = axisLock(wStart, snapPoint(p, false), shift);
       // 闭合吸附：当前墙段终点靠近整条墙链起点 → 吸到起点，形成闭合房间
@@ -7746,7 +7774,13 @@
       }
       const ws = snapToWall(p);
       if (ws) {
-        q.x = Math.round(ws.x); q.y = Math.round(ws.y);
+        const free = !(shift || !ui.wallFree);                 // 自由模式（非锁轴）
+        const hit = snapWallOnRay(wStart, q, ws, p, free);     // 吸墙也要严格服从 直角 / 自由 方向约束
+        if (hit || !wStart || free) {                          // 求到交点用交点；没定起点 / 自由模式退回直接吸墙
+          const s2 = hit || ws;
+          q.x = Math.round(s2.x); q.y = Math.round(s2.y);
+        }
+        // 直角 / 锁轴且已定起点但求不出交点：保持严格水平 / 垂直，宁可不受吸也不画出斜墙
         ui.wallSnapPt = { x: q.x, y: q.y, close: false, end: ws.end };
       } else { q.x = Math.round(q.x); q.y = Math.round(q.y); ui.wallSnapPt = null; }
       return q;
@@ -7800,7 +7834,11 @@
       if (Math.hypot(b.x - a.x, b.y - a.y) < 100) { wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; return; }   // 太短视为误触，取消
       const closing = wallChainStart && Math.hypot(b.x - wallChainStart.x, b.y - wallChainStart.y) <= 30 / view.s;
       if (closing) b = { x: wallChainStart.x, y: wallChainStart.y };              // 闭合：终点精确落到链起点
+      const hAxis = Math.abs(a.y - b.y) < .5, vAxis = Math.abs(a.x - b.x) < .5;   // 直角约束先记方向：压墙吸附不许带偏
       a = clampToWalls(a); b = clampToWalls(b);                                  // 端点压到旧墙中线上，墙角严丝合缝
+      if (hAxis !== vAxis) {                                                     // 直角模式：压墙后仍严格水平 / 垂直（只动新终点）
+        if (hAxis) b.y = a.y; else b.x = a.x;
+      }
       if (wallOverlaps(a, b)) {                                                   // 与现有墙叠画：阻止
         wStart = wCur = wallChainStart = null; ui.wallSnapPt = null;
         toast(tr('新墙与现有墙体重叠，未添加 · 请在空白位置画墙', 'New wall overlaps an existing wall — not added'));
