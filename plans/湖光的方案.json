@@ -32,18 +32,7 @@
     }
   },
   "demolished": [],
-  "measures": [
-    {
-      "a": {
-        "x": 1120,
-        "y": -160
-      },
-      "b": {
-        "x": 5390,
-        "y": -160
-      }
-    }
-  ],
+  "measures": [],
   "walls": [
     {
       "id": "fmwhqg1hn185",
@@ -205,8 +194,8 @@
     {
       "id": "fmwhuwujj98",
       "wall": "CWfmwhqg9wc188",
-      "c": 1810.31396484375,
-      "w": 2720,
+      "c": 290.31396484375,
+      "w": 4240,
       "kind": "roller",
       "flip": false,
       "dh": 3500
@@ -901,15 +890,6 @@
       "on": true
     },
     {
-      "id": "fmwlozicq94",
-      "type": "switch",
-      "x": 4570,
-      "y": 5410,
-      "r": 6000,
-      "z": 1100,
-      "on": true
-    },
-    {
       "id": "fmwlug3xb93",
       "type": "socket",
       "wall": "CWfmwhqg7q7187",
@@ -971,7 +951,8 @@
       "r": 6000,
       "on": true,
       "x": 3400,
-      "y": 6700
+      "y": 6700,
+      "panelMat": "steel"
     },
     {
       "id": "fmwlui74t98",
@@ -996,7 +977,8 @@
       "on": true,
       "style": "dual",
       "x": 2320,
-      "y": 2230
+      "y": 2230,
+      "panelMat": "steel"
     },
     {
       "id": "fmwlumbql94",
@@ -1026,7 +1008,13 @@
       "r": 6000,
       "on": true,
       "x": 2730,
-      "y": 2230
+      "y": 2230,
+      "panelMat": "steel",
+      "ctlMode": "list",
+      "ctl": [
+        "fmwlumda595",
+        "fmwlumbql94"
+      ]
     },
     {
       "id": "fmwlumwwt97",
@@ -1038,7 +1026,73 @@
       "r": 6000,
       "on": true,
       "x": 2980,
-      "y": 2230
+      "y": 2230,
+      "panelMat": "steel",
+      "ctlMode": "list",
+      "ctl": [
+        "fmwlosjq893"
+      ]
+    },
+    {
+      "id": "fmwlyd5e293",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 3360,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 3300,
+      "y": 2230,
+      "ctlMode": "list",
+      "ctl": [
+        "fmwlozibl93"
+      ],
+      "panelMat": "steel"
+    },
+    {
+      "id": "fmwlyen0m95",
+      "type": "bulb",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 2680,
+      "z": 3300,
+      "r": 1800,
+      "on": true,
+      "x": 2620,
+      "y": 2230,
+      "name": ""
+    },
+    {
+      "id": "fmwlyfaf396",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 2390,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 2330,
+      "y": 2230,
+      "ctlMode": "list",
+      "ctl": [
+        "fmwlyen0m95"
+      ],
+      "panelMat": "steel"
+    },
+    {
+      "id": "fmwlzjhi793",
+      "type": "network",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 5320,
+      "z": 300,
+      "r": 3000,
+      "on": true,
+      "style": "rj45",
+      "x": 5260,
+      "y": 2230,
+      "panelMat": "steel"
     }
   ],
   "layers": {
