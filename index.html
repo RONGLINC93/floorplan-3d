@@ -2566,6 +2566,14 @@
               title="电梯：点击放置（默认 2000×2000，门宽 900，门高 2100）；宽 / 深 / 高 / 停靠高度 / 门宽 / 门高 / 门位置 / 开门方向可改，3D 为井道 + 可点击开合的双扇门"
               data-en-title="Lift: click to place (2000×2000, door 900 wide × 2100 high by default); size / height / door editable; shaft + click-to-open doors in 3D"
               data-en="Lift"><i data-lucide="arrow-up-down"></i>电梯</button>
+            <button class="btn chip" data-dt="pbox"
+              title="强电箱：点击墙体放置（默认沿墙 600、进深 250、离地 1500），自动吸附墙体；右侧可多选漏电开关 / 空气开关及各自数量、可开关箱门，3D 中点击箱门也能开合"
+              data-en-title="Power box: click a wall to place (600 wide, 250 deep, 1500 above floor by default), snaps to the wall; pick multiple RCDs / MCBs and quantities, switchable door, click the door in 3D to open"
+              data-en="Power box"><i data-lucide="zap"></i>强电箱</button>
+            <button class="btn chip" data-dt="wbox"
+              title="弱电箱：点击墙体放置（默认沿墙 450、进深 250、离地 1500），自动吸附墙体；右侧可多选加入光猫 / 交换机 / 无线路由器 / 有线路由器、可开关箱门，3D 中点击箱门也能开合"
+              data-en-title="Weak-current box: click a wall to place (450 wide, 250 deep, 1500 above floor by default), snaps to the wall; add a modem / switch / Wi-Fi router / wired router, switchable door, click the door in 3D to open"
+              data-en="Weak-current box"><i data-lucide="network"></i>弱电箱</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Lighting">灯具照明</div>
@@ -3124,6 +3132,22 @@
     const LAMP_NAMES = { chandelier: ['吊灯', 'Chandelier'], ceil: ['吸顶灯', 'Ceiling lamp'], down: ['筒灯', 'Downlight'], spot: ['射灯', 'Spotlight'], floor: ['落地灯', 'Floor lamp'], wall: ['壁灯', 'Wall lamp'], tube: ['壁装灯管', 'Wall tube light'], bulb: ['壁装灯泡', 'Wall bulb'], socket: ['插座', 'Socket'], network: ['网络信息插座', 'Network socket'], floorSocket: ['地插座', 'Floor socket'], trackSocket: ['轨道插座', 'Track socket'], deskSocket: ['桌面插座', 'Desk socket'], wallSwitch: ['墙面开关', 'Wall switch'], switch: ['灯开关', 'Light switch'] };
     const WALL_LAMP_TYPES = ['wall', 'tube', 'bulb', 'socket', 'network', 'trackSocket', 'wallSwitch'];
     const PASSIVE_LAMP_TYPES = ['socket', 'network', 'floorSocket', 'trackSocket', 'deskSocket'];    // 不发光、不参与照明的面板类对象
+    /* 电箱设备目录：强电箱 = 漏电开关 / 空气开关（均可多选、每种可设数量）；弱电箱 = 光猫 / 交换机 / 无线路由器 / 有线路由器 */
+    const RCD_TYPES = {
+      rcd1pn20: ['1P+N 漏电开关 20A', '1P+N RCD 20A'], rcd2p32: ['2P 漏电开关 32A', '2P RCD 32A'],
+      rcd2p40: ['2P 漏电开关 40A', '2P RCD 40A'], rcd3p63: ['3P 漏电开关 63A', '3P RCD 63A']
+    };
+    const MCB_TYPES = {
+      mcb1p16: ['1P 空气开关 16A', '1P MCB 16A'], mcb1p20: ['1P 空气开关 20A', '1P MCB 20A'],
+      mcb1p25: ['1P 空气开关 25A', '1P MCB 25A'], mcb2p32: ['2P 空气开关 32A', '2P MCB 32A'],
+      mcb3p40: ['3P 空气开关 40A', '3P MCB 40A']
+    };
+    const WEAK_DEVICES = {
+      modem: ['光猫', 'Optical modem'], switch: ['交换机', 'Network switch'],
+      wifi: ['无线路由器', 'Wi-Fi router'], router: ['有线路由器', 'Wired router']
+    };
+    const BOX_ARR = { pbox: 'powerBoxes', wbox: 'weakBoxes' };
+    const BOX_NAME = { pbox: ['强电箱', 'Power box'], wbox: ['弱电箱', 'Weak-current box'] };
     const SOCKET_STYLES = {
       dual: ['二三插（五孔）', '2+3 pin (5-hole)'], two: ['二插（两孔）', '2 pin'], three: ['三插 10A', '3 pin 10A'],
       three16: ['三插 16A', '3 pin 16A'], dualSwitch: ['二三插带开关', '2+3 pin with switch'],
@@ -3188,7 +3212,7 @@
       return tr(`${zn} ${n2}`, `${en} ${n2}`);
     };
     /* 对象自定义名称：所有可放置对象在属性面板顶部有「名称」输入框，写入 o.name（随方案保存），列表 / 控制列表优先显示 */
-    const OBJ_KIND_ARRS = () => ({ pillar: state.pillars, stair: state.stairs, slab: state.slabs, parapet: state.parapets, canopy: state.canopies, rail: state.rails, beam: state.beams, lift: state.lifts, balcony: state.balconies, planter: state.planters, flue: state.flues, axgrid: state.axes, arcwall: state.arcWalls, gate: state.gates, roof: state.roofs, pool: state.pools, deck: state.decks, pergola: state.pergolas, extra: state.extras, lamp: state.lamps, open: state.openings });
+    const OBJ_KIND_ARRS = () => ({ pillar: state.pillars, stair: state.stairs, slab: state.slabs, parapet: state.parapets, canopy: state.canopies, rail: state.rails, beam: state.beams, lift: state.lifts, balcony: state.balconies, planter: state.planters, flue: state.flues, axgrid: state.axes, arcwall: state.arcWalls, gate: state.gates, roof: state.roofs, pool: state.pools, deck: state.decks, pergola: state.pergolas, extra: state.extras, lamp: state.lamps, pbox: state.powerBoxes, wbox: state.weakBoxes, open: state.openings });
     const findObj = (kind, id) => (OBJ_KIND_ARRS()[kind] || []).find(x => x.id === id);
     const objNo = (arr, o, key) => {                     // 同类对象中的序号（默认名称编号用，与灯具编号规则一致）；key 为字段名或分组函数
       const g = key ? (arr || []).filter(x => (typeof key === 'function' ? key(x) : x[key]) === (typeof key === 'function' ? key(o) : o[key])) : (arr || []);
@@ -3210,7 +3234,7 @@
 
     function defaultState() {
       const rooms = {}; ROOMS.forEach(r => rooms[r.id] = { name: r.name, mat: r.mat });
-      return { furniture: defaultFurniture(), rooms, demolished: [], measures: [], walls: [], openings: [], deletedWalls: [], removedB: [], bover: {}, roomsExtra: [], notes: [], dims: [], rails: [], beams: [], levels: [], slabs: [], parapets: [], canopies: [], north: null, lifts: [], balconies: [], planters: [], flues: [], axes: [], arcWalls: [], roofs: [], pools: [], decks: [], pergolas: [], gates: [], extras: [], leaders: [], lamps: [] };
+      return { furniture: defaultFurniture(), rooms, demolished: [], measures: [], walls: [], openings: [], deletedWalls: [], removedB: [], bover: {}, roomsExtra: [], notes: [], dims: [], rails: [], beams: [], levels: [], slabs: [], parapets: [], canopies: [], north: null, lifts: [], balconies: [], planters: [], flues: [], axes: [], arcWalls: [], roofs: [], pools: [], decks: [], pergolas: [], gates: [], extras: [], leaders: [], lamps: [], powerBoxes: [], weakBoxes: [] };
     }
 
     /* 完全空白方案：隐藏全部内置房间 / 墙体 / 门窗，家具清零（启动默认与「新建空方案」共用） */
@@ -3237,6 +3261,23 @@
       s.canopies = Array.isArray(s.canopies) ? s.canopies : [];           // 雨棚
       s.north = (s.north && typeof s.north === 'object' && !Array.isArray(s.north)) ? s.north : null;   // 指北针（全局唯一）
       s.lifts = Array.isArray(s.lifts) ? s.lifts : [];                    // 电梯
+      s.powerBoxes = Array.isArray(s.powerBoxes) ? s.powerBoxes : [];     // 强电箱（吸附墙体）
+      s.weakBoxes = Array.isArray(s.weakBoxes) ? s.weakBoxes : [];       // 弱电箱（吸附墙体）
+      [[s.powerBoxes, 600], [s.weakBoxes, 450]].forEach(([arr, defW]) => arr.forEach(b => {
+        b.x = Math.round(+b.x || 0); b.y = Math.round(+b.y || 0);
+        b.w = Math.max(200, Math.round(+b.w || defW));
+        b.d = Math.max(120, Math.round(+b.d || 250));
+        b.z = Math.max(0, Math.min(6000, Math.round(b.z ?? 1500)));
+        b.h = Math.max(150, Math.min(1200, Math.round(b.h ?? 320)));
+        b.c = Math.max(0, Math.round(+b.c || 0));
+        b.side = b.side === -1 ? -1 : 1; b.dir = b.dir === 90 ? 90 : 0;
+        b.front = b.front === -1 ? -1 : 1;
+        b.ang = Math.max(30, Math.min(170, Math.round(b.ang ?? 120)));
+        b.doorOpen = !!b.doorOpen;
+        b.rcd = Array.isArray(b.rcd) ? b.rcd.filter(k => RCD_TYPES[k]) : [];
+        b.mcb = Array.isArray(b.mcb) ? b.mcb.filter(k => MCB_TYPES[k]) : [];
+        b.devices = Array.isArray(b.devices) ? b.devices.filter(k => WEAK_DEVICES[k]) : [];
+      }));
       s.balconies = Array.isArray(s.balconies) ? s.balconies : [];        // 阳台
       s.planters = Array.isArray(s.planters) ? s.planters : [];           // 花坛 / 种植池
       s.flues = Array.isArray(s.flues) ? s.flues : [];                    // 烟道 / 风道
@@ -4059,7 +4100,7 @@
         }
         else { body = `<rect x="${c.x - r}" y="${c.y - r}" width="${c.w}" height="${c.w}" ${st}/>`; hit = `<rect x="${c.x - r}" y="${c.y - r}" width="${c.w}" height="${c.w}" fill="#fff" fill-opacity="0"/>`; }
         return `<g class="pil" data-pillar="${c.id}">${hit}${body}</g>`;
-      }).join('') + renderLifts2() + renderLamps2();
+      }).join('') + renderLifts2() + renderLamps2() + renderBoxes2();
     }
     function renderSwitchLinks2() {                             // 关联线（2D 图面）：图层开关打开时画全部；否则仅选中开关 / 灯时画相关部分
       const showAll = !!ui.layers.links;                        // 图层开关「关联线」：始终显示所有关联线
@@ -4755,6 +4796,43 @@
         </g>`;
       }).join('');
     }
+    function renderBoxes2() {                                     // 强电箱 / 弱电箱：箱体 + 内部器件 + 可开合箱门
+      const SHORT = {
+        rcd1pn20: '漏20', rcd2p32: '漏32', rcd2p40: '漏40', rcd3p63: '漏63',
+        mcb1p16: '空16', mcb1p20: '空20', mcb1p25: '空25', mcb2p32: '空32', mcb3p40: '空40',
+        modem: '光猫', switch: '交换', wifi: 'WiFi', router: '路由'
+      };
+      return ['pbox', 'wbox'].flatMap(kind => (state[BOX_ARR[kind]] || []).map(b => {
+        const isP = kind === 'pbox', on = ui.sel?.kind === kind && ui.sel.id === b.id;
+        const [zn] = BOX_NAME[kind], w = Math.max(200, b.w || 0), d = Math.max(120, b.d || 0);
+        const col = on ? '#b5653a' : isP ? '#8a5a3b' : '#3f6d82';
+        const x0 = -w / 2, y0 = -d / 2, fr = b.front === -1 ? -1 : 1, fy = fr * d / 2;
+        const devs = (isP ? [...(b.rcd || []), ...(b.mcb || [])] : (b.devices || [])).slice(0, 24);
+        const cols = Math.max(1, Math.floor((w - 40) / 75));
+        const cw = Math.min(85, (w - 40) / cols), ch = Math.min(76, d * .5);
+        const cell = devs.map((k, i) => {
+          const c = i % cols, r = Math.floor(i / cols);
+          const cx = x0 + 20 + c * cw, cy = y0 + 18 + r * (ch + 6);
+          const fill = (SHORT[k] || '').startsWith('漏') ? '#f4dec8' : (SHORT[k] || '').startsWith('空') ? '#e7e9ec' : '#dbeaf1';
+          return `<rect x="${cx}" y="${cy}" width="${cw - 8}" height="${ch}" rx="6" fill="${fill}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"/>
+            <text x="${cx + (cw - 8) / 2}" y="${cy + ch * .7}" font-size="${Math.min(86, cw * .92)}" text-anchor="middle" fill="${col}" font-weight="600" pointer-events="none">${SHORT[k] || ''}</text>`;
+        }).join('');
+        const hinge = x0 + 12, len = w - 24, rad = Math.max(30, Math.min(170, b.ang || 120)) * Math.PI / 180;
+        const ex = hinge + Math.cos(rad) * len, ey = fy + fr * Math.sin(rad) * len;
+        const door = b.doorOpen
+          ? `<path d="M ${hinge + len} ${fy} A ${len} ${len} 0 0 ${fr > 0 ? 1 : 0} ${ex} ${ey}" fill="none" stroke="${col}" stroke-width=".8" stroke-dasharray="40 30" stroke-opacity=".55" vector-effect="non-scaling-stroke" pointer-events="none"/>
+            <line x1="${hinge}" y1="${fy}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`
+          : `<line x1="${hinge}" y1="${fy}" x2="${hinge + len}" y2="${fy}" stroke="${col}" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+        return `<g data-${kind}="${b.id}" style="cursor:move" transform="translate(${b.x} ${b.y}) rotate(${b.dir || 0})">
+            <rect x="${x0 - 50}" y="${y0 - 50}" width="${w + 100}" height="${d + 100}" fill="#fff" fill-opacity="0"/>
+            <rect x="${x0}" y="${y0}" width="${w}" height="${d}" rx="14" fill="${isP ? '#f6efe6' : '#eaf2f5'}" fill-opacity=".94" stroke="${col}" stroke-width="${on ? 2.2 : 1.5}" vector-effect="non-scaling-stroke"/>
+            ${cell}${door}
+            <circle cx="${hinge}" cy="${fy}" r="14" fill="${col}" pointer-events="none"/>
+          </g>
+          <text x="${b.x}" y="${b.y + d / 2 + 190}" font-size="150" text-anchor="middle" fill="${col}" font-weight="600"
+            stroke="#fbf9f4" stroke-width="36" paint-order="stroke" pointer-events="none">${esc(b.name || `${zn} ${objNo(state[BOX_ARR[kind]] || [], b)}`)}</text>`;
+      })).join('');
+    }
     function renderPlanters2() {                                  // 花坛 / 种植池 / 采光井：外框 + 内壁
       return (state.planters || []).map(p => {
         const on = ui.sel?.kind === 'planter' && ui.sel.id === p.id;
@@ -5133,6 +5211,7 @@
       if (K === 'stair') { const st = getS(sel.id); return st ? { kind: K, id: st.id, x: st.x, y: st.y, dir: +st.dir || 0 } : null; }
       if (K === 'pillar') { const c = getP(sel.id); return c ? { kind: K, id: c.id, x: c.x, y: c.y } : null; }
       if (K === 'lift') { const l = (state.lifts || []).find(x => x.id === sel.id); return l ? { kind: K, id: l.id, x: l.x, y: l.y, dir: +l.dir || 0 } : null; }
+      if (BOX_ARR[K]) { const b = (state[BOX_ARR[K]] || []).find(x => x.id === sel.id); return b ? { kind: K, id: b.id, x: b.x, y: b.y, dir: +b.dir || 0 } : null; }
       if (K === 'flue') { const f = (state.flues || []).find(x => x.id === sel.id); return f ? { kind: K, id: f.id, x: f.x, y: f.y } : null; }
       if (ROT_LINEAR[K]) {
         const o = (state[ROT_LINEAR[K]] || []).find(x => x.id === sel.id);
@@ -5173,6 +5252,9 @@
         } else if (t.kind === 'lift') {
           const l = (state.lifts || []).find(x => x.id === t.id); if (!l) return;
           const [X, Y] = rq(t.x, t.y); l.x = X; l.y = Y; l.dir = norm(t.dir + deg);
+        } else if (BOX_ARR[t.kind]) {
+          const b = (state[BOX_ARR[t.kind]] || []).find(x => x.id === t.id); if (!b) return;
+          const [X, Y] = rq(t.x, t.y); b.x = X; b.y = Y; b.dir = norm(t.dir + deg);
         } else if (t.kind === 'pillar') {
           const o = getP(t.id); if (!o) return;
           const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y;
@@ -5258,7 +5340,8 @@
       const t = e.target; if (!t || !t.closest) return null;
       const fEl = t.closest('[data-fid]'); if (fEl) return { kind: 'furn', id: fEl.dataset.fid };
       const map = [['rail', 'rail'], ['beam', 'beam'], ['parapet', 'parapet'], ['canopy', 'canopy'], ['dim', 'dim'],
-      ['stair', 'stair'], ['pillar', 'pillar'], ['lift', 'lift'], ['slab', 'slab'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue']];
+      ['stair', 'stair'], ['pillar', 'pillar'], ['lift', 'lift'], ['slab', 'slab'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue'],
+      ['pbox', 'pbox'], ['wbox', 'wbox']];
       for (const [kind, attr] of map) {
         const el = t.closest('[data-' + attr + ']');
         if (el) return { kind, id: el.dataset[attr] };
@@ -5343,6 +5426,19 @@
       </g>`;
           s += `<text x="${st.x}" y="${st.y}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none"
         stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
+        }
+      } else if (ui.sel?.kind === 'pbox' || ui.sel?.kind === 'wbox') {
+        const kind = ui.sel.kind, o = (state[BOX_ARR[kind]] || []).find(x => x.id === ui.sel.id);
+        if (o) {                                                      // 电箱：手柄随箱体旋转，局部坐标拖动
+          const A = 'stroke="#b5653a" vector-effect="non-scaling-stroke"', hs = COARSE ? 1.7 : 1, hit = (COARSE ? 26 : 13) * k;
+          const w = Math.max(200, o.w || 0), d = Math.max(120, o.d || 0), x0 = -w / 2, y0 = -d / 2;
+          s += `<g transform="translate(${o.x} ${o.y}) rotate(${o.dir || 0})">
+            <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
+          [['nw', x0, y0], ['ne', x0 + w, y0], ['sw', x0, y0 + d], ['se', x0 + w, y0 + d]].forEach(([corner, hx, hy]) => {
+            s += `<rect data-handle="boxSize" data-kind="${kind}" data-id="${o.id}" data-corner="${corner}" x="${hx - hit}" y="${hy - hit}" width="${hit * 2}" height="${hit * 2}" fill="transparent"/>
+            <rect data-handle="boxSize" data-kind="${kind}" data-id="${o.id}" data-corner="${corner}" x="${hx - 6 * hs * k}" y="${hy - 6 * hs * k}" width="${12 * hs * k}" height="${12 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整大小（对角固定）', 'Drag to resize (opposite corner fixed)')}</title></rect>`;
+          });
+          s += '</g>';
         }
       } else if (ui.sel?.kind === 'lift' || ui.sel?.kind === 'balcony' || ui.sel?.kind === 'planter') {
         const kind = ui.sel.kind;
@@ -5869,6 +5965,7 @@
       if (ui.sel?.kind === 'beam') { const b = (state.beams || []).find(x => x.id === ui.sel.id); if (b) { p.innerHTML = beamPanel(b); bindBeamPanel(b.id); return; } }
       if (ui.sel?.kind === 'level') { const l = (state.levels || []).find(x => x.id === ui.sel.id); if (l) { p.innerHTML = levelPanel(l); bindLevelPanel(l.id); return; } }
       if (ui.sel?.kind === 'lift') { const l = (state.lifts || []).find(x => x.id === ui.sel.id); if (l) { p.innerHTML = liftPanel(l); bindLiftPanel(l.id); return; } }
+      if (BOX_ARR[ui.sel?.kind]) { const b = (state[BOX_ARR[ui.sel.kind]] || []).find(x => x.id === ui.sel.id); if (b) { p.innerHTML = boxPanel(ui.sel.kind, b); bindBoxPanel(ui.sel.kind, b.id); return; } }
       if (ui.sel?.kind === 'north' && state.north) { p.innerHTML = northPanel(state.north); bindNorthPanel(); return; }
       if (ui.sel?.kind === 'slab') { const s = (state.slabs || []).find(x => x.id === ui.sel.id); if (s) { p.innerHTML = slabPanel(s); bindSlabPanel(s.id); return; } }
       if (ui.sel?.kind === 'parapet') { const q = (state.parapets || []).find(x => x.id === ui.sel.id); if (q) { p.innerHTML = parapetPanel(q); bindParapetPanel(q.id); return; } }
@@ -6305,6 +6402,32 @@
       }
       c.side = c.side === -1 ? 1 : -1;
     }
+    /* 电箱贴墙（暗装）：boxWallPos 按 wall + c（沿墙偏移）+ side（墙面）算中心，箱体嵌进墙厚里、箱门面与墙面齐平；
+       进深超过墙厚时自动钳制，避免穿透墙体背面；boxSlide 拖动时重新投影到墙面；flipBox 翻到墙另一面 */
+    function boxWallPos(b) {
+      const g = openingWallGeom(b.wall); if (!g) return null;
+      const de = Math.round(Math.max(60, Math.min(Math.max(120, b.d || 250), g.T - 20)));
+      if (b.d !== de) b.d = de;                                  // 暗装：进深不得大于墙厚
+      const t = Math.max(0, Math.min(g.L, b.c ?? 0));
+      const nx = -g.u[1] * (b.side ?? 1), ny = g.u[0] * (b.side ?? 1);
+      const out = g.T / 2 - de / 2;
+      return { x: Math.round(g.A[0] + g.u[0] * t + nx * out), y: Math.round(g.A[1] + g.u[1] * t + ny * out) };
+    }
+    function boxSlide(b, p) {
+      const g = openingWallGeom(b.wall); if (!g) return false;
+      b.c = Math.max(0, Math.min(g.L, Math.round(((p.x - g.A[0]) * g.u[0] + (p.y - g.A[1]) * g.u[1]) / 10) * 10));
+      b.side = wallSideOf([p.x, p.y], { a: g.A, b: g.B });
+      const hz = Math.abs(g.B[0] - g.A[0]) >= Math.abs(g.B[1] - g.A[1]);
+      b.dir = hz ? 0 : 90;
+      b.front = ((hz ? g.u[0] : g.u[1]) * b.side) >= 0 ? 1 : -1;
+      const q = boxWallPos(b); if (q) { b.x = q.x; b.y = q.y; }
+      return true;
+    }
+    function flipBox(b) {
+      const g = openingWallGeom(b.wall); if (!g) return;
+      b.side = -(b.side ?? 1); b.front = -(b.front ?? 1);
+      const q = boxWallPos(b); if (q) { b.x = q.x; b.y = q.y; }
+    }
     function canopyPanel(c) {
       const L = Math.round(seg2(c.a, c.b));
       return `<section><h3>${tr('雨棚', 'Canopy')}</h3>
@@ -6630,6 +6753,84 @@
       $('#aDel').onclick = () => { ui.sel = { kind: 'lift', id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
+    function boxPanel(kind, b) {
+      const isP = kind === 'pbox', [zn] = BOX_NAME[kind];
+      const groups = isP
+        ? [['rcd', RCD_TYPES, tr('漏电开关', 'Residual-current devices')], ['mcb', MCB_TYPES, tr('空气开关', 'Miniature circuit breakers')]]
+        : [['devices', WEAK_DEVICES, tr('内部设备（可多选）', 'Internal devices (multi-select)')]];
+      const blocks = groups.map(([key, defs, title]) => {
+        const arr = b[key] || [];
+        const rows = Object.entries(defs).map(([k, [zh, en]]) => {
+          const n = arr.filter(x => x === k).length;
+          return `<label class="chk full" title="${esc(en)}"><input type="checkbox" data-boxdev="${key}:${k}" ${n ? 'checked' : ''}><span>${tr(zh, en)}</span>
+            <input type="number" class="boxQty" data-boxqty="${key}:${k}" value="${n || 1}" min="1" max="12" step="1" ${n ? '' : 'disabled'} style="width:56px;margin-left:auto"></label>`;
+        }).join('');
+        return `<div class="full" style="grid-column:1/-1;margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:6px 10px">
+          <div class="muted" style="margin-bottom:4px">${title} · ${tr('勾选后填数量，可同时选多种', 'Check and set a quantity; multiple types allowed')}</div>${rows}</div>`;
+      }).join('');
+      return `<section><h3>${zn}</h3>
+    <div class="form">
+      ${nameField(b, zn + ' ' + objNo(state[BOX_ARR[kind]] || [], b))}
+      <label>${tr('沿墙长度', 'Along wall')} (mm)<input type="number" id="bxW" value="${Math.round(b.w || 0)}" min="200" max="6000" step="10"></label>
+      <label>${tr('进深（暗装 ≤ 墙厚）', 'Depth (≤ wall)')} (mm)<input type="number" id="bxD" value="${Math.round(b.d || 0)}" min="60" max="400" step="10"></label>
+      <label>${tr('箱高', 'Height')} (mm)<input type="number" id="bxH" value="${Math.round(b.h ?? 320)}" min="150" max="1200" step="10"></label>
+      <label>${tr('底标高', 'Bottom')} (mm)<input type="number" id="bxZ" value="${Math.round(b.z ?? 1500)}" min="0" max="6000" step="50"></label>
+      <label>${tr('箱门开启角', 'Door angle')} (°)<input type="number" id="bxA" value="${Math.round(b.ang ?? 120)}" min="30" max="170" step="15"></label>
+      <label class="chk"><input type="checkbox" id="bxOpen" ${b.doorOpen ? 'checked' : ''}>${tr('箱门打开', 'Door open')}</label>
+      <label>X (mm)<input type="number" id="bxX" value="${Math.round(b.x)}" step="10"></label>
+      <label>Y (mm)<input type="number" id="bxY" value="${Math.round(b.y)}" step="10"></label>
+      ${blocks}
+    </div>
+    <div class="muted" style="margin-top:8px">${tr('暗装嵌入墙体：点击墙面放置，箱体嵌入墙厚内、箱门面与墙面齐平（进深超过墙厚时自动收窄）；拖动沿墙滑动，四角手柄改宽 / 进深，右侧可翻到墙另一面。箱门在 2D 画开启轮廓、3D 中点击箱门也可开合。', 'Recessed into the wall: click a wall face to place it flush with the surface (depth is capped by wall thickness); drag to slide along it, corner handles resize it, and the flip button moves it to the other side. The door shows its swing in 2D and can be clicked in 3D.')}</div>
+    <div class="actions"><button class="btn" id="bxFlip">${tr('翻到墙另一面', 'Flip side')}</button><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
+    }
+    function bindBoxPanel(kind, id) {
+      const g = () => (state[BOX_ARR[kind]] || []).find(x => x.id === id);
+      const num = (key, min, max, step, fn) => {
+        const el = $('#' + key); if (!el) return;
+        el.onchange = e => {
+          const v = parseFloat(e.target.value); if (isNaN(v)) return;
+          mutate(() => { const b = g(); if (b) fn(b, Math.max(min, Math.min(max, Math.round(v / step) * step))); });
+        };
+      };
+      const refit = b => { const q = boxWallPos(b); if (q) { b.x = q.x; b.y = q.y; } };
+      num('bxW', 200, 6000, 10, (b, v) => {
+        b.w = v; const gg = openingWallGeom(b.wall);
+        if (gg) b.c = Math.max(Math.min(b.w / 2, gg.L / 2), Math.min(gg.L - b.w / 2, b.c ?? 0));
+        refit(b);
+      });
+      num('bxD', 60, 400, 10, (b, v) => { b.d = v; refit(b); });
+      num('bxH', 150, 1200, 10, (b, v) => b.h = v);
+      num('bxZ', 0, 6000, 50, (b, v) => b.z = v);
+      num('bxA', 30, 170, 15, (b, v) => b.ang = v);
+      num('bxX', -1e6, 1e6, 10, (b, v) => b.x = v);
+      num('bxY', -1e6, 1e6, 10, (b, v) => b.y = v);
+      const applyDev = (b, key, k, on, n) => {
+        const list = (b[key] || []).filter(x => x !== k);
+        if (on) for (let i = 0; i < Math.max(1, Math.min(12, n)); i++) list.push(k);
+        b[key] = list;
+      };
+      document.querySelectorAll('#panel [data-boxdev]').forEach(cb => {
+        cb.onchange = () => mutate(() => {
+          const b = g(); if (!b) return;
+          const [key, k] = cb.dataset.boxdev.split(':');
+          const qty = document.querySelector(`#panel [data-boxqty="${key}:${k}"]`);
+          applyDev(b, key, k, cb.checked, +(qty?.value || 1));
+        });
+      });
+      document.querySelectorAll('#panel [data-boxqty]').forEach(qty => {
+        qty.onchange = () => mutate(() => {
+          const b = g(); if (!b) return;
+          const [key, k] = qty.dataset.boxqty.split(':');
+          const cb = document.querySelector(`#panel [data-boxdev="${key}:${k}"]`);
+          applyDev(b, key, k, !!cb?.checked, +qty.value || 1);
+        });
+      });
+      const op = $('#bxOpen'); if (op) op.onchange = () => mutate(() => { const b = g(); if (b) b.doorOpen = op.checked; });
+      const fl = $('#bxFlip'); if (fl) fl.onclick = () => mutate(() => { const b = g(); if (b) flipBox(b); });
+      $('#aDel').onclick = () => { ui.sel = { kind, id }; deleteSel(); };
+      $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
+    }
     function northPanel(n) {
       return `<section><h3>${tr('指北针', 'North arrow')}</h3>
     <div class="form">
@@ -6700,6 +6901,7 @@
             note: ['文字标注', 'Note'], dim: ['尺寸标注', 'Dimension'], rail: ['栏杆', 'Railing'], beam: ['梁', 'Beam'],
             level: ['标高', 'Level'], slab: ['楼板 / 挑板', 'Slab'], parapet: ['女儿墙 / 矮墙', 'Parapet'], canopy: ['雨棚', 'Canopy'],
             balcony: ['阳台', 'Balcony'], planter: ['花坛', 'Planter'], flue: ['烟道', 'Flue'], lift: ['电梯', 'Lift'],
+            pbox: BOX_NAME.pbox, wbox: BOX_NAME.wbox,
             gate: ['院门', 'Gate'], arcwall: ['弧形墙', 'Arc wall'], axgrid: ['轴网', 'Axis grid'], roof: ['屋顶', 'Roof'],
             pergola: ['廊架', 'Pergola'], deck: ['露台 / 木平台', 'Deck'], pool: ['泳池', 'Pool']
           }[s.kind];
@@ -7824,10 +8026,11 @@
         const l = (state.lamps || []).find(x => x.id === it.id); if (!l) return null;
         const r = 300; return [l.x - r, l.y - r, l.x + r, l.y + r];
       }
-      if (['slab', 'balcony', 'planter', 'flue', 'lift'].includes(it.kind)) {  // 矩形构件：中心 + 宽深
-        const key = { slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts' }[it.kind];
+      if (['slab', 'balcony', 'planter', 'flue', 'lift', 'pbox', 'wbox'].includes(it.kind)) {  // 矩形构件：中心 + 宽深
+        const key = BOX_ARR[it.kind] || { slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts' }[it.kind];
         const o = (state[key] || []).find(x => x.id === it.id); if (!o) return null;
-        return [o.x - o.w / 2, o.y - o.d / 2, o.x + o.w / 2, o.y + o.d / 2];
+        const hw = (o.dir === 90 ? o.d : o.w) / 2, hd = (o.dir === 90 ? o.w : o.d) / 2;   // 电箱竖墙安装时宽深互换
+        return [o.x - hw, o.y - hd, o.x + hw, o.y + hd];
       }
       if (it.kind === 'extra') {                                    // 扩展构件：线性 / 点 / 矩形
         const e = (state.extras || []).find(x => x.id === it.id); if (!e) return null;
@@ -7854,6 +8057,7 @@
       add('note', state.notes); add('dim', state.dims); add('rail', state.rails); add('beam', state.beams);
       add('level', state.levels); add('slab', state.slabs); add('parapet', state.parapets); add('canopy', state.canopies);
       add('balcony', state.balconies); add('planter', state.planters); add('flue', state.flues); add('lift', state.lifts);
+      add('pbox', state.powerBoxes); add('wbox', state.weakBoxes);
       add('lamp', state.lamps);
       add('gate', state.gates); add('arcwall', state.arcWalls); add('axgrid', state.axes);
       add('open', state.openings);                                   // 门窗（含 转角飘窗）也可框选
@@ -7870,6 +8074,7 @@
     ['note', 'note'], ['dim', 'dim'], ['rail', 'rail'], ['beam', 'beam'], ['level', 'level'], ['slab', 'slab'],
     ['parapet', 'parapet'], ['canopy', 'canopy'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue'],
     ['lift', 'lift'], ['gate', 'gate'], ['arcwall', 'arcwall'], ['axgrid', 'axgrid'], ['lamp', 'lamp'],
+    ['pbox', 'pbox'], ['wbox', 'wbox'],
     ['roof', 'roof'], ['pergola', 'pergola'], ['deck', 'deck'], ['pool', 'pool'], ['extra', 'extra']];
     const MULTI_SEL = MULTI_ATTR.map(([k]) => `[data-${k}]`).join(',');
     function multiHit(t) {                                          // 按下的对象是否属于当前多选（属于 → 整体拖动）
@@ -7911,7 +8116,7 @@
     }
     function startMultiDrag() {                                     // 记录每个对象拖动前的坐标
       const LIN = { dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls' };
-      const BOX = { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' };
+      const BOX = { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps', ...BOX_ARR };
       return ui.multi.map(s => {
         if (s.kind === 'furn') { const f = getF(s.id); return f && { ...s, cx: f.cx, cy: f.cy }; }
         if (s.kind === 'stair') { const s0 = getS(s.id); return s0 && { ...s, x: s0.x, y: s0.y }; }
@@ -7932,6 +8137,7 @@
         }
         if (BOX[s.kind]) {
           const o = (state[BOX[s.kind]] || []).find(x => x.id === s.id); if (!o) return null;
+          if (BOX_ARR[s.kind]) return { ...s, x: o.x, y: o.y, c: o.c ?? 0 };   // 电箱：整组拖动仍沿墙滑动
           if (s.kind === 'lamp' && o.wall) {                        // 壁装灯具：整组拖动时沿各自墙面滑动（与门窗同规则）
             const g = openingWallGeom(o.wall); if (!g) return null;
             return { ...s, c: o.c, u: g.u, L: g.L, wallLamp: true };
@@ -7971,7 +8177,7 @@
         const rids = new Set(ui.multi.filter(s => s.kind === 'room').map(s => s.id));
         const KINDS = {
           dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls',
-          note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', extra: 'extras', lamp: 'lamps'
+          note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', extra: 'extras', lamp: 'lamps', pbox: 'powerBoxes', wbox: 'weakBoxes'
         };
         const kidSets = {};
         Object.keys(KINDS).forEach(k => kidSets[k] = new Set(ui.multi.filter(s => s.kind === k).map(s => s.id)));
@@ -8022,6 +8228,11 @@
       }
       else if (ui.sel?.kind === 'canopy') { const id = ui.sel.id; ui.sel = null; mutate(() => state.canopies = (state.canopies || []).filter(n => n.id !== id)); toast(tr('已删除雨棚 · Ctrl+Z 可撤销', 'Canopy deleted · Ctrl+Z to undo')); }
       else if (ui.sel?.kind === 'lift') { const id = ui.sel.id; ui.sel = null; mutate(() => state.lifts = (state.lifts || []).filter(n => n.id !== id)); toast(tr('已删除电梯 · Ctrl+Z 可撤销', 'Elevator deleted · Ctrl+Z to undo')); }
+      else if (BOX_ARR[ui.sel?.kind]) {
+        const kind = ui.sel.kind, id = ui.sel.id; ui.sel = null;
+        mutate(() => state[BOX_ARR[kind]] = (state[BOX_ARR[kind]] || []).filter(n => n.id !== id));
+        toast(tr(`已删除${BOX_NAME[kind][0]} · Ctrl+Z 可撤销`, `${BOX_NAME[kind][1]} deleted · Ctrl+Z to undo`));
+      }
       else if (ui.sel?.kind === 'balcony') { const id = ui.sel.id; ui.sel = null; mutate(() => state.balconies = (state.balconies || []).filter(n => n.id !== id)); toast(tr('已删除阳台 · Ctrl+Z 可撤销', 'Balcony deleted · Ctrl+Z to undo')); }
       else if (ui.sel?.kind === 'planter') {
         const id = ui.sel.id, o = (state.planters || []).find(n => n.id === id);
@@ -8132,10 +8343,14 @@
               state.extras.push(n); added.push({ kind: 'extra', id: n.id });
             }
             else {                                                 // 文字 / 标高 / 楼板 / 阳台 / 花坛 / 烟道 / 电梯 / 轴网 / 室外构件
-              const key = { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[s.kind];
+              const key = BOX_ARR[s.kind] || { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[s.kind];
               const arr = key ? state[key] : outArr(s.kind);
               const o = (arr || []).find(x => x.id === s.id); if (!o) return;
               const n = { ...o, id: uid(), x: o.x + 200, y: o.y + 200 };
+              if (BOX_ARR[s.kind] && n.wall) {                   // 电箱复制后仍沿墙贴附（偏移 200mm）
+                const g = openingWallGeom(n.wall);
+                if (g) { n.c = Math.max(0, Math.min(g.L, (n.c ?? 0) + 200)); const q = boxWallPos(n); if (q) { n.x = q.x; n.y = q.y; } }
+              }
               arr.push(n); added.push({ kind: s.kind, id: n.id });
             }
           });
@@ -8693,6 +8908,8 @@
         state.demolished = state.demolished.filter(x => x !== ref);
         state.openings = state.openings.filter(o => o.wall !== ref && !(o.kind === 'lbay' && (o.legs || []).some(l => l.wall === ref)));
         state.lamps = (state.lamps || []).filter(l => l.wall !== ref);   // 壁装灯具跟着墙一起删
+        state.powerBoxes = (state.powerBoxes || []).filter(b => b.wall !== ref);   // 电箱跟着墙一起删
+        state.weakBoxes = (state.weakBoxes || []).filter(b => b.wall !== ref);
       });
       toast(tr('已删除墙体 · Ctrl+Z 可撤销', 'Wall deleted · Ctrl+Z to undo'));
     }
@@ -9312,7 +9529,7 @@
         }
         return;
       }
-      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
+      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
         if (ui.drawTool === 'entry') {                                   // 入户工具：点门洞（原始门洞或自画的门）→ 设为全局唯一的入户门
           const og = t.closest('[data-bopen]'), oc = t.closest('[data-open]');
           let id = null;
@@ -9484,6 +9701,31 @@
           }));
           select({ kind: 'balcony', id });
           toast(tr('已加阳台（贴墙）· 板厚 / 栏板高 / 样式 / 栏板边在右侧改', 'Balcony added against the wall · edit slab / parapet / sides in the panel'));
+          return;
+        }
+        if (ui.drawTool === 'pbox' || ui.drawTool === 'wbox') {           // 强电箱 / 弱电箱：点墙放置，吸附到墙面
+          const kind = ui.drawTool, isP = kind === 'pbox';
+          const w = wallAt(p);
+          if (!w) { toast(tr('请点击墙上的位置（电箱吸附墙体）', 'Click a position on a wall (boxes snap to walls)')); return; }
+          const bw = isP ? 600 : 450, bd = 250;
+          if (w.L < bw + 100) { toast(tr('这面墙太短，放不下电箱', 'This wall is too short for a box')); return; }
+          const c = Math.max(bw / 2 + 50, Math.min(w.L - bw / 2 - 50, Math.round(w.t / 10) * 10));
+          const side = wallSideOf([p.x, p.y], { a: w.A, b: w.B });
+          const hz = Math.abs(w.B[0] - w.A[0]) >= Math.abs(w.B[1] - w.A[1]);
+          const dir = hz ? 0 : 90;
+          const u = [(w.B[0] - w.A[0]) / w.L, (w.B[1] - w.A[1]) / w.L];
+          const b = {
+            id: uid(), wall: w.ref, c, side, dir,
+            front: ((hz ? u[0] : u[1]) * side) >= 0 ? 1 : -1,
+            w: bw, d: bd, h: isP ? 320 : 260, z: 1500,
+            x: 0, y: 0, rcd: [], mcb: [], devices: [], doorOpen: false, ang: 120
+          };
+          const q = boxWallPos(b); if (q) { b.x = q.x; b.y = q.y; }
+          mutate(() => (state[BOX_ARR[kind]] = state[BOX_ARR[kind]] || []).push(b));
+          select({ kind, id: b.id });
+          toast(isP
+            ? tr('已放强电箱（贴墙）· 右侧可多选漏电开关 / 空气开关及数量、开关箱门，拖动沿墙滑动', 'Power box placed on the wall · pick RCDs / MCBs and quantities in the panel, toggle the door, drag to slide')
+            : tr('已放弱电箱（贴墙）· 右侧可多选光猫 / 交换机 / 无线路由器 / 有线路由器、开关箱门，拖动沿墙滑动', 'Weak box placed on the wall · add modem / switch / routers in the panel, toggle the door, drag to slide'));
           return;
         }
         if (['roof', 'pergola', 'deck', 'pool'].includes(ui.drawTool)) {  // 屋顶 / 廊架 / 露台 / 泳池：两次点击定对角点
@@ -9883,6 +10125,12 @@
       } else if (h && ui.sel?.kind === 'lamp' && h.dataset.handle === 'lampR') {   // 灯具：拖亮圈手柄改照亮半径
         const l0 = (state.lamps || []).find(x => x.id === ui.sel.id);
         if (l0) drag = { kind: 'lampR', id: ui.sel.id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, r0: l0.r || 3000, before: snap(), moved: false };
+      } else if (edit && h && h.dataset.handle === 'boxSize') {      // 强电箱 / 弱电箱：局部坐标角手柄改尺寸
+        const kind = h.dataset.kind, o0 = (state[BOX_ARR[kind]] || []).find(x => x.id === h.dataset.id);
+        if (o0) drag = {
+          kind: 'boxSize', objKind: kind, id: o0.id, corner: h.dataset.corner,
+          sx: e.clientX, sy: e.clientY, x0: o0.x, y0: o0.y, w0: o0.w, d0: o0.d, c0: o0.c, before: snap(), moved: false
+        };
       } else if (edit && h && h.dataset.handle === 'rectSize') {     // 电梯 / 阳台 / 花坛：角手柄拖动改尺寸
         const kind = h.dataset.kind, id = h.dataset.id;
         const arr = kind === 'lift' ? state.lifts : kind === 'balcony' ? state.balconies : state.planters;
@@ -9952,6 +10200,12 @@
         const id = t.closest('[data-canopy]').dataset.canopy, c0 = (state.canopies || []).find(x => x.id === id);
         if (!(ui.sel?.kind === 'canopy' && ui.sel.id === id)) select({ kind: 'canopy', id });
         if (c0) drag = { kind: 'canopyMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...c0.a], b0: [...c0.b], before: snap(), moved: false };
+      } else if (edit && (t.closest('[data-pbox]') || t.closest('[data-wbox]'))) {
+        const el = t.closest('[data-pbox]') || t.closest('[data-wbox]');
+        const kind = el.dataset.pbox ? 'pbox' : 'wbox', id = el.dataset[kind];
+        const b0 = (state[BOX_ARR[kind]] || []).find(x => x.id === id);
+        if (!(ui.sel?.kind === kind && ui.sel.id === id)) select({ kind, id });
+        if (b0) drag = { kind: 'boxSlide', objKind: kind, id, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
       } else if (edit && t.closest('[data-balcony]')) {
         const id = t.closest('[data-balcony]').dataset.balcony, b0 = (state.balconies || []).find(x => x.id === id);
         if (!(ui.sel?.kind === 'balcony' && ui.sel.id === id)) select({ kind: 'balcony', id });
@@ -10208,6 +10462,35 @@
         state.north.y = drag.y0 + Math.round((p.y - drag.py) / 10) * 10;
         renderNotes(); renderSel(); return;
       }
+      if (drag.kind === 'boxSize') {                          // 电箱：局部坐标角手柄改宽 / 进深，沿墙偏移同步调整
+        if (!drag.moved && !far) return;
+        drag.moved = true;
+        const o = (state[BOX_ARR[drag.objKind]] || []).find(x => x.id === drag.id); if (!o) return;
+        const th = (o.dir || 0) * Math.PI / 180, cs = Math.cos(th), sn = Math.sin(th);
+        const dx = p.x - drag.x0, dy = p.y - drag.y0;
+        const local = { x: dx * cs + dy * sn, y: -dx * sn + dy * cs };
+        const fixed = {
+          x: drag.corner.includes('w') ? drag.w0 / 2 : -drag.w0 / 2,
+          y: drag.corner.includes('n') ? drag.d0 / 2 : -drag.d0 / 2
+        };
+        const q = axisLock(fixed, local, e.shiftKey);
+        let x0 = -drag.w0 / 2, y0 = -drag.d0 / 2, x1 = drag.w0 / 2, y1 = drag.d0 / 2;
+        if (drag.corner.includes('w')) x0 = q.x; else x1 = q.x;
+        if (drag.corner.includes('n')) y0 = q.y; else y1 = q.y;
+        if (x1 - x0 < 200) { if (drag.corner.includes('w')) x0 = x1 - 200; else x1 = x0 + 200; }
+        if (y1 - y0 < 120) { if (drag.corner.includes('n')) y0 = y1 - 120; else y1 = y0 + 120; }
+        o.w = Math.round(x1 - x0); o.d = Math.round(y1 - y0);
+        const shift = (x0 + x1) / 2, g = openingWallGeom(o.wall);
+        if (g) {
+          const sg = (o.dir === 0 ? Math.sign(g.u[0]) : Math.sign(g.u[1])) || 1;
+          const lo = Math.min(o.w / 2, g.L / 2), hi = Math.max(lo, g.L - o.w / 2);
+          o.c = Math.max(lo, Math.min(hi, (drag.c0 ?? 0) + sg * shift));
+          const np = boxWallPos(o); if (np) { o.x = np.x; o.y = np.y; }
+        } else {
+          o.x = drag.x0 + shift * cs; o.y = drag.y0 + shift * sn;
+        }
+        renderNotes(); renderSel(); return;
+      }
       if (drag.kind === 'rectSize') {                         // 电梯 / 阳台 / 花坛：角手柄改宽 / 进深
         if (!drag.moved && !far) return;
         drag.moved = true;
@@ -10244,6 +10527,13 @@
         if (drag.objKind === 'balcony') fitBalconyWall(o);     // 保持贴墙并同步靠墙边
         if (drag.objKind === 'lift') o.dw = Math.min(o.dw ?? 900, Math.max(500, o.w - 300));   // 门宽随梯宽收窄
         renderNotes(); renderSel(); return;
+      }
+      if (drag.kind === 'boxSlide') {                         // 电箱：沿墙滑动（光标投影到墙中线，可跨到另一面）
+        if (!drag.moved && !far) return;
+        drag.moved = true;
+        const b = (state[BOX_ARR[drag.objKind]] || []).find(x => x.id === drag.id); if (!b) return;
+        boxSlide(b, p);
+        renderPillars(); renderSel(); return;
       }
       if (drag.kind === 'lampSlide') {                        // 壁装灯具：沿墙滑动（光标投影到墙中线，可跨到另一面）
         if (!drag.moved && !far) return;
@@ -10353,11 +10643,18 @@
             if (o) { o.a = [it.a0[0] + dx, it.a0[1] + dy]; o.b = [it.b0[0] + dx, it.b0[1] + dy]; }
           }
           else if (it.kind && it.x !== undefined && it.y !== undefined) {   // 点 / 矩形构件：文字、标高、楼板、阳台、花坛、烟道、电梯、轴网、室外构件
-            const key = { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[it.kind];
+            const key = BOX_ARR[it.kind] || { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[it.kind];
             const o = key ? (state[key] || []).find(x => x.id === it.id) : outArr(it.kind).find(x => x.id === it.id);
             if (o && it.wallLamp) {                             // 壁装灯具：沿各自墙滑动，不脱离墙体
               o.c = Math.max(0, Math.min(it.L, Math.round((it.c + dx * it.u[0] + dy * it.u[1]) / 10) * 10));
               const q = wallLampPos(o); if (q) { o.x = q.x; o.y = q.y; }
+            }
+            else if (BOX_ARR[it.kind] && o && o.wall) {            // 电箱：整组拖动时仍贴各自墙面滑动
+              const g = openingWallGeom(o.wall);
+              if (g) {
+                o.c = Math.max(0, Math.min(g.L, Math.round((it.c + dx * g.u[0] + dy * g.u[1]) / 10) * 10));
+                const q = boxWallPos(o); if (q) { o.x = q.x; o.y = q.y; }
+              } else { o.x = it.x + dx; o.y = it.y + dy; }
             }
             else if (o) { o.x = it.x + dx; o.y = it.y + dy; }
           }
@@ -11115,6 +11412,8 @@
         ...(state.rails || []).map(r => ({ kind: 'rail', id: r.id, name: r.name || (r.style === 'drain' ? tr('排水沟 / 地漏', 'Drain') : r.style === 'part' ? tr('玻璃隔断', 'Glass partition') : tr('栏杆', 'Railing')) + ' ' + objNo(state.rails, r, q => q.style || 'bar'), sub: segLen(r) })),
         ...(state.beams || []).map(b => ({ kind: 'beam', id: b.id, name: b.name || tr('梁', 'Beam') + ' ' + objNo(state.beams, b), sub: segLen(b) })),
         ...(state.lifts || []).map(l => ({ kind: 'lift', id: l.id, name: l.name || tr('电梯', 'Lift') + ' ' + objNo(state.lifts, l), sub: rectSub(l) })),
+        ...(state.powerBoxes || []).map(b => ({ kind: 'pbox', id: b.id, name: b.name || tr('强电箱', 'Power box') + ' ' + objNo(state.powerBoxes, b), sub: rectSub(b) })),
+        ...(state.weakBoxes || []).map(b => ({ kind: 'wbox', id: b.id, name: b.name || tr('弱电箱', 'Weak-current box') + ' ' + objNo(state.weakBoxes, b), sub: rectSub(b) })),
         ...(state.balconies || []).map(b => ({ kind: 'balcony', id: b.id, name: b.name || tr('阳台', 'Balcony') + ' ' + objNo(state.balconies, b), sub: rectSub(b) })),
         ...(state.planters || []).map(p => ({ kind: 'planter', id: p.id, name: p.name || (p.well ? tr('种植池', 'Planter') : tr('花坛', 'Flower bed')) + ' ' + objNo(state.planters, p, q => !!q.well), sub: rectSub(p) })),
         ...(state.flues || []).map(f => ({ kind: 'flue', id: f.id, name: f.name || tr('烟道 / 风道', 'Flue') + ' ' + objNo(state.flues, f), sub: rectSub(f) })),
@@ -11182,7 +11481,7 @@
         const e = (state.extras || []).find(x => x.id === id); if (!e) return null;
         return isExtraLin(e.type) ? { x: (e.a[0] + e.b[0]) / 2, y: (e.a[1] + e.b[1]) / 2 } : { x: e.x, y: e.y };
       }
-      const ptObj = { pillar: state.pillars, stair: state.stairs, slab: state.slabs, lift: state.lifts, balcony: state.balconies, planter: state.planters, flue: state.flues, axgrid: state.axes, roof: state.roofs, pool: state.pools, deck: state.decks, pergola: state.pergolas, note: state.notes, level: state.levels, lamp: state.lamps };
+      const ptObj = { pillar: state.pillars, stair: state.stairs, slab: state.slabs, lift: state.lifts, balcony: state.balconies, planter: state.planters, flue: state.flues, axgrid: state.axes, roof: state.roofs, pool: state.pools, deck: state.decks, pergola: state.pergolas, note: state.notes, level: state.levels, lamp: state.lamps, pbox: state.powerBoxes, wbox: state.weakBoxes };
       if (ptObj[kind]) { const it = (ptObj[kind] || []).find(x => x.id === id); return it && { x: it.x, y: it.y }; }
     }
     function focusObj(kind, id) {
@@ -11655,7 +11954,7 @@
       let fdrag = null, objdrag = null;
       const OBJ_ARRS = {
         wall: 'walls', arcwall: 'arcWalls', pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets',
-        canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates', lamp: 'lamps'
+        canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates', lamp: 'lamps', pbox: 'powerBoxes', wbox: 'weakBoxes'
       };
       const find3dObj = (kind, id) => {
         if (kind === 'wall' || kind === 'arcwall') {                 // 原始墙（wN）固定在户型里，不可拖动
@@ -11677,6 +11976,12 @@
           if (!l || !l.wall) return null;                            // 吸顶 / 吊灯等仍走整体平移
           const g = openingWallGeom(l.wall); if (!g) return null;
           return { custom: true, lampObj: l, axis: g.u, c0: l.c ?? 0, min: 0, max: g.L };
+        }
+        if (BOX_ARR[kind]) {                                         // 电箱：沿依附的墙滑动，不脱离墙体
+          const b = (state[BOX_ARR[kind]] || []).find(x => x.id === id);
+          if (!b || !b.wall) return null;
+          const g = openingWallGeom(b.wall); if (!g) return null;
+          return { custom: true, boxObj: b, axis: g.u, c0: b.c ?? 0, min: 0, max: g.L };
         }
         if (kind === 'bopen') {
           const r = bopenRect(id); if (!r) return null;
@@ -11747,6 +12052,7 @@
           let ok = false;
           if (d.moved && (d.dx || d.dy)) {
             if (info?.lampObj && d.newC != null) { mutate(() => { info.lampObj.c = d.newC; const q = wallLampPos(info.lampObj); if (q) { info.lampObj.x = q.x; info.lampObj.y = q.y; } }); ok = true; }
+            else if (info?.boxObj && d.newC != null) { mutate(() => { info.boxObj.c = d.newC; const q = boxWallPos(info.boxObj); if (q) { info.boxObj.x = q.x; info.boxObj.y = q.y; } }); ok = true; }
             else if (info?.custom && d.newC != null) { mutate(() => { info.o.c = d.newC; clampOpening(info.o); }); ok = true; }
             else if (info && d.newD) { mutate(() => { state.bover[d.id] = { ...bov(d.id), d: d.newD }; clampBopen(d.id); }); ok = true; }
             else { const o = find3dObj(d.kind, d.id); if (o) { mutate(() => move3dObj(o, d.dx, d.dy)); ok = true; } }
@@ -11787,6 +12093,10 @@
         }
         if (h?.door) {                                                   // 门 / 窗：开合的同时选中它（属性面板可改尺寸 / 材质 / 开启方向）
           h.door.open = !h.door.open;
+          if (BOX_ARR[h.kind] && h.id != null) {                        // 电箱：门状态写回方案，2D 同步显示开启轮廓
+            const b = (state[BOX_ARR[h.kind]] || []).find(x => x.id === h.id);
+            if (b) { b.doorOpen = h.door.open; renderNotes(); }
+          }
           if (h.kind && h.id != null) window.select({ kind: h.kind, id: h.id });
         }
         else if (h?.kind === 'lamp') { toggleLamp(h.id, h.gang); window.select({ kind: 'lamp', id: h.id }); }   // 灯具 / 灯开关：点亮 + 选中（面板可改半径 / 高度）
@@ -12608,6 +12918,38 @@
         sk.userData.walkOnly = true; sk.visible = opt.mode === 'walk'; archUp.add(sk);
       }
     }
+    function boxHolesOf(ref, ht) {                              // 电箱暗装洞：wall 上所有电箱的墙面开口（沿墙 c 范围 + 底/顶标高，单位米）
+      const g = openingWallGeom(ref); if (!g) return [];
+      return [...(state.powerBoxes || []), ...(state.weakBoxes || [])].filter(b => b.wall === ref).map(b => {
+        const w = Math.max(200, b.w || 0), de = Math.round(Math.max(60, Math.min(Math.max(120, b.d || 250), g.T - 20)));
+        const z0 = Math.max(0, (b.z ?? 1500) / 1000), z1 = Math.min(ht, ((b.z ?? 1500) + (b.h ?? 320)) / 1000);
+        return { c0: Math.max(0, (b.c ?? 0) - w / 2), c1: Math.min(g.L, (b.c ?? 0) + w / 2), yb: z0, yt: z1, side: b.side ?? 1, de };
+      }).filter(h => h.c1 > h.c0 + 1 && h.yt > h.yb + .01);
+    }
+    function wallSkin3D(A, B, yb, yt, side, off, thick) {       // 电箱暗装洞的背面墙皮：洞只朝箱门一侧凹进，墙背面不透
+      const L = Math.hypot(B[0] - A[0], B[1] - A[1]); if (L < 1 || yt - yb <= .001) return;
+      const nx = -((B[1] - A[1]) / L) * side, ny = ((B[0] - A[0]) / L) * side;
+      const o = new THREE.Mesh(new THREE.BoxGeometry(M(L), yt - yb, M(thick)), [wallMat, wallMat, capMat, wallMat, wallMat, wallMat]);
+      o.position.set(wx((A[0] + B[0]) / 2 + nx * off), (yb + yt) / 2, wz((A[1] + B[1]) / 2 + ny * off)); o.rotation.y = wallAngle(A, B);
+      o.castShadow = o.receiveShadow = true; tagPick(o, pickWallKind, pickWallId); archUp.add(o);
+    }
+    function wallSegHoles3D(P0, P1, T, ht, holes) {             // 砌墙段时扣掉电箱暗装洞：洞上下保留墙皮，洞背面补墙皮，洞之间砌整墙
+      const L = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]);
+      if (L < 1) return;
+      if (!(holes || []).length) { wallSeg3D(P0, P1, T, 0, ht); return; }
+      let x = 0;
+      holes.slice().sort((a, b) => a.c0 - b.c0).forEach(h => {
+        const h0 = Math.max(x, h.c0), h1 = Math.min(L, h.c1); if (h1 <= h0 + 1) return;
+        if (h0 > x + 1) { const [a, b] = segPts(P0, P1, x, h0); wallSeg3D(a, b, T, 0, ht); }
+        const [a, b] = segPts(P0, P1, h0, h1);
+        if (h.yb > .001) wallSeg3D(a, b, T, 0, h.yb);
+        if (ht > h.yt + .001) wallSeg3D(a, b, T, h.yt, ht);
+        const skin = Math.max(.02, T - (h.de || T));            // 背面墙皮厚度 = 墙厚 - 箱深
+        wallSkin3D(a, b, h.yb, h.yt, -(h.side ?? 1), (h.de || T) / 2, skin);
+        x = Math.max(x, h1);
+      });
+      if (x < L - 1) { const [a, b] = segPts(P0, P1, x, L); wallSeg3D(a, b, T, 0, ht); }
+    }
     function addDoorLeaf(A, B, o, top, y0 = 0, hgt = Math.min(2.1, top)) {
       const dx = B[0] - A[0], dy = B[1] - A[1], L2 = Math.hypot(dx, dy) || 1, u = [dx / L2, dy / L2];
       const side = o.flip ? -1 : 1, n = [-u[1] * side, u[0] * side];
@@ -13219,6 +13561,56 @@
         toast(tr(l.on ? '灯已打开' : '灯已关闭', l.on ? 'Lamp on' : 'Lamp off'));
       }
       applyLight(); markDirty(); renderPillars();
+    }
+    function buildBox3D(kind, b) {                              // 强电箱 / 弱电箱：暗装箱体（嵌墙 + 门框饰边）+ 内部器件 + 可点击开合箱门
+      const isP = kind === 'pbox';
+      const W = Math.max(.2, (b.w || 0) / 1000), D = Math.max(.12, (b.d || 0) / 1000);
+      const H = Math.max(.15, Math.min(1.2, (b.h ?? 320) / 1000)), Y = Math.max(0, (b.z ?? 1500) / 1000);
+      const FR = b.front === -1 ? -1 : 1;
+      const g = new THREE.Group();
+      g.position.set(wx(b.x), 0, wz(b.y)); g.rotation.y = -(b.dir || 0) * Math.PI / 180;
+      tagPick(g, kind, b.id);
+      const shell = mat(isP ? '#ece5d8' : '#e3eef3', { roughness: .68, metalness: .12 });
+      const inner = mat('#514c45', { roughness: .92 }), frame = mat('#a9a49a', { metalness: .55, roughness: .45 });
+      const put = (w, h, d, x, y, z, m) => {
+        const o = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), m);
+        o.position.set(x, Y + y, z); o.castShadow = o.receiveShadow = true; g.add(o); return o;
+      };
+      put(W, H, .035, 0, H / 2, -FR * (D / 2 - .018), inner);     // 内壁（深色背板）
+      put(.035, H, D, -W / 2 + .018, H / 2, 0, shell);           // 两侧板
+      put(.035, H, D, W / 2 - .018, H / 2, 0, shell);
+      put(W, .035, D, 0, .018, 0, shell);                        // 底板 / 顶板
+      put(W, .035, D, 0, H - .018, 0, shell);
+      const rim = .018, rimD = .028, rz = FR * (D / 2 + .002);   // 门框饰边：盖住墙洞切口，箱门面与墙面齐平
+      put(W + rim * 2, rim, rimD, 0, rim / 2, rz, frame);
+      put(W + rim * 2, rim, rimD, 0, H - rim / 2, rz, frame);
+      put(rim, H, rimD, -W / 2 - rim / 2, H / 2, rz, frame);
+      put(rim, H, rimD, W / 2 + rim / 2, H / 2, rz, frame);
+      const devs = isP ? [...(b.rcd || []).map(k => ['rcd', k]), ...(b.mcb || []).map(k => ['mcb', k])]
+        : (b.devices || []).map(k => ['dev', k]);
+      const cols = Math.max(1, Math.floor((W - .08) / .095)), cellW = Math.min(.095, (W - .08) / cols);
+      devs.slice(0, 24).forEach(([key, k], i) => {
+        const c = i % cols, row = Math.floor(i / cols);
+        const color = key === 'rcd' ? '#d08a4a' : key === 'mcb' ? '#8a929c'
+          : k === 'wifi' ? '#f2f2ee' : k === 'switch' ? '#5d9a72' : k === 'router' ? '#b9b3a8' : '#5f93b0';
+        const x = -W / 2 + .04 + cellW * (c + .5), y = Y + .07 + row * .09;
+        if (y > Y + H - .04) return;
+        const o = new THREE.Mesh(new THREE.BoxGeometry(cellW - .01, .07, .045), mat(color, { roughness: .55 }));
+        o.position.set(x, y, -FR * (D / 2 - .06)); o.castShadow = true; g.add(o);
+        const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .012, .006), new THREE.MeshBasicMaterial({ color: key === 'rcd' ? '#ffd9a0' : '#bfe6cf' }));
+        led.position.set(x + cellW * .25, y + .015, -FR * (D / 2 - .082)); g.add(led);
+      });
+      const hinge = new THREE.Group();
+      hinge.position.set(-W / 2 + .015, 0, FR * (D / 2 + .006));
+      const rad = Math.max(30, Math.min(170, b.ang ?? 120)) * Math.PI / 180;
+      const edoor = { open: !!b.doorOpen, cur: b.doorOpen ? 1 : 0, a0: 0, a1: -FR * rad, pivot: hinge, kind, id: b.id };
+      const leaf = new THREE.Mesh(new THREE.BoxGeometry(W - .03, H - .03, .018), mat(isP ? '#dcd5c7' : '#d7e8ef', { roughness: .55, metalness: .18 }));
+      leaf.position.set((W - .03) / 2, Y + H / 2, 0); leaf.castShadow = true;
+      leaf.userData.door = hinge.userData.door = edoor; hinge.add(leaf);
+      const handle = new THREE.Mesh(new THREE.BoxGeometry(.016, .09, .024), frame);
+      handle.position.set(W - .085, Y + H / 2, FR * .018); handle.userData.door = edoor; hinge.add(handle);
+      g.add(hinge); doors.push(edoor);
+      archUp.add(g);
     }
     function buildLift3D(l) {                                   // 电梯：井道四壁 + 门洞过梁 + 金属双扇门
       const W = Math.max(.8, (l.w ?? 2000) / 1000), D = Math.max(.8, (l.d ?? 2000) / 1000);
@@ -14046,7 +14438,8 @@
         wallSegs(id, s.L).forEach(([c0, c1]) => {
           const [P0, P1] = segPts(s.A, s.B, c0, c1);
           const lbo = c1 - c0 <= 400 && ((c1 >= s.L - 1 && lbCornerAt(id, 1)) || (c0 <= 1 && lbCornerAt(id, 0)));
-          if (lbo) cornerStub3D(P0, P1, s.T, ht, lbo); else wallSeg3D(P0, P1, s.T, 0, ht);
+          if (lbo) cornerStub3D(P0, P1, s.T, ht, lbo);
+          else wallSegHoles3D(P0, P1, s.T, ht, boxHolesOf(id, ht).map(h => ({ c0: h.c0 - c0, c1: h.c1 - c0, yb: h.yb, yt: h.yt })).filter(h => h.c1 > 0 && h.c0 < c1 - c0));
           pushWallCollider(P0, P1, s.T);
         });
         os.forEach(o => { const s0 = archUp.children.length; buildOpening3D(s.A, s.B, o, ht, s.T); markNew(s0, 'open', o.id); });   // 自画门窗：点击可开合并选中
@@ -14072,7 +14465,7 @@
           } else if (lbo) {                                  // 转角飘窗转角的小墙垛：窗洞范围内留空
             cornerStub3D(P0, P1, cwT(w), ht, lbo);
           } else {
-            wallSeg3D(P0, P1, cwT(w), 0, ht);
+            wallSegHoles3D(P0, P1, cwT(w), ht, boxHolesOf(id, ht).map(h => ({ c0: h.c0 - c0, c1: h.c1 - c0, yb: h.yb, yt: h.yt })).filter(h => h.c1 > 0 && h.c0 < c1 - c0));
           }
           pushWallCollider(P0, P1, cwT(w));
         });
@@ -14608,6 +15001,8 @@
       (state.balconies || []).forEach(buildBalcony3D);        // 阳台
       (state.planters || []).forEach(buildPlanter3D);         // 花坛 / 种植池
       (state.flues || []).forEach(buildFlue3D);               // 烟道 / 风道
+      (state.powerBoxes || []).forEach(b => buildBox3D('pbox', b));   // 强电箱
+      (state.weakBoxes || []).forEach(b => buildBox3D('wbox', b));    // 弱电箱
       (state.lamps || []).forEach(buildLamp3D);               // 灯具 / 灯开关（夜景点光源）
       // 门洞、飘窗洞口上方过梁（飘窗属于原始户型：对应房间被清空 / 空方案时不建）
       const bayLintels = [
@@ -14722,7 +15117,7 @@
     // 只重建变化的部分
     function sync(force) {
       if (!inited || (!active && !force)) return;
-      const a = JSON.stringify([state.rooms, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, opt.cut]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut]);
+      const a = JSON.stringify([state.rooms, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut]);
       if (force || a !== sigArch) { sigArch = a; buildArch(); }
       if (force || f !== sigFurn) { sigFurn = f; buildFurn(); }
       if (force || l !== sigLabels) { sigLabels = l; buildLabels(); }
