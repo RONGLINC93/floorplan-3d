@@ -221,7 +221,7 @@
       "id": "fmwhuwbzv93",
       "wall": "CWfmwhqizs2191",
       "c": 499.061279296875,
-      "w": 900,
+      "w": 650,
       "kind": "elev",
       "flip": false,
       "dh": 2400,
@@ -626,7 +626,8 @@
       "dir": 0,
       "rise": 4200,
       "type": "spiral",
-      "flipX": false
+      "flipX": true,
+      "cw": true
     }
   ],
   "wallH": {
@@ -662,9 +663,10 @@
       "w": 1230,
       "d": 1310,
       "h": 2400,
-      "dw": 900,
+      "dw": 650,
       "dir": 0,
-      "stop": 1200
+      "stop": 1200,
+      "dpos": 0
     }
   ],
   "balconies": [],

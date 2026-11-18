@@ -87,6 +87,13 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 self._reply(404, {"detail": "文件不存在"})
             return True
+        # 站点根目录下的图标（favicon / manifest 图标等）：只放行单层文件名 + 图片类扩展名，防止读到别的东西
+        name = url_path.lstrip("/")
+        if name and "/" not in name and Path(name).suffix.lower() in (".png", ".jpg", ".jpeg", ".ico", ".svg", ".webmanifest", ".txt"):
+            f = (WWW / name).resolve()
+            if f.parent == WWW.resolve() and f.is_file():
+                self._serve_file(f)
+                return True
         return False
 
     def _plan_name(self, thumbnail=False):
