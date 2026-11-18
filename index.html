@@ -14609,6 +14609,7 @@
     function updateDoorWalkTip() {
       const walking = active && opt.mode === 'walk' && $('#walkOverlay').style.display !== 'flex';   // 未暂停
       const h = walking ? pick() : null;
+      if (doorHiRef) doorHiRef.position.set(0, 0, 0);                 // 高亮层复位：门 / 旗杆挂到模型用局部坐标，灯具用世界包围盒
       if (h?.door && h.dist < 2.5 && doorHiRef) {
         if (doorHiRef.parent !== h.mesh) {                          // 高亮挂到瞄准的门扇（随开门动画一起转）
           const p = h.mesh.geometry.parameters;
@@ -14631,6 +14632,28 @@
           walkTip.textContent = touchWalk ? tr('点旗杆升降旗', 'Tap to toggle the flag') : tr('E 升旗 / 降旗', 'Press E to raise / lower');
           walkTip.classList.add('open');
         } else { if (doorHiRef) { doorHiRef.removeFromParent(); doorHiRef.visible = false; } walkTip.classList.remove('open'); }
+      } else if (h?.kind === 'lamp' && h.dist < 2.5 && doorHiRef) {    // 瞄准灯具 / 开关：高亮 + 开 / 关提示（插座无交互）
+        const l = (state.lamps || []).find(x => x.id === h.id);
+        if (l && l.type !== 'socket') {
+          const gl = archUp.children.find(o => o.userData.pick3d?.kind === 'lamp' && String(o.userData.pick3d.id) === String(h.id));
+          let shown = false;
+          if (gl) {
+            const bb = new THREE.Box3().setFromObject(gl);
+            if (!bb.isEmpty()) {
+              const s = bb.getSize(new THREE.Vector3());
+              doorHiRef.removeFromParent(); doorHiRef.visible = true;
+              doorHiRef.scale.set(Math.max(.05, s.x) * 1.08, Math.max(.05, s.y) * 1.08, Math.max(.05, s.z) * 1.08);
+              bb.getCenter(doorHiRef.position); scene.add(doorHiRef); shown = true;
+            }
+          }
+          if (shown) {
+            const willOn = isSwitchType(l.type) ? switchTargets(l).some(x => x.on === false) : l.on === false;
+            walkTip.textContent = touchWalk
+              ? (willOn ? tr('点按开灯', 'Tap to turn on') : tr('点按关灯', 'Tap to turn off'))
+              : (willOn ? tr('E 开灯', 'Press E to turn on') : tr('E 关灯', 'Press E to turn off'));
+            walkTip.classList.add('open');
+          } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
+        } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
       } else {
         if (doorHiRef) { doorHiRef.removeFromParent(); doorHiRef.visible = false; }
         walkTip.classList.remove('open');
