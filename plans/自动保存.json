@@ -3,7 +3,52 @@
   "rooms": {},
   "demolished": [],
   "measures": [],
-  "walls": [],
+  "walls": [
+    {
+      "id": "fmwlf7lk547",
+      "a": [
+        2160,
+        4070
+      ],
+      "b": [
+        2160,
+        640
+      ]
+    },
+    {
+      "id": "fmwlf7mdh48",
+      "a": [
+        2160,
+        640
+      ],
+      "b": [
+        7000,
+        640
+      ]
+    },
+    {
+      "id": "fmwlf7nj249",
+      "a": [
+        7000,
+        640
+      ],
+      "b": [
+        7000,
+        3720
+      ]
+    },
+    {
+      "id": "fmwlf7tk150",
+      "a": [
+        7000,
+        3650
+      ],
+      "b": [
+        2160,
+        3650
+      ]
+    }
+  ],
   "openings": [],
   "deletedWalls": [
     "w0",
@@ -99,18 +144,7 @@
   "decks": [],
   "pergolas": [],
   "gates": [],
-  "extras": [
-    {
-      "type": "park",
-      "w": 6340,
-      "d": 4760,
-      "no": 1,
-      "dir": 90,
-      "id": "fmwk317wt47",
-      "x": 8530,
-      "y": 3700
-    }
-  ],
+  "extras": [],
   "leaders": [],
   "layers": {
     "dims": true,

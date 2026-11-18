@@ -7418,7 +7418,7 @@
     }
     function setTool(t) {
       if (t !== 'draw') { rotCancel(true); ui.rotPick = false; }  // 离开设计：取消未完成的旋转并还原几何
-      ui.tool = t; ui.mA = null; ui.mCur = null; ui.dimA = null; ui.dimCur = null; ui.railA = null; ui.railCur = null; ui.beamA = null; ui.beamCur = null; ui.slabA = null; ui.slabCur = null; ui.parapetA = null; ui.parapetCur = null; ui.canopyA = null; ui.canopyCur = null; ui.rectA = null; ui.rectCur = null; ui.arcA = null; ui.arcCur = null; ui.gateA = null; ui.gateCur = null; ui.exA = null; ui.exCur = null; ui.ldA = null; ui.ldCur = null; wStart = wCur = null; renderDraw();
+      ui.tool = t; ui.mA = null; ui.mCur = null; ui.dimA = null; ui.dimCur = null; ui.railA = null; ui.railCur = null; ui.beamA = null; ui.beamCur = null; ui.slabA = null; ui.slabCur = null; ui.parapetA = null; ui.parapetCur = null; ui.canopyA = null; ui.canopyCur = null; ui.rectA = null; ui.rectCur = null; ui.arcA = null; ui.arcCur = null; ui.gateA = null; ui.gateCur = null; ui.exA = null; ui.exCur = null; ui.ldA = null; ui.ldCur = null; wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; renderDraw();
       if (is3D()) {                                               // 3D 下「预览 / 设计」切换；建筑工具 / 拖动与 2D 共用
         if (!entering3D) {                                        // 仅进入 3D 那一次同步不动预览态；入场动画期间用户点击也要即时生效
           m3dPreview = t !== 'draw';
@@ -7660,7 +7660,7 @@
           if (Math.abs(d0) <= T / 2 + 2) ext = Math.max(ext, half);
           return;
         }
-        const face = (d0 >= 0 ? 1 : -1) * (T / 2);                        // 对方墙的远表面
+        const face = (on >= 0 ? 1 : -1) * (T / 2);                        // 沿延伸方向一侧的远表面（按 on 判断，d0 只是端头当前偏移，不能定方向）
         const tt = (face - d0) / on;
         if (tt > 0) ext = Math.max(ext, Math.min(tt, half * 2.6));        // 只延伸到刚好贴住远表面，不凸出
       };
@@ -7673,20 +7673,22 @@
         if (o === w) return;
         const id = 'CW' + o.id;
         if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
-        test(o.a, o.b, WALL_T);
+        test(o.a, o.b, cwT(o));
       });
       return Math.round(ext);
     }
     // 吸附到已有墙（内置 + 自画）：优先端点，其次墙面中线上的投影点，使新墙与旧墙无缝融合
     function snapToWall(p, skip) {
-      const tol = 14 / view.s; let best = null;
+      const tol = 16 / view.s, endTol = 28 / view.s;        // 墙面 16px，端点 / 墙角放大到 28px 便于闭合
+      let best = null;
       const test = (A, B) => {
         const dx = B[0] - A[0], dy = B[1] - A[1], L = Math.hypot(dx, dy); if (L < 1) return;
         let t = ((p.x - A[0]) * dx + (p.y - A[1]) * dy) / (L * L);
         const cl = Math.max(0, Math.min(1, t));
         const cx = A[0] + dx * cl, cy = A[1] + dy * cl, d = Math.hypot(p.x - cx, p.y - cy);
-        if (d > tol) return;
-        const end = (cl === 0 || cl === 1) && d <= tol;   // 钳到端点的投影 = 墙角
+        const isEnd = cl === 0 || cl === 1;
+        if (d > (isEnd ? endTol : tol)) return;
+        const end = isEnd;                                  // 钳到端点的投影 = 墙角
         if (!best || (end && !best.end) || (end === best.end && d < best.d)) best = { x: cx, y: cy, end, d };
       };
       WALLS.forEach((w, i) => {
@@ -7699,14 +7701,27 @@
         if (id === skip || state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
         test(w.a, w.b);
       });
-      return best && { x: best.x, y: best.y };
+      return best && { x: best.x, y: best.y, end: best.end };
     }
     // 画墙吸附：先按墙面边缘 / 10mm 网格吸附；直角模式锁水平 / 垂直，自由模式任意角度（Shift 临时锁轴）
+    // 连续画墙时，终点靠近本链起点会自动吸到起点形成闭合
+    let wallChainStart = null;                                 // 连续画墙的起点（闭合判定用）
     function snapDraw(p, shift) {
       const q = axisLock(wStart, snapPoint(p, false), shift);
+      // 闭合吸附：当前墙段终点靠近整条墙链起点 → 吸到起点，形成闭合房间
+      if (wallChainStart && wStart && (wStart.x !== wallChainStart.x || wStart.y !== wallChainStart.y)) {
+        const dc = Math.hypot(p.x - wallChainStart.x, p.y - wallChainStart.y);
+        if (dc <= 28 / view.s) {
+          q.x = Math.round(wallChainStart.x); q.y = Math.round(wallChainStart.y);
+          ui.wallSnapPt = { x: q.x, y: q.y, close: true };
+          return q;
+        }
+      }
       const ws = snapToWall(p);
-      if (ws) { q.x = Math.round(ws.x); q.y = Math.round(ws.y); }
-      else { q.x = Math.round(q.x); q.y = Math.round(q.y); }
+      if (ws) {
+        q.x = Math.round(ws.x); q.y = Math.round(ws.y);
+        ui.wallSnapPt = { x: q.x, y: q.y, close: false, end: ws.end };
+      } else { q.x = Math.round(q.x); q.y = Math.round(q.y); ui.wallSnapPt = null; }
       return q;
     }
     // 新墙与已有墙是否实体重叠（共线平行、中线距离小于厚度之和的一半、投影区间有交叠）
@@ -7755,16 +7770,20 @@
       return best || p;
     }
     function drawCommit(a, b) {
-      if (Math.hypot(b.x - a.x, b.y - a.y) < 100) { wStart = wCur = null; return; }   // 太短视为误触，取消
+      if (Math.hypot(b.x - a.x, b.y - a.y) < 100) { wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; return; }   // 太短视为误触，取消
+      const closing = wallChainStart && Math.hypot(b.x - wallChainStart.x, b.y - wallChainStart.y) <= 30 / view.s;
+      if (closing) b = { x: wallChainStart.x, y: wallChainStart.y };              // 闭合：终点精确落到链起点
       a = clampToWalls(a); b = clampToWalls(b);                                  // 端点压到旧墙中线上，墙角严丝合缝
       if (wallOverlaps(a, b)) {                                                   // 与现有墙叠画：阻止
-        wStart = wCur = null;
+        wStart = wCur = wallChainStart = null; ui.wallSnapPt = null;
         toast(tr('新墙与现有墙体重叠，未添加 · 请在空白位置画墙', 'New wall overlaps an existing wall — not added'));
         renderDraw();
         return;
       }
       mutate(() => state.walls.push({ id: uid(), a: [a.x, a.y], b: [b.x, b.y] }));
-      wStart = b; wCur = null;                                                   // 连续画：从这段墙的末端继续
+      ui.wallSnapPt = null;
+      if (closing) { wStart = wCur = wallChainStart = null; toast(tr('已闭合', 'Closed')); }   // 闭环结束连续画墙
+      else { wStart = b; wCur = null; }                                           // 连续画：从这段墙的末端继续
     }
     // 输入长度画墙：方向沿用当前预览方向（直角 / 自由模式 / Shift 锁轴），没动过鼠标则默认水平向右
     function commitWallLen() {
@@ -7779,7 +7798,7 @@
     }
     $('#wallLen').addEventListener('keydown', e => {
       if (e.key === 'Enter') { e.preventDefault(); commitWallLen(); }
-      else if (e.key === 'Escape') { wStart = wCur = null; ui.dimA = null; ui.dimCur = null; ui.railA = null; ui.railCur = null; ui.beamA = null; ui.beamCur = null; ui.slabA = null; ui.slabCur = null; ui.parapetA = null; ui.parapetCur = null; ui.canopyA = null; ui.canopyCur = null; ui.rectA = null; ui.rectCur = null; ui.arcA = null; ui.arcCur = null; ui.gateA = null; ui.gateCur = null; ui.exA = null; ui.exCur = null; ui.ldA = null; ui.ldCur = null; renderDraw(); renderNotes(); }
+      else if (e.key === 'Escape') { wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; ui.dimA = null; ui.dimCur = null; ui.railA = null; ui.railCur = null; ui.beamA = null; ui.beamCur = null; ui.slabA = null; ui.slabCur = null; ui.parapetA = null; ui.parapetCur = null; ui.canopyA = null; ui.canopyCur = null; ui.rectA = null; ui.rectCur = null; ui.arcA = null; ui.arcCur = null; ui.gateA = null; ui.gateCur = null; ui.exA = null; ui.exCur = null; ui.ldA = null; ui.ldCur = null; renderDraw(); renderNotes(); }
     });
     // ---------- 设计模式公共几何：墙段切割 / 拾取 ----------
     function openingsOf(ref) { return state.openings.filter(o => o.wall === ref).sort((x, y) => x.c - y.c); }
@@ -8251,7 +8270,7 @@
     function roomCommit(a, b) {
       const x0 = Math.round(Math.min(a.x, b.x) / 10) * 10, x1 = Math.round(Math.max(a.x, b.x) / 10) * 10;
       const y0 = Math.round(Math.min(a.y, b.y) / 10) * 10, y1 = Math.round(Math.max(a.y, b.y) / 10) * 10;
-      wStart = wCur = null;
+      wStart = wCur = wallChainStart = null; ui.wallSnapPt = null;
       if (x1 - x0 < 300 || y1 - y0 < 300) { renderDraw(); return; }            // 太小视为误触
       const id = 'X' + uid();
       mutate(() => {
@@ -8309,6 +8328,10 @@
       }
       const k = 1 / view.s, S = 'stroke="#b5653a" stroke-width="1.5" vector-effect="non-scaling-stroke"';
       let s = `<circle cx="${wStart.x}" cy="${wStart.y}" r="${3.5 * k}" fill="#b5653a"/>`;
+      // 连续画墙的起点（闭合目标）：画一个空心方框，便于用户瞄准
+      if (wallChainStart && (wallChainStart.x !== wStart.x || wallChainStart.y !== wStart.y)) {
+        s += `<rect x="${wallChainStart.x - 5 * k}" y="${wallChainStart.y - 5 * k}" width="${10 * k}" height="${10 * k}" fill="none" stroke="#2f8f5a" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+      }
       if (drawingRoom) {                                                       // 房间：对角矩形预览 + 面积提示
         if (wCur && (wCur.x !== wStart.x || wCur.y !== wStart.y)) {
           const x0 = Math.min(wStart.x, wCur.x), x1 = Math.max(wStart.x, wCur.x);
@@ -8327,8 +8350,15 @@
         s += geo.rot
           ? `<rect x="${-geo.len / 2}" y="${-WALL_T / 2}" width="${geo.len}" height="${WALL_T}" fill="rgba(194,59,59,.28)" ${S2} transform="translate(${geo.cx} ${geo.cy}) rotate(${geo.rot})"/>`
           : `<rect x="${geo.x}" y="${geo.y}" width="${geo.w}" height="${geo.h}" fill="rgba(194,59,59,.28)" ${S2}/>`;
-        s += `<text x="${(wStart.x + wCur.x) / 2}" y="${(wStart.y + wCur.y) / 2 - 8 * k}" font-size="${12 * k}" text-anchor="middle" fill="${bad ? '#c23b3b' : '#b5653a'}" font-weight="600"
-      stroke="#fff" stroke-width="${3.5 * k}" paint-order="stroke">${bad ? tr('与现有墙重叠', 'overlaps wall') + ' · ' : ''}${Math.round(Math.hypot(wCur.x - wStart.x, wCur.y - wStart.y))} mm</text>`;
+        const close = ui.wallSnapPt?.close;
+        s += `<text x="${(wStart.x + wCur.x) / 2}" y="${(wStart.y + wCur.y) / 2 - 8 * k}" font-size="${12 * k}" text-anchor="middle" fill="${bad ? '#c23b3b' : close ? '#2f8f5a' : '#b5653a'}" font-weight="600"
+      stroke="#fff" stroke-width="${3.5 * k}" paint-order="stroke">${bad ? tr('与现有墙重叠', 'overlaps wall') + ' · ' : ''}${close ? tr('点击闭合', 'click to close') + ' · ' : ''}${Math.round(Math.hypot(wCur.x - wStart.x, wCur.y - wStart.y))} mm</text>`;
+      }
+      // 吸附标记：吸到墙端点 / 墙角时画橙色圆点，吸到链起点（闭合）时画绿色方框
+      if (ui.wallSnapPt) {
+        const sp = ui.wallSnapPt;
+        if (sp.close) s += `<rect x="${sp.x - 6 * k}" y="${sp.y - 6 * k}" width="${12 * k}" height="${12 * k}" fill="none" stroke="#2f8f5a" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`;
+        else s += `<circle cx="${sp.x}" cy="${sp.y}" r="${6 * k}" fill="none" stroke="#e67e22" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`;
       }
       g.innerHTML = s;
     }
@@ -8354,7 +8384,7 @@
         renderMeasure(); return;                   // 没拖动：保留起点，等第二次点击
       }
       if (d.kind === 'draw') {
-        if (cancel) { wStart = wCur = null; renderDraw(); return; }
+        if (cancel) { wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; renderDraw(); return; }
         if (d.moved && wStart && wCur) {
           if (ui.drawTool === 'room') roomCommit(wStart, wCur);    // 按住拖出矩形房间
           else drawCommit(wStart, wCur);                           // 按住拖出一段墙；轻点则等下一次点击
@@ -8915,7 +8945,7 @@
           return;
         }
         const q = ui.drawTool === 'room' ? snapPoint(p, e.shiftKey) : snapDraw(p, e.shiftKey);   // 房间按网格吸附即可
-        if (!wStart) { wStart = q; wCur = q; drag = { kind: 'draw', sx: e.clientX, sy: e.clientY, moved: false }; svg.setPointerCapture(e.pointerId); }
+        if (!wStart) { wStart = q; wCur = q; wallChainStart = ui.drawTool === 'room' ? null : q; ui.wallSnapPt = null; drag = { kind: 'draw', sx: e.clientX, sy: e.clientY, moved: false }; svg.setPointerCapture(e.pointerId); }
         else if (ui.drawTool === 'room') roomCommit(wStart, q);
         else drawCommit(wStart, q);
         renderDraw(); return;
@@ -9161,7 +9191,7 @@
       } else if (ui.drawTool !== 'select') {
         const starts = ['dimA', 'railA', 'beamA', 'slabA', 'parapetA', 'canopyA', 'rectA', 'arcA', 'gateA', 'exA', 'ldA'];
         if (wStart || starts.some(k => ui[k])) {                     // 第一下：只取消已定的起点，保留当前工具
-          wStart = wCur = null;
+          wStart = wCur = wallChainStart = null; ui.wallSnapPt = null;
           starts.forEach(k => { ui[k] = null; ui[k.replace(/A$/, 'Cur')] = null; });
           renderDraw(); renderNotes();
         } else setSubTool('select');                                 // 第二下：回到选择
@@ -9802,7 +9832,7 @@
       else if (k === 'r') rotateSel(e.shiftKey ? -90 : 90);
       else if (k === 'delete' || k === 'backspace') { e.preventDefault(); if (ui.tool === 'draw' && ['select', 'move'].includes(ui.drawTool)) deleteSel(); }   // 仅设计模式可删，预览模式不动方案
       else if (k === 'escape') {
-        if (wStart) { wStart = wCur = null; renderDraw(); }
+        if (wStart) { wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; renderDraw(); }
         else if (ui.mA) { ui.mA = null; renderMeasure(); }
         else if (ui.tool === 'draw' && ui.drawTool !== 'select') { setSubTool('select'); select(null); }
         else if (ui.multi.length) { ui.multi = []; ui.mq = null; renderSel(); renderPanel(); }
@@ -10019,7 +10049,7 @@
         if (!MATS[ui.paintMat]) ui.paintMat = 'tile800';
       }
       ui.drawTool = dt;
-      if (dt === 'rotate') { wStart = wCur = null; renderDraw(); }   // 旋转会接管点击：放弃画墙未完成的那一段
+      if (dt === 'rotate') { wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; renderDraw(); }   // 旋转会接管点击：放弃画墙未完成的那一段
       if (dt !== 'dim') { ui.dimA = null; ui.dimCur = null; }   // 离开尺寸标注：放弃打到一半的点
       if (dt !== 'rail' && dt !== 'part' && dt !== 'drain') { ui.railA = null; ui.railCur = null; }
       if (dt !== 'beam') { ui.beamA = null; ui.beamCur = null; }
