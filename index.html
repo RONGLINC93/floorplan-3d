@@ -11071,7 +11071,7 @@
       let fdrag = null, objdrag = null;
       const OBJ_ARRS = {
         wall: 'walls', arcwall: 'arcWalls', pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets',
-        canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates'
+        canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates', lamp: 'lamps'
       };
       const find3dObj = (kind, id) => {
         if (kind === 'wall' || kind === 'arcwall') {                 // 原始墙（wN）固定在户型里，不可拖动
@@ -11100,7 +11100,7 @@
         else if (typeof o.x === 'number' && typeof o.y === 'number') { o.x += dx; o.y += dy; }
       };
       host.addEventListener('pointerdown', e => {
-        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && ui.drawTool !== 'move')) return;   // 仅「移动」工具可拖动对象，与 2D 一致
+        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && !['move', 'select'].includes(ui.drawTool))) return;   // 选择 / 移动工具都可按住已选对象拖动（与 2D 一致），其余工具交给镜头旋转
         const h = pick(e), g = groundAt(e.clientX, e.clientY);
         if (!g) return;
         if (ui.sel.kind === 'furn') {
