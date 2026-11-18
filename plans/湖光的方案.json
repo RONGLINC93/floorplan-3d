@@ -889,7 +889,7 @@
       "y": 4630,
       "r": 6000,
       "z": 3600,
-      "on": true
+      "on": false
     },
     {
       "id": "fmwlozibl93",
@@ -910,29 +910,93 @@
       "on": true
     },
     {
-      "id": "fmwltumvl94",
+      "id": "fmwlug3xb93",
       "type": "socket",
       "wall": "CWfmwhqg7q7187",
       "side": 1,
-      "c": 12790,
+      "c": 12810,
+      "z": 300,
+      "r": 3000,
+      "on": true,
+      "style": "dual",
+      "x": 310,
+      "y": 6700
+    },
+    {
+      "id": "fmwlug4xc94",
+      "type": "socket",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 9930,
+      "z": 800,
+      "r": 3000,
+      "on": true,
+      "style": "dual",
+      "x": 3190,
+      "y": 6700
+    },
+    {
+      "id": "fmwlugsx195",
+      "type": "socket",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 9830,
+      "z": 800,
+      "r": 3000,
+      "on": true,
+      "style": "dual",
+      "x": 3290,
+      "y": 6700
+    },
+    {
+      "id": "fmwluh0wd96",
+      "type": "socket",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 10030,
+      "z": 800,
+      "r": 3000,
+      "on": true,
+      "style": "dual",
+      "x": 3090,
+      "y": 6700
+    },
+    {
+      "id": "fmwlui44d97",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 9720,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 3400,
+      "y": 6700
+    },
+    {
+      "id": "fmwlui74t98",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 9730,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 3390,
+      "y": 6700
+    },
+    {
+      "id": "fmwlukckx93",
+      "type": "socket",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 2410,
       "z": 300,
       "r": 0,
       "on": true,
       "style": "dual",
-      "x": 330,
-      "y": 6700
-    },
-    {
-      "id": "fmwltuqf295",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 9910,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 3210,
-      "y": 6700
+      "x": 2350,
+      "y": 2230
     }
   ],
   "layers": {

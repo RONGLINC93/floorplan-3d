@@ -3951,18 +3951,16 @@
             const b = P(0, 110);
             body = `<circle cx="${b[0]}" cy="${b[1]}" r="70" ${st}/>`
               + [-60, -20, 20, 60].map(a2 => { const rd = a2 * Math.PI / 180, dx = nx * Math.cos(rd) + ux * Math.sin(rd), dy = ny * Math.cos(rd) + uy * Math.sin(rd); return `<line x1="${b[0] + dx * 95}" y1="${b[1] + dy * 95}" x2="${b[0] + dx * 165}" y2="${b[1] + dy * 165}" fill="none" ${st}/>`; }).join('');
-          } else if (l.type === 'socket') {                     // 插座：贴墙面板 + 孔位（二三插 / 二插 / 三插）
-            const box = [P(-110, 15), P(110, 15), P(110, 135), P(-110, 135)];
-            const holes = (style) => {
-              const pts = [];
-              if (style === 'two' || style === 'dual') pts.push([-45, 70], [45, 70]);
-              if (style === 'three' || style === 'dual') pts.push([0, 35], [-60, 110], [60, 110]);
-              return pts.map(([d, e]) => { const q = P(d, e); return `<circle cx="${q[0]}" cy="${q[1]}" r="14" fill="#4a4238" stroke="none"/>`; }).join('');
-            };
-            body = `<polygon points="${box.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/>${holes(l.style || 'dual')}`;
-          } else if (l.type === 'wallSwitch') {                 // 墙面开关：贴墙面板 + 翘板
-            const box = [P(-120, 15), P(120, 15), P(120, 165), P(-120, 165)];
-            const a1 = P(-55, 45), a2 = P(55, 45), a3 = P(55, 135), a4 = P(-55, 135);
+          } else if (l.type === 'socket') {                     // 插座：86 型方形面板 + 孔位（二三插：上两孔、下三孔）
+            const box = [P(-95, 10), P(95, 10), P(95, 85), P(-95, 85)];
+            const stl = l.style || 'dual', pts = [];
+            if (stl === 'two' || stl === 'dual') pts.push([-18, stl === 'dual' ? 30 : 48], [18, stl === 'dual' ? 30 : 48]);
+            if (stl === 'three' || stl === 'dual') pts.push([-30, stl === 'dual' ? 64 : 48], [0, stl === 'dual' ? 64 : 48], [30, stl === 'dual' ? 64 : 48]);
+            body = `<polygon points="${box.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/>`
+              + pts.map(([d, e]) => { const q = P(d, e); return `<circle cx="${q[0]}" cy="${q[1]}" r="11" fill="#4a4238" stroke="none"/>`; }).join('');
+          } else if (l.type === 'wallSwitch') {                 // 墙面开关：86 型方形面板 + 翘板
+            const box = [P(-95, 10), P(95, 10), P(95, 90), P(-95, 90)];
+            const a1 = P(-50, 25), a2 = P(50, 25), a3 = P(50, 72), a4 = P(-50, 72);
             body = `<polygon points="${box.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/>`
               + `<polygon points="${[a1, a2, a3, a4].map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" fill="${on ? '#fff6df' : '#8d8069'}" stroke="${on ? '#b58a2a' : '#6a6256'}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
           }
@@ -12525,22 +12523,26 @@
           const sock = new THREE.Mesh(new THREE.CylinderGeometry(.022, .026, .05, 10), mat('#c9a24b', { metalness: .7, roughness: .35 }));
           sock.rotation.x = Math.PI / 2; sock.position.set(0, Y, .045); g.add(sock);
           const b2 = new THREE.Mesh(new THREE.SphereGeometry(.06, 16, 12), glow); b2.position.set(0, Y, .1); g.add(b2);
-        } else if (l.type === 'socket') {                       // 插座：86 面板 + 插孔（二三插 / 二插 / 三插）
-          const plate = new THREE.Mesh(new THREE.BoxGeometry(.15, .09, .014), mat('#e8e2d6', { roughness: .65 }));
-          plate.position.set(0, Y, .008); plate.castShadow = true; g.add(plate);
-          const holes = (l.style || 'dual') === 'two' ? [[-.03, 0], [.03, 0]]
-            : (l.style || 'dual') === 'three' ? [[0, .018], [-.035, -.025], [.035, -.025]]
-              : [[-.025, .016], [.025, .016], [0, -.012], [-.035, -.03], [.035, -.03]];
-          holes.forEach(([hx, hy]) => {
-            const hole = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .004, 10), mat('#3a3630', { roughness: .9 }));
-            hole.rotation.x = Math.PI / 2; hole.position.set(hx, Y + hy, .017); g.add(hole);
-          });
-        } else if (l.type === 'wallSwitch') {                   // 墙面开关：86 面板 + 翘板 + 开态指示点
-          const plate = new THREE.Mesh(new THREE.BoxGeometry(.09, .12, .014), mat('#e8e2d6', { roughness: .65 }));
-          plate.position.set(0, Y, .008); plate.castShadow = true; g.add(plate);
-          const rocker = new THREE.Mesh(new THREE.BoxGeometry(.052, .062, .012), mat('#f5f0e6', { roughness: .5 }));
-          rocker.position.set(0, Y - .012, .021); g.add(rocker);
-          const dot = new THREE.Mesh(new THREE.SphereGeometry(.008, 10, 8), glow); dot.position.set(0, Y + .042, .018); g.add(dot);
+        } else if (l.type === 'socket') {                       // 插座：86×86 方形面板 + 扁孔（二三插：上三孔、下两孔）
+          const base = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#8d8069', { roughness: .8 }));
+          base.position.set(0, Y, .004); g.add(base);
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#e8e2d6', { roughness: .65 }));
+          plate.position.set(0, Y, .012); plate.castShadow = true; g.add(plate);
+          const slot = (w, h, x, y) => {                       // 扁插孔：横槽 = 接地孔，竖槽 = 火 / 零线孔
+            const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, .003), mat('#3a3630', { roughness: .9 }));
+            m.position.set(x, Y + y, .017); g.add(m);
+          };
+          const stl = l.style || 'dual';
+          if (stl === 'two' || stl === 'dual') { slot(.006, .012, -.016, .019); slot(.006, .012, .016, .019); }
+          if (stl === 'three' || stl === 'dual') { slot(.012, .006, 0, -.002); slot(.006, .012, -.018, -.024); slot(.006, .012, .018, -.024); }
+        } else if (l.type === 'wallSwitch') {                   // 墙面开关：86×86 方形面板 + 翘板 + 开态指示点
+          const base = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#8d8069', { roughness: .8 }));
+          base.position.set(0, Y, .004); g.add(base);
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#e8e2d6', { roughness: .65 }));
+          plate.position.set(0, Y, .012); plate.castShadow = true; g.add(plate);
+          const rocker = new THREE.Mesh(new THREE.BoxGeometry(.048, .055, .01), mat('#f5f0e6', { roughness: .5 }));
+          rocker.position.set(0, Y - .006, .02); g.add(rocker);
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(.006, 10, 8), glow); dot.position.set(0, Y + .03, .017); g.add(dot);
         }
         tagPick(g, 'lamp', l.id); archUp.add(g);
         if (isLightType(l.type) && lampG.children.filter(o => o.isPointLight).length < 28) {
