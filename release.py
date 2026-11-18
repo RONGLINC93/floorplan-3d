@@ -119,7 +119,10 @@ def bump_version(ver):
 
 def commit_bump(nv):
     """把叠加后的版本号与更新日志提交并推送（失败不阻断，留待下次 push.py 一起提交）。"""
-    if run(["git", "add", "manifest", "index.html", "app/www/index.html", "CHANGELOG.md"]) != 0:
+    if run(["git", "add", "manifest", "index.html", "CHANGELOG.md"]) != 0:
+        print("[警告] git add 部分失败，继续提交已暂存的改动")
+    if run(["git", "diff", "--cached", "--quiet"]) == 0:
+        print("[提示] 无已暂存改动，跳过提交")
         return
     if run(["git", "commit", "-m", f"chore: 发布完成，manifest 版本号自动叠加至 {nv}"]) != 0:
         return
