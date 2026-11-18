@@ -10562,8 +10562,8 @@
         const room = t.closest('[data-room]');
         drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, x0: view.x0, y0: view.y0, room: room && room.dataset.room, moved: false };
       }
-      if (ui.drawTool === 'select' && drag && (drag.kind === 'move' || drag.kind === 'multiMove' || drag.kind === 'lampSlide' || /Move$/.test(drag.kind))) {
-        drag = null;                                            // 「选择」只选中 / 改尺寸；整体平移与沿墙滑动（壁装灯具 / 插座）都交给「移动」工具
+      if (ui.drawTool === 'select' && drag && (drag.kind === 'move' || drag.kind === 'multiMove' || drag.kind === 'lampSlide' || drag.kind === 'boxSlide' || /Move$/.test(drag.kind))) {
+        drag = null;                                            // 「选择」只选中 / 改尺寸；整体平移与沿墙滑动（壁装灯具 / 插座 / 电箱）都交给「移动」工具
         return;
       }
       svg.setPointerCapture(e.pointerId);
