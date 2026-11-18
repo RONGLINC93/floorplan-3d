@@ -35,6 +35,7 @@ __pycache__/
 tools/bin/
 tools/deps/
 *.tar.gz
+app/www/
 
 # 环境变量
 .env

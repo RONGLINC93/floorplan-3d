@@ -237,7 +237,7 @@ def sc_text() -> str:
 
 # ---------------------------------------------------------------- 组装工程目录
 def build_project(version: str):
-    """在仓库根生成 fnpack 工程（与 fnmonitorpro 同构）：manifest + app/ + cmd/ + config/ + wizard/。"""
+    """在仓库根生成 fnpack 工程：manifest + app/ + cmd/ + config/ + wizard/。"""
     app = ROOT / "app"
     if app.exists():
         shutil.rmtree(app)
