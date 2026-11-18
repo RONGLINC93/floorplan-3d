@@ -903,11 +903,36 @@
     {
       "id": "fmwlozicq94",
       "type": "switch",
-      "x": 6830,
-      "y": 6640,
+      "x": 4570,
+      "y": 5410,
       "r": 6000,
       "z": 1100,
       "on": true
+    },
+    {
+      "id": "fmwltumvl94",
+      "type": "socket",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 12790,
+      "z": 300,
+      "r": 0,
+      "on": true,
+      "style": "dual",
+      "x": 330,
+      "y": 6700
+    },
+    {
+      "id": "fmwltuqf295",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 9910,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 3210,
+      "y": 6700
     }
   ],
   "layers": {

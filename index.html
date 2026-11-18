@@ -2554,10 +2554,30 @@
               title="射灯：点击位置放置（默认照亮半径 2.5m、贴顶）；夜景模式自动发光照明，3D 里点击灯体可开 / 关"
               data-en-title="Spotlight: click to place (2.5m light radius, surface mounted by default); glows in night mode, click it in 3D to toggle"
               data-en="Spotlight"><i data-lucide="cone"></i>射灯</button>
+            <button class="btn chip" data-dt="lampWall"
+              title="壁灯：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换到墙的另一面；默认照亮半径 2.2m、离地 1.6m）；夜景模式自动发光照明，3D 里点击灯体可开 / 关"
+              data-en-title="Wall lamp: click a position on a wall (snaps to walls, slide along the wall, flip side in the panel; 2.2m light radius at 1.6m by default); glows in night mode, click it in 3D to toggle"
+              data-en="Wall lamp"><i data-lucide="lamp-wall-down"></i>壁灯</button>
+            <button class="btn chip" data-dt="lampTube"
+              title="壁装灯管：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换到墙的另一面；默认照亮半径 2.6m、离地 1.9m，灯管沿墙 600 长）；夜景模式自动发光照明，3D 里点击灯体可开 / 关"
+              data-en-title="Wall tube light: click a position on a wall (snaps to walls, slide along the wall, flip side in the panel; 2.6m light radius at 1.9m by default, 600mm long along the wall); glows in night mode, click it in 3D to toggle"
+              data-en="Wall tube"><i data-lucide="rectangle-horizontal"></i>壁装灯管</button>
+            <button class="btn chip" data-dt="lampBulb"
+              title="壁装灯泡：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换到墙的另一面；默认照亮半径 1.8m、离地 1.8m）；夜景模式自动发光照明，3D 里点击灯体可开 / 关"
+              data-en-title="Wall bulb: click a position on a wall (snaps to walls, slide along the wall, flip side in the panel; 1.8m light radius at 1.8m by default); glows in night mode, click it in 3D to toggle"
+              data-en="Wall bulb"><i data-lucide="sun-medium"></i>壁装灯泡</button>
             <button class="btn chip" data-dt="lampFloor"
               title="落地灯：点击位置放置（默认照亮半径 2.2m、灯罩离地 1.5m，3D 占位挡路）；夜景模式自动发光照明，3D 里点击灯体可开 / 关"
               data-en-title="Floor lamp: click to place (2.2m light radius, shade at 1.5m by default, blocks walking in 3D); glows in night mode, click it in 3D to toggle"
               data-en="Floor lamp"><i data-lucide="lamp-floor"></i>落地灯</button>
+            <button class="btn chip" data-dt="lampSocket"
+              title="插座：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换面 / 选样式：二三插 / 二插 / 三插；默认离地 0.3m）"
+              data-en-title="Socket: click a position on a wall (snaps to walls, slide along it, flip side and choose style in the panel: 2+3 pin / 2 pin / 3 pin; 0.3m above floor by default)"
+              data-en="Socket"><i data-lucide="plug-zap"></i>插座</button>
+            <button class="btn chip" data-dt="lampWallSw"
+              title="墙面开关：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换面；默认控制半径 6m、离地 1.1m），3D 里点击面板即可开 / 关范围内的灯"
+              data-en-title="Wall switch: click a position on a wall (snaps to walls, slide along it, flip side in the panel; 6m radius at 1.1m by default); click the plate in 3D to toggle lamps within range"
+              data-en="Wall switch"><i data-lucide="toggle-right"></i>墙面开关</button>
             <button class="btn chip" data-dt="lampSw"
               title="灯开关：点击位置放置（默认控制半径 6m）；3D 里点击开关面板，范围内的灯一起开 / 关"
               data-en-title="Light switch: click to place (6m control radius by default); click the switch in 3D to toggle all lamps within range"
@@ -3056,8 +3076,11 @@
       ];
     }
 
-    /* 灯具照明：吊灯 / 吸顶灯 / 筒灯 / 射灯 / 落地灯 + 灯开关（type → [中文名, 英文名]） */
-    const LAMP_NAMES = { chandelier: ['吊灯', 'Chandelier'], ceil: ['吸顶灯', 'Ceiling lamp'], down: ['筒灯', 'Downlight'], spot: ['射灯', 'Spotlight'], floor: ['落地灯', 'Floor lamp'], switch: ['灯开关', 'Light switch'] };
+    /* 灯具照明：吊灯 / 吸顶灯 / 筒灯 / 射灯 / 落地灯 / 壁灯 / 壁装灯管 / 壁装灯泡 + 灯开关（type → [中文名, 英文名]）；wall* 三类吸附墙体（wall + c 沿墙偏移 + side 墙面） */
+    const LAMP_NAMES = { chandelier: ['吊灯', 'Chandelier'], ceil: ['吸顶灯', 'Ceiling lamp'], down: ['筒灯', 'Downlight'], spot: ['射灯', 'Spotlight'], floor: ['落地灯', 'Floor lamp'], wall: ['壁灯', 'Wall lamp'], tube: ['壁装灯管', 'Wall tube light'], bulb: ['壁装灯泡', 'Wall bulb'], socket: ['插座', 'Socket'], wallSwitch: ['墙面开关', 'Wall switch'], switch: ['灯开关', 'Light switch'] };
+    const WALL_LAMP_TYPES = ['wall', 'tube', 'bulb', 'socket', 'wallSwitch'];
+    const SOCKET_STYLES = { dual: ['二三插', '2+3 pin'], two: ['二插', '2 pin'], three: ['三插', '3 pin'] };
+    const isLightType = t => !['socket', 'wallSwitch', 'switch'].includes(t);
     const LAMP_TYPES = Object.keys(LAMP_NAMES);
 
     function defaultState() {
@@ -3911,17 +3934,47 @@
     }
     function renderLamps2() {                                   // 灯具 2D 符号 + 照亮范围虚线圈（亮着的灯画范围，关掉不画）
       return (state.lamps || []).map(l => {
-        const on = l.on !== false, isSw = l.type === 'switch', sel = ui.sel?.kind === 'lamp' && ui.sel.id === l.id;
-        const st = `fill="${isSw ? '#8d8069' : '#e8c56a'}" fill-opacity="${on ? .9 : .35}" stroke="${on ? '#b58a2a' : '#9a917f'}" stroke-width="${sel ? 2 : 1}" vector-effect="non-scaling-stroke"`;
+        const on = l.on !== false, isSw = l.type === 'switch', isElec = l.type === 'socket' || l.type === 'wallSwitch', sel = ui.sel?.kind === 'lamp' && ui.sel.id === l.id;
+        const st = `fill="${isElec ? '#d9d4ca' : isSw ? '#8d8069' : '#e8c56a'}" fill-opacity="${on ? .9 : .35}" stroke="${isElec ? '#7a7265' : on ? '#b58a2a' : '#9a917f'}" stroke-width="${sel ? 2 : 1}" vector-effect="non-scaling-stroke"`;
         let body;
-        if (isSw) body = `<rect x="${l.x - 150}" y="${l.y - 200}" width="300" height="400" rx="60" ${st}/><circle cx="${l.x}" cy="${l.y - 40}" r="90" fill="#fff" fill-opacity=".9"/>`;
+        const wq = l.wall ? wallLampPos(l) : null;              // 壁装灯具：锚点在墙面上，符号朝墙面外侧
+        if (wq) {
+          const [ux, uy] = wq.u, [nx, ny] = wq.n, P = (d, e) => [l.x + ux * d + nx * e, l.y + uy * d + ny * e];
+          if (l.type === 'wall') {                              // 壁灯：贴墙支架 + 半圆罩（弧朝墙外侧鼓）
+            const a = P(0, 0), e1 = P(-110, 120), e2 = P(110, 120), sweep = (ux * ny - uy * nx) > 0 ? 0 : 1;
+            body = `<line x1="${a[0]}" y1="${a[1]}" x2="${P(0, 120)[0]}" y2="${P(0, 120)[1]}" fill="none" ${st}/>`
+              + `<path d="M ${e1[0]} ${e1[1]} A 110 110 0 0 ${sweep} ${e2[0]} ${e2[1]} Z" ${st}/>`;
+          } else if (l.type === 'tube') {                       // 壁装灯管：沿墙 600 长条 + 向外照虚线
+            const c = [P(-300, 60), P(300, 60), P(300, 130), P(-300, 130)];
+            body = `<polygon points="${c.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/><line x1="${P(0, 170)[0]}" y1="${P(0, 170)[1]}" x2="${P(0, 260)[0]}" y2="${P(0, 260)[1]}" stroke="#e8c56a" stroke-opacity="${on ? .8 : .3}" stroke-width="2" stroke-dasharray="14 10" vector-effect="non-scaling-stroke"/>`;
+          } else if (l.type === 'bulb') {                       // 壁装灯泡：贴墙圆泡 + 外射光线（朝墙外侧扇形）
+            const b = P(0, 110);
+            body = `<circle cx="${b[0]}" cy="${b[1]}" r="70" ${st}/>`
+              + [-60, -20, 20, 60].map(a2 => { const rd = a2 * Math.PI / 180, dx = nx * Math.cos(rd) + ux * Math.sin(rd), dy = ny * Math.cos(rd) + uy * Math.sin(rd); return `<line x1="${b[0] + dx * 95}" y1="${b[1] + dy * 95}" x2="${b[0] + dx * 165}" y2="${b[1] + dy * 165}" fill="none" ${st}/>`; }).join('');
+          } else if (l.type === 'socket') {                     // 插座：贴墙面板 + 孔位（二三插 / 二插 / 三插）
+            const box = [P(-110, 15), P(110, 15), P(110, 135), P(-110, 135)];
+            const holes = (style) => {
+              const pts = [];
+              if (style === 'two' || style === 'dual') pts.push([-45, 70], [45, 70]);
+              if (style === 'three' || style === 'dual') pts.push([0, 35], [-60, 110], [60, 110]);
+              return pts.map(([d, e]) => { const q = P(d, e); return `<circle cx="${q[0]}" cy="${q[1]}" r="14" fill="#4a4238" stroke="none"/>`; }).join('');
+            };
+            body = `<polygon points="${box.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/>${holes(l.style || 'dual')}`;
+          } else if (l.type === 'wallSwitch') {                 // 墙面开关：贴墙面板 + 翘板
+            const box = [P(-120, 15), P(120, 15), P(120, 165), P(-120, 165)];
+            const a1 = P(-55, 45), a2 = P(55, 45), a3 = P(55, 135), a4 = P(-55, 135);
+            body = `<polygon points="${box.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/>`
+              + `<polygon points="${[a1, a2, a3, a4].map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" fill="${on ? '#fff6df' : '#8d8069'}" stroke="${on ? '#b58a2a' : '#6a6256'}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+          }
+        }
+        else if (isSw) body = `<rect x="${l.x - 150}" y="${l.y - 200}" width="300" height="400" rx="60" ${st}/><circle cx="${l.x}" cy="${l.y - 40}" r="90" fill="#fff" fill-opacity=".9"/>`;
         else if (l.type === 'down') body = `<circle cx="${l.x}" cy="${l.y}" r="120" ${st}/><circle cx="${l.x}" cy="${l.y}" r="50" fill="none" ${st}/>`;
         else if (l.type === 'spot') body = `<circle cx="${l.x}" cy="${l.y}" r="110" ${st}/><path d="M ${l.x - 140} ${l.y + 140} L ${l.x} ${l.y - 60} L ${l.x + 140} ${l.y + 140}" fill="none" ${st}/>`;
         else if (l.type === 'floor') body = `<rect x="${l.x - 130}" y="${l.y - 130}" width="260" height="260" rx="40" fill="none" ${st}/><circle cx="${l.x}" cy="${l.y}" r="80" ${st}/>`;
         else body = `<circle cx="${l.x}" cy="${l.y}" r="${l.type === 'chandelier' ? 200 : 160}" ${st}/>`
           + [0, 45, 90, 135].map(a => { const rd = a * Math.PI / 180, c = Math.cos(rd), s = Math.sin(rd); return `<line x1="${l.x - c * 70}" y1="${l.y - s * 70}" x2="${l.x + c * 70}" y2="${l.y + s * 70}" fill="none" ${st}/>`; }).join('');
-        const range = !isSw && on ? `<circle cx="${l.x}" cy="${l.y}" r="${Math.max(300, l.r || 3000)}" fill="rgba(232,197,106,.05)" stroke="#e8c56a" stroke-opacity=".4" stroke-width="1" stroke-dasharray="6 4" vector-effect="non-scaling-stroke" pointer-events="none"/>` : '';
-        const hit = `<circle cx="${l.x}" cy="${l.y}" r="300" fill="#fff" fill-opacity="0"/>`;
+        const range = !isSw && !isElec && on ? `<circle cx="${l.x}" cy="${l.y}" r="${Math.max(300, l.r || 3000)}" fill="rgba(232,197,106,.05)" stroke="#e8c56a" stroke-opacity=".4" stroke-width="1" stroke-dasharray="6 4" vector-effect="non-scaling-stroke" pointer-events="none"/>` : '';
+        const hit = `<circle cx="${l.x}" cy="${l.y}" r="${isElec ? 220 : 300}" fill="#fff" fill-opacity="0"/>`;
         return range + `<g class="lamp" data-lamp="${l.id}">${hit}${body}</g>`;
       }).join('');
     }
@@ -5091,7 +5144,7 @@
           const A = 'stroke="#b5653a" vector-effect="non-scaling-stroke"', isSw = l.type === 'switch';
           const r = (isSw ? 300 : l.type === 'chandelier' ? 240 : 180) + 8 * k, hs = COARSE ? 1.7 : 1, hit = (COARSE ? 26 : 13) * k;
           s += `<circle cx="${l.x}" cy="${l.y}" r="${r}" fill="rgba(181,101,58,.09)" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
-          if (!isSw) {
+          if (isLightType(l.type)) {
             const R = Math.max(300, l.r || 3000);
             s += `<circle cx="${l.x}" cy="${l.y}" r="${R}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="10 5" pointer-events="none"/>`
               + `<text x="${l.x}" y="${l.y - R - 10 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none"
@@ -6999,38 +7052,61 @@
     }
 
     function lampPanel(l) {
-      const isSw = l.type === 'switch', [zh, en] = LAMP_NAMES[l.type] || LAMP_NAMES.ceil;
+      const isSw = l.type === 'switch', isWall = WALL_LAMP_TYPES.includes(l.type), isSocket = l.type === 'socket', isWallSw = l.type === 'wallSwitch';
+      const [zh, en] = LAMP_NAMES[l.type] || LAMP_NAMES.ceil;
+      const wL = isWall ? (openingWallGeom(l.wall)?.L ?? 0) : 0;
+      const fields = [];
+      if (isSw || isWallSw) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
+      else if (!isSocket) fields.push(`<label title="${tr('夜景模式下的照亮范围半径（2D 虚线圈）', 'Light radius in night mode (dashed circle in 2D)')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 3000)}" min="500" max="9000" step="100"></label>`);
+      if (isSocket) {
+        const styles = Object.entries(SOCKET_STYLES).map(([v, [szh, sen]]) => `<option value="${v}" ${(l.style || 'dual') === v ? 'selected' : ''}>${tr(szh, sen)}</option>`).join('');
+        fields.push(`<label>${tr('插座样式', 'Socket style')}<select id="lStyle">${styles}</select></label>`);
+      }
+      fields.push(`<label title="${isSocket ? tr('插座面板中心离地高度（常见 300mm）', 'Socket height above floor (300mm typical)') : tr('面板离地高度（300–8000mm）', 'Height above floor (300–8000mm)')}">${tr('安装高度', 'Mount height')} (mm)<input type="number" id="lZ" value="${Math.round(l.z ?? (isSocket ? 300 : 1500))}" min="300" max="8000" step="50"></label>`);
+      if (isWall) fields.push(`<label title="${tr('面板中心沿墙到墙起点的距离（0 到墙长）', 'Distance from wall start along the wall (0 to wall length)')}">${tr('沿墙位置', 'Along wall')} (mm)<input type="number" id="lC" value="${Math.round(l.c ?? 0)}" min="0" max="${Math.max(0, Math.round(wL))}" step="10"></label>`);
+      if (!isSocket) fields.push(`<label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`);
+      if (!isWall) fields.push(`<label>X (mm)<input type="number" id="lX" value="${Math.round(l.x)}" step="10"></label>`, `<label>Y (mm)<input type="number" id="lY" value="${Math.round(l.y)}" step="10"></label>`);
+      const hint = isSocket
+        ? tr('吸附在墙上：2D 里按住插座沿墙拖动即可滑动，右侧「换到墙另一面」可换面；样式支持二三插 / 二插 / 三插。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side in the panel; style: 2+3 pin / 2 pin / 3 pin.')
+        : isWallSw
+          ? tr('吸附在墙上：2D 里按住开关沿墙拖动即可滑动，右侧可换面；3D 里点击开关面板可开 / 关控制半径内的灯。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side in the panel; click the plate in 3D to toggle lamps within range.')
+          : isSw
+            ? tr('3D 里点击开关面板：范围内的灯一起开 / 关。', 'Click the switch in 3D: lamps within the radius toggle together.')
+            : isWall
+              ? tr('吸附在墙上：2D 里按住灯沿墙拖动即可滑动（可跨到另一面）；夜景模式（3D 日照滑杆拉到最左「夜景」）下自动发光照明，3D 点灯体可开 / 关，2D 虚线圈即照亮范围。', 'Snapped to the wall: drag it in 2D to slide along the wall (cross to the other side). Lights up in night mode; click it in 3D to toggle. The dashed circle in 2D is the light radius.')
+              : tr('夜景模式（3D 日照滑杆拉到最左「夜景」）下自动发光照明；3D 里点击灯体本身也可开 / 关，2D 虚线圈即照亮范围。', 'Lights up in night mode (sun slider far left in 3D); click the lamp in 3D to toggle. The dashed circle in 2D is the light radius.');
       return `<section><h3>${tr(zh, en)}</h3>
-    <div class="form">
-      ${isSw
-        ? `<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`
-        : `<label title="${tr('夜景模式下的照亮范围半径（2D 虚线圈）', 'Light radius in night mode (dashed circle in 2D)')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 3000)}" min="500" max="9000" step="100"></label>
-      <label title="${tr('灯具离地高度', 'Height above floor')}">${tr('安装高度', 'Mount height')} (mm)<input type="number" id="lZ" value="${Math.round(l.z ?? 1500)}" min="300" max="3600" step="50"></label>
-      <label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`}
-      <label>X (mm)<input type="number" id="lX" value="${Math.round(l.x)}" step="10"></label>
-      <label>Y (mm)<input type="number" id="lY" value="${Math.round(l.y)}" step="10"></label>
-    </div>
-    <div class="muted" style="margin-top:8px">${isSw
-        ? tr('3D 里点击开关面板：范围内的灯一起开 / 关。', 'Click the switch in 3D: lamps within the radius toggle together.')
-        : tr('夜景模式（3D 日照滑杆拉到最左「夜景」）下自动发光照明；3D 里点击灯体本身也可开 / 关，2D 虚线圈即照亮范围。', 'Lights up in night mode (sun slider far left in 3D); click the lamp in 3D to toggle. The dashed circle in 2D is the light radius.')}</div>
+    <div class="form">${fields.join('')}</div>
+    ${isWall ? `<div class="actions"><button class="btn" id="aFlipSide" title="${tr('换到墙的另一面', 'Flip to the other side of the wall')}">${tr('换到墙另一面', 'Flip side')}</button></div>` : ''}
+    <div class="muted" style="margin-top:8px">${hint}</div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
     function bindLampPanel(id) {
       const g = () => (state.lamps || []).find(x => x.id === id);
-      ['lR', 'lZ', 'lX', 'lY'].forEach(k => {
+      ['lR', 'lZ', 'lX', 'lY', 'lC'].forEach(k => {
         const el = $('#' + k); if (!el) return;
         el.onchange = e => {
           const v = parseFloat(e.target.value); if (isNaN(v)) return;
           mutate(() => {
             const l = g(); if (!l) return;
             if (k === 'lR') l.r = Math.max(l.type === 'switch' ? 1000 : 500, Math.min(l.type === 'switch' ? 10000 : 9000, Math.round(v / 100) * 100));
-            else if (k === 'lZ') l.z = Math.max(300, Math.min(3600, Math.round(v / 50) * 50));
+            else if (k === 'lZ') l.z = Math.max(300, Math.min(8000, Math.round(v / 50) * 50));
+            else if (k === 'lC') {                                    // 壁装灯具：沿墙位置（0 到墙长），同步墙面锚点
+              l.c = Math.max(0, Math.min((openingWallGeom(l.wall)?.L ?? 0) - 100, Math.round(v / 10) * 10));
+              const q = wallLampPos(l); if (q) { l.x = q.x; l.y = q.y; }
+            }
             else if (k === 'lX') l.x = Math.round(v / 10) * 10;
             else l.y = Math.round(v / 10) * 10;
           });
         };
       });
       const on = $('#lOn'); if (on) on.onchange = e => mutate(() => { const l = g(); if (l) l.on = e.target.value === '1'; });
+      const style = $('#lStyle'); if (style) style.onchange = e => mutate(() => { const l = g(); if (l) l.style = e.target.value; });   // 插座样式：二三插 / 二插 / 三插
+      const flip = $('#aFlipSide'); if (flip) flip.onclick = () => mutate(() => {   // 壁装灯具：换到墙的另一面
+        const l = g(); if (!l) return;
+        l.side = -(l.side ?? 1);
+        const q = wallLampPos(l); if (q) { l.x = q.x; l.y = q.y; }
+      });
       $('#aDel').onclick = () => { ui.sel = null; mutate(() => state.lamps = (state.lamps || []).filter(x => x.id !== id)); toast(tr('已删除灯具 · Ctrl+Z 可撤销', 'Lamp deleted · Ctrl+Z to undo')); };
       $('#back').onclick = () => select(null);
     }
@@ -7415,7 +7491,14 @@
           const o = (state.extras || []).find(x => x.id === s.id); if (!o) return null;
           return isExtraLin(o.type) ? { ...s, a0: [...o.a], b0: [...o.b] } : { ...s, x: o.x, y: o.y };
         }
-        if (BOX[s.kind]) { const o = (state[BOX[s.kind]] || []).find(x => x.id === s.id); return o && { ...s, x: o.x, y: o.y }; }
+        if (BOX[s.kind]) {
+          const o = (state[BOX[s.kind]] || []).find(x => x.id === s.id); if (!o) return null;
+          if (s.kind === 'lamp' && o.wall) {                        // 壁装灯具：整组拖动时沿各自墙面滑动（与门窗同规则）
+            const g = openingWallGeom(o.wall); if (!g) return null;
+            return { ...s, c: o.c, u: g.u, L: g.L, wallLamp: true };
+          }
+          return o && { ...s, x: o.x, y: o.y };
+        }
         const o = outArr(s.kind).find(x => x.id === s.id);          // 屋顶 / 廊架 / 露台 / 泳池
         return o && { ...s, x: o.x, y: o.y };
       }).filter(Boolean);
@@ -7714,7 +7797,7 @@
         measure: COARSE ? tr('按住拖出测量线，或依次点两点 · 靠近墙面自动吸附 · 点「预览」或右击退出', 'Hold and drag a line, or tap two points · snaps to walls · tap "Preview" or right-click to exit')
           : tr('点击两点（或按住拖动）测量距离 · 靠近墙面自动吸附 · Shift 锁定水平/垂直 · Esc 取消 · 右击回到预览', 'Click two points (or drag) to measure · snaps to walls · Shift locks horizontal/vertical · Esc cancels · right-click back to preview'),
         draw: COARSE ? tr('子工具「选择」= 点选编辑：选中后 Delete 或底部按钮删除（内置墙=标记拆除）· 空白处拖动可框选（双指缩放 / 平移）· 画墙（点两点）/ 房门 / 窗户（点墙上的位置）', '"Select" edits: Delete or the bottom bar removes (original walls are marked for removal) · drag on empty space to marquee-select (two fingers to pan / zoom) · draw walls, add doors / windows')
-          : tr('子工具「选择」= 点选墙 / 门 / 窗 / 家具编辑，在空白处 / 房间内拖出矩形可框选家具 / 楼梯 / 柱子 / 自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手），Delete 删除（内置墙 = 标记拆除，点拆除残留可恢复，黑色承重墙不可拆）· 画墙 = 点两点（画板下方「直角 / 自由」控制方向：直角只走水平 / 垂直，自由任意角度，Shift 临时锁轴；右键 / Esc 取消，靠近旧墙自动吸上融合；也可点起点后直接输入长度回车）· 栏杆 / 梁 / 女儿墙 / 雨棚 / 尺寸标注同样受「直角 / 自由」约束· 房门 / 垭口 / 双开门 / 子母门 / 卷帘门 / 电梯门 / 落地窗 / 落地推拉门 / 单扇推拉门 / 折叠门 / 窗户 / 高窗 / 门连窗 / 飘窗 = 点墙上的位置 · 文字标注 = 点位置放文字（右侧改内容/字号，可拖动）· 台阶 = 点位置放一组台阶（级数可改）· 栏杆 = 点起点再点终点（高度 / 直杆或玻璃可改）· 梁 = 点起点再点终点（宽 / 高 / 底标高可改）· 标高 = 点位置放标高符号 · 尺寸标注 = 点起点再点终点 · 材质刷 = 点房间刷地面材料（先用「选择」点一个样板房间换材料）· 入户 = 点一个门洞设为唯一入户门 · 柱子 / 楼梯（直跑 · 双跑 · 三跑 · 正三跑）= 点任意位置放置（可拖动）· 楼板 = 点两个对角点（板厚 / 底标高可改）· 女儿墙 = 点起点再点终点（厚 / 高 / 底标高可改）· 雨棚 = 点起点再点终点（挑出 / 板厚 / 底标高可改）· 指北针 = 点位置放置（全局唯一，角度可改）· 电梯 = 点位置放置（宽 / 深 / 停靠高度 / 门宽 / 开门方向可改）· 阳台 / 花坛 = 点两个对角点 · 烟道 = 点位置放置 · 灯具（吊灯 / 吸顶灯 / 筒灯 / 射灯 / 落地灯）与灯开关 = 点位置放置，夜景模式自动照亮（照亮半径可拖亮圈手柄改），3D 点灯体 / 开关可开灯关灯', '"Select" = click walls / doors / windows / furniture to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Alt+drag starts anywhere); Delete removes (original walls = mark for removal, click the dashed remains to restore, black load-bearing walls protected) · Draw = two points (the 直角 / 自由 toggle under the canvas sets the direction — orthogonal or any angle, Shift locks axis, right-click / Esc cancels, snaps onto existing walls to fuse; or click the start point and type a length, Enter to confirm) · Railing / beam / parapet / canopy / dimension follow the same toggle · Door / Roller / Elevator / Window = click a wall · Entry = click a door opening to set the unique entry · Railing / beam / parapet / canopy = click two points · Slab = two opposite corners · North arrow / elevator / flue = click to place · Balcony / planter = two opposite corners · Level / dimension = click to place · Lamps (chandelier / ceiling / downlight / spotlight / floor) and light switch = click to place; they light up in night mode, click a lamp or the switch in 3D to toggle')
+          : tr('子工具「选择」= 点选墙 / 门 / 窗 / 家具编辑，在空白处 / 房间内拖出矩形可框选家具 / 楼梯 / 柱子 / 自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手），Delete 删除（内置墙 = 标记拆除，点拆除残留可恢复，黑色承重墙不可拆）· 画墙 = 点两点（画板下方「直角 / 自由」控制方向：直角只走水平 / 垂直，自由任意角度，Shift 临时锁轴；右键 / Esc 取消，靠近旧墙自动吸上融合；也可点起点后直接输入长度回车）· 栏杆 / 梁 / 女儿墙 / 雨棚 / 尺寸标注同样受「直角 / 自由」约束· 房门 / 垭口 / 双开门 / 子母门 / 卷帘门 / 电梯门 / 落地窗 / 落地推拉门 / 单扇推拉门 / 折叠门 / 窗户 / 高窗 / 门连窗 / 飘窗 = 点墙上的位置 · 文字标注 = 点位置放文字（右侧改内容/字号，可拖动）· 台阶 = 点位置放一组台阶（级数可改）· 栏杆 = 点起点再点终点（高度 / 直杆或玻璃可改）· 梁 = 点起点再点终点（宽 / 高 / 底标高可改）· 标高 = 点位置放标高符号 · 尺寸标注 = 点起点再点终点 · 材质刷 = 点房间刷地面材料（先用「选择」点一个样板房间换材料）· 入户 = 点一个门洞设为唯一入户门 · 柱子 / 楼梯（直跑 · 双跑 · 三跑 · 正三跑）= 点任意位置放置（可拖动）· 楼板 = 点两个对角点（板厚 / 底标高可改）· 女儿墙 = 点起点再点终点（厚 / 高 / 底标高可改）· 雨棚 = 点起点再点终点（挑出 / 板厚 / 底标高可改）· 指北针 = 点位置放置（全局唯一，角度可改）· 电梯 = 点位置放置（宽 / 深 / 停靠高度 / 门宽 / 开门方向可改）· 阳台 / 花坛 = 点两个对角点 · 烟道 = 点位置放置 · 灯具（吊灯 / 吸顶灯 / 筒灯 / 射灯 / 落地灯）与灯开关 = 点位置放置，壁灯 / 壁装灯管 / 壁装灯泡 / 插座 / 墙面开关 = 点墙上的位置（吸附墙体，沿墙拖动可滑动、右侧可换面），夜景模式自动照亮（照亮半径可拖亮圈手柄改），3D 点灯体 / 开关可开灯关灯', '"Select" = click walls / doors / windows / furniture to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Alt+drag starts anywhere); Delete removes (original walls = mark for removal, click the dashed remains to restore, black load-bearing walls protected) · Draw = two points (the 直角 / 自由 toggle under the canvas sets the direction — orthogonal or any angle, Shift locks axis, right-click / Esc cancels, snaps onto existing walls to fuse; or click the start point and type a length, Enter to confirm) · Railing / beam / parapet / canopy / dimension follow the same toggle · Door / Roller / Elevator / Window = click a wall · Entry = click a door opening to set the unique entry · Railing / beam / parapet / canopy = click two points · Slab = two opposite corners · North arrow / elevator / flue = click to place · Balcony / planter = two opposite corners · Level / dimension = click to place · Lamps (chandelier / ceiling / downlight / spotlight / floor) and light switch = click to place; wall lamp / wall tube / wall bulb / socket / wall switch = click a position on a wall (snaps to walls, drag to slide along it, flip side in the panel); they light up in night mode, click a lamp or the switch in 3D to toggle')
       };
       const rotHint = ui.rotPick
         ? tr('旋转：点选要旋转的对象（可连续点选多个）· 点空白处或回车 / 右键结束选择并定基点 · Esc 退出', 'Rotate: click the objects to rotate (multiple OK) · click empty space or press Enter / right-click to finish · Esc exits')
@@ -8156,6 +8239,13 @@
       });
       return best;
     }
+    // 壁装灯具（壁灯 / 灯管 / 灯泡）：按 wall + c（沿墙偏移）+ side（墙面）算墙面锚点；墙已删返回 null
+    function wallLampPos(l) {
+      const g = openingWallGeom(l.wall); if (!g) return null;
+      const t = Math.max(0, Math.min(g.L, l.c ?? 0));
+      const nx = -g.u[1] * (l.side ?? 1), ny = g.u[0] * (l.side ?? 1);
+      return { x: Math.round(g.A[0] + g.u[0] * t + nx * g.T / 2), y: Math.round(g.A[1] + g.u[1] * t + ny * g.T / 2), u: g.u, n: [nx, ny], t, L: g.L, T: g.T };
+    }
     function deleteWall(ref) {
       const cw = ref.startsWith('CW');
       mutate(() => {
@@ -8163,6 +8253,7 @@
         else state.deletedWalls.push(ref);
         state.demolished = state.demolished.filter(x => x !== ref);
         state.openings = state.openings.filter(o => o.wall !== ref && !(o.kind === 'lbay' && (o.legs || []).some(l => l.wall === ref)));
+        state.lamps = (state.lamps || []).filter(l => l.wall !== ref);   // 壁装灯具跟着墙一起删
       });
       toast(tr('已删除墙体 · Ctrl+Z 可撤销', 'Wall deleted · Ctrl+Z to undo'));
     }
@@ -8229,6 +8320,16 @@
       if (st.ceil === false) return true;                            // 面板里勾了「无天花」
       if (st.ceil === true) return false;                            // 面板里取消勾选 = 有天花
       return /楼梯|stair/i.test(String(st.name || ''));
+    }
+    // 点所在的房间（射线法判断在多边形内）；室外 / 空方案返回 null
+    function roomAtPoint(x, y) {
+      const inPoly = (px, py, poly) => { let c = false; for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) { const a = poly[i], b = poly[j]; if ((a[1] > py) !== (b[1] > py) && px < (b[0] - a[0]) * (py - a[1]) / (b[1] - a[1]) + a[0]) c = !c; } return c; };
+      return allRooms().find(r => state.rooms[r.id] && inPoly(x, y, r.poly)) || null;
+    }
+    // 点上方的天花高度（mm）：所在房间有天花用房间天花；室外 / 无天花（挑空）返回 0
+    function ceilAtPoint(x, y) {
+      const r = roomAtPoint(x, y);
+      return r && !roomNoCeil(r) ? roomCeilMM(r) : 0;
     }
     // 入户门：默认原始户型标记 entry 的门洞；「入户」工具可改指任一原始门洞（d{i}）或自画的门（O+openingId），持久化、全局唯一
     function entryDoorId() {
@@ -8772,7 +8873,7 @@
         }
         return;
       }
-      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampSw'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
+      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampWallSw', 'lampSw'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
         if (ui.drawTool === 'entry') {                                   // 入户工具：点门洞（原始门洞或自画的门）→ 设为全局唯一的入户门
           const og = t.closest('[data-bopen]'), oc = t.closest('[data-open]');
           let id = null;
@@ -9095,14 +9196,35 @@
           return;
         }
         if (ui.drawTool?.startsWith('lamp')) {                            // 灯具 / 灯开关：点位置放置（夜景模式自动照亮，3D 点灯体 / 开关切换亮灭）
-          const T = { lampCh: ['chandelier', 3500, 1900], lampCeil: ['ceil', 3200, 2650], lampDown: ['down', 1800, 2650], lampSpot: ['spot', 2500, 2650], lampFloor: ['floor', 2200, 1500], lampSw: ['switch', 6000, 1100] }[ui.drawTool];
-          const q = snapPoint(p, e.shiftKey), id = uid();
-          mutate(() => (state.lamps = state.lamps || []).push({ id, type: T[0], x: Math.round(q.x / 10) * 10, y: Math.round(q.y / 10) * 10, r: T[1], z: T[2], on: true }));
+          const T = { lampCh: ['chandelier', 3500, 1900], lampCeil: ['ceil', 3200, 2650], lampDown: ['down', 1800, 2650], lampSpot: ['spot', 2500, 2650], lampFloor: ['floor', 2200, 1500], lampWall: ['wall', 2200, 1600], lampTube: ['tube', 2600, 1900], lampBulb: ['bulb', 1800, 1800], lampSocket: ['socket', 0, 300], lampWallSw: ['wallSwitch', 6000, 1100], lampSw: ['switch', 6000, 1100] }[ui.drawTool];
+          const id = uid();
+          if (WALL_LAMP_TYPES.includes(T[0])) {                           // 壁灯 / 壁装灯管 / 壁装灯泡：吸附墙体（点墙上的位置）
+            const w = wallAt(p);
+            if (!w) { toast(tr('请点击墙上的位置（壁装灯具吸附墙体）', 'Click a position on a wall (wall lamps snap to walls)')); return; }
+            const l0 = {
+              id, type: T[0], wall: w.ref, side: wallSideOf([p.x, p.y], { a: w.A, b: w.B }),
+              c: Math.max(100, Math.min(w.L - 100, Math.round(w.t / 10) * 10)), z: T[2], r: T[1], on: true,
+              ...(T[0] === 'socket' ? { style: 'dual' } : {})
+            };
+            const q = wallLampPos(l0);
+            mutate(() => (state.lamps = state.lamps || []).push({ ...l0, x: q.x, y: q.y }));
+            select({ kind: 'lamp', id });
+            toast(T[0] === 'socket'
+              ? tr('已放插座 · 吸附墙体，沿墙拖动调整；右侧可换面 / 选样式（二三插 / 二插 / 三插）', 'Socket placed · snapped to the wall, drag to slide; flip side / choose style in the panel')
+              : T[0] === 'wallSwitch'
+                ? tr('已放墙面开关 · 吸附墙体，沿墙拖动调整；3D 点击面板可开 / 关范围内的灯，右侧可换面', 'Wall switch placed · snapped to the wall, drag to slide; click the plate in 3D to toggle lamps within range, flip side in the panel')
+                : tr('已放壁装灯具 · 吸附墙体，沿墙拖动调整位置，右侧可换到墙的另一面；夜景模式自动照亮，3D 点灯体可开 / 关', 'Wall lamp placed · snapped to the wall, drag to slide along it, flip side in the panel; lights up in night mode, click it in 3D to toggle'));
+            renderPillars(); return;
+          }
+          const q = snapPoint(p, e.shiftKey);
+          const ceilMM = ceilAtPoint(q.x, q.y);                           // 吸顶 / 筒灯 / 射灯默认贴住所在房间的天花（室外 / 挑空回落默认高度）
+          const z = ['ceil', 'down', 'spot'].includes(T[0]) && ceilMM ? Math.max(300, Math.min(8000, Math.round((ceilMM - 150) / 50) * 50)) : T[2];
+          mutate(() => (state.lamps = state.lamps || []).push({ id, type: T[0], x: Math.round(q.x / 10) * 10, y: Math.round(q.y / 10) * 10, r: T[1], z, on: true }));
           select({ kind: 'lamp', id });
           toast(ui.drawTool === 'lampSw'
             ? tr('已放灯开关 · 3D 里点击开关面板，范围内的灯一起开 / 关', 'Switch placed · click it in 3D to toggle all lamps within range')
             : tr('已放灯具 · 夜景模式自动照亮，3D 点灯体可开 / 关；照亮半径 / 安装高度在右侧改', 'Lamp placed · lights up in night mode, click it in 3D to toggle; radius / height in the panel'));
-          return;
+          renderPillars(); return;
         }
         if (ui.drawTool === 'slab' || ui.drawTool === 'ceil') {             // 楼板 / 挑板 / 吊顶：两次点击定对角点
           const isCeil = ui.drawTool === 'ceil';
@@ -9427,7 +9549,8 @@
       } else if (edit && t.closest('[data-lamp]')) {
         const id = t.closest('[data-lamp]').dataset.lamp, l0 = (state.lamps || []).find(x => x.id === id);
         if (!(ui.sel?.kind === 'lamp' && ui.sel.id === id)) select({ kind: 'lamp', id });
-        if (l0) drag = { kind: 'lampMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: l0.x, y0: l0.y, before: snap(), moved: false };
+        if (l0 && l0.wall) drag = { kind: 'lampSlide', id, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };   // 壁装灯具：沿墙滑动
+        else if (l0) drag = { kind: 'lampMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: l0.x, y0: l0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-flue]')) {
         const id = t.closest('[data-flue]').dataset.flue, f0 = (state.flues || []).find(x => x.id === id);
         if (!(ui.sel?.kind === 'flue' && ui.sel.id === id)) select({ kind: 'flue', id });
@@ -9675,6 +9798,16 @@
         if (drag.objKind === 'lift') o.dw = Math.min(o.dw ?? 900, Math.max(500, o.w - 300));   // 门宽随梯宽收窄
         renderNotes(); renderSel(); return;
       }
+      if (drag.kind === 'lampSlide') {                        // 壁装灯具：沿墙滑动（光标投影到墙中线，可跨到另一面）
+        if (!drag.moved && !far) return;
+        drag.moved = true;
+        const l = (state.lamps || []).find(x => x.id === drag.id); if (!l) return;
+        const g = openingWallGeom(l.wall); if (!g) return;
+        l.c = Math.max(0, Math.min(g.L, Math.round(((p.x - g.A[0]) * g.u[0] + (p.y - g.A[1]) * g.u[1]) / 10) * 10));
+        l.side = wallSideOf([p.x, p.y], { a: g.A, b: g.B });
+        const q = wallLampPos(l); if (q) { l.x = q.x; l.y = q.y; }
+        renderPillars(); renderSel(); return;
+      }
       if (drag.kind === 'lampR') {                            // 灯具：拖手柄改照亮半径（以灯心到光标的距离为准）
         if (!drag.moved && !far) return;
         drag.moved = true;
@@ -9775,7 +9908,11 @@
           else if (it.kind && it.x !== undefined && it.y !== undefined) {   // 点 / 矩形构件：文字、标高、楼板、阳台、花坛、烟道、电梯、轴网、室外构件
             const key = { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[it.kind];
             const o = key ? (state[key] || []).find(x => x.id === it.id) : outArr(it.kind).find(x => x.id === it.id);
-            if (o) { o.x = it.x + dx; o.y = it.y + dy; }
+            if (o && it.wallLamp) {                             // 壁装灯具：沿各自墙滑动，不脱离墙体
+              o.c = Math.max(0, Math.min(it.L, Math.round((it.c + dx * it.u[0] + dy * it.u[1]) / 10) * 10));
+              const q = wallLampPos(o); if (q) { o.x = q.x; o.y = q.y; }
+            }
+            else if (o) { o.x = it.x + dx; o.y = it.y + dy; }
           }
         });
         renderRooms(); renderFurn(); renderStairs(); renderPillars(); renderWalls(); renderOpenings(); renderNotes(); renderSel(); return;
@@ -11088,6 +11225,12 @@
           const g = openingWallGeom(o.wall); if (!g) return null;
           return { custom: true, o, axis: g.u, c0: o.c, min: 0, max: Math.max(0, g.L - o.w) };
         }
+        if (kind === 'lamp') {                                       // 壁装灯具：沿依附的墙滑动（与 2D 规则一致）
+          const l = (state.lamps || []).find(x => x.id === id);
+          if (!l || !l.wall) return null;                            // 吸顶 / 吊灯等仍走整体平移
+          const g = openingWallGeom(l.wall); if (!g) return null;
+          return { custom: true, lampObj: l, axis: g.u, c0: l.c ?? 0, min: 0, max: g.L };
+        }
         if (kind === 'bopen') {
           const r = bopenRect(id); if (!r) return null;
           const hz = LONG(r);
@@ -11129,7 +11272,7 @@
             const t = Math.round(((g.x - objdrag.gx) * info.axis[0] + (g.y - objdrag.gy) * info.axis[1]) / step) * step;
             if (info.custom) {
               const nc = Math.max(info.min, Math.min(info.max, Math.round((info.c0 + t) / step) * step));
-              if ((state.openings || []).some(q => q.wall === info.o.wall && q.id !== info.o.id && nc < q.c + q.w && q.c < nc + info.o.w)) return;   // 与其它门窗重叠 → 不动
+              if (info.o && (state.openings || []).some(q => q.wall === info.o.wall && q.id !== info.o.id && nc < q.c + q.w && q.c < nc + info.o.w)) return;   // 与其它门窗重叠 → 不动
               objdrag.newC = nc; objdrag.dx = (nc - info.c0) * info.axis[0]; objdrag.dy = (nc - info.c0) * info.axis[1];
             } else {
               objdrag.newD = info.hz ? [info.d0[0] + t, info.d0[1]] : [info.d0[0], info.d0[1] + t];
@@ -11155,7 +11298,8 @@
           const info = d.openInfo;
           let ok = false;
           if (d.moved && (d.dx || d.dy)) {
-            if (info?.custom && d.newC != null) { mutate(() => { info.o.c = d.newC; clampOpening(info.o); }); ok = true; }
+            if (info?.lampObj && d.newC != null) { mutate(() => { info.lampObj.c = d.newC; const q = wallLampPos(info.lampObj); if (q) { info.lampObj.x = q.x; info.lampObj.y = q.y; } }); ok = true; }
+            else if (info?.custom && d.newC != null) { mutate(() => { info.o.c = d.newC; clampOpening(info.o); }); ok = true; }
             else if (info && d.newD) { mutate(() => { state.bover[d.id] = { ...bov(d.id), d: d.newD }; clampBopen(d.id); }); ok = true; }
             else { const o = find3dObj(d.kind, d.id); if (o) { mutate(() => move3dObj(o, d.dx, d.dy)); ok = true; } }
           }
@@ -12358,8 +12502,53 @@
     }
     function buildLamp3D(l) {                                   // 灯具 / 灯开关：灯体 + 夜景点光源（点光源挂 lampG，applyLight 统一按夜景与开关状态点亮）
       const X = wx(l.x), Z = wz(l.y), Y = Math.max(.3, (l.z ?? 1500) / 1000);
-      const glow = oneMat(new THREE.MeshStandardMaterial({ color: '#fff6df', emissive: '#ffd9a0', emissiveIntensity: .3 }));
-      glow.userData.lampRef = l; lampGlowMats.push(glow);       // 发光材质记录归属的灯对象：开关状态变 → emissive 跟着变
+      const glow = l.type === 'socket' ? null : oneMat(new THREE.MeshStandardMaterial({ color: '#fff6df', emissive: '#ffd9a0', emissiveIntensity: .3 }));
+      if (glow) { glow.userData.lampRef = l; lampGlowMats.push(glow); }   // 发光材质记录归属的灯对象：开关状态变 → emissive 跟着变；插座不发光
+      if (WALL_LAMP_TYPES.includes(l.type)) {                   // 壁灯 / 壁装灯管 / 壁装灯泡：贴墙面朝外
+        const q = wallLampPos(l), Nx = q ? q.n[0] : 0, Nz = q ? q.n[1] : 1;
+        const g = new THREE.Group(); g.position.set(X, 0, Z);
+        g.rotation.y = Math.atan2(Nx, Nz);                      // 局部 +Z 朝墙面外侧（-Z 贴墙）
+        const mount = (w, h) => { const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, .02), mat('#5a544b', { roughness: .7 })); m.position.set(0, Y, .01); g.add(m); return m; };
+        if (l.type === 'wall') {                                // 壁灯：底座 + 弯臂 + 半球罩 + 灯泡
+          mount(.09, .16);
+          const arm = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, .12, 8), mat('#4d4a45', { roughness: .5, metalness: .4 }));
+          arm.rotation.x = Math.PI / 2; arm.position.set(0, Y, .07); g.add(arm);
+          const shade = new THREE.Mesh(new THREE.SphereGeometry(.095, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), oneMat(new THREE.MeshStandardMaterial({ color: '#e7ddc9', roughness: .55, side: THREE.DoubleSide })));
+          shade.rotation.x = Math.PI / 2; shade.position.set(0, Y, .13); shade.castShadow = true; g.add(shade);
+          const b2 = new THREE.Mesh(new THREE.SphereGeometry(.055, 14, 10), glow); b2.position.set(0, Y - .01, .1); g.add(b2);
+        } else if (l.type === 'tube') {                         // 壁装灯管：两个抱箍 + 沿墙 600 发光灯管
+          [-.3, .3].forEach(x => { const c = new THREE.Mesh(new THREE.TorusGeometry(.035, .008, 8, 16), mat('#8d949b', { metalness: .6, roughness: .4 })); c.position.set(x, Y, .04); g.add(c); });
+          const tube = new THREE.Mesh(new THREE.CylinderGeometry(.024, .024, .6, 14), glow);
+          tube.rotation.z = Math.PI / 2; tube.position.set(0, Y, .04); g.add(tube);
+        } else if (l.type === 'bulb') {                         // 壁装灯泡：灯座 + 玻璃泡
+          mount(.05, .05);
+          const sock = new THREE.Mesh(new THREE.CylinderGeometry(.022, .026, .05, 10), mat('#c9a24b', { metalness: .7, roughness: .35 }));
+          sock.rotation.x = Math.PI / 2; sock.position.set(0, Y, .045); g.add(sock);
+          const b2 = new THREE.Mesh(new THREE.SphereGeometry(.06, 16, 12), glow); b2.position.set(0, Y, .1); g.add(b2);
+        } else if (l.type === 'socket') {                       // 插座：86 面板 + 插孔（二三插 / 二插 / 三插）
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.15, .09, .014), mat('#e8e2d6', { roughness: .65 }));
+          plate.position.set(0, Y, .008); plate.castShadow = true; g.add(plate);
+          const holes = (l.style || 'dual') === 'two' ? [[-.03, 0], [.03, 0]]
+            : (l.style || 'dual') === 'three' ? [[0, .018], [-.035, -.025], [.035, -.025]]
+              : [[-.025, .016], [.025, .016], [0, -.012], [-.035, -.03], [.035, -.03]];
+          holes.forEach(([hx, hy]) => {
+            const hole = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .004, 10), mat('#3a3630', { roughness: .9 }));
+            hole.rotation.x = Math.PI / 2; hole.position.set(hx, Y + hy, .017); g.add(hole);
+          });
+        } else if (l.type === 'wallSwitch') {                   // 墙面开关：86 面板 + 翘板 + 开态指示点
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.09, .12, .014), mat('#e8e2d6', { roughness: .65 }));
+          plate.position.set(0, Y, .008); plate.castShadow = true; g.add(plate);
+          const rocker = new THREE.Mesh(new THREE.BoxGeometry(.052, .062, .012), mat('#f5f0e6', { roughness: .5 }));
+          rocker.position.set(0, Y - .012, .021); g.add(rocker);
+          const dot = new THREE.Mesh(new THREE.SphereGeometry(.008, 10, 8), glow); dot.position.set(0, Y + .042, .018); g.add(dot);
+        }
+        tagPick(g, 'lamp', l.id); archUp.add(g);
+        if (isLightType(l.type) && lampG.children.filter(o => o.isPointLight).length < 28) {
+          const pl = new THREE.PointLight(0xffd9a8, 0, Math.max(1.5, (l.r || 2200) / 1000), 1.5);
+          pl.position.set(X + Nx * .18, Y, Z + Nz * .18); pl.userData.lampRef = l; lampG.add(pl);
+        }
+        return;
+      }
       if (l.type === 'switch') {                                // 灯开关：小面板立在细杆上（1.1m），3D 点击切换周边的灯
         const g = new THREE.Group(); g.position.set(X, 0, Z);
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.015, .02, Y - .07, 8), mat('#5a544b', { roughness: .8 }));
@@ -12375,9 +12564,10 @@
       }
       const g = new THREE.Group(); g.position.set(X, 0, Z);
       const R = { chandelier: .19, ceil: .17, down: .065, spot: .07, floor: .16 }[l.type] || .15;
-      if (l.type === 'chandelier' && Y < 2.6) {                 // 吊杆：从天花（约 2.75m）挂到灯体
-        const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, Math.max(.05, 2.75 - Y), 8), mat('#4d4a45', { roughness: .5, metalness: .4 }));
-        rod.position.y = Y + (2.75 - Y) / 2; g.add(rod);
+      if (l.type === 'chandelier') {                            // 吊杆：从灯具上方房间的天花挂到灯体（室外 / 无天花挑空回落 2.75m 默认）
+        const rodTop = Math.max(Y + .1, (ceilAtPoint(l.x, l.y) || 2750) / 1000);
+        const rod = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, rodTop - Y, 8), mat('#4d4a45', { roughness: .5, metalness: .4 }));
+        rod.position.y = Y + (rodTop - Y) / 2; g.add(rod);
       }
       if (l.type === 'floor') {                                 // 落地灯：底盘 + 灯杆，占位挡路
         const base = new THREE.Mesh(new THREE.CylinderGeometry(.14, .16, .03, 24), mat('#4d4a45', { roughness: .7 }));
@@ -12399,9 +12589,10 @@
     }
     function toggleLamp(id) {                                   // 点灯体 / 开关：切换亮灭；开关把控制半径内的灯一起切
       const l = (state.lamps || []).find(x => x.id === id); if (!l) return;
-      if (l.type === 'switch') {
+      if (l.type === 'socket') return;                            // 插座不控制灯，点击只在 3D 里选中
+      if (l.type === 'switch' || l.type === 'wallSwitch') {
         const R = Math.max(1, (l.r ?? 6000) / 1000), X = wx(l.x), Z = wz(l.y);
-        const near = (state.lamps || []).filter(x => x.type !== 'switch' && Math.hypot(wx(x.x) - X, wz(x.y) - Z) <= R);
+        const near = (state.lamps || []).filter(x => isLightType(x.type) && Math.hypot(wx(x.x) - X, wz(x.y) - Z) <= R);
         const anyOff = near.some(x => x.on === false);
         near.forEach(x => x.on = anyOff);                       // 有灭的就全打开，否则全部关掉
         toast(near.length ? tr(`开关：已${anyOff ? '打开' : '关闭'} ${near.length} 盏灯`, `Switch: ${near.length} lamp(s) ${anyOff ? 'on' : 'off'}`)
