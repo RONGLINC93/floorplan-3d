@@ -9594,8 +9594,12 @@
           if (e.shiftKey) { if (Math.abs(q.x - o[0]) > Math.abs(q.y - o[1])) q.y = o[1]; else q.x = o[0]; }
           else {                                                   // 未按 Shift：端点自动吸到相邻墙中线 / 墙角，两墙严丝合缝
             const ws = snapToWall(p, drag.id);
-            if (ws) { q.x = ws.x; q.y = ws.y; }                     // 吸墙优先：严格吸附，不被直角约束带偏
-            else if (!ui.wallFree) { const lk = axisLock({ x: o[0], y: o[1] }, q, false); q.x = lk.x; q.y = lk.y; }   // 没靠墙时按直角模式锁轴
+            const lk = axisLock({ x: o[0], y: o[1] }, q, false);   // 直角模式先按固定端锁轴（吸墙交点沿这条约束线求）
+            const hit = ws && snapWallOnRay({ x: o[0], y: o[1] }, lk, ws, p, ui.wallFree);
+            if (hit) { q.x = hit.x; q.y = hit.y; }                 // 交点：既严格沿直角 / 自由方向，又精确落在旧墙中线上
+            else if (ws && ui.wallFree) { q.x = ws.x; q.y = ws.y; }   // 自由模式交不上：退回直接吸墙
+            else if (!ui.wallFree) { q.x = lk.x; q.y = lk.y; }     // 直角模式交不上 / 没靠墙：严格锁轴，不吸偏画出斜墙
+            else if (ws) { q.x = ws.x; q.y = ws.y; }
           }
           if (drag.end) w.b = [q.x, q.y]; else w.a = [q.x, q.y];
           state.openings.filter(o => o.wall === drag.id).forEach(clampOpening);   // 墙变短后把门窗钳回墙内
