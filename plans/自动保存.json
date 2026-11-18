@@ -8,7 +8,7 @@
       "id": "fmwlf7lk547",
       "a": [
         2160,
-        4070
+        3650
       ],
       "b": [
         2160,
@@ -49,7 +49,28 @@
       ]
     }
   ],
-  "openings": [],
+  "openings": [
+    {
+      "id": "fmwliso3f324",
+      "kind": "fwin",
+      "wall": "CWfmwlf7tk150",
+      "c": 3640,
+      "w": 1200,
+      "sill": 0,
+      "dh": 2400,
+      "cg": "fmwliso3f323"
+    },
+    {
+      "id": "fmwliso3f325",
+      "kind": "fwin",
+      "wall": "CWfmwlf7lk547",
+      "c": 0,
+      "w": 1200,
+      "sill": 0,
+      "dh": 2400,
+      "cg": "fmwliso3f323"
+    }
+  ],
   "deletedWalls": [
     "w0",
     "w1",

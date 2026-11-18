@@ -48,17 +48,17 @@
       "id": "fmwhqg4po186",
       "a": [
         13250,
-        2110
+        2070
       ],
       "b": [
         13250,
-        6820
+        6890
       ]
     },
     {
       "id": "fmwhqg7q7187",
       "a": [
-        13250,
+        13100,
         6820
       ],
       "b": [
@@ -70,7 +70,7 @@
       "id": "fmwhqg9wc188",
       "a": [
         -250,
-        6880
+        6890
       ],
       "b": [
         -250,
@@ -102,11 +102,11 @@
     {
       "id": "fmwhqkgdw95",
       "a": [
-        13050,
+        13100,
         5577
       ],
       "b": [
-        10570,
+        10600,
         5577
       ]
     },
@@ -118,7 +118,7 @@
       ],
       "b": [
         10600,
-        6640
+        6720
       ]
     },
     {
@@ -133,102 +133,124 @@
       ]
     },
     {
-      "id": "fmwlh5zzt93",
+      "id": "fmwkvnffb257",
       "a": [
-        2590,
-        -3700
+        -1340,
+        -8680
       ],
       "b": [
-        2590,
-        -3700
+        14610,
+        -8688.7744140625
       ]
     },
     {
-      "id": "fmwlh623k94",
+      "id": "fmwkvnffb262",
       "a": [
-        3300,
-        -3257.749267578125
+        13450,
+        -5213
       ],
       "b": [
-        8570,
-        -3250
+        13450,
+        -3900
       ]
     },
     {
-      "id": "fmwlh63hz95",
+      "id": "fmwkvnffb264",
       "a": [
-        8570,
-        -3250
+        14610,
+        -3970
       ],
       "b": [
-        8570,
-        -150
+        -1340,
+        -3970
       ]
     },
     {
-      "id": "fmwlh65tb96",
+      "id": "fmwkvnffb269",
       "a": [
-        8570,
-        -150
+        -1530,
+        -3900
       ],
       "b": [
-        3300,
-        -150
+        -1530,
+        -8780
       ]
     },
     {
-      "id": "fmwlh7dhj97",
+      "id": "fmwkvnffb271",
       "a": [
-        3300,
-        -150
+        8914,
+        -8530
       ],
       "b": [
-        3300,
-        -3070
+        8914,
+        -6470
       ]
     },
     {
-      "id": "fmwlhlwsg95",
+      "id": "fmwkvnffb273",
       "a": [
-        10040,
-        -3070
+        7310,
+        -6470
       ],
       "b": [
-        13250,
-        -3070
+        14450,
+        -6470
       ]
     },
     {
-      "id": "fmwlhlxhm96",
+      "id": "fmwkvnffb277",
       "a": [
-        13250,
-        -3070
+        10790,
+        -4780
       ],
       "b": [
-        13250,
-        -540
+        10790,
+        -4180
       ]
     },
     {
-      "id": "fmwlhlys997",
+      "id": "fmwkvnffb278",
       "a": [
-        13250,
-        -540
+        7310,
+        -6560
       ],
       "b": [
-        10040,
-        -540
+        7306,
+        -8530
       ]
     },
     {
-      "id": "fmwlhm0pf98",
+      "id": "fmwkvqy7g280",
       "a": [
-        10040,
-        -540
+        14610,
+        -4070
       ],
       "b": [
-        10040,
-        -3070
+        14610,
+        -8530
+      ]
+    },
+    {
+      "id": "fmwkvt9s9283",
+      "a": [
+        13430,
+        -8530
+      ],
+      "b": [
+        13430,
+        -6470
+      ]
+    },
+    {
+      "id": "fmwkvvsh1284",
+      "a": [
+        1766.000160264909,
+        -8681.708672820336
+      ],
+      "b": [
+        1766.000160264909,
+        -4180
       ]
     }
   ],
@@ -236,7 +258,7 @@
     {
       "id": "fmwhug5fj93",
       "wall": "CWfmwhqg1hn185",
-      "c": 3186.578857421875,
+      "c": 3176.578857421875,
       "w": 1200,
       "kind": "window",
       "flip": true,
@@ -249,7 +271,9 @@
       "c": 5717.18798828125,
       "w": 900,
       "kind": "door",
-      "flip": false
+      "flip": false,
+      "mat": "steel",
+      "hflip": true
     },
     {
       "id": "fmwhui0o493",
@@ -264,11 +288,12 @@
     {
       "id": "fmwhuigxc93",
       "wall": "CWfmwhqg7q7187",
-      "c": 2894.46875,
-      "w": 1200,
+      "c": 424.2587890625,
+      "w": 1000,
       "kind": "hwin",
       "flip": true,
-      "sill": 1400
+      "sill": 2000,
+      "wh": 800
     },
     {
       "id": "fmwhuwbzv93",
@@ -294,14 +319,15 @@
       "id": "fmwhuwjk895",
       "wall": "CWfmwhqg4po186",
       "c": 253.628662109375,
-      "w": 900,
+      "w": 1100,
       "kind": "door",
-      "flip": false
+      "flip": false,
+      "mat": "wood"
     },
     {
       "id": "fmwhuwl6x96",
       "wall": "CWfmwhqkgdw95",
-      "c": 1270,
+      "c": 1405.017578125,
       "w": 900,
       "kind": "door",
       "flip": true,
@@ -329,7 +355,7 @@
     {
       "id": "fmwhw7jdp94",
       "wall": "CWfmwhqg7q7187",
-      "c": 4423.2841796875,
+      "c": 4073.8720703125,
       "w": 1200,
       "kind": "window",
       "flip": true,
@@ -337,9 +363,9 @@
       "wh": 1800
     },
     {
-      "id": "fmwi5rhn593",
+      "id": "fmwjjix4q93",
       "wall": "CWfmwhqg7q7187",
-      "c": 11619.89404296875,
+      "c": 11672.06396484375,
       "w": 1200,
       "kind": "window",
       "flip": true,
@@ -347,86 +373,114 @@
       "wh": 1800
     },
     {
-      "id": "fmwlfh3lo93",
-      "kind": "lbay",
-      "wall": "CWfmwhqg7q7187",
-      "c": 0,
-      "w": 1350,
-      "flip": true,
-      "sill": 500,
-      "wh": 1200,
-      "bayDepth": 600,
-      "panes": 2,
-      "legs": [
-        {
-          "wall": "CWfmwhqg7q7187",
-          "c": 675,
-          "w": 1350,
-          "flip": true,
-          "lc": -1,
-          "panes": 2
-        },
-        {
-          "wall": "CWfmwhqg4po186",
-          "c": 4030,
-          "w": 1200,
-          "flip": true,
-          "lc": 1,
-          "panes": 3
-        }
-      ]
-    },
-    {
-      "id": "fmwlfuytx93",
-      "wall": "CWfmwhqg7q7187",
-      "c": 6279.970703125001,
-      "w": 1500,
-      "kind": "bay",
-      "flip": true,
-      "sill": 500,
-      "wh": 1200,
-      "bayDepth": 600,
-      "panes": 3,
-      "bayFlip": true,
-      "bayCurve": false
-    },
-    {
-      "id": "fmwlgfztj93",
+      "id": "fmwkvidhr231",
       "wall": "CWfmwhqg1hn185",
-      "c": 9037.191930023953,
+      "c": 8872.728682523035,
       "w": 900,
       "kind": "window",
       "flip": true,
-      "sill": 2100,
-      "wh": 1400
+      "sill": 1800,
+      "wh": 1200
     },
     {
-      "id": "fmwlh9fyx100",
-      "kind": "fwin",
-      "wall": "CWfmwlh65tb96",
-      "c": 3490,
-      "w": 1780,
-      "sill": 0,
+      "id": "fmwkvnffb258",
+      "wall": "CWfmwkvnffb257",
+      "c": 4103.339133377649,
+      "w": 1200,
+      "kind": "window",
+      "flip": true,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwkvnffb261",
+      "wall": "CWfmwkvnffb257",
+      "c": 8872.728682523035,
+      "w": 900,
+      "kind": "window",
+      "flip": true,
+      "sill": 1800,
+      "wh": 1200
+    },
+    {
+      "id": "fmwkvnffb266",
+      "wall": "CWfmwkvnffb264",
+      "c": 7970.72607421875,
+      "w": 1200,
+      "kind": "window",
+      "flip": false,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwkvnffb267",
+      "wall": "CWfmwkvnffb264",
+      "c": 2420.0791015625,
+      "w": 1200,
+      "kind": "window",
+      "flip": true,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwkvnffb268",
+      "wall": "CWfmwkvnffb264",
+      "c": 10699.92626953125,
+      "w": 1200,
+      "kind": "window",
+      "flip": true,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwkvnffb272",
+      "wall": "CWfmwkvnffb271",
+      "c": 499.061279296875,
+      "w": 900,
+      "kind": "elev",
+      "flip": false,
       "dh": 2400,
-      "cg": "fmwlh9fyx99"
-    },
-    {
-      "id": "fmwlh9fyx101",
-      "kind": "fwin",
-      "wall": "CWfmwlh7dhj97",
-      "c": 0,
-      "w": 1000,
       "sill": 0,
-      "dh": 2400,
-      "cg": "fmwlh9fyx99"
+      "btn": "l"
     },
     {
-      "id": "fmwli1z3s93",
-      "wall": "CWfmwlh65tb96",
-      "c": 1455.50927734375,
-      "w": 1800,
-      "kind": "fwin",
-      "flip": true
+      "id": "fmwkvnffb274",
+      "wall": "CWfmwkvnffb273",
+      "c": 1798.8408203125,
+      "w": 900,
+      "kind": "door",
+      "flip": false,
+      "hflip": true,
+      "mat": "steel"
+    },
+    {
+      "id": "fmwkvxlec286",
+      "wall": "CWfmwkvvsh1284",
+      "c": 3596.323418914086,
+      "w": 900,
+      "kind": "door",
+      "flip": false,
+      "hflip": true
+    },
+    {
+      "id": "fmwkwauwc93",
+      "wall": "CWfmwkvnffb273",
+      "c": 6323.0830078125,
+      "w": 700,
+      "kind": "door",
+      "flip": true,
+      "mat": "glass"
+    },
+    {
+      "id": "fmwkwdkjh94",
+      "wall": "CWfmwkvnffb269",
+      "c": 670.87451171875,
+      "w": 3630,
+      "kind": "window",
+      "flip": false,
+      "grille": true,
+      "wh": 1800,
+      "panes": 4
     }
   ],
   "deletedWalls": [
@@ -599,11 +653,11 @@
           5680
         ],
         [
-          13120,
+          13100,
           5680
         ],
         [
-          13120,
+          13090,
           6720
         ],
         [
@@ -621,12 +675,12 @@
           4440
         ],
         [
-          13120,
+          13100,
           4440
         ],
         [
-          13120,
-          5460
+          13100,
+          5450
         ],
         [
           10480,
@@ -677,8 +731,23 @@
         9,
         9
       ],
+      "railSide": "left",
+      "railLand": false
+    },
+    {
+      "id": "fmwkw35uw139",
+      "x": 11170,
+      "y": -7590,
+      "w": 950,
+      "len": 4250,
+      "dir": 0,
+      "rise": 3200,
+      "runs": 2,
       "railLand": false,
-      "railSide": "left"
+      "railSide": "left",
+      "railMat": "wood",
+      "flipX": false,
+      "flipZ": true
     }
   ],
   "wallH": {
@@ -690,47 +759,58 @@
     "CWfmwhqkgdw95": 4200,
     "CWfmwhqknzq97": 4200,
     "CWfmwhqg7q7187": 4200,
-    "CWfmwhqg9wc188": 4200
+    "CWfmwhqg9wc188": 4200,
+    "CWfmwkvqy7g280": 3200,
+    "CWfmwkvnffb264": 3200,
+    "CWfmwkvvsh1284": 3200,
+    "CWfmwkvnffb269": 3200,
+    "CWfmwkvnffb257": 3200,
+    "CWfmwkvnffb278": 3200,
+    "CWfmwkvnffb271": 3200,
+    "CWfmwkvnffb273": 3200,
+    "CWfmwkvt9s9283": 3200,
+    "CWfmwkvnffb262": 3200
   },
   "notes": [],
   "dims": [],
-  "rails": [
-    {
-      "id": "fmwjb08mz93",
-      "a": [
-        9800,
-        2260
-      ],
-      "b": [
-        9800,
-        4320
-      ],
-      "h": 2400,
-      "style": "part"
-    }
-  ],
+  "rails": [],
   "beams": [],
   "levels": [],
   "slabs": [],
   "parapets": [],
   "canopies": [],
   "north": {
-    "x": 14040,
-    "y": 10220,
+    "x": 14210,
+    "y": 10290,
     "angle": 0,
     "r": 380
   },
   "lifts": [
     {
-      "id": "fmwiw6lnm93",
-      "x": 7900,
-      "y": 3230,
+      "id": "fmwjjjlg394",
+      "x": 7910,
+      "y": 3270,
       "w": 1230,
-      "d": 1310,
+      "d": 1590,
       "h": 2400,
       "dw": 900,
-      "dir": 0,
-      "stop": 1200
+      "dh": 2100,
+      "dpos": -50,
+      "stop": 1200,
+      "dir": 0
+    },
+    {
+      "id": "fmwkvnffb279",
+      "x": 8110,
+      "y": -7520,
+      "w": 1230,
+      "d": 1590,
+      "h": 2400,
+      "dw": 900,
+      "dh": 2100,
+      "dpos": -50,
+      "stop": 0,
+      "dir": 0
     }
   ],
   "balconies": [],

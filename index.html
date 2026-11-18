@@ -12674,6 +12674,25 @@
           const bar = new THREE.Mesh(new THREE.BoxGeometry(L, .06, .06), frameMat);
           bar.position.set(mx, y, mz); bar.rotation.y = rot; bar.castShadow = true; archUp.add(bar);
         });
+        if (o.cg) {                                          // 转角窗：两段窗洞都切到墙角，墙角那块墙（两墙 L 形交接区）被切掉后是空的，
+          const atStart = c0 <= .5, atEnd = c1 >= WL - .5;    // 补一块与墙同厚的 L 形转角玻璃：转角连续闭合，又不往墙角外侧凸出（凸出来就成了柱子）
+          const mate = (atStart || atEnd) ? state.openings.find(p => p.cg === o.cg && p.id !== o.id) : null;
+          const mg = mate && openingWallGeom(mate.wall);
+          if (mg) {
+            const cp = atStart ? A : B, ua = [(B[0] - A[0]) / WL, (B[1] - A[1]) / WL];
+            const dirA = atStart ? ua : [-ua[0], -ua[1]];          // 本段：沿墙离开墙角的方向
+            const mwl = Math.hypot(mg.B[0] - mg.A[0], mg.B[1] - mg.A[1]) || 1;
+            const mu = [(mg.B[0] - mg.A[0]) / mwl, (mg.B[1] - mg.A[1]) / mwl];
+            const mStart = Math.hypot(mg.A[0] - cp[0], mg.A[1] - cp[1]) <= Math.hypot(mg.B[0] - cp[0], mg.B[1] - cp[1]);
+            const dirB = mStart ? mu : [-mu[0], -mu[1]];           // 另一段：同样取离开墙角的方向
+            const ha = T / 2, hb = mg.T / 2;
+            const PT = (s, t) => [cp[0] + dirA[0] * s + dirB[0] * t, cp[1] + dirA[1] * s + dirB[1] * t];
+            const poly = [PT(-ha, 0), PT(-ha, hb), PT(ha, hb), PT(ha, -hb), PT(0, -hb)];   // L 形截面：只补两段墙覆盖的三块，转角外侧那格是室外，留空
+            const geo = new THREE.ExtrudeGeometry(shapeOf(poly), { depth: top, bevelEnabled: false });
+            geo.rotateX(-Math.PI / 2);
+            archUp.add(new THREE.Mesh(geo, glassMat));
+          }
+        }
         pushWallCollider(P0, P1, T);
         return;
       }
@@ -14124,7 +14143,7 @@
 
     function relang() { syncWalkTexts(); if (inited) buildLabels(); }
 
-    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; } } };
+    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get camera() { return camera; }, get orbit() { return orbit; } } };
   </script>
 </body>
 
