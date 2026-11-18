@@ -4981,18 +4981,45 @@
         }
       } else if (ui.sel?.kind === 'open') {
         const o = state.openings.find(x => x.id === ui.sel.id);
-        if (o?.kind === 'lbay') {                                   // 转角飘窗：两段都画选中框，远端给拖宽手柄（转角端固定）
-          (o.legs || []).forEach((leg, li) => {
-            const lg = openingWallGeom(leg.wall); if (!lg) return;
-            const [Q0, Q1] = segPts(lg.A, lg.B, leg.c - leg.w / 2, leg.c + leg.w / 2), gg = cwGeom([Q0[0], Q0[1], Q1[0], Q1[1]]);
-            s += gg.rot
-              ? `<rect x="${-gg.len / 2}" y="${-lg.T / 2}" width="${gg.len}" height="${lg.T}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none" transform="translate(${gg.cx} ${gg.cy}) rotate(${gg.rot})"/>`
-              : `<rect x="${gg.x}" y="${gg.y}" width="${gg.w}" height="${gg.h}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none"/>`;
-            if (ui.tool === 'draw' && ui.drawTool === 'select') {   // 自由端手柄：拖动改这一段宽度，转角端保持不动
-              const Pe = leg.lc === -1 ? Q1 : Q0;
-              s += `<circle data-handle="lbayEnd" data-leg="${li}" cx="${Pe[0]}" cy="${Pe[1]}" r="${8 * k}" fill="#fff" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5"><title>${tr('拖动调整这段飘窗的宽度（转角端固定）', 'Drag to resize this leg (corner end fixed)')}</title></circle>`;
-            }
+        if (o?.kind === 'lbay') {                                   // 转角飘窗：选中框按斜接连成一整圈（与 2D 窗带同一套角点），转角内侧不再留缺口
+          const legs = o.legs || [];
+          const meet = (A, uA, B, uB) => {
+            const cr = uA[0] * uB[1] - uA[1] * uB[0];
+            if (Math.abs(cr) < 1e-6) return null;
+            const wx = B[0] - A[0], wy = B[1] - A[1], t = (wx * uB[1] - wy * uB[0]) / cr;
+            return isFinite(t) ? [A[0] + uA[0] * t, A[1] + uA[1] * t] : null;
+          };
+          const info = legs.map(leg => {
+            const lg = openingWallGeom(leg.wall); if (!lg) return null;
+            const [P0, P1] = segPts(lg.A, lg.B, leg.c - leg.w / 2, leg.c + leg.w / 2);
+            const dx = P1[0] - P0[0], dy = P1[1] - P0[1], L = Math.hypot(dx, dy) || 1;
+            const u = [dx / L, dy / L], n = [-u[1], u[0]], side = leg.flip ? -1 : 1, ov = [n[0] * side, n[1] * side];
+            const Pc = leg.lc === -1 ? P0 : P1, Pf = leg.lc === -1 ? P1 : P0, h = lg.T / 2;
+            const at = (p, d) => [p[0] + ov[0] * d, p[1] + ov[1] * d];
+            return { P0, P1, u, Ic: at(Pc, -h), If: at(Pf, -h), Wc: at(Pc, h), Wf: at(Pf, h) };
           });
+          const ready = info.length >= 2 && info.every(Boolean);
+          const a = ready && info[0], b = ready && info[1];
+          const IC = ready && meet(a.Ic, a.u, b.Ic, b.u), OC = ready && meet(a.Wc, a.u, b.Wc, b.u);
+          if (IC && OC) {
+            const P = q => `${+q[0].toFixed(1)},${+q[1].toFixed(1)}`;
+            s += `<polygon points="${[a.If, IC, b.If, b.Wf, OC, a.Wf].map(P).join(' ')}" fill="rgba(181,101,58,.06)" stroke="#b5653a" stroke-width="1.5" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+          } else {
+            info.forEach((g, li) => {                              // 退化（两段近似平行）时回退为逐段矩形
+              if (!g) return;
+              const gg = cwGeom([g.P0[0], g.P0[1], g.P1[0], g.P1[1]]), T = openingWallGeom(legs[li].wall).T;
+              s += gg.rot
+                ? `<rect x="${-gg.len / 2}" y="${-T / 2}" width="${gg.len}" height="${T}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none" transform="translate(${gg.cx} ${gg.cy}) rotate(${gg.rot})"/>`
+                : `<rect x="${gg.x}" y="${gg.y}" width="${gg.w}" height="${gg.h}" fill="none" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5" pointer-events="none"/>`;
+            });
+          }
+          if (ui.tool === 'draw' && ui.drawTool === 'select') {     // 自由端手柄：拖动改这一段宽度，转角端保持不动
+            info.forEach((g, li) => {
+              if (!g) return;
+              const Pe = legs[li].lc === -1 ? g.P1 : g.P0;
+              s += `<circle data-handle="lbayEnd" data-leg="${li}" cx="${Pe[0]}" cy="${Pe[1]}" r="${8 * k}" fill="#fff" stroke="#b5653a" vector-effect="non-scaling-stroke" stroke-width="1.5"><title>${tr('拖动调整这段飘窗的宽度（转角端固定）', 'Drag to resize this leg (corner end fixed)')}</title></circle>`;
+            });
+          }
         } else {
           const wg = o && openingWallGeom(o.wall);
           if (wg) {
