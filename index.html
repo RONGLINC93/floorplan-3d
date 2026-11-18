@@ -3081,6 +3081,17 @@
     const WALL_LAMP_TYPES = ['wall', 'tube', 'bulb', 'socket', 'wallSwitch'];
     const SOCKET_STYLES = { dual: ['二三插', '2+3 pin'], two: ['二插', '2 pin'], three: ['三插', '3 pin'] };
     const isLightType = t => !['socket', 'wallSwitch', 'switch'].includes(t);
+    const isSwitchType = t => t === 'switch' || t === 'wallSwitch';
+    // 开关控制的灯：ctlMode='list' 时按显式选中的 id（ctl），否则按控制半径（旧方案兼容）
+    const switchTargets = sw => {
+      const lamps = state.lamps || [];
+      if (sw.ctlMode === 'list') {
+        const ids = sw.ctl || [];
+        return lamps.filter(x => isLightType(x.type) && ids.includes(x.id));
+      }
+      const R = Math.max(1, sw.r ?? 6000);                       // 2D 图面坐标即 mm，距离与 3D 米制换算等价
+      return lamps.filter(x => isLightType(x.type) && Math.hypot(x.x - sw.x, x.y - sw.y) <= R);
+    };
     const LAMP_TYPES = Object.keys(LAMP_NAMES);
 
     function defaultState() {
@@ -5142,6 +5153,18 @@
           const A = 'stroke="#b5653a" vector-effect="non-scaling-stroke"', isSw = l.type === 'switch';
           const r = (isSw ? 300 : l.type === 'chandelier' ? 240 : 180) + 8 * k, hs = COARSE ? 1.7 : 1, hit = (COARSE ? 26 : 13) * k;
           s += `<circle cx="${l.x}" cy="${l.y}" r="${r}" fill="rgba(181,101,58,.09)" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
+          if (isSwitchType(l.type)) {                              // 选中开关：半径圈 / 指定灯具的虚线示意
+            if (l.ctlMode === 'list') {
+              switchTargets(l).forEach(t => {
+                s += `<line x1="${l.x}" y1="${l.y}" x2="${t.x}" y2="${t.y}" fill="none" ${A} stroke-width="1.2" stroke-dasharray="8 5" pointer-events="none"/>`
+                  + `<circle cx="${t.x}" cy="${t.y}" r="${(12 * k).toFixed(1)}" fill="none" ${A} stroke-width="1.2" pointer-events="none"/>`;
+              });
+            } else {
+              const R = Math.max(1, l.r ?? 6000);
+              s += `<circle cx="${l.x}" cy="${l.y}" r="${R}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="10 5" pointer-events="none"/>`
+                + `<text x="${l.x}" y="${l.y - R - 10 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${tr('控制半径', 'control radius')} ${Math.round(R)} mm</text>`;
+            }
+          }
           if (isLightType(l.type)) {
             const R = Math.max(300, l.r || 3000);
             s += `<circle cx="${l.x}" cy="${l.y}" r="${R}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="10 5" pointer-events="none"/>`
@@ -7054,7 +7077,11 @@
       const [zh, en] = LAMP_NAMES[l.type] || LAMP_NAMES.ceil;
       const wL = isWall ? (openingWallGeom(l.wall)?.L ?? 0) : 0;
       const fields = [];
-      if (isSw || isWallSw) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
+      const listMode = (isSw || isWallSw) && l.ctlMode === 'list';
+      if (isSw || isWallSw) {
+        fields.push(`<label class="full" title="${tr('按半径：控制半径内的灯；指定灯具：只控制下面勾选的灯', 'By radius: lamps within range; Selected lamps: only the checked lamps below')}">${tr('控制方式', 'Control mode')}<select id="lMode"><option value="radius" ${listMode ? '' : 'selected'}>${tr('按半径', 'By radius')}</option><option value="list" ${listMode ? 'selected' : ''}>${tr('指定灯具', 'Selected lamps')}</option></select></label>`);
+        if (!listMode) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
+      }
       else if (!isSocket) fields.push(`<label title="${tr('夜景模式下的照亮范围半径（2D 虚线圈）', 'Light radius in night mode (dashed circle in 2D)')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 3000)}" min="500" max="9000" step="100"></label>`);
       if (isSocket) {
         const styles = Object.entries(SOCKET_STYLES).map(([v, [szh, sen]]) => `<option value="${v}" ${(l.style || 'dual') === v ? 'selected' : ''}>${tr(szh, sen)}</option>`).join('');
@@ -7064,12 +7091,28 @@
       if (isWall) fields.push(`<label title="${tr('面板中心沿墙到墙起点的距离（0 到墙长）', 'Distance from wall start along the wall (0 to wall length)')}">${tr('沿墙位置', 'Along wall')} (mm)<input type="number" id="lC" value="${Math.round(l.c ?? 0)}" min="0" max="${Math.max(0, Math.round(wL))}" step="10"></label>`);
       if (!isSocket) fields.push(`<label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`);
       if (!isWall) fields.push(`<label>X (mm)<input type="number" id="lX" value="${Math.round(l.x)}" step="10"></label>`, `<label>Y (mm)<input type="number" id="lY" value="${Math.round(l.y)}" step="10"></label>`);
+      let ctlBox = '';
+      if (listMode) {
+        const picked = new Set(l.ctl || []);
+        const lights = (state.lamps || []).filter(x => isLightType(x.type));
+        const rows = lights.map(x => {
+          const [zn, en] = LAMP_NAMES[x.type] || ['灯具', 'Lamp'];
+          const loc = `${Math.round(x.x)}, ${Math.round(x.y)}`;
+          return `<label class="chk full"><input type="checkbox" data-ctl="${x.id}" ${picked.has(x.id) ? 'checked' : ''}> ${tr(zn, en)} · ${loc}</label>`;
+        }).join('');
+        ctlBox = `<div class="full" style="margin-top:4px;border:1px solid var(--line);border-radius:6px;padding:6px 8px;max-height:180px;overflow:auto">
+          <div class="muted" style="margin-bottom:4px">${tr('勾选此开关控制的灯具（2D 里虚线示意）', 'Check the lamps controlled by this switch (dashed lines in 2D)')}</div>
+          ${rows || `<div class="muted">${tr('暂无可控制的灯具', 'No controllable lamps yet')}</div>`}
+          <div class="actions" style="margin-top:6px"><button class="btn" id="ctlAll">${tr('全选', 'Select all')}</button><button class="btn" id="ctlNone">${tr('全不选', 'Clear')}</button></div>
+        </div>`;
+        fields.push(ctlBox);
+      }
       const hint = isSocket
         ? tr('吸附在墙上：2D 里按住插座沿墙拖动即可滑动，右侧「换到墙另一面」可换面；样式支持二三插 / 二插 / 三插。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side in the panel; style: 2+3 pin / 2 pin / 3 pin.')
         : isWallSw
-          ? tr('吸附在墙上：2D 里按住开关沿墙拖动即可滑动，右侧可换面；3D 里点击开关面板可开 / 关控制半径内的灯。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side in the panel; click the plate in 3D to toggle lamps within range.')
+          ? tr('吸附在墙上：2D 里按住开关沿墙拖动即可滑动，右侧可换面；3D 里点击开关面板可开 / 关所控制的灯（按半径或指定灯具）。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side in the panel; click the plate in 3D to toggle its controlled lamps (by radius or a picked list).')
           : isSw
-            ? tr('3D 里点击开关面板：范围内的灯一起开 / 关。', 'Click the switch in 3D: lamps within the radius toggle together.')
+            ? tr('3D 里点击开关面板：所控制的灯一起开 / 关（控制方式可选按半径或指定灯具）。', 'Click the switch in 3D: its controlled lamps toggle together (by radius or a picked list).')
             : isWall
               ? tr('吸附在墙上：2D 里按住灯沿墙拖动即可滑动（可跨到另一面）；夜景模式（3D 日照滑杆拉到最左「夜景」）下自动发光照明，3D 点灯体可开 / 关，2D 虚线圈即照亮范围。', 'Snapped to the wall: drag it in 2D to slide along the wall (cross to the other side). Lights up in night mode; click it in 3D to toggle. The dashed circle in 2D is the light radius.')
               : tr('夜景模式（3D 日照滑杆拉到最左「夜景」）下自动发光照明；3D 里点击灯体本身也可开 / 关，2D 虚线圈即照亮范围。', 'Lights up in night mode (sun slider far left in 3D); click the lamp in 3D to toggle. The dashed circle in 2D is the light radius.');
@@ -7100,6 +7143,18 @@
       });
       const on = $('#lOn'); if (on) on.onchange = e => mutate(() => { const l = g(); if (l) l.on = e.target.value === '1'; });
       const style = $('#lStyle'); if (style) style.onchange = e => mutate(() => { const l = g(); if (l) l.style = e.target.value; });   // 插座样式：二三插 / 二插 / 三插
+      const mode = $('#lMode'); if (mode) mode.onchange = e => mutate(() => { const l = g(); if (l) l.ctlMode = e.target.value === 'list' ? 'list' : 'radius'; });   // 控制方式：按半径 / 指定灯具
+      document.querySelectorAll('#panel [data-ctl]').forEach(cb => {                 // 指定灯具：勾选 / 取消被控灯
+        cb.onchange = () => mutate(() => {
+          const l = g(); if (!l) return;
+          const set = new Set(l.ctl || []);
+          if (cb.checked) set.add(cb.dataset.ctl); else set.delete(cb.dataset.ctl);
+          l.ctl = [...set];
+        });
+      });
+      const ctlAll = $('#ctlAll'), ctlNone = $('#ctlNone');
+      if (ctlAll) ctlAll.onclick = () => mutate(() => { const l = g(); if (l) l.ctl = (state.lamps || []).filter(x => isLightType(x.type)).map(x => x.id); });
+      if (ctlNone) ctlNone.onclick = () => mutate(() => { const l = g(); if (l) l.ctl = []; });
       const flip = $('#aFlipSide'); if (flip) flip.onclick = () => mutate(() => {   // 壁装灯具：换到墙的另一面
         const l = g(); if (!l) return;
         l.side = -(l.side ?? 1);
@@ -12592,13 +12647,12 @@
     function toggleLamp(id) {                                   // 点灯体 / 开关：切换亮灭；开关把控制半径内的灯一起切
       const l = (state.lamps || []).find(x => x.id === id); if (!l) return;
       if (l.type === 'socket') return;                            // 插座不控制灯，点击只在 3D 里选中
-      if (l.type === 'switch' || l.type === 'wallSwitch') {
-        const R = Math.max(1, (l.r ?? 6000) / 1000), X = wx(l.x), Z = wz(l.y);
-        const near = (state.lamps || []).filter(x => isLightType(x.type) && Math.hypot(wx(x.x) - X, wz(x.y) - Z) <= R);
+      if (isSwitchType(l.type)) {
+        const near = switchTargets(l);                            // 按控制方式取被控灯：指定灯具 / 控制半径
         const anyOff = near.some(x => x.on === false);
         near.forEach(x => x.on = anyOff);                       // 有灭的就全打开，否则全部关掉
         toast(near.length ? tr(`开关：已${anyOff ? '打开' : '关闭'} ${near.length} 盏灯`, `Switch: ${near.length} lamp(s) ${anyOff ? 'on' : 'off'}`)
-          : tr('开关：范围内没有灯', 'Switch: no lamps within range'));
+          : tr('开关：没有控制任何灯', 'Switch: no lamps controlled'));
       } else {
         l.on = l.on === false;
         toast(tr(l.on ? '灯已打开' : '灯已关闭', l.on ? 'Lamp on' : 'Lamp off'));
