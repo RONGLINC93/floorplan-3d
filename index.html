@@ -4991,16 +4991,16 @@
         const st = (state.stairs || []).find(x => x.id === ui.sel.id);
         if (st) {
           const A = 'stroke="#b5653a" vector-effect="non-scaling-stroke"', p = 10 * k, hs = COARSE ? 1.7 : 1, hit = (COARSE ? 24 : 11) * k;
-          const lay = stairLayout(st), bb = stairBBox(lay), kz = (bb.z0 + bb.z1) / 2, tn = lay.N === 1 ? tr('直跑', 'Straight') : lay.N === 2 ? tr('双跑', 'Double') : lay.stack ? tr('正三跑', 'Stacked') : tr('三跑', 'Triple');
+          const lay = stairLayout(st), bb = stairBBox(lay), kz = (bb.z0 + bb.z1) / 2, tn = lay.spiral ? tr('螺旋', 'Spiral') : lay.N === 1 ? tr('直跑', 'Straight') : lay.N === 2 ? tr('双跑', 'Double') : lay.stack ? tr('正三跑', 'Stacked') : tr('三跑', 'Triple');
           s += `<g transform="translate(${st.x} ${st.y}) rotate(${st.dir})">
         <rect x="${bb.x0 - p}" y="${bb.z0 - p}" width="${bb.x1 - bb.x0 + p * 2}" height="${bb.z1 - bb.z0 + p * 2}" fill="rgba(181,101,58,.09)" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>
-        <circle data-handle="stairLen" cx="${bb.x1 + p}" cy="${kz}" r="${hit}" fill="transparent"/>
-        <circle data-handle="stairLen" cx="${bb.x1 + p}" cy="${kz}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整占地长度（起步端固定）', 'Drag to change footprint length')}</title></circle>
+        ${lay.spiral ? '' : `<circle data-handle="stairLen" cx="${bb.x1 + p}" cy="${kz}" r="${hit}" fill="transparent"/>
+        <circle data-handle="stairLen" cx="${bb.x1 + p}" cy="${kz}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整占地长度（起步端固定）', 'Drag to change footprint length')}</title></circle>`}
         <circle data-handle="stairW" cx="0" cy="${bb.z1 + p}" r="${hit}" fill="transparent"/>
-        <circle data-handle="stairW" cx="0" cy="${bb.z1 + p}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整梯宽（一侧固定）', 'Drag to change stair width')}</title></circle>
+        <circle data-handle="stairW" cx="0" cy="${bb.z1 + p}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${lay.spiral ? tr('拖动调整外径', 'Drag to change outer ⌀') : tr('拖动调整梯宽（一侧固定）', 'Drag to change stair width')}</title></circle>
       </g>`;
           s += `<text x="${st.x}" y="${st.y}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none"
-        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
+        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
         }
       } else if (ui.sel?.kind === 'lift' || ui.sel?.kind === 'balcony' || ui.sel?.kind === 'planter') {
         const kind = ui.sel.kind;
@@ -9640,11 +9640,14 @@
           const dx = p.x - drag.px, dy = p.y - drag.py, lx = dx * ca + dy * sa, ly = -dx * sa + dy * ca;
           let mx = 0, my = 0;
           if (drag.kind === 'stairLen') {
+            if (s.type === 'spiral') return;                         // 螺旋楼梯只有外径，没有「长度」手柄
             const minL = drag.N === 1 ? 1200 : (drag.N === 2 || drag.stack) ? s.w + 1200 : s.w * 2 + 1600;
             const nl = Math.max(minL, Math.min(12000, Math.round((drag.len0 + lx) / 50) * 50));
             mx = (nl - drag.len0) / 2; s.len = nl;                   // 起步端固定，只往另一端伸缩
           } else {
-            const nw = Math.max(600, Math.min(2000, Math.round((drag.w0 + ly / drag.cols) / 50) * 50));
+            const nw = s.type === 'spiral'                             // 螺旋楼梯：手柄改的是外径（与右侧面板同范围）
+              ? Math.max(1000, Math.min(3000, Math.round((drag.w0 + ly / drag.cols) / 50) * 50))
+              : Math.max(600, Math.min(2000, Math.round((drag.w0 + ly / drag.cols) / 50) * 50));
             my = (nw - drag.w0) * drag.cols / 2; s.w = nw;           // 靠手柄那侧固定，向另一侧加宽
           }
           s.x = Math.round((drag.x0 + mx * ca - my * sa) / 10) * 10;
@@ -10356,7 +10359,7 @@
       const stairName = t => t === 'steps' ? tr('台阶', 'Steps') : t === 'ramp' ? tr('坡道', 'Ramp') : t === 'spiral' ? tr('螺旋楼梯', 'Spiral stair') : tr('楼梯', 'Stair');
       const build = [
         ...(state.pillars || []).map(c => ({ kind: 'pillar', id: c.id, name: tr('柱子', 'Column'), sub: Math.round(c.w) + ' mm' })),
-        ...(state.stairs || []).map(s => ({ kind: 'stair', id: s.id, name: stairName(s.type), sub: Math.round(s.w || 0) + '×' + Math.round(s.len || 0) })),
+        ...(state.stairs || []).map(s => ({ kind: 'stair', id: s.id, name: stairName(s.type), sub: s.type === 'spiral' ? '⌀' + Math.round(s.w || 1400) : Math.round(s.w || 0) + '×' + Math.round(s.len || 0) })),
         ...(state.slabs || []).map(s => ({ kind: 'slab', id: s.id, name: tr('楼板 / 挑板', 'Slab'), sub: rectSub(s) })),
         ...(state.parapets || []).map(p => ({ kind: 'parapet', id: p.id, name: tr('女儿墙', 'Parapet'), sub: segLen(p) })),
         ...(state.canopies || []).map(c => ({ kind: 'canopy', id: c.id, name: tr('雨棚', 'Canopy'), sub: segLen(c) })),
