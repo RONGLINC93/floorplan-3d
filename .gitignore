@@ -40,3 +40,5 @@ app/www/
 # 环境变量
 .env
 .env.*
+
+.screenshots/
