@@ -320,6 +320,17 @@ def build_project(version: str):
 
 
 # ---------------------------------------------------------------- fnpack 构建与修补
+def read_manifest_version() -> str:
+    """版本号以仓库根 manifest 的 version= 为准。"""
+    p = ROOT / "manifest"
+    if not p.exists():
+        sys.exit("[x] 未找到 manifest，无法确定版本号")
+    m = re.search(r"(?m)^version=([^\s]+)", p.read_text(encoding="utf-8"))
+    if not m:
+        sys.exit("[x] manifest 中未找到 version= 行")
+    return m.group(1).strip()
+
+
 def find_fnpack() -> str:
     if FNPACK.exists() and FNPACK.stat().st_size > 100 * 1024:
         return str(FNPACK)
@@ -383,7 +394,7 @@ def do_pack(version: str) -> None:
 
 
 def main():
-    version = sys.argv[1] if len(sys.argv) > 1 else "1.0.2"
+    version = sys.argv[1] if len(sys.argv) > 1 else read_manifest_version()
     do_pack(version)
 
 
