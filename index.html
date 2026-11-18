@@ -9606,8 +9606,8 @@
         const room = t.closest('[data-room]');
         drag = { kind: 'pan', sx: e.clientX, sy: e.clientY, x0: view.x0, y0: view.y0, room: room && room.dataset.room, moved: false };
       }
-      if (ui.drawTool === 'select' && drag && (drag.kind === 'move' || drag.kind === 'multiMove' || /Move$/.test(drag.kind))) {
-        drag = null;                                            // 「选择」只选中 / 改尺寸，整体拖动交给「移动」工具
+      if (ui.drawTool === 'select' && drag && (drag.kind === 'move' || drag.kind === 'multiMove' || drag.kind === 'lampSlide' || /Move$/.test(drag.kind))) {
+        drag = null;                                            // 「选择」只选中 / 改尺寸；整体平移与沿墙滑动（壁装灯具 / 插座）都交给「移动」工具
         return;
       }
       svg.setPointerCapture(e.pointerId);
@@ -11241,7 +11241,7 @@
         else if (typeof o.x === 'number' && typeof o.y === 'number') { o.x += dx; o.y += dy; }
       };
       host.addEventListener('pointerdown', e => {
-        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && !['move', 'select'].includes(ui.drawTool))) return;   // 选择 / 移动工具都可按住已选对象拖动（与 2D 一致），其余工具交给镜头旋转
+        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && ui.drawTool !== 'move')) return;   // 仅「移动」工具可按住已选对象拖动（硬性约定：选择只选中 / 改尺寸），其余交给镜头旋转
         const h = pick(e), g = groundAt(e.clientX, e.clientY);
         if (!g) return;
         if (ui.sel.kind === 'furn') {
