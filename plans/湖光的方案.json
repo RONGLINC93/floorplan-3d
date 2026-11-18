@@ -879,7 +879,8 @@
       "r": 6000,
       "z": 3600,
       "on": false,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlozibl93",
@@ -889,7 +890,8 @@
       "r": 4200,
       "z": 3600,
       "on": false,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlug3xb93",
@@ -903,7 +905,8 @@
       "style": "dual",
       "x": 310,
       "y": 6700,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlug4xc94",
@@ -917,7 +920,8 @@
       "style": "dual",
       "x": 3190,
       "y": 6700,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlugsx195",
@@ -931,7 +935,8 @@
       "style": "dual",
       "x": 3290,
       "y": 6700,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwluh0wd96",
@@ -945,7 +950,8 @@
       "style": "dual",
       "x": 3090,
       "y": 6700,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlui74t98",
@@ -963,7 +969,8 @@
       "links": [
         "fmwm0tjnl99"
       ],
-      "style": "s1w2"
+      "style": "s1w2",
+      "ctlByGang": []
     },
     {
       "id": "fmwlukckx93",
@@ -978,7 +985,8 @@
       "x": 2320,
       "y": 2230,
       "panelMat": "steel",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlumbql94",
@@ -988,7 +996,8 @@
       "r": 2200,
       "z": 1500,
       "on": false,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlumda595",
@@ -998,45 +1007,8 @@
       "r": 2200,
       "z": 1500,
       "on": false,
-      "links": []
-    },
-    {
-      "id": "fmwlumwad96",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 2730,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 2670,
-      "y": 2230,
-      "panelMat": "steel",
-      "ctlMode": "list",
-      "ctl": [],
-      "style": "s2w2",
-      "links": []
-    },
-    {
-      "id": "fmwlumwwt97",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 3040,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 2980,
-      "y": 2230,
-      "panelMat": "steel",
-      "ctlMode": "list",
-      "ctl": [
-        "fmwlumbql94",
-        "fmwm0qs4e93",
-        "fmwlumda595"
-      ],
       "links": [],
-      "style": "s3w1"
+      "ctlByGang": []
     },
     {
       "id": "fmwlyd5e293",
@@ -1054,7 +1026,8 @@
         "fmwlozibl93"
       ],
       "panelMat": "steel",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlyen0m95",
@@ -1068,7 +1041,8 @@
       "x": 3540,
       "y": 2230,
       "name": "",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwlyfaf396",
@@ -1085,7 +1059,15 @@
       "ctl": [],
       "panelMat": "steel",
       "links": [],
-      "style": "s1w3"
+      "style": "s2w1",
+      "ctlByGang": [
+        [
+          "fmwlumbql94"
+        ],
+        [
+          "fmwlumda595"
+        ]
+      ]
     },
     {
       "id": "fmwlzjhi793",
@@ -1100,7 +1082,8 @@
       "x": 5260,
       "y": 2230,
       "panelMat": "steel",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0inzd93",
@@ -1114,7 +1097,8 @@
       "style": "dual",
       "x": 220,
       "y": 2230,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0iri894",
@@ -1129,7 +1113,8 @@
       "x": 5400,
       "y": 6700,
       "panelMat": "steel",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0ixdx95",
@@ -1140,7 +1125,8 @@
       "z": 300,
       "on": true,
       "style": "desk1",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0izxf96",
@@ -1151,7 +1137,8 @@
       "z": 0,
       "on": true,
       "style": "pop",
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0qs4e93",
@@ -1164,7 +1151,8 @@
       "on": false,
       "x": 1220,
       "y": 2230,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0tjnl99",
@@ -1185,7 +1173,8 @@
       "style": "s1w2",
       "links": [
         "fmwlui74t98"
-      ]
+      ],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0w6qe95",
@@ -1195,7 +1184,8 @@
       "r": 1800,
       "z": 3600,
       "on": false,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     },
     {
       "id": "fmwm0wmz696",
@@ -1209,7 +1199,8 @@
       "style": "dual",
       "x": 1900,
       "y": 2230,
-      "links": []
+      "links": [],
+      "ctlByGang": []
     }
   ],
   "layers": {

@@ -5389,13 +5389,25 @@
                 + `<text x="${hovSw.x}" y="${hovSw.y - rr - 10 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${lampLabel(hovSw)}</text>`;
             }
           }
-          if (isSwitchType(l.type)) {                              // 选中开关：整组关联开关各自控制的灯全部画出（双控→双控→灯）
+          if (isSwitchType(l.type)) {                              // 选中开关：整组关联开关各自控制的灯全部画出（双控→双控→灯）；多联按联号区分
             const group = switchGroup([l.id]);
             (state.lamps || []).filter(s2 => isSwitchType(s2.type) && group.has(s2.id)).forEach(sw => {
-              switchTargets(sw).forEach(t => {
-                const hv = ui.ctlHover === t.id;                     // 悬停受控灯行：连线加粗（受控灯才有连线）
-                s += `<line x1="${sw.x}" y1="${sw.y}" x2="${t.x}" y2="${t.y}" fill="none" stroke="#c0562b" stroke-width="${hv ? 3 : 2}" vector-effect="non-scaling-stroke" ${hv ? '' : 'stroke-dasharray="9 6"'} pointer-events="none"><title>${tr('开关 → 灯具：此开关控制该灯', 'Switch → lamp: controlled by this switch')}</title></line>`;
-              });
+              const gangs = (SWITCH_LAYOUT[sw.style || 's1w1'] || SWITCH_LAYOUT.s1w1)[0];
+              const multi = gangs > 1 && Array.isArray(sw.ctlByGang) && sw.ctlByGang.length;
+              const drawLine = (t, g) => {
+                const hv = ui.ctlHover === t.id;                     // 悬停受控灯行：连线加粗
+                let out = `<line x1="${sw.x}" y1="${sw.y}" x2="${t.x}" y2="${t.y}" fill="none" stroke="#c0562b" stroke-width="${hv ? 3 : 2}" vector-effect="non-scaling-stroke" ${hv ? '' : 'stroke-dasharray="9 6"'} pointer-events="none"><title>${multi ? tr(`第 ${g + 1} 联 → 灯具`, `Gang ${g + 1} → lamp`) : tr('开关 → 灯具：此开关控制该灯', 'Switch → lamp: controlled by this switch')}</title></line>`;
+                if (multi) {                                          // 多联：线中点标联号圆点，直观区分各联
+                  const mx = (sw.x + t.x) / 2, my = (sw.y + t.y) / 2, rr = 13 * k;
+                  out += `<circle cx="${mx}" cy="${my}" r="${rr}" fill="#c0562b" pointer-events="none"/>`
+                    + `<text x="${mx}" y="${my + 4.5 * k}" font-size="${11 * k}" text-anchor="middle" fill="#fff" font-weight="700" pointer-events="none">${g + 1}</text>`;
+                }
+                return out;
+              };
+              if (multi) sw.ctlByGang.forEach((ids, g) => (ids || []).forEach(tid => {
+                const t = (state.lamps || []).find(x => x.id === tid); if (t) s += drawLine(t, g);
+              }));
+              else switchTargets(sw).forEach(t => s += drawLine(t, -1));
             });
             if (l.ctlMode !== 'list') {                              // 按半径模式：额外画出选中开关自己的控制半径圈（辅助）
               const R = Math.max(1, l.r ?? 6000);
@@ -7363,23 +7375,32 @@
         if (!listMode) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
       }
       if (isSw || isWallSw) {                                        // 反向灯具列表：这个开关实际控制的灯（与灯具侧「联动开关」对称），悬停行在画板高亮对应灯
-        const picked = new Set((l.ctlMode === 'list' ? (l.ctl || []) : switchTargets(l).map(t => t.id)));
+        // 多联开关：每一联各自列出受控灯具，实现「双开 / 三开 / 四开各开各的」；单联维持单一列表
+        const gangs = (SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1)[0];
         const lights = (state.lamps || []).filter(x => isLightType(x.type));
-        const rows = lights.map(x => {
-          const on = x.on !== false;
-          const cb = listMode
-            ? `<input type="checkbox" data-ctl="${x.id}" ${picked.has(x.id) ? 'checked' : ''}>`
-            : `<input type="checkbox" ${picked.has(x.id) ? 'checked' : ''} disabled>`;
-          return `<label class="chk full ctlRow" data-ctlrow="${x.id}" title="${tr('悬停可在画板高亮这盏灯', 'Hover to highlight this lamp on the canvas')}">${cb}<span>${lampLabel(x)}</span><span class="ctlDot${on ? ' on' : ''}" title="${on ? tr('当前为开', 'Currently on') : tr('当前为关', 'Currently off')}"></span></label>`;
-        }).join('');
-        const heading = listMode
-          ? tr(`受控灯具 · 已选 ${picked.size} / ${lights.length} 盏（勾选控制此灯）`, `Controlled lamps · ${picked.size} / ${lights.length} picked (check to control)`)
-          : tr(`受控灯具 · 按半径自动命中 ${picked.size} 盏（切「指定灯具」可手动勾选）`, `Controlled lamps · ${picked.size} in radius (switch to "Selected lamps" to pick manually)`);
-        fields.push(`<div class="full" style="grid-column:1/-1;margin-top:4px;border:1px solid var(--line);border-radius:6px;padding:6px 10px;max-height:240px;overflow:auto">
-          <div class="muted" style="margin-bottom:4px">${heading}${tr(' · 悬停行在画板高亮', ' · hover a row to highlight it on the canvas')}</div>
-          ${rows || `<div class="muted">${tr('暂无灯具', 'No lamps yet')}</div>`}
-          ${listMode ? `<div class="actions" style="margin-top:6px"><button class="btn" id="ctlAll">${tr('全选', 'Select all')}</button><button class="btn" id="ctlNone">${tr('全不选', 'Clear')}</button></div>` : ''}
-        </div>`);
+        const boxFor = (gang) => {                                   // gang=null 表示整开关（单联）；否则为第 gang 联
+          const picked = new Set((l.ctlMode === 'list' ? (gang == null ? (l.ctl || []) : (l.ctlByGang?.[gang] || [])) : switchTargets(l, gang).map(t => t.id)));
+          const rows = lights.map(x => {
+            const on = x.on !== false;
+            const attrs = `data-ctlrow="${x.id}"${gang != null ? ` data-ctg="${gang}"` : ''}`;
+            const cb = listMode
+              ? `<input type="checkbox" data-ctl="${x.id}"${gang != null ? ` data-gang="${gang}"` : ''} ${picked.has(x.id) ? 'checked' : ''}>`
+              : `<input type="checkbox" ${picked.has(x.id) ? 'checked' : ''} disabled>`;
+            return `<label class="chk full ctlRow" ${attrs} title="${tr('悬停可在画板高亮这盏灯', 'Hover to highlight this lamp on the canvas')}">${cb}<span>${lampLabel(x)}</span><span class="ctlDot${on ? ' on' : ''}" title="${on ? tr('当前为开', 'Currently on') : tr('当前为关', 'Currently off')}"></span></label>`;
+          }).join('');
+          const heading = listMode
+            ? tr(`已选 ${picked.size} / ${lights.length} 盏（勾选控制${gang == null ? '此灯' : '本联'}）`, `${picked.size} / ${lights.length} picked`)
+            : tr(`按半径自动命中 ${picked.size} 盏`, `${picked.size} in radius`);
+          const acts = listMode ? `<div class="actions" style="margin-top:6px"><button class="btn" data-ctlall="${gang == null ? '' : gang}">${tr('全选', 'Select all')}</button><button class="btn" data-ctlnone="${gang == null ? '' : gang}">${tr('全不选', 'Clear')}</button></div>` : '';
+          return `<div class="full" style="grid-column:1/-1;margin-top:4px;border:1px solid var(--line);border-radius:6px;padding:6px 10px;max-height:240px;overflow:auto">
+            <div class="muted" style="margin-bottom:4px">${gang == null ? '' : tr(`第 ${gang + 1} 联 · `, `Gang ${gang + 1} · `)}${heading}${tr(' · 悬停行在画板高亮', ' · hover to highlight')}</div>
+            ${rows || `<div class="muted">${tr('暂无灯具', 'No lamps yet')}</div>`}${acts}
+          </div>`;
+        };
+        if (gangs > 1) {
+          fields.push(`<div class="full" style="grid-column:1/-1;margin-top:6px" title="${tr('多联开关：每一联各自控制不同的灯，点 3D 面板上对应翘板即可单独开 / 关该联', 'Multi-gang switch: each gang controls its own lamps; click the matching rocker in 3D to toggle just that gang')}">${tr('各联受控灯具（各开各的）', 'Per-gang lamps (independent)')}</div>`);
+          for (let g = 0; g < gangs; g++) fields.push(boxFor(g));
+        } else fields.push(boxFor(null));
       }
       if (isSwitchType(l.type) && (SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1)[1] >= 2) {   // 仅双控 / 多控型号显示关联开关列表
         const picked = new Set(l.links || []);
@@ -7447,18 +7468,29 @@
       const on = $('#lOn'); if (on) on.onchange = e => mutate(() => { const l = g(); if (l) l.on = e.target.value === '1'; });
       const style = $('#lStyle'); if (style) style.onchange = e => mutate(() => { const l = g(); if (l) l.style = e.target.value; });   // 插座型号切换：2D / 3D 符号随 style 重建
       const pm = $('#lPanelMat'); if (pm) pm.onchange = e => mutate(() => { const l = g(); if (l) l.panelMat = e.target.value; });   // 面板材质：塑料 / 木纹 / 不锈钢 / 玻璃
-      const mode = $('#lMode'); if (mode) mode.onchange = e => mutate(() => { const l = g(); if (l) l.ctlMode = e.target.value === 'list' ? 'list' : 'radius'; });   // 控制方式：按半径 / 指定灯具
+      const mode = $('#lMode'); if (mode) mode.onchange = e => mutate(() => {
+        const l = g(); if (!l) return;
+        if (e.target.value === 'list' && l.ctlMode !== 'list') {           // 切到指定灯具：按半径的当前命中固化为列表（多联逐联固化），避免清空
+          const gangs = (SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1)[0];
+          if (gangs > 1) {
+            l.ctlByGang = Array.from({ length: gangs }, (_, i) => switchTargets(l, i).map(t => t.id));
+          } else l.ctl = switchTargets(l).map(t => t.id);
+        }
+        l.ctlMode = e.target.value === 'list' ? 'list' : 'radius';
+      });   // 控制方式：按半径 / 指定灯具
       ui.ctlHover = null; ui.swHover = null;                                         // 面板重绘后悬停状态已失效
       document.querySelectorAll('#panel [data-ctlrow]').forEach(row => {             // 悬停列表行高亮定位对应灯（点击不跳转视口，只勾选）
         row.onmouseenter = () => { ui.ctlHover = row.dataset.ctlrow; renderSel(); };
         row.onmouseleave = () => { ui.ctlHover = null; renderSel(); };
       });
-      document.querySelectorAll('#panel [data-ctl]').forEach(cb => {                 // 指定灯具：勾选 / 取消被控灯
+      document.querySelectorAll('#panel [data-ctl]').forEach(cb => {                 // 指定灯具：勾选 / 取消被控灯（多联按 data-gang 写入对应联）
         cb.onchange = () => mutate(() => {
           const l = g(); if (!l) return;
-          const set = new Set(l.ctl || []);
+          const gang = cb.dataset.gang != null ? +cb.dataset.gang : null;
+          const set = new Set(gang == null ? (l.ctl || []) : (l.ctlByGang?.[gang] || []));
           if (cb.checked) set.add(cb.dataset.ctl); else set.delete(cb.dataset.ctl);
-          l.ctl = [...set];
+          if (gang == null) l.ctl = [...set];
+          else { l.ctlByGang = l.ctlByGang || []; l.ctlByGang[gang] = [...set]; }
         });
       });
       document.querySelectorAll('#panel [data-swrow]').forEach(row => {                // 灯具侧「联动开关」：悬停画板高亮该开关的连线
@@ -7492,9 +7524,17 @@
           }
         });
       });
-      const ctlAll = $('#ctlAll'), ctlNone = $('#ctlNone');
-      if (ctlAll) ctlAll.onclick = () => mutate(() => { const l = g(); if (l) l.ctl = (state.lamps || []).filter(x => isLightType(x.type)).map(x => x.id); });
-      if (ctlNone) ctlNone.onclick = () => mutate(() => { const l = g(); if (l) l.ctl = []; });
+      const allIds = () => (state.lamps || []).filter(x => isLightType(x.type)).map(x => x.id);
+      document.querySelectorAll('#panel [data-ctlall]').forEach(b => b.onclick = () => mutate(() => {
+        const l = g(); if (!l) return;
+        const gang = b.dataset.ctlall !== '' ? +b.dataset.ctlall : null;
+        if (gang == null) l.ctl = allIds(); else { l.ctlByGang = l.ctlByGang || []; l.ctlByGang[gang] = allIds(); }
+      }));
+      document.querySelectorAll('#panel [data-ctlnone]').forEach(b => b.onclick = () => mutate(() => {
+        const l = g(); if (!l) return;
+        const gang = b.dataset.ctlnone !== '' ? +b.dataset.ctlnone : null;
+        if (gang == null) l.ctl = []; else { l.ctlByGang = l.ctlByGang || []; l.ctlByGang[gang] = []; }
+      }));
       const flip = $('#aFlipSide'); if (flip) flip.onclick = () => mutate(() => {   // 壁装灯具：换到墙的另一面
         const l = g(); if (!l) return;
         l.side = -(l.side ?? 1);
@@ -11727,7 +11767,7 @@
         const tap = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) <= TAP;
         if (look?.id === e.pointerId) {
           look = null;
-          if (tap) { const h = pick(e); if (h?.door && h.dist < 3.5) h.door.open = !h.door.open; else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id); else shoot(e); }   // 漫游时点门开关 / 点旗杆升降旗 / 点灯具或开关灯；点别处 = 射击
+          if (tap) { const h = pick(e); if (h?.door && h.dist < 3.5) h.door.open = !h.door.open; else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else shoot(e); }   // 漫游时点门开关 / 点旗杆升降旗 / 点灯具或开关灯；点别处 = 射击
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
@@ -11739,7 +11779,7 @@
         if (m3dPreview) {                                                 // 3D 预览：门窗可点开合 / 房间可查看，家具不可选编辑
           if (h?.door) h.door.open = !h.door.open;
           else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
-          else if (h?.kind === 'lamp') toggleLamp(h.id);
+          else if (h?.kind === 'lamp') toggleLamp(h.id, h.gang);
           else if (h?.room) window.select({ kind: 'room', id: h.room });
           return;
         }
@@ -11747,7 +11787,7 @@
           h.door.open = !h.door.open;
           if (h.kind && h.id != null) window.select({ kind: h.kind, id: h.id });
         }
-        else if (h?.kind === 'lamp') { toggleLamp(h.id); window.select({ kind: 'lamp', id: h.id }); }   // 灯具 / 灯开关：点亮 + 选中（面板可改半径 / 高度）
+        else if (h?.kind === 'lamp') { toggleLamp(h.id, h.gang); window.select({ kind: 'lamp', id: h.id }); }   // 灯具 / 灯开关：点亮 + 选中（面板可改半径 / 高度）
         else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
         else if (h?.fid) window.select({ kind: 'furn', id: h.fid });
         else if (h?.room) window.select({ kind: 'room', id: h.room });
@@ -13150,7 +13190,7 @@
         pl.position.set(X, Y - .08, Z); pl.userData.lampRef = l; lampG.add(pl);
       }
     }
-    function toggleLamp(id) {                                   // 点灯体 / 开关：切换亮灭；开关把控制半径内的灯一起切
+    function toggleLamp(id, gang) {                             // 点灯体 / 开关：切换亮灭；开关把控制的灯一起切；传 gang 则只切该联
       const l = (state.lamps || []).find(x => x.id === id); if (!l) return;
       if (PASSIVE_LAMP_TYPES.includes(l.type)) return;         // 插座 / 网络插座不控制灯，点击只在 3D 里选中
       if (isSwitchType(l.type)) {
@@ -13163,9 +13203,10 @@
             const n = (state.lamps || []).find(x => x.id === id); if (n && isSwitchType(n.type)) queue.push(n);
           });
         }
+        // gang != null 时只取组内每个开关的第 gang 联；未分联的开关回退到整开关目标（兼容旧方案）
         const near = [...new Map([...ids].flatMap(id => {
           const s = (state.lamps || []).find(x => x.id === id);
-          return s && isSwitchType(s.type) ? switchTargets(s) : [];
+          return s && isSwitchType(s.type) ? switchTargets(s, gang) : [];
         }).map(x => [x.id, x])).values()];
         const anyOff = near.some(x => x.on === false);
         near.forEach(x => x.on = anyOff);                       // 有灭的就全打开，否则全部关掉
@@ -14710,7 +14751,13 @@
       });
       lampGlowMats.forEach(m => {                                // 灯泡 / 灯头自发光：开灯即亮（白天略弱），灯头按 glowFactor 再减弱
         const rf = m.userData.lampRef;
-        m.emissiveIntensity = (rf?.on === false ? .05 : (opt.night ? 2.4 : 1.2)) * (m.userData.glowFactor ?? 1);
+        const gr = m.userData.gangRef;                           // 多联开关指示灯：按该联受控灯是否都亮决定亮灭
+        let on;
+        if (gr) {
+          const ts = switchTargets(gr.sw, gr.gang);
+          on = ts.length > 0 && ts.every(x => x.on !== false);
+        } else on = rf?.on !== false;
+        m.emissiveIntensity = (on ? (opt.night ? 2.4 : 1.2) : .05) * (m.userData.glowFactor ?? 1);
       });
       renderer.toneMappingExposure = opt.night ? 1.25 : 1.05;
       envK = opt.night ? .15 : 1; matCache.forEach(m => { if (m.envMap) m.envMapIntensity = m.userData.env * envK; });
@@ -15086,7 +15133,7 @@
       if (!active || e.target.matches('input,select,textarea')) return;
       if (opt.mode === 'walk' && e.code === 'Space') e.preventDefault();   // 空格用于跳跃，阻止页面滚动
       keys[e.code] = true;
-      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) h.door.open = !h.door.open; else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id); }
+      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) h.door.open = !h.door.open; else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); }
     });
     addEventListener('keyup', e => keys[e.code] = false);
 
