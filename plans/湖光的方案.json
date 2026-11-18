@@ -874,20 +874,22 @@
     {
       "id": "fmwlosjq893",
       "type": "chandelier",
-      "x": 2490,
-      "y": 4800,
+      "x": 2560,
+      "y": 4960,
       "r": 6000,
       "z": 3600,
-      "on": true
+      "on": false,
+      "links": []
     },
     {
       "id": "fmwlozibl93",
       "type": "ceil",
       "x": 12280,
       "y": 6170,
-      "r": 4900,
+      "r": 4200,
       "z": 3600,
-      "on": true
+      "on": false,
+      "links": []
     },
     {
       "id": "fmwlug3xb93",
@@ -900,7 +902,8 @@
       "on": true,
       "style": "dual",
       "x": 310,
-      "y": 6700
+      "y": 6700,
+      "links": []
     },
     {
       "id": "fmwlug4xc94",
@@ -913,7 +916,8 @@
       "on": true,
       "style": "dual",
       "x": 3190,
-      "y": 6700
+      "y": 6700,
+      "links": []
     },
     {
       "id": "fmwlugsx195",
@@ -926,7 +930,8 @@
       "on": true,
       "style": "dual",
       "x": 3290,
-      "y": 6700
+      "y": 6700,
+      "links": []
     },
     {
       "id": "fmwluh0wd96",
@@ -939,32 +944,26 @@
       "on": true,
       "style": "dual",
       "x": 3090,
-      "y": 6700
-    },
-    {
-      "id": "fmwlui44d97",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 9720,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 3400,
       "y": 6700,
-      "panelMat": "steel"
+      "links": []
     },
     {
       "id": "fmwlui74t98",
       "type": "wallSwitch",
       "wall": "CWfmwhqg7q7187",
       "side": 1,
-      "c": 9730,
+      "c": 5660,
       "z": 1100,
       "r": 6000,
       "on": true,
-      "x": 3390,
-      "y": 6700
+      "x": 7460,
+      "y": 6700,
+      "ctlMode": "list",
+      "ctl": [],
+      "links": [
+        "fmwm0tjnl99"
+      ],
+      "style": "s1w2"
     },
     {
       "id": "fmwlukckx93",
@@ -978,7 +977,8 @@
       "style": "dual",
       "x": 2320,
       "y": 2230,
-      "panelMat": "steel"
+      "panelMat": "steel",
+      "links": []
     },
     {
       "id": "fmwlumbql94",
@@ -987,7 +987,8 @@
       "y": 3110,
       "r": 2200,
       "z": 1500,
-      "on": true
+      "on": false,
+      "links": []
     },
     {
       "id": "fmwlumda595",
@@ -996,25 +997,25 @@
       "y": 3250,
       "r": 2200,
       "z": 1500,
-      "on": true
+      "on": false,
+      "links": []
     },
     {
       "id": "fmwlumwad96",
       "type": "wallSwitch",
       "wall": "CWfmwhqg1hn185",
       "side": 1,
-      "c": 2790,
+      "c": 2730,
       "z": 1100,
       "r": 6000,
       "on": true,
-      "x": 2730,
+      "x": 2670,
       "y": 2230,
       "panelMat": "steel",
       "ctlMode": "list",
-      "ctl": [
-        "fmwlumda595",
-        "fmwlumbql94"
-      ]
+      "ctl": [],
+      "style": "s2w2",
+      "links": []
     },
     {
       "id": "fmwlumwwt97",
@@ -1030,8 +1031,12 @@
       "panelMat": "steel",
       "ctlMode": "list",
       "ctl": [
-        "fmwlosjq893"
-      ]
+        "fmwlumbql94",
+        "fmwm0qs4e93",
+        "fmwlumda595"
+      ],
+      "links": [],
+      "style": "s3w1"
     },
     {
       "id": "fmwlyd5e293",
@@ -1048,20 +1053,22 @@
       "ctl": [
         "fmwlozibl93"
       ],
-      "panelMat": "steel"
+      "panelMat": "steel",
+      "links": []
     },
     {
       "id": "fmwlyen0m95",
       "type": "bulb",
       "wall": "CWfmwhqg1hn185",
       "side": 1,
-      "c": 2680,
+      "c": 3600,
       "z": 3300,
       "r": 1800,
-      "on": true,
-      "x": 2620,
+      "on": false,
+      "x": 3540,
       "y": 2230,
-      "name": ""
+      "name": "",
+      "links": []
     },
     {
       "id": "fmwlyfaf396",
@@ -1075,10 +1082,10 @@
       "x": 2330,
       "y": 2230,
       "ctlMode": "list",
-      "ctl": [
-        "fmwlyen0m95"
-      ],
-      "panelMat": "steel"
+      "ctl": [],
+      "panelMat": "steel",
+      "links": [],
+      "style": "s1w3"
     },
     {
       "id": "fmwlzjhi793",
@@ -1092,13 +1099,125 @@
       "style": "rj45",
       "x": 5260,
       "y": 2230,
-      "panelMat": "steel"
+      "panelMat": "steel",
+      "links": []
+    },
+    {
+      "id": "fmwm0inzd93",
+      "type": "socket",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 280,
+      "z": 300,
+      "r": 3000,
+      "on": true,
+      "style": "dual",
+      "x": 220,
+      "y": 2230,
+      "links": []
+    },
+    {
+      "id": "fmwm0iri894",
+      "type": "trackSocket",
+      "wall": "CWfmwhqg7q7187",
+      "side": 1,
+      "c": 7720,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "style": "track2",
+      "x": 5400,
+      "y": 6700,
+      "panelMat": "steel",
+      "links": []
+    },
+    {
+      "id": "fmwm0ixdx95",
+      "type": "deskSocket",
+      "x": 4340,
+      "y": 4850,
+      "r": 3000,
+      "z": 300,
+      "on": true,
+      "style": "desk1",
+      "links": []
+    },
+    {
+      "id": "fmwm0izxf96",
+      "type": "floorSocket",
+      "x": 5010,
+      "y": 4660,
+      "r": 3000,
+      "z": 0,
+      "on": true,
+      "style": "pop",
+      "links": []
+    },
+    {
+      "id": "fmwm0qs4e93",
+      "type": "tube",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 1280,
+      "z": 3300,
+      "r": 2600,
+      "on": false,
+      "x": 1220,
+      "y": 2230,
+      "links": []
+    },
+    {
+      "id": "fmwm0tjnl99",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 550,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 490,
+      "y": 2230,
+      "ctlMode": "list",
+      "ctl": [
+        "fmwlosjq893"
+      ],
+      "panelMat": "steel",
+      "style": "s1w2",
+      "links": [
+        "fmwlui74t98"
+      ]
+    },
+    {
+      "id": "fmwm0w6qe95",
+      "type": "down",
+      "x": 3390,
+      "y": 4320,
+      "r": 1800,
+      "z": 3600,
+      "on": false,
+      "links": []
+    },
+    {
+      "id": "fmwm0wmz696",
+      "type": "socket",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 1960,
+      "z": 300,
+      "r": 3000,
+      "on": true,
+      "style": "dual",
+      "x": 1900,
+      "y": 2230,
+      "links": []
     }
   ],
   "layers": {
     "dims": true,
     "labels": true,
     "furn": true,
+    "links": false,
+    "lightRadius": false,
     "grid": true,
     "axis": true,
     "bearing": false,
