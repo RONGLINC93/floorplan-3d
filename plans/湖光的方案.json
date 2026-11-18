@@ -889,7 +889,7 @@
       "y": 4630,
       "r": 6000,
       "z": 3600,
-      "on": false
+      "on": true
     },
     {
       "id": "fmwlozibl93",
@@ -990,12 +990,54 @@
       "type": "socket",
       "wall": "CWfmwhqg1hn185",
       "side": 1,
-      "c": 2410,
+      "c": 2430,
       "z": 300,
       "r": 0,
       "on": true,
       "style": "dual",
-      "x": 2350,
+      "x": 2370,
+      "y": 2230
+    },
+    {
+      "id": "fmwlumbql94",
+      "type": "floor",
+      "x": 3910,
+      "y": 3110,
+      "r": 2200,
+      "z": 1500,
+      "on": true
+    },
+    {
+      "id": "fmwlumda595",
+      "type": "floor",
+      "x": 1940,
+      "y": 3210,
+      "r": 2200,
+      "z": 1500,
+      "on": true
+    },
+    {
+      "id": "fmwlumwad96",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 2790,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 2730,
+      "y": 2230
+    },
+    {
+      "id": "fmwlumwwt97",
+      "type": "wallSwitch",
+      "wall": "CWfmwhqg1hn185",
+      "side": 1,
+      "c": 3020,
+      "z": 1100,
+      "r": 6000,
+      "on": true,
+      "x": 2960,
       "y": 2230
     }
   ],
