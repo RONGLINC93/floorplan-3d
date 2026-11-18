@@ -3266,16 +3266,19 @@
       [[s.powerBoxes, 600], [s.weakBoxes, 450]].forEach(([arr, defW]) => arr.forEach(b => {
         b.x = Math.round(+b.x || 0); b.y = Math.round(+b.y || 0);
         b.w = Math.max(200, Math.round(+b.w || defW));
-        b.d = Math.max(120, Math.round(+b.d || 250));
+        b.d = Math.max(60, Math.round(+b.d || 150));
         b.z = Math.max(0, Math.min(6000, Math.round(b.z ?? 1500)));
         b.h = Math.max(150, Math.min(1200, Math.round(b.h ?? 320)));
         b.c = Math.max(0, Math.round(+b.c || 0));
-        b.side = b.side === -1 ? -1 : 1; b.dir = b.dir === 90 ? 90 : 0;
+        b.side = b.side === -1 ? -1 : 1; b.dir = Math.round((+b.dir || 0) * 10) / 10;   // 角度跟随墙体实际角度（斜墙保留连续角度）
         b.front = b.front === -1 ? -1 : 1;
         b.ang = Math.max(30, Math.min(170, Math.round(b.ang ?? 120)));
         b.doorOpen = !!b.doorOpen;
-        b.rcd = Array.isArray(b.rcd) ? b.rcd.filter(k => RCD_TYPES[k]) : [];
-        b.mcb = Array.isArray(b.mcb) ? b.mcb.filter(k => MCB_TYPES[k]) : [];
+        const isDevKey = (t, k) => t[k] || /^(rcd|mcb)\d?p\d+$/i.test(k || '');   // 预设型号或自定义键（rcd2p63 / mcb1p40）均保留
+        b.rcd = Array.isArray(b.rcd) ? b.rcd.filter(k => isDevKey(RCD_TYPES, k)) : [];
+        b.mcb = Array.isArray(b.mcb) ? b.mcb.filter(k => isDevKey(MCB_TYPES, k)) : [];
+        const devKeys = (b.rcd || []).concat(b.mcb || []);    // 加入顺序记录：只保留仍存在的器件
+        b.devOrder = Array.isArray(b.devOrder) ? b.devOrder.filter(o => devKeys.includes(String(o).slice(String(o).indexOf(':') + 1))) : undefined;
         b.devices = Array.isArray(b.devices) ? b.devices.filter(k => WEAK_DEVICES[k]) : [];
       }));
       s.balconies = Array.isArray(s.balconies) ? s.balconies : [];        // 阳台
@@ -4202,7 +4205,10 @@
             const box = [P(-len / 2, 20), P(len / 2, 20), P(len / 2, 50), P(-len / 2, 50)];
             const rect = (d0, e0, d1, e1, fill) => { const c = [P(d0, e0), P(d1, e0), P(d1, e1), P(d0, e1)]; return `<polygon points="${c.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" fill="${fill}" stroke="none"/>`; };
             let mods = '';
-            for (let i = 0; i < n; i++) { const sx = -len / 2 + (i + .5) * len / n; mods += rect(sx - 55, 8, sx + 55, 62, '#3a3630') + rect(sx - 20, 20, sx + 20, 30, '#b9b2a4'); }
+            for (let i = 0; i < n; i++) {                        // 模块为圆形（轨道插座取放模块的标准外观）
+              const sx = -len / 2 + (i + .5) * len / n, c = P(sx, 35), hi = P(sx, 22);
+              mods += `<circle cx="${c[0]}" cy="${c[1]}" r="27" fill="#3a3630"/>` + `<circle cx="${hi[0]}" cy="${hi[1]}" r="7" fill="#b9b2a4"/>`;
+            }
             body = `<polygon points="${box.map(p => p.map(v => Math.round(v)).join(',')).join(' ')}" ${st}/>` + mods;
           } else if (l.type === 'wallSwitch') {                 // 墙面开关：86 面板 + 按型号画 1~4 联翘板（下方小点表示双控 / 多控）
             const [gangs, ways] = SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1;
@@ -4807,22 +4813,62 @@
         const [zn] = BOX_NAME[kind], w = Math.max(200, b.w || 0), d = Math.max(120, b.d || 0);
         const col = on ? '#b5653a' : isP ? '#8a5a3b' : '#3f6d82';
         const x0 = -w / 2, y0 = -d / 2, fr = b.front === -1 ? -1 : 1, fy = fr * d / 2;
-        const devs = (isP ? [...(b.rcd || []), ...(b.mcb || [])] : (b.devices || [])).slice(0, 24);
-        const cols = Math.max(1, Math.floor((w - 40) / 75));
-        const cw = Math.min(85, (w - 40) / cols), ch = Math.min(76, d * .5);
-        const cell = devs.map((k, i) => {
-          const c = i % cols, r = Math.floor(i / cols);
-          const cx = x0 + 20 + c * cw, cy = y0 + 18 + r * (ch + 6);
-          const fill = (SHORT[k] || '').startsWith('漏') ? '#f4dec8' : (SHORT[k] || '').startsWith('空') ? '#e7e9ec' : '#dbeaf1';
-          return `<rect x="${cx}" y="${cy}" width="${cw - 8}" height="${ch}" rx="6" fill="${fill}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"/>
-            <text x="${cx + (cw - 8) / 2}" y="${cy + ch * .7}" font-size="${Math.min(86, cw * .92)}" text-anchor="middle" fill="${col}" font-weight="600" pointer-events="none">${SHORT[k] || ''}</text>`;
+        const devs = (isP ? devOrdered(b) : (b.devices || [])).slice(0, 24);
+        const poles = k => { const m = /(\d)p/i.exec(k || ''); return Math.max(1, Math.min(3, m ? +m[1] : 1)); };   // 占用模数：1P=1、2P / 漏电=2、3P=3
+        const pp = devs.map(poles);                        // 极数
+        const pw = devs.map((k, i) => pp[i] === 2 && /^rcd/i.test(k) ? 4 : pp[i]), IW = w - 40;   // 占宽（模数）：漏保 2P 占 4 格
+        const fitRows = u => { let r = 1, x = 0; for (const p of pw) { const need = p * u + (x ? 2 : 0); if (x + need > IW) { r++; x = 0; } x += p * u + 2; } return r; };
+        let U = 18, rows = 1;                              // 强电箱：DIN 标准模数 1P = 18mm 宽；弱电箱：设备均分箱内宽度
+        if (isP) for (U = 18; U >= 12; U -= 2) { rows = fitRows(U); if (18 * rows + rows * Math.min(80, (d - 36 - 8 * (rows - 1)) / rows) <= d) break; }
+        else U = Math.max(40, Math.min(120, devs.length ? IW / devs.length - 6 : IW));
+        const rowH = Math.min(80, (d - 36 - 8 * (rows - 1)) / rows);
+        const fsU = Math.max(4, Math.min(6, U * .3));      // 器件文字统一字号（品牌字 / 型号 / 测试按钮 T 一致）
+        let px = x0 + 20, py = y0 + (d - rowH * rows - 8 * (rows - 1)) / 2;   // 器件在箱内上下居中
+        const cell = devs.map((k, i) => {                  // 器件按模数宽度排布（1P 窄、2P / 漏电倍宽、3P 三倍宽），画真实空开外观
+          const bw = pw[i] * U;
+          if (px + bw > x0 + w - 20) { px = x0 + 20; py += rowH + 8; }
+          const cx = px, cy = py, bh = rowH; px += bw + 6;
+          const mx = cx + bw / 2;
+          if (!isP) {                        // 弱电箱设备：彩色设备盒 + 指示灯 / 天线 / 端口排，不画空开外观
+            const fill = k === 'wifi' ? '#e8eaee' : k === 'switch' ? '#5d9a72' : k === 'router' ? '#b9b3a8' : '#5f93b0';
+            let s = `<rect x="${cx}" y="${cy}" width="${bw}" height="${bh}" rx="4" fill="${fill}" stroke="#6f695e" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+            if (k === 'router' || k === 'wifi') {
+              [-.25, .25].forEach(f => s += `<line x1="${cx + bw * (.5 + f)}" y1="${cy}" x2="${cx + bw * (.5 + f) - 3}" y2="${cy - 8}" stroke="#55524c" stroke-width="1.4" vector-effect="non-scaling-stroke" pointer-events="none"/>`);   // 天线
+            } else {
+              for (let t = 0; t < 4; t++) s += `<rect x="${cx + bw * .1 + t * bw * .2}" y="${cy + bh * .18}" width="${bw * .13}" height="${bh * .08}" fill="#2f2c27"/>`;   // 端口排
+            }
+            s += `<circle cx="${mx}" cy="${cy + bh * .68}" r="${Math.max(1.6, Math.min(3.8, U * .075) * .6)}" fill="#7fe08e"/>`;   // 绿色指示灯
+            s += `<text x="${mx}" y="${cy + bh * .9}" font-size="${fsU}" text-anchor="middle" fill="#3a3630" font-weight="600" pointer-events="none">${SHORT[k] || ''}</text>`;
+            return s;
+          }
+          const isRcd = /^rcd/i.test(k) || (SHORT[k] || '').startsWith('漏');   // 自定义键 rcd…/ 旧键名均识别为漏电
+          const sr = Math.max(2.2, Math.min(3.8, U * .075)), hy = cy + bh * .52;   // 端子统一大小：只跟模数单位走，不随极数变
+          let s = `<rect x="${cx}" y="${cy}" width="${bw}" height="${bh}" rx="4" fill="#fbfaf8" stroke="#8f887c" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+          s += `<rect x="${cx + 3}" y="${cy + 3}" width="${bw - 6}" height="${Math.max(6, bh * .13)}" fill="#e4e0d8"/>`;   // 顶部接线区
+          const np = pp[i], isLe4 = isRcd && np === 2;   // 漏保 2P 占 4 格：开关（端子 / 手柄 / 型号）居左 2 格，测试按钮 / 漏电指示居右 2 格
+          const hx = isLe4 ? cx + bw * .25 : mx;         // 开关部分中心
+          for (let t = 1; t <= np; t++) s += `<circle cx="${cx + bw * (isLe4 ? (t === 1 ? .125 : .375) : t / (np + 1))}" cy="${cy + 8}" r="${sr}" fill="#5a554c"/>`;   // 顶部端子：漏保 2P 两端子在左半格，其余均匀分布
+          s += `<text x="${cx + 2}" y="${cy + bh * .28}" font-size="${fsU}" fill="#c23325" font-weight="700" pointer-events="none">DZ47</text>`;   // 红色品牌字（小号，贴近实物）
+          if (isRcd) {                               // 漏电：橙色方形测试按钮 + 蓝色漏电指示块（漏保 2P 放右半格）
+            const bx = isLe4 ? .6 : .58, bw2 = isLe4 ? .3 : .32;
+            s += `<rect x="${cx + bw * bx}" y="${cy + bh * .16}" width="${bw * bw2}" height="${bh * .16}" rx="2" fill="#f0a13c" stroke="#b5761f" stroke-width=".8" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+            s += `<text x="${cx + bw * (bx + bw2 / 2)}" y="${cy + bh * .27}" font-size="${fsU}" text-anchor="middle" fill="#7a4d0c" pointer-events="none">T</text>`;
+            s += `<rect x="${cx + bw * (isLe4 ? .6 : .6)}" y="${cy + bh * .8}" width="${bw * (isLe4 ? .3 : .26)}" height="${bh * .07}" rx="1.5" fill="#5b9bd5"/>`;
+          }
+          s += `<text x="${hx}" y="${cy + bh * .40}" font-size="${fsU}" text-anchor="middle" fill="#6b6459" font-weight="600" pointer-events="none">${SHORT[k] || devShort(k)}</text>`;
+          s += `<rect x="${hx - bw * (isLe4 ? .17 : isRcd ? .34 : .26)}" y="${hy}" width="${bw * (isLe4 ? .34 : isRcd ? .68 : .52)}" height="${bh * .12}" rx="2" fill="#8a2a1e"/>`;        // 手柄槽座（漏保 2P 缩到左半格）
+          s += `<rect x="${hx - bw * (isLe4 ? .15 : isRcd ? .3 : .22)}" y="${hy + 2}" width="${bw * (isLe4 ? .3 : isRcd ? .6 : .44)}" height="${bh * .18}" rx="3" fill="#d63a2a"/>`;      // 拨杆底块
+          s += `<rect x="${hx - bw * (isLe4 ? .095 : isRcd ? .19 : .14)}" y="${hy - bh * .08}" width="${bw * (isLe4 ? .19 : isRcd ? .38 : .28)}" height="${bh * .13}" rx="2" fill="#e85c4a"/>`;  // 拨杆顶块
+          for (let t = 1; t <= (isLe4 ? 4 : np); t++) s += `<circle cx="${cx + bw * (isLe4 ? (t * 2 - 1) / 8 : t / (np + 1))}" cy="${cy + bh * .93}" r="${sr}" fill="#5a554c"/>`;   // 底部端子：漏保 2P 为 4 个全宽分布，其余数量同极数
+          return s;
         }).join('');
-        const hinge = x0 + 12, len = w - 24, rad = Math.max(30, Math.min(170, b.ang || 120)) * Math.PI / 180;
-        const ex = hinge + Math.cos(rad) * len, ey = fy + fr * Math.sin(rad) * len;
+        const hng = (b.hinge ?? 1) === -1 ? -1 : 1;   // 铰链侧：1 左（默认）-1 右，门页 / 弧线随之镜像
+        const hinge = hng === 1 ? x0 + 12 : x0 + w - 12, len = w - 24, rad = Math.max(30, Math.min(170, b.ang || 120)) * Math.PI / 180;
+        const ex = hinge + hng * Math.cos(rad) * len, ey = fy + fr * Math.sin(rad) * len;
         const door = b.doorOpen
-          ? `<path d="M ${hinge + len} ${fy} A ${len} ${len} 0 0 ${fr > 0 ? 1 : 0} ${ex} ${ey}" fill="none" stroke="${col}" stroke-width=".8" stroke-dasharray="40 30" stroke-opacity=".55" vector-effect="non-scaling-stroke" pointer-events="none"/>
+          ? `<path d="M ${hinge + hng * len} ${fy} A ${len} ${len} 0 0 ${(fr > 0) === (hng > 0) ? 1 : 0} ${ex} ${ey}" fill="none" stroke="${col}" stroke-width=".8" stroke-dasharray="40 30" stroke-opacity=".55" vector-effect="non-scaling-stroke" pointer-events="none"/>
             <line x1="${hinge}" y1="${fy}" x2="${ex}" y2="${ey}" stroke="${col}" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`
-          : `<line x1="${hinge}" y1="${fy}" x2="${hinge + len}" y2="${fy}" stroke="${col}" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+          : `<line x1="${hinge}" y1="${fy}" x2="${hinge + hng * len}" y2="${fy}" stroke="${col}" stroke-width="2.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
         return `<g data-${kind}="${b.id}" style="cursor:move" transform="translate(${b.x} ${b.y}) rotate(${b.dir || 0})">
             <rect x="${x0 - 50}" y="${y0 - 50}" width="${w + 100}" height="${d + 100}" fill="#fff" fill-opacity="0"/>
             <rect x="${x0}" y="${y0}" width="${w}" height="${d}" rx="14" fill="${isP ? '#f6efe6' : '#eaf2f5'}" fill-opacity=".94" stroke="${col}" stroke-width="${on ? 2.2 : 1.5}" vector-effect="non-scaling-stroke"/>
@@ -6406,7 +6452,7 @@
        进深超过墙厚时自动钳制，避免穿透墙体背面；boxSlide 拖动时重新投影到墙面；flipBox 翻到墙另一面 */
     function boxWallPos(b) {
       const g = openingWallGeom(b.wall); if (!g) return null;
-      const de = Math.round(Math.max(60, Math.min(Math.max(120, b.d || 250), g.T - 20)));
+      const de = Math.round(Math.max(60, Math.min(Math.max(120, b.d || 150), g.T - 20)));
       if (b.d !== de) b.d = de;                                  // 暗装：进深不得大于墙厚
       const t = Math.max(0, Math.min(g.L, b.c ?? 0));
       const nx = -g.u[1] * (b.side ?? 1), ny = g.u[0] * (b.side ?? 1);
@@ -6417,9 +6463,8 @@
       const g = openingWallGeom(b.wall); if (!g) return false;
       b.c = Math.max(0, Math.min(g.L, Math.round(((p.x - g.A[0]) * g.u[0] + (p.y - g.A[1]) * g.u[1]) / 10) * 10));
       b.side = wallSideOf([p.x, p.y], { a: g.A, b: g.B });
-      const hz = Math.abs(g.B[0] - g.A[0]) >= Math.abs(g.B[1] - g.A[1]);
-      b.dir = hz ? 0 : 90;
-      b.front = ((hz ? g.u[0] : g.u[1]) * b.side) >= 0 ? 1 : -1;
+      b.dir = Math.round(Math.atan2(g.u[1], g.u[0]) * 180 / Math.PI * 10) / 10;   // 跟随墙体实际角度
+      b.front = b.side ?? 1;
       const q = boxWallPos(b); if (q) { b.x = q.x; b.y = q.y; }
       return true;
     }
@@ -6753,12 +6798,56 @@
       $('#aDel').onclick = () => { ui.sel = { kind: 'lift', id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
+    function devShort(k) {                     // 自定义器件键（rcd2p63 / mcb1p40 等）转短标签（漏63 / 空40）
+      const m = /^(rcd|mcb)(\d)p(\d+)$/i.exec(k || '');
+      return m ? (m[1].toLowerCase() === 'rcd' ? '漏' : '空') + m[3] : '';
+    }
+    function devDesc(k) {                      // 器件键转详细描述：类型 · 极数 · 电流 · 占位宽度（预设型号与自定义键统一格式）
+      const isR = /^rcd/i.test(k || ''), m = /^(rcd|mcb)(\d)p(n?)(\d+)$/i.exec(k || '');
+      if (!m) { const t = RCD_TYPES[k] || MCB_TYPES[k]; return t ? tr(t[0], t[1]) : (k || ''); }
+      const p = +m[2], type = isR ? tr('漏电保护器', 'RCD') : tr('空气开关', 'MCB');
+      const w = p === 1 ? tr('占 1 格 · 18mm', '1 module · 18mm') : p === 2 ? (isR ? tr('占 4 格 · 72mm', '4 modules · 72mm') : tr('占 2 格 · 36mm', '2 modules · 36mm')) : tr('占 3 格 · 54mm', '3 modules · 54mm');
+      return `${type} · ${p}P${m[3] ? 'N' : ''} · ${m[4]}A（${w}）`;
+    }
+    function devOrdered(b) {                   // 强电箱器件键按加入顺序（devOrder）排列；无记录的旧器件排在后面
+      const raw = [...(b.rcd || []), ...(b.mcb || [])];
+      const used = {}, idx = [];
+      (b.devOrder || []).forEach(o => {
+        const s = String(o), k = s.slice(s.indexOf(':') + 1);
+        const i = raw.indexOf(k, used[k] ?? 0);
+        if (i >= 0) { idx.push(i); used[k] = i + 1; }
+      });
+      raw.forEach((_, i) => { if (!idx.includes(i)) idx.push(i); });
+      return idx.map(i => raw[i]);
+    }
     function boxPanel(kind, b) {
       const isP = kind === 'pbox', [zn] = BOX_NAME[kind];
-      const groups = isP
-        ? [['rcd', RCD_TYPES, tr('漏电开关', 'Residual-current devices')], ['mcb', MCB_TYPES, tr('空气开关', 'Miniature circuit breakers')]]
-        : [['devices', WEAK_DEVICES, tr('内部设备（可多选）', 'Internal devices (multi-select)')]];
-      const blocks = groups.map(([key, defs, title]) => {
+      let blocks;
+      if (isP) {                               // 强电箱：自定义加入开关（类型 + 极数 + 电流），逐台加入 / 移除
+        const ord = (b.devOrder || []).map(o => { const s = String(o), c = s.indexOf(':'); return { arr: s.slice(0, c), k: s.slice(c + 1) }; }).filter(o => (b[o.arr] || []).includes(o.k));   // 加入顺序记录
+        const used = {};                                   // 同型号重复加入时按出现次序对应下标
+        const items = (ord.length ? ord : [...(b.rcd || []).map(k => ({ arr: 'rcd', k })), ...(b.mcb || []).map(k => ({ arr: 'mcb', k }))]).map(o => {
+          const key = o.arr + ':' + o.k, idx = used[key] = (used[key] ?? -1) + 1;
+          return { ...o, i: (b[o.arr] || []).indexOf(o.k, idx) };
+        }).filter(o => o.i >= 0);
+        const rows = items.map(({ arr, i, k }, n) =>
+          `<div class="full" style="display:flex;align-items:center;gap:8px;padding:4px 0;border-bottom:1px dashed var(--line)">
+            <span class="muted" style="width:26px;text-align:right">${n + 1}.</span>
+            <span style="flex:1">${esc(devDesc(k))}</span>
+            <button class="btn" data-boxrm="${ord.length ? 'ord:' + n : arr + ':' + i}" style="padding:2px 10px">${tr('移除', 'Remove')}</button>
+          </div>`).join('')
+          || `<div class="muted full">${tr('暂无器件，用下方自定义加入', 'No devices yet — add below')}</div>`;
+        blocks = `<div class="full" style="grid-column:1/-1;margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:6px 10px">
+          <div class="muted" style="margin-bottom:4px">${tr('已加入开关', 'Added breakers')} · ${tr('点「移除」删除', 'click Remove to delete')}</div>${rows}
+          <div style="display:flex;gap:6px;align-items:center;margin-top:8px;flex-wrap:wrap">
+            <select id="bxDevT"><option value="mcb">${tr('空气开关', 'MCB')}</option><option value="rcd">${tr('漏电保护器', 'RCD')}</option></select>
+            <select id="bxDevP"><option value="1">1P</option><option value="2">2P</option><option value="3">3P</option></select>
+            <input type="number" id="bxDevA" value="16" min="6" max="125" step="1" style="width:72px"><span>A</span>
+            <button class="btn" id="bxDevAdd">${tr('加入', 'Add')}</button>
+          </div></div>`;
+      } else {
+        const groups = [['devices', WEAK_DEVICES, tr('内部设备（可多选）', 'Internal devices (multi-select)')]];
+        blocks = groups.map(([key, defs, title]) => {
         const arr = b[key] || [];
         const rows = Object.entries(defs).map(([k, [zh, en]]) => {
           const n = arr.filter(x => x === k).length;
@@ -6768,6 +6857,7 @@
         return `<div class="full" style="grid-column:1/-1;margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:6px 10px">
           <div class="muted" style="margin-bottom:4px">${title} · ${tr('勾选后填数量，可同时选多种', 'Check and set a quantity; multiple types allowed')}</div>${rows}</div>`;
       }).join('');
+      }
       return `<section><h3>${zn}</h3>
     <div class="form">
       ${nameField(b, zn + ' ' + objNo(state[BOX_ARR[kind]] || [], b))}
@@ -6776,12 +6866,19 @@
       <label>${tr('箱高', 'Height')} (mm)<input type="number" id="bxH" value="${Math.round(b.h ?? 320)}" min="150" max="1200" step="10"></label>
       <label>${tr('底标高', 'Bottom')} (mm)<input type="number" id="bxZ" value="${Math.round(b.z ?? 1500)}" min="0" max="6000" step="50"></label>
       <label>${tr('箱门开启角', 'Door angle')} (°)<input type="number" id="bxA" value="${Math.round(b.ang ?? 120)}" min="30" max="170" step="15"></label>
-      <label class="chk"><input type="checkbox" id="bxOpen" ${b.doorOpen ? 'checked' : ''}>${tr('箱门打开', 'Door open')}</label>
+      <label>${tr('开门方向', 'Door hinge')}<select id="bxHg">
+        <option value="1" ${(b.hinge ?? 1) !== -1 ? 'selected' : ''}>${tr('左开', 'Hinge left')}</option>
+        <option value="-1" ${(b.hinge ?? 1) === -1 ? 'selected' : ''}>${tr('右开', 'Hinge right')}</option>
+      </select></label>
+      <label>${tr('箱门', 'Door')}<select id="bxOpen">
+        <option value="0" ${!b.doorOpen ? 'selected' : ''}>${tr('关闭', 'Closed')}</option>
+        <option value="1" ${b.doorOpen ? 'selected' : ''}>${tr('打开', 'Open')}</option>
+      </select></label>
       <label>X (mm)<input type="number" id="bxX" value="${Math.round(b.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="bxY" value="${Math.round(b.y)}" step="10"></label>
       ${blocks}
     </div>
-    <div class="muted" style="margin-top:8px">${tr('暗装嵌入墙体：点击墙面放置，箱体嵌入墙厚内、箱门面与墙面齐平（进深超过墙厚时自动收窄）；拖动沿墙滑动，四角手柄改宽 / 进深，右侧可翻到墙另一面。箱门在 2D 画开启轮廓、3D 中点击箱门也可开合。', 'Recessed into the wall: click a wall face to place it flush with the surface (depth is capped by wall thickness); drag to slide along it, corner handles resize it, and the flip button moves it to the other side. The door shows its swing in 2D and can be clicked in 3D.')}</div>
+    <div class="muted" style="margin-top:8px">${tr('暗装嵌入墙体：点击墙面放置，箱体嵌入墙厚内、箱门面与墙面齐平（进深超过墙厚时自动收窄）；拖动沿墙滑动，四角手柄改宽 / 进深，右侧可翻到墙另一面。「开门方向」选铰链在左 / 右，2D 开启轮廓与 3D 门扇同步镜像，3D 中点击箱门也可开合。', 'Recessed into the wall: click a wall face to place it flush with the surface (depth is capped by wall thickness); drag to slide along it, corner handles resize it, and the flip button moves it to the other side. "Door hinge" switches left / right — the 2D swing and the 3D leaf mirror accordingly; click the door in 3D to open / close.')}</div>
     <div class="actions"><button class="btn" id="bxFlip">${tr('翻到墙另一面', 'Flip side')}</button><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
     function bindBoxPanel(kind, id) {
@@ -6826,7 +6923,41 @@
           applyDev(b, key, k, !!cb?.checked, +qty.value || 1);
         });
       });
-      const op = $('#bxOpen'); if (op) op.onchange = () => mutate(() => { const b = g(); if (b) b.doorOpen = op.checked; });
+      const op = $('#bxOpen'); if (op) op.onchange = () => mutate(() => { const b = g(); if (b) b.doorOpen = op.value === '1'; });
+      const hg = $('#bxHg'); if (hg) hg.onchange = () => mutate(() => { const b = g(); if (b) b.hinge = +hg.value; });
+      const addBtn = $('#bxDevAdd');               // 强电箱：自定义加入开关（类型 + 极数 + 电流）
+      if (addBtn) addBtn.onclick = () => {
+        mutate(() => {
+          const b = g(); if (!b) return;
+          const t = $('#bxDevT')?.value || 'mcb', p = +($('#bxDevP')?.value || 1);
+          const a = Math.max(6, Math.min(125, Math.round(+($('#bxDevA')?.value) || 16)));
+          const key = `${t}${p}p${a}`;
+          (b[t] = b[t] || []).push(key);
+          (b.devOrder = b.devOrder || []).push(t + ':' + key);   // 记录加入顺序
+        });
+        renderPanel();
+      };
+      document.querySelectorAll('#panel [data-boxrm]').forEach(btn => btn.onclick = () => {
+        mutate(() => {
+          const b = g(); if (!b) return;
+          const spec = btn.dataset.boxrm;
+          if (spec.startsWith('ord:')) {          // 按加入顺序位置移除
+            const n = +spec.slice(4), o = String((b.devOrder || [])[n]); if (!o) return;
+            const c = o.indexOf(':'), arr = o.slice(0, c), k = o.slice(c + 1), list = b[arr] || [];
+            const i = list.indexOf(k);
+            if (i >= 0) list.splice(i, 1);
+            b.devOrder.splice(n, 1);
+          } else {                                // 兼容旧索引方式
+            const [arr, idx] = spec.split(':'), list = b[arr] || [], k = list[+idx];
+            if (k !== undefined) {
+              list.splice(+idx, 1);
+              const oi = (b.devOrder || []).findIndex(e => String(e) === arr + ':' + k);
+              if (oi >= 0) b.devOrder.splice(oi, 1);
+            } else list.splice(+idx, 1);
+          }
+        });
+        renderPanel();
+      });
       const fl = $('#bxFlip'); if (fl) fl.onclick = () => mutate(() => { const b = g(); if (b) flipBox(b); });
       $('#aDel').onclick = () => { ui.sel = { kind, id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
@@ -9707,18 +9838,16 @@
           const kind = ui.drawTool, isP = kind === 'pbox';
           const w = wallAt(p);
           if (!w) { toast(tr('请点击墙上的位置（电箱吸附墙体）', 'Click a position on a wall (boxes snap to walls)')); return; }
-          const bw = isP ? 600 : 450, bd = 250;
+          const bw = isP ? 600 : 450, bd = 150;
           if (w.L < bw + 100) { toast(tr('这面墙太短，放不下电箱', 'This wall is too short for a box')); return; }
           const c = Math.max(bw / 2 + 50, Math.min(w.L - bw / 2 - 50, Math.round(w.t / 10) * 10));
           const side = wallSideOf([p.x, p.y], { a: w.A, b: w.B });
-          const hz = Math.abs(w.B[0] - w.A[0]) >= Math.abs(w.B[1] - w.A[1]);
-          const dir = hz ? 0 : 90;
           const u = [(w.B[0] - w.A[0]) / w.L, (w.B[1] - w.A[1]) / w.L];
+          const dir = Math.round(Math.atan2(u[1], u[0]) * 180 / Math.PI * 10) / 10;   // 跟随墙体实际角度（斜墙也能对齐洞口）
           const b = {
-            id: uid(), wall: w.ref, c, side, dir,
-            front: ((hz ? u[0] : u[1]) * side) >= 0 ? 1 : -1,
+            id: uid(), wall: w.ref, c, side, dir, front: side,
             w: bw, d: bd, h: isP ? 320 : 260, z: 1500,
-            x: 0, y: 0, rcd: [], mcb: [], devices: [], doorOpen: false, ang: 120
+            x: 0, y: 0, rcd: [], mcb: [], devices: [], doorOpen: false, ang: 120, hinge: 1
           };
           const q = boxWallPos(b); if (q) { b.x = q.x; b.y = q.y; }
           mutate(() => (state[BOX_ARR[kind]] = state[BOX_ARR[kind]] || []).push(b));
@@ -12921,7 +13050,7 @@
     function boxHolesOf(ref, ht) {                              // 电箱暗装洞：wall 上所有电箱的墙面开口（沿墙 c 范围 + 底/顶标高，单位米）
       const g = openingWallGeom(ref); if (!g) return [];
       return [...(state.powerBoxes || []), ...(state.weakBoxes || [])].filter(b => b.wall === ref).map(b => {
-        const w = Math.max(200, b.w || 0), de = Math.round(Math.max(60, Math.min(Math.max(120, b.d || 250), g.T - 20)));
+        const w = Math.max(200, b.w || 0), de = Math.round(Math.max(60, Math.min(Math.max(120, b.d || 150), g.T - 20)));
         const z0 = Math.max(0, (b.z ?? 1500) / 1000), z1 = Math.min(ht, ((b.z ?? 1500) + (b.h ?? 320)) / 1000);
         return { c0: Math.max(0, (b.c ?? 0) - w / 2), c1: Math.min(g.L, (b.c ?? 0) + w / 2), yb: z0, yt: z1, side: b.side ?? 1, de };
       }).filter(h => h.c1 > h.c0 + 1 && h.yt > h.yb + .01);
@@ -13435,7 +13564,8 @@
           rail.position.set(0, Y, .012); rail.castShadow = true; g.add(rail);
           for (let i = 0; i < n; i++) {
             const sx = -len / 2 + (i + .5) * len / n;
-            const mod = new THREE.Mesh(new THREE.BoxGeometry(.11, .06, .03), panelMat(l.panelMat));
+            const mod = new THREE.Mesh(new THREE.CylinderGeometry(.055, .055, .03, 24), panelMat(l.panelMat));  // 圆形模块，正面朝外
+            mod.rotation.x = Math.PI / 2;
             mod.position.set(sx, Y, .03); mod.castShadow = true; g.add(mod);
             [-.016, .016].forEach(dx => { const hole = new THREE.Mesh(new THREE.BoxGeometry(.006, .012, .002), mat('#3a3630', { roughness: .9 })); hole.position.set(sx + dx, Y, .047); g.add(hole); });
           }
@@ -13586,29 +13716,87 @@
       put(W + rim * 2, rim, rimD, 0, H - rim / 2, rz, frame);
       put(rim, H, rimD, -W / 2 - rim / 2, H / 2, rz, frame);
       put(rim, H, rimD, W / 2 + rim / 2, H / 2, rz, frame);
-      const devs = isP ? [...(b.rcd || []).map(k => ['rcd', k]), ...(b.mcb || []).map(k => ['mcb', k])]
+      const devs = isP ? devOrdered(b).map(k => [/^rcd/i.test(k) ? 'rcd' : 'mcb', k])
         : (b.devices || []).map(k => ['dev', k]);
-      const cols = Math.max(1, Math.floor((W - .08) / .095)), cellW = Math.min(.095, (W - .08) / cols);
+      const poles = k => { const m = /(\d)p/i.exec(k || ''); return Math.max(1, Math.min(3, m ? +m[1] : 1)); };   // 占用模数：1P=1、2P / 漏电=2、3P=3
+      const pp = devs.slice(0, 24).map(([, k]) => poles(k));      // 极数
+      const pw = devs.slice(0, 24).map(([, k], i) => pp[i] === 2 && /^rcd/i.test(k) ? 4 : pp[i]), IW3 = W - .08;   // 占宽（模数）：漏保 2P 占 4 格
+      const fitR3 = u => { let r = 1, x = 0; for (const p of pw) { const need = p * u + (x ? .002 : 0); if (x + need > IW3) { r++; x = 0; } x += p * u + .002; } return r; };
+      let U3 = .018;                                     // 强电箱：DIN 模数 1P = 18mm；弱电箱：设备均分箱内宽度
+      if (isP) for (U3 = .018; U3 >= .012; U3 -= .002) { if (fitR3(U3) * .09 <= H - .07) break; }
+      else U3 = Math.max(.04, Math.min(.12, devs.length ? IW3 / devs.slice(0, 24).length - .006 : IW3));
+      let rx = -W / 2 + .04;
+      const r3 = fitR3(U3), ry = Y + (H - r3 * .07 - (r3 - 1) * .02) / 2;   // 器件在箱内上下居中
       devs.slice(0, 24).forEach(([key, k], i) => {
-        const c = i % cols, row = Math.floor(i / cols);
-        const color = key === 'rcd' ? '#d08a4a' : key === 'mcb' ? '#8a929c'
-          : k === 'wifi' ? '#f2f2ee' : k === 'switch' ? '#5d9a72' : k === 'router' ? '#b9b3a8' : '#5f93b0';
-        const x = -W / 2 + .04 + cellW * (c + .5), y = Y + .07 + row * .09;
-        if (y > Y + H - .04) return;
-        const o = new THREE.Mesh(new THREE.BoxGeometry(cellW - .01, .07, .045), mat(color, { roughness: .55 }));
-        o.position.set(x, y, -FR * (D / 2 - .06)); o.castShadow = true; g.add(o);
+        const p = pp[i], bw = pw[i] * U3;
+        if (rx + bw > W / 2 - .04) { rx = -W / 2 + .04; ry += .09; }
+        if (ry > Y + H - .08) return;
+        const x = rx + bw / 2, y = ry; rx += bw + .002;
+        const zc = -FR * (D / 2 - .06), zf = zc + FR * .0225;       // 器件中心 / 朝箱门一侧的正面
+        if (key === 'dev') {                              // 弱电箱设备：彩色设备盒 + 指示灯 / 天线 / 端口排，不画空开外观
+          const color = k === 'wifi' ? '#e8eaee' : k === 'switch' ? '#5d9a72' : k === 'router' ? '#b9b3a8' : '#5f93b0';
+          const o = new THREE.Mesh(new THREE.BoxGeometry(bw, .07, .045), mat(color, { roughness: .6 }));
+          o.position.set(x, y, zc); o.castShadow = true; g.add(o);
+          if (k === 'router' || k === 'wifi') {           // 天线两根
+            [-.25, .25].forEach(f => {
+              const ant = new THREE.Mesh(new THREE.CylinderGeometry(.002, .002, .05, 8), mat('#3a3630', { roughness: .7 }));
+              ant.position.set(x + f * bw, y + .075, zc); g.add(ant);
+            });
+          } else {                                        // 光猫 / 交换机：正面端口排
+            for (let t = 0; t < 4; t++) {
+              const pt = new THREE.Mesh(new THREE.BoxGeometry(bw * .12, .014, .004), mat('#2f2c27', { roughness: .8 }));
+              pt.position.set(x - bw * .3 + t * bw * .2, y + .022, zf + FR * .004); g.add(pt);
+            }
+          }
+          const led = new THREE.Mesh(new THREE.BoxGeometry(.008, .008, .005), new THREE.MeshBasicMaterial({ color: '#7fe08e' }));
+          led.position.set(x, y - .012, zf + FR * .004); g.add(led);
+          return;
+        }
+        const isRcd = key === 'rcd', isLe4 = isRcd && p === 2;   // 漏保 2P 占 4 格：开关居左 2 格，测试按钮 / 漏电指示居右 2 格
+        const hx = isLe4 ? x - bw * .25 : x;          // 开关部分（手柄 / 型号）中心
+        const o = new THREE.Mesh(new THREE.BoxGeometry(bw, .07, .045), mat(isRcd ? '#f2ece0' : '#f4f2ee', { roughness: .6 }));
+        o.position.set(x, y, zc); o.castShadow = true; g.add(o);
+        const bar = new THREE.Mesh(new THREE.BoxGeometry(bw - .012, .012, .006), mat('#6a655c', { roughness: .8 }));       // 顶部接线端子条
+        bar.position.set(x, y + .026, zf + FR * .004); g.add(bar);
+        {                                     // 接线端子：漏保 2P 上面 2 个在左半格 / 下面 4 个全宽分布；其余（含空开 2P）上下均匀，大小统一
+          const even = Array.from({ length: p }, (_, t) => -bw / 2 + bw * (t + 1) / (p + 1));
+          const topPos = isLe4 ? [-bw * .375, -bw * .125] : even, botPos = isLe4 ? [-bw * .375, -bw * .125, bw * .125, bw * .375] : even;
+          topPos.forEach(tx => {
+            const tm = new THREE.Mesh(new THREE.BoxGeometry(.011, .01, .004), mat('#5a554c', { roughness: .8 }));
+            tm.position.set(x + tx, y + .026, zf + FR * .004); g.add(tm);
+          });
+          botPos.forEach(tx => {
+            const tm = new THREE.Mesh(new THREE.BoxGeometry(.011, .01, .004), mat('#5a554c', { roughness: .8 }));
+            tm.position.set(x + tx, y - .026, zf + FR * .004); g.add(tm);
+          });
+        }
+        const brand = new THREE.Mesh(new THREE.BoxGeometry(.014, .01, .003), mat('#c23325', { roughness: .6 }));           // 红色品牌块
+        brand.position.set(x - bw * .3, y + .016, zf + FR * .003); g.add(brand);
+        const slot = new THREE.Mesh(new THREE.BoxGeometry(bw * (isLe4 ? .34 : isRcd ? .68 : .5), .022, .004), mat('#8a2a1e', { roughness: .8 }));        // 手柄槽座（漏保 2P 缩到左半格）
+        slot.position.set(hx, y - .004, zf + FR * .002); g.add(slot);
+        const tog = new THREE.Mesh(new THREE.BoxGeometry(bw * (isLe4 ? .3 : isRcd ? .6 : .44), .014, .008), mat('#d63a2a', { roughness: .5 }));         // 拨杆底块
+        tog.position.set(hx, y - .007, zf + FR * .007); tog.castShadow = true; g.add(tog);
+        const tog2 = new THREE.Mesh(new THREE.BoxGeometry(bw * (isLe4 ? .19 : isRcd ? .38 : .28), .01, .006), mat('#e85c4a', { roughness: .45 }));       // 拨杆顶块
+        tog2.position.set(hx, y - .002, zf + FR * .012); tog2.castShadow = true; g.add(tog2);
+        if (isRcd) {                                                // 漏电：大号橙色方形测试按钮 + 蓝色漏电指示块（漏保 2P 居右半格）
+          const tb = new THREE.Mesh(new THREE.BoxGeometry(bw * (isLe4 ? .24 : .3), .016, .005), mat('#f0a13c', { roughness: .6 }));
+          tb.position.set(x + bw * (isLe4 ? .25 : .24), y + .018, zf + FR * .004); g.add(tb);
+          const ind = new THREE.Mesh(new THREE.BoxGeometry(bw * (isLe4 ? .2 : .24), .01, .004), mat('#5b9bd5', { roughness: .7 }));
+          ind.position.set(x + bw * (isLe4 ? .25 : .24), y - .024, zf + FR * .004); g.add(ind);
+        }
         const led = new THREE.Mesh(new THREE.BoxGeometry(.012, .012, .006), new THREE.MeshBasicMaterial({ color: key === 'rcd' ? '#ffd9a0' : '#bfe6cf' }));
-        led.position.set(x + cellW * .25, y + .015, -FR * (D / 2 - .082)); g.add(led);
+        led.position.set(hx + bw * .3, y + .015, -FR * (D / 2 - .082)); g.add(led);
       });
+      const hng = (b.hinge ?? 1) === -1 ? -1 : 1;   // 铰链侧：1 左（默认）-1 右，铰链组 / 门扇 / 把手随之镜像
       const hinge = new THREE.Group();
-      hinge.position.set(-W / 2 + .015, 0, FR * (D / 2 + .006));
+      hinge.position.set(-hng * (W / 2 - .015), 0, FR * (D / 2 + .006));
       const rad = Math.max(30, Math.min(170, b.ang ?? 120)) * Math.PI / 180;
-      const edoor = { open: !!b.doorOpen, cur: b.doorOpen ? 1 : 0, a0: 0, a1: -FR * rad, pivot: hinge, kind, id: b.id };
+      const edoor = { open: !!b.doorOpen, cur: b.doorOpen ? 1 : 0, a0: 0, a1: -hng * FR * rad, pivot: hinge, kind, id: b.id };
       const leaf = new THREE.Mesh(new THREE.BoxGeometry(W - .03, H - .03, .018), mat(isP ? '#dcd5c7' : '#d7e8ef', { roughness: .55, metalness: .18 }));
-      leaf.position.set((W - .03) / 2, Y + H / 2, 0); leaf.castShadow = true;
+      leaf.position.set(hng * (W - .03) / 2, Y + H / 2, 0); leaf.castShadow = true;
       leaf.userData.door = hinge.userData.door = edoor; hinge.add(leaf);
       const handle = new THREE.Mesh(new THREE.BoxGeometry(.016, .09, .024), frame);
-      handle.position.set(W - .085, Y + H / 2, FR * .018); handle.userData.door = edoor; hinge.add(handle);
+      handle.position.set(hng * (W - .085), Y + H / 2, FR * .018); handle.userData.door = edoor; hinge.add(handle);
       g.add(hinge); doors.push(edoor);
       archUp.add(g);
     }

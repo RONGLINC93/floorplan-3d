@@ -96,7 +96,7 @@
         4320
       ],
       "b": [
-        13100,
+        13250,
         4320
       ]
     },
@@ -176,8 +176,8 @@
     {
       "id": "fmwhuwh9z94",
       "wall": "CWfmwhqj7n7192",
-      "c": 4690,
-      "w": 900,
+      "c": 5137.6376953125,
+      "w": 780,
       "kind": "door",
       "flip": false,
       "hflip": true
@@ -258,29 +258,6 @@
       "kind": "yak",
       "flip": false,
       "mat": "steel"
-    },
-    {
-      "id": "fmwjj3bct94",
-      "wall": "CWfmwhqg7q7187",
-      "c": 5900,
-      "w": 1500,
-      "kind": "bay",
-      "flip": true,
-      "sill": 500,
-      "wh": 1200,
-      "bayDepth": 600,
-      "bayFlip": true,
-      "panes": 2
-    },
-    {
-      "id": "fmwkbin9e96",
-      "wall": "CWfmwhqg7q7187",
-      "c": 3345.24609375,
-      "w": 2000,
-      "kind": "revolve",
-      "flip": false,
-      "sill": 0,
-      "dh": 2400
     },
     {
       "id": "fmwkpyc2z93",
@@ -501,7 +478,7 @@
       "id": "Xfmwhwa57596",
       "poly": [
         [
-          6990,
+          6960,
           4460
         ],
         [
@@ -878,7 +855,7 @@
       "y": 4960,
       "r": 6000,
       "z": 3600,
-      "on": false,
+      "on": true,
       "links": [],
       "ctlByGang": []
     },
@@ -970,7 +947,8 @@
         "fmwm0tjnl99"
       ],
       "style": "s1w2",
-      "ctlByGang": []
+      "ctlByGang": [],
+      "panelMat": "steel"
     },
     {
       "id": "fmwlukckx93",
@@ -1221,39 +1199,52 @@
     {
       "id": "fmwm5ot2w93",
       "wall": "CWfmwhqj7n7192",
-      "c": 2600,
+      "c": 2130,
       "side": 1,
       "dir": 0,
       "front": 1,
       "w": 600,
-      "d": 180,
+      "d": 150,
       "h": 320,
       "z": 1500,
-      "x": 9710,
-      "y": 4350,
+      "x": 9240,
+      "y": 4365,
       "rcd": [
-        "rcd1pn20",
-        "rcd2p32",
-        "rcd2p40",
-        "rcd3p63"
+        "rcd2p64",
+        "rcd1p16"
       ],
       "mcb": [
         "mcb1p16",
-        "mcb1p20",
-        "mcb1p25",
-        "mcb2p32",
-        "mcb3p40"
+        "mcb1p16",
+        "mcb1p16",
+        "mcb1p16",
+        "mcb1p16",
+        "mcb1p16",
+        "mcb1p16",
+        "mcb1p16"
       ],
       "devices": [],
-      "doorOpen": false,
-      "ang": 120
+      "doorOpen": true,
+      "ang": 120,
+      "devOrder": [
+        "rcd:rcd2p64",
+        "mcb:mcb1p16",
+        "mcb:mcb1p16",
+        "mcb:mcb1p16",
+        "mcb:mcb1p16",
+        "rcd:rcd1p16",
+        "mcb:mcb1p16",
+        "mcb:mcb1p16",
+        "mcb:mcb1p16",
+        "mcb:mcb1p16"
+      ]
     }
   ],
   "weakBoxes": [
     {
       "id": "fmwm5ovp994",
       "wall": "CWfmwhqj7n7192",
-      "c": 3490,
+      "c": 2830,
       "side": 1,
       "dir": 0,
       "front": 1,
@@ -1261,7 +1252,7 @@
       "d": 150,
       "h": 260,
       "z": 1500,
-      "x": 10600,
+      "x": 9940,
       "y": 4365,
       "rcd": [],
       "mcb": [],
@@ -1271,7 +1262,7 @@
         "router",
         "wifi"
       ],
-      "doorOpen": false,
+      "doorOpen": true,
       "ang": 120
     }
   ],
