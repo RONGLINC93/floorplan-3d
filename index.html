@@ -3120,6 +3120,7 @@
 
     const snap = () => JSON.stringify(state);
     function commit(before) { undoStack.push(before); if (undoStack.length > 150) undoStack.shift(); redoStack.length = 0; scheduleAutoSave(); }
+    const keepOneUndo = () => { if (undoStack.length > 1) undoStack.splice(0, undoStack.length - 1); };   // 打开 / 导入 / 新建方案时：只保留最近一步撤销（本方案 → 新方案），清掉上一个方案的旧历史
     function mutate(fn) { const b = snap(); fn(); commit(b); markDirty(); renderAll(); }
     function undo() { if (!undoStack.length) return toast(tr('没有可撤销的操作', 'Nothing to undo')); redoStack.push(snap()); state = JSON.parse(undoStack.pop()); validateSel(); markDirty(); renderAll(); scheduleAutoSave(); }
     function redo() { if (!redoStack.length) return; undoStack.push(snap()); state = JSON.parse(redoStack.pop()); validateSel(); markDirty(); renderAll(); scheduleAutoSave(); }
@@ -3511,8 +3512,8 @@
           const wg = openingWallGeom(leg.wall); if (!wg) return null;
           const { A, B, T } = wg, wl = Math.hypot(B[0] - A[0], B[1] - A[1]);
           let c0 = leg.c, c1 = leg.c + leg.w;
-          if (c0 <= T / 2 + 1) c0 = 0;                            // 与单段落地窗一致：贴到墙角时延伸到墙面外沿
-          if (c1 >= wl - T / 2 - 1) c1 = wl;
+          if (c0 <= 400) c0 = 0;                                  // 贴到墙角（400mm 内，与 3D lbCornerAt / 单段落地窗同一阈值）时延伸到墙面外沿
+          if (c1 >= wl - 400) c1 = wl;
           const [Q0, Q1] = segPts(A, B, c0, c1);
           const dx = Q1[0] - Q0[0], dy = Q1[1] - Q0[1], L = Math.hypot(dx, dy) || 1;
           return { leg, Q0, Q1, T, L, u: [dx / L, dy / L], n: [-dy / L, dx / L] };
@@ -3592,10 +3593,10 @@
         const wg = openingWallGeom(o.wall); if (!wg) return;
         const { A, B, T } = wg;
         let c0 = o.c, c1 = o.c + o.w;
-        if (o.kind === 'fwin' && o.cg) {                       // 转角窗：窗段贴到墙角时延伸到墙面外沿，避免转角残留小段墙垛像立柱
+        if (o.kind === 'fwin' && o.cg) {                       // 转角窗：窗段贴到墙角（400mm 内，与 3D lbCornerAt 同一阈值）时延伸到墙面外沿，避免转角残留小段墙垛像立柱
           const wl = Math.hypot(B[0] - A[0], B[1] - A[1]);
-          if (c0 <= T / 2 + 1) c0 = 0;
-          if (c1 >= wl - T / 2 - 1) c1 = wl;
+          if (c0 <= 400) c0 = 0;
+          if (c1 >= wl - 400) c1 = wl;
         }
         const [P0, P1] = segPts(A, B, c0, c1);
         const dx = P1[0] - P0[0], dy = P1[1] - P0[1], L = Math.hypot(dx, dy) || 1;
@@ -6647,7 +6648,7 @@
             : tr('宽度改动以中心对齐；位置为相对原始位置的沿墙偏移，拖动符号可沿墙滑动。', 'Width is center-aligned; position is the along-wall offset from the original spot; drag the symbol to slide it.'))
           : tr('飘窗为整体结构，不支持改宽；位置可沿墙微调。', 'Bay windows are one piece: width fixed, position can be nudged along the wall.')}</div>
     ${t === 'd' ? `<div class="actions"><button class="btn" id="boDir" title="点击循环切换开启方式：左开 → 右开 → 左开反向 → 右开反向">${tr('改变开门方向', 'Change swing')}</button></div>` : ''}
-    ${t === 'w' ? `<div class="form"><label class="chk full"><input type="checkbox" id="boGrille" ${(bov(id).grille === true) ? 'checked' : ''}>${tr('窗花（窗上亮子：横向带框玻璃带）', 'Transom: framed glass band above the window')}</label>${bov(id).grille === true ? `<label>${tr('窗花高度', 'Transom height')} (mm)<input type="number" id="boTh" value="${Math.round(bov(id).th ?? Math.max(0, state.wallH - 2400))}" min="150" max="${Math.max(150, state.wallH - 2400)}" step="50"></label>` : ''}</div>` : ''}
+    ${t === 'w' ? `<div class="form"><label class="chk full"><input type="checkbox" id="boGrille" ${(bov(id).grille === true) ? 'checked' : ''}>${tr('窗花（窗上亮子：横向带框玻璃带）', 'Transom: framed glass band above the window')}</label>${bov(id).grille === true ? `<label>${tr('窗花高度', 'Transom height')} (mm)<input type="number" id="boTh" value="${Math.round(bov(id).th ?? Math.max(0, wallHMM(id) - 2400))}" min="150" max="${Math.max(150, wallHMM(id) - 2400)}" step="50"></label>` : ''}</div>` : ''}
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
     function bindBopenPanel(id) {
@@ -6665,7 +6666,7 @@
       const bth = $('#boTh');                                        // 内置窗窗花（亮子）高度：亮子顶到墙顶为止
       if (bth) bth.onchange = e => {
         const v = parseFloat(e.target.value); if (isNaN(v)) return;
-        const maxT = Math.max(150, state.wallH - 2400), want = Math.round(v / 10) * 10;
+        const maxT = Math.max(150, wallHMM(id) - 2400), want = Math.round(v / 10) * 10;
         mutate(() => { state.bover[id] = { ...bov(id), th: Math.min(maxT, Math.max(150, want)) }; });
         if (want > maxT) toast(tr(`窗花高度受墙高限制：最多 ${maxT} mm`, `Transom height limited by wall: max ${maxT} mm`));
       };
@@ -7931,14 +7932,16 @@
       }
       mutate(() => state.walls.push({ id: uid(), a: [a.x, a.y], b: [b.x, b.y] }));
       ui.wallSnapPt = null;
+      const dl = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+      wallPrevDir = { x: (b.x - a.x) / dl, y: (b.y - a.y) / dl };                 // 记下这一段方向：连续键入长度但没动鼠标时沿用
       if (closing) { wStart = wCur = wallChainStart = null; toast(tr('已闭合', 'Closed')); }   // 闭环结束连续画墙
       else { wStart = b; wCur = null; }                                           // 连续画：从这段墙的末端继续
     }
-    // 输入长度画墙：方向沿用当前预览方向（直角 / 自由模式 / Shift 锁轴），没动过鼠标则默认水平向右
+    // 输入长度画墙：方向沿用当前预览方向（直角 / 自由模式 / Shift 锁轴）；刚提交过一段没动鼠标时沿用上一段方向
     function commitWallLen() {
       const v = Math.round(parseFloat($('#wallLen').value) || 0);
-      if (v < 100) return;
-      let dx = wCur.x - wStart.x, dy = wCur.y - wStart.y;
+      if (v < 100 || !wStart) return;
+      let dx = wCur ? wCur.x - wStart.x : (wallPrevDir ? wallPrevDir.x : 1), dy = wCur ? wCur.y - wStart.y : (wallPrevDir ? wallPrevDir.y : 0);
       if (!dx && !dy) dx = 1;
       const L = Math.hypot(dx, dy);
       drawCommit(wStart, { x: Math.round(wStart.x + dx / L * v), y: Math.round(wStart.y + dy / L * v) });
@@ -8210,6 +8213,7 @@
     // 把门窗钳位到墙的有效范围内（墙变短后调用）
     function clampOpening(o) {
       const g = openingWallGeom(o.wall); if (!g) return false;
+      if (g.L < 300) { o.w = g.L; o.c = 0; return true; }            // 墙比最小洞宽还短：洞只能占满整面墙，否则两端会越出墙外
       o.w = Math.max(300, Math.min(g.L, o.w)); o.c = Math.max(0, Math.min(g.L - o.w, o.c));
       return true;
     }
@@ -8514,7 +8518,7 @@
 
     /* ======================= 指针交互 ======================= */
     let drag = null, pinch = null;
-    let wStart = null, wCur = null;                // 画墙模式：当前线段的起点 / 终点
+    let wStart = null, wCur = null, wallPrevDir = null;   // 画墙模式：当前线段的起点 / 终点 / 上一段方向（连续输入长度时用）
     const touches = new Map();                     // 当前按在平面图上的手指
     const svgXY = (x, y) => { const r = svg.getBoundingClientRect(); return [x - r.left, y - r.top]; };
     function pinchInfo() {
@@ -9685,7 +9689,10 @@
             else if (!ui.wallFree) { q.x = lk.x; q.y = lk.y; }     // 直角模式交不上 / 没靠墙：严格锁轴，不吸偏画出斜墙
             else if (ws) { q.x = ws.x; q.y = ws.y; }
           }
-          if (drag.end) w.b = [q.x, q.y]; else w.a = [q.x, q.y];
+          const fixed = drag.end ? w.a : w.b;                      // 最短 300mm：与内置墙端点拖拽同一限制，防止拖成 0 长退化墙（洞口会越出墙外）
+          const vx = q.x - fixed[0], vy = q.y - fixed[1], vl = Math.hypot(vx, vy);
+          const np = vl >= 300 ? [q.x, q.y] : vl > 1 ? [fixed[0] + vx / vl * 300, fixed[1] + vy / vl * 300] : (drag.end ? w.b : w.a);
+          if (drag.end) w.b = np; else w.a = np;
           state.openings.filter(o => o.wall === drag.id).forEach(clampOpening);   // 墙变短后把门窗钳回墙内
         } else if (drag.kind === 'bopenMove') {
           const hz = LONG(bopenRect(drag.id));
@@ -10481,24 +10488,24 @@
     $('#fileIn').onchange = e => {
       const file = e.target.files[0]; if (!file) return;
       file.text().then(txt => {
-        try { const s = JSON.parse(txt); if (!Array.isArray(s.furniture)) throw 0; applyLayers(s); const b = snap(); state = fixState(s); ui.sel = null; commit(b); markDirty(false); renderAll(); syncPlanName(file.name.replace(/\.json$/i, '')); toast(tr('方案已导入', 'Plan imported')); }
+        try { const s = JSON.parse(txt); if (!Array.isArray(s.furniture)) throw 0; applyLayers(s); const b = snap(); state = fixState(s); ui.sel = null; commit(b); keepOneUndo(); markDirty(false); renderAll(); syncPlanName(file.name.replace(/\.json$/i, '')); toast(tr('方案已导入', 'Plan imported')); }
         catch (err) { toast(tr('文件格式不正确', 'Invalid file format')); }
       });
       e.target.value = '';
     };
-    $('#reset').onclick = async () => { if (await uiConfirm(tr('恢复为默认设计方案？（可撤销）', 'Reset to the default design? (undoable)'))) { const b = snap(); state = defaultState(); ui.sel = null; commit(b); renderAll(); syncPlanName(''); } };
+    $('#reset').onclick = async () => { if (await uiConfirm(tr('恢复为默认设计方案？（可撤销）', 'Reset to the default design? (undoable)'))) { const b = snap(); state = defaultState(); ui.sel = null; commit(b); keepOneUndo(); renderAll(); syncPlanName(''); } };
 
     $('#newPlan').onclick = async () => {
       if (!await uiConfirm(tr('新建完全空白的方案？（清空房间、墙体、门窗与家具，从零开始；当前布置可 Ctrl+Z 恢复）', 'Create a truly blank plan? (rooms, walls, doors / windows and furniture all cleared; Ctrl+Z restores the current layout)'))) return;
       const b = snap();
       state = blankState();
-      ui.sel = null; commit(b); markDirty(false); renderAll(); syncPlanName('');
+      ui.sel = null; commit(b); keepOneUndo(); markDirty(false); renderAll(); syncPlanName('');
       toast(tr('已新建空白方案，可用「设计 → 画墙」从零搭建', 'Blank plan created — draw walls in "Design" mode'));
     };
 
     /* ======================= 服务器方案（Python 后端 /api/plans） ======================= */
     const planURL = n => '/api/plans/' + encodeURIComponent(n);
-    const cloudLoad = (s, name) => { applyLayers(s); const b = snap(); state = fixState(s); ui.sel = null; commit(b); markDirty(false); renderAll(); syncPlanName(name || ''); autoSaved = JSON.stringify({ ...state, layers: ui.layers }); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };
+    const cloudLoad = (s, name) => { applyLayers(s); const b = snap(); state = fixState(s); ui.sel = null; commit(b); keepOneUndo(); markDirty(false); renderAll(); syncPlanName(name || ''); autoSaved = JSON.stringify({ ...state, layers: ui.layers }); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };
     const cloudFail = () => toast(tr('操作失败：请确认程序已启动', 'Failed — make sure the app is running'));
 
     /* 自动保存：改动后 2 秒写入当前方案——已命名的方案直接回写自身，未命名 / 草稿仍写「自动保存」槽位（静默进行，失败不打扰，下次改动再试） */
@@ -11751,7 +11758,14 @@
     }
 
     /* ======================= 建筑 ======================= */
-    function clearGroup(g) { g.traverse(o => { if (o.geometry) o.geometry.dispose(); }); g.clear(); }
+    function clearGroup(g) {
+      g.traverse(o => {
+        if (o.geometry) o.geometry.dispose();
+        if (o.material && o.material.userData && o.material.userData._disposable) o.material.dispose();   // 克隆的一次性材质一并释放（mat() 缓存的共享材质不动）
+      });
+      g.clear();
+    }
+    const oneMat = m => { m.userData._disposable = true; return m; };   // 标记一次性材质（clone 出来的），方案重建时随 clearGroup 释放
     let pickWallId = null, pickWallKind = 'wall';                // 当前正在建模的墙 id / kind（门洞墙垛也归属这面墙）
     const tagPick = (o, kind, id) => { if (o && id != null) o.userData.pick3d = { kind, id }; return o; };   // 3D 点击选中标记
     const markNew = (start, kind, id) => { for (let i = start; i < archUp.children.length; i++) { const o = archUp.children[i]; if (!o.userData.pick3d) tagPick(o, kind, id); } };   // 已标记的（如墙垛）保持原归属
@@ -11774,6 +11788,7 @@
       const h = T / 2, xs = [P0[0] - h, P0[0] + h, P1[0] - h, P1[0] + h], ys = [P0[1] - h, P0[1] + h, P1[1] - h, P1[1] + h];
       colliders.push([wx(Math.min(...xs)), wz(Math.min(...ys)), wx(Math.max(...xs)), wz(Math.max(...ys))]);
     }
+    const pushSillCollider = (P0, P1, T, dB) => { if (dB > .35) pushWallCollider(P0, P1, T); };   // 门槛 / 龛底矮墙：高过半步才挡路，矮门槛可直接跨过
     function wallSeg3D(P0, P1, T, yb, yt) {
       const L = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]);
       if (L < 1 || yt - yb <= .001) return;
@@ -11849,7 +11864,7 @@
       const pg = new THREE.Group();
       pg.position.set(p0[0], 0, p0[1]); pg.rotation.y = rot;
       const sash = { pivot: pg, win: true, open: false, a0: rot, a1: rot + sgn * 1.3, cur: rot };
-      const pane = new THREE.Mesh(new THREE.BoxGeometry(len, wh, .014), glassMat.clone());   // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击
+      const pane = new THREE.Mesh(new THREE.BoxGeometry(len, wh, .014), oneMat(glassMat.clone()));   // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击
       pane.position.set(len / 2, yb + wh / 2, 0); pane.userData.door = sash; pg.add(pane);
       const bar = (w, h, x, y) => {                             // 扇框：四边梃
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, .045), frameMat);
@@ -12207,7 +12222,10 @@
           seam.userData.door = edoor; panel.add(seam);
         }
         panel.userData.door = pg.userData.door = edoor; pg.add(panel);
-        edoor.pivots.push({ g: pg, px: pg.position.x, pz: pg.position.z, ax: 0, az: sd, dist: DW / 2 });
+        {                                                    // 门扇滑动方向在轿厢局部系里，预换算成世界系（blocked 用）
+          const th = -(l.dir || 0) * Math.PI / 180;
+          edoor.pivots.push({ g: pg, px: pg.position.x, pz: pg.position.z, ax: 0, az: sd, dist: DW / 2, pw: leaf, ew: [Math.sin(th) * sd, Math.cos(th) * sd] });
+        }
         g.add(pg);
       });
       const fr = (w, h, d, x, y, z) => {                        // 门套不锈钢包边：两侧立梃 + 上横梁（地面侧不加边框，也挂交互可点关门）
@@ -12243,14 +12261,19 @@
         return;
       }
       const WL = Math.hypot(B[0] - A[0], B[1] - A[1]);               // 墙可能被改短：把门窗钳回墙内再建
-      const c0 = Math.max(0, Math.min(o.c, WL)), c1 = Math.max(0, Math.min(WL, o.c + o.w));
+      let c0 = Math.max(0, Math.min(o.c, WL)), c1 = Math.max(0, Math.min(WL, o.c + o.w));
       if (c1 - c0 < 10) return;
+      if (o.kind === 'fwin' && o.cg) {                               // 转角窗：与 2D 一致，窗段贴到墙角（400mm 内）时延伸到墙面外沿，否则墙垛被抑制处会留下通高缝
+        if (c0 > 0 && c0 <= 400) c0 = 0;
+        if (c1 < WL && c1 >= WL - 400) c1 = WL;
+      }
       o = { ...o, c: c0, w: c1 - c0 };
       const [P0, P1] = segPts(A, B, o.c, o.c + o.w);
       const dB = Math.max(0, Math.min((o.sill ?? 0) / 1000, top - .5));            // 门槛高：门洞下沿离地
       const dT = dB + Math.max(.5, Math.min((o.dh ?? 2100) / 1000, top - dB));     // 门洞顶标高
       if (o.kind === 'door') {
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);          // 门槛下的矮墙
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);         // 门洞上方过梁
         const inset = Math.min(60, o.w * .1);                // 门套占位：门扇两侧各让出 60mm
         addDoorLeaf(A, B, { ...o, c: o.c + inset, w: o.w - inset * 2 }, top, dB, dT - dB);
@@ -12259,6 +12282,7 @@
       }
       if (o.kind === 'yak') {                                // 垭口：只有洞口 + 门套，无门扇（可直接穿行）
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);         // 洞上方过梁
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T), hh = dT - dB, cm = doorCasingMat(o);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;
@@ -12318,6 +12342,7 @@
         const dep = Math.max(.05, Math.min((o.nd ?? 250) / 1000, TT - .03));         // 龛深
         wallSeg3D(P0, P1, T, 0, sill);                       // 龛下墙
         if (top > head + .001) wallSeg3D(P0, P1, T, head, top);       // 龛上墙
+        pushSillCollider(P0, P1, T, sill);                   // 龛下矮墙挡路（高于半步时人不能从龛位穿墙）
         const side = o.flip ? 1 : -1, openZ = side * TT / 2, backZ = side * (TT / 2 - dep);
         const grp = new THREE.Group(); grp.position.set(mx, 0, mz); grp.rotation.y = rot; archUp.add(grp);
         const inMat = mat('#e6ddcd', { roughness: .95 }), trimMat = mat('#d8cbb4', { roughness: .8 });
@@ -12339,10 +12364,12 @@
         const head = Math.min(sill + wh, top);
         wallSeg3D(P0, P1, T, 0, sill);
         if (top > head + .001) wallSeg3D(P0, P1, T, head, top);
+        pushSillCollider(P0, P1, T, sill);                   // 洞下矮墙挡路（洞开在半空，人不能从洞位穿墙而过）
         return;
       }
       if (o.kind === 'dble' || o.kind === 'zimu') {          // 双开门 / 子母门：两扇对开（子母门大扇在左）
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);         // 门洞上方过梁
         const fr = o.kind === 'dble' ? .5 : .62;
         const inset = Math.min(60, o.w * .06), uw = Math.max(.2, o.w - inset * 2);   // 门套占位
@@ -12357,6 +12384,7 @@
         const [PA, PB] = segPts(A, B, o.c + d0, o.c + d0 + dWMM);
         const [PC, PD] = o.hflip ? segPts(A, B, o.c, o.c + wWMM) : segPts(A, B, o.c + dWMM, o.c + o.w);   // 窗段
         if (dB > .001) wallSeg3D(PA, PB, T, 0, dB);
+        pushSillCollider(PA, PB, T, dB);
         if (top > dT) wallSeg3D(PA, PB, T, dT, top);         // 门上方过梁
         const inset = Math.min(60, dWMM * .1);               // 门套占位：门扇两侧各让出 60mm
         addDoorLeaf(A, B, { ...o, c: o.c + d0 + inset, w: dWMM - inset * 2, hflip: !!o.hflip }, top, dB, dT - dB);
@@ -12552,6 +12580,7 @@
         const hh = Math.max(.5, dT - dB), L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);
         const pw = L / 2 - .015;
         [-1, 1].forEach(sd => {                               // 两扇各占一半，分别贴在墙厚两侧
@@ -12581,7 +12610,7 @@
           const ring = new THREE.Mesh(new THREE.TorusGeometry(r, .035, 10, 44), frameMat);
           ring.rotation.x = Math.PI / 2; ring.position.set(mx, y, mz); ring.castShadow = true; archUp.add(ring);
         });
-        const wingMat = glassMat.clone();
+        const wingMat = oneMat(glassMat.clone());
         for (let k = 0; k < 3; k++) {                          // 三翼旋翼
           const ang = rot + k * Math.PI * 2 / 3, grpW = new THREE.Group();
           grpW.position.set(mx, dB + hh / 2, mz); grpW.rotation.y = ang; archUp.add(grpW);
@@ -12597,6 +12626,7 @@
       if (o.kind === 'roller') {                             // 卷帘门：顶部卷帘箱 + 帘片，点击卷起 / 放下（开启后可穿行）
         const hh = Math.max(.3, Math.min(dT - dB, top - dB));           // 帘片高度 = 门高（门槛以上到门洞顶）
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);                     // 门槛下的矮墙
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);                    // 门洞上方过梁
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const housing = new THREE.Mesh(new THREE.BoxGeometry(L, .2, TT * .96), frameMat);   // 卷帘箱（挂洞口顶部，略薄于墙厚）
@@ -12620,6 +12650,7 @@
       if (o.kind === 'elev') {                               // 电梯门：金属中分双扇，点击开合（扇板滑入墙内）
         const hh = dT - dB;
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);          // 门槛下的墙
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);         // 门洞上方过梁
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;   // 沿墙单位方向（世界系）
@@ -12633,7 +12664,7 @@
           panel.castShadow = true; pg.add(panel);
           const seam = new THREE.Mesh(new THREE.BoxGeometry(.02, hh, TT * .27), frameMat);   // 扇面中缝饰条
           seam.position.x = -sd * pw / 2; seam.userData.door = edoor; panel.add(seam);
-          edoor.pivots.push({ g: pg, px: pg.position.x, pz: pg.position.z, ax: dx * sd, az: dz * sd, dist: L / 2 });
+          edoor.pivots.push({ g: pg, px: pg.position.x, pz: pg.position.z, ax: dx * sd, az: dz * sd, dist: L / 2, pw });
           panel.userData.door = pg.userData.door = edoor;
           archUp.add(pg);
         });
@@ -12675,7 +12706,7 @@
           bar.position.set(mx, y, mz); bar.rotation.y = rot; bar.castShadow = true; archUp.add(bar);
         });
         if (o.cg) {                                          // 转角窗：转角只补一根与窗梃同款的 60×60 立柱（不按墙厚填玻璃，避免转角出现大块玻璃柱）
-          const atStart = c0 <= .5, atEnd = c1 >= WL - .5;    // 两段都贴转角时只补一次：由贴在墙端的那段负责
+          const atStart = c0 <= 400, atEnd = c1 >= WL - 400;  // 贴转角判定统一 400mm（与 2D 延伸 / lbCornerAt 同一阈值）；两段都贴转角时只补一次：由贴在墙端的那段负责
           let addPost = atEnd;
           if (atStart && !atEnd) {
             const mate = state.openings.find(p => p.cg === o.cg && p.id !== o.id);
@@ -12684,8 +12715,8 @@
             if (!mg) addPost = true;
             else {
               const mwl = Math.hypot(mg.B[0] - mg.A[0], mg.B[1] - mg.A[1]) || 1;
-              const mateAt = (Math.hypot(mg.A[0] - cp[0], mg.A[1] - cp[1]) <= .5 && mate.c <= .5) ||
-                             (Math.hypot(mg.B[0] - cp[0], mg.B[1] - cp[1]) <= .5 && mate.c + mate.w >= mwl - .5);
+              const mateAt = (Math.hypot(mg.A[0] - cp[0], mg.A[1] - cp[1]) <= 400 && mate.c <= 400) ||
+                             (Math.hypot(mg.B[0] - cp[0], mg.B[1] - cp[1]) <= 400 && mate.c + mate.w >= mwl - 400);
               addPost = !mateAt;
             }
           }
@@ -12701,17 +12732,18 @@
       if (o.kind === 'slid') {                               // 推拉门：玻璃双扇，点哪扇开哪扇（沿轨道滑向对面叠上）
         const hh = dT - dB;
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);          // 门槛下的墙
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);         // 门洞上方过梁
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;
-        const sg = glassMat.clone();                         // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击开合
+        const sg = oneMat(glassMat.clone());                         // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击开合
         [-1, 1].forEach(sd => {
           const pw = L / 2 - .01, pg = new THREE.Group();
           const tnx = dz * sd * TT * .09, tnz = -dx * sd * TT * .09;   // 双轨道：两扇沿墙厚各偏一侧，交错滑行不打架
           pg.position.set(mx + dx * sd * L / 4 + tnx, 0, mz + dz * sd * L / 4 + tnz); pg.rotation.y = rot;
           const panel = new THREE.Mesh(new THREE.BoxGeometry(pw, hh, TT * .12), sg);
           panel.position.y = dB + hh / 2; pg.add(panel);
-          const pdoor = { slide: true, open: false, cur: 0, pivots: [{ g: pg, px: pg.position.x, pz: pg.position.z, ax: -dx * sd, az: -dz * sd, dist: L / 2 - .02 }] };   // 点哪扇开哪扇：该扇滑向对面、叠在另一扇上
+          const pdoor = { slide: true, open: false, cur: 0, pivots: [{ g: pg, px: pg.position.x, pz: pg.position.z, ax: -dx * sd, az: -dz * sd, dist: L / 2 - .02, pw }] };   // 点哪扇开哪扇：该扇滑向对面、叠在另一扇上
           panel.userData.door = pg.userData.door = pdoor;
           const trim = (w, h, ox, oy) => {                     // 扇框：四周边梃 + 上下横梃
             const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, TT * .16), frameMat);
@@ -12731,16 +12763,17 @@
       if (o.kind === 'sd') {                                 // 单扇推拉门：一扇玻璃门走在墙体外侧轨道，点门扇滑开
         const hh = dT - dB;
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;
         const off = TT / 2 + .035;                           // 门扇贴墙外侧走，滑开时不穿墙
-        const sg = glassMat.clone(), pg = new THREE.Group();
+        const sg = oneMat(glassMat.clone()), pg = new THREE.Group();
         pg.position.set(mx + dz * off, 0, mz - dx * off); pg.rotation.y = rot;
         const pw = L - .06;
         const pane = new THREE.Mesh(new THREE.BoxGeometry(pw, hh, .02), sg);
         pane.position.y = dB + hh / 2; pg.add(pane);
-        const pdoor = { slide: true, open: false, cur: 0, pivots: [{ g: pg, px: pg.position.x, pz: pg.position.z, ax: -dx, az: -dz, dist: L * .92 }] };
+        const pdoor = { slide: true, open: false, cur: 0, pivots: [{ g: pg, px: pg.position.x, pz: pg.position.z, ax: -dx, az: -dz, dist: L * .92, pw }] };
         pane.userData.door = pg.userData.door = pdoor;
         const trim = (w, h, ox, oy) => {                     // 扇框：左右竖梃 + 上下横梃
           const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, .05), frameMat);
@@ -12760,10 +12793,11 @@
       if (o.kind === 'fold') {                               // 折叠门：4 扇平开为关门状态，点门扇两两折起在洞口两侧（V 形）
         const hh = dT - dB;
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);
+        pushSillCollider(P0, P1, T, dB);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;
-        const N = 4, pw = L / N, th = Math.PI / 3, sg = glassMat.clone();
+        const N = 4, pw = L / N, th = Math.PI / 3, sg = oneMat(glassMat.clone());
         const dir = o.flip ? -1 : 1;                         // 折向房间一侧，避免穿墙
         const wp = (s, z) => [mx + dx * s + dz * z * dir, mz + dz * s - dx * z * dir];
         const makeLeaf = (d, parent) => {                    // 每扇以铰链为原点，向局部 +x 方向伸出
@@ -12825,7 +12859,7 @@
         });
       }
       if (top > head) wallSeg3D(P0, P1, T, head, top);       // 窗顶以上墙段
-      const cy = sill + gh / 2, sg = glassMat.clone();        // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击
+      const cy = sill + gh / 2, sg = oneMat(glassMat.clone());        // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击
       const NP = Math.max(1, Math.min(4, Math.round(+o.panes || 2)));   // 窗扇数：属性可调（默认 2 扇，1–4），偶数序号扇走左轨、奇数走右轨
       for (let i = 0; i < NP; i++) {                          // 点哪扇开哪扇，沿墙滑过相邻扇叠起来
         const sd = i % 2 === 0 ? -1 : 1;
@@ -13885,6 +13919,7 @@
         o.material.side = side; o.material.needsUpdate = true;
       });
     }
+    const _v1 = new THREE.Vector3();                             // blocked() 复用的临时向量（避免漫游每帧分配）
     function blocked(x, z, r = .22) {
       for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
       for (const d of doors) {
@@ -13904,12 +13939,15 @@
           }
           continue;
         }
-        if (d.slide) {                                      // 电梯门：闭合时两扇都挡路，开启后可穿行
+        if (d.slide) {                                      // 推拉门 / 电梯门：闭合时按门扇实际覆盖范围挡路，开启后可穿行
           if (d.open) continue;
           for (const p of d.pivots) {
-            const a = p.g.rotation.y, px = p.g.position.x, pz = p.g.position.z, ex = px + Math.cos(a) * .9, ez = pz - Math.sin(a) * .9;
-            const t = clamp01(((x - px) * (ex - px) + (z - pz) * (ez - pz)) / ((ex - px) ** 2 + (ez - pz) ** 2));
-            if (Math.hypot(x - (px + t * (ex - px)), z - (pz + t * (ez - pz))) < r * .8) return true;
+            p.g.getWorldPosition(_v1);                       // 门扇组可能嵌在带旋转的父组里（电梯 l.dir），位置取世界系
+            const ux = p.ew ? p.ew[0] : p.ax, uz = p.ew ? p.ew[1] : p.az;   // 门扇铺开方向：墙上门是世界系 ax/az；电梯门是轿厢局部系，建门时已换算成世界系 ew
+            const hw = (p.pw ?? .9) / 2;                     // 门扇以组原点为中心、沿铺开方向 ±pw/2
+            let t = ((x - _v1.x) * ux + (z - _v1.z) * uz) / hw;
+            t = Math.max(-1, Math.min(1, t));
+            if (Math.hypot(x - (_v1.x + ux * hw * t), z - (_v1.z + uz * hw * t)) < r * .8) return true;
           }
           continue;
         }

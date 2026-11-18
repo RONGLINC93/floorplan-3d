@@ -21,12 +21,31 @@ CTYPES = {".html": "text/html; charset=utf-8", ".js": "text/javascript; charset=
           ".wasm": "application/wasm", ".woff2": "font/woff2", ".txt": "text/plain; charset=utf-8"}
 
 
+_WINDOWS_RESERVED = {"con", "prn", "aux", "nul"} | {f"com{i}" for i in range(1, 10)} | {f"lpt{i}" for i in range(1, 10)}
+
+
 def plan_path(name: str) -> Path:
     """校验方案名（防路径穿越），返回对应的 JSON 文件路径。"""
     name = name.strip()
-    if not name or len(name) > 80 or "/" in name or "\\" in name or name in {".", ".."}:
+    # 拦 / \ ..、Windows 盘符冒号（PureWindowsPath 遇 'C:x' 会整体换盘符逃出数据目录）、
+    # 控制字符与 Windows 保留设备名（con / nul / com1 …）
+    if (not name or len(name) > 80 or "/" in name or "\\" in name or ":" in name
+            or name in {".", ".."} or any(ord(c) < 32 for c in name)
+            or name.split(".")[0].lower() in _WINDOWS_RESERVED):
         raise ValueError("方案名不合法")
     return DATA_DIR / (name + ".json")
+
+
+_PLAN_LOCKS = {}                     # 方案写入锁：同名方案并发保存互斥（固定 .tmp 文件名下必须串行）
+_PLAN_LOCKS_GUARD = threading.Lock()
+
+
+def _plan_lock(path: Path) -> threading.Lock:
+    with _PLAN_LOCKS_GUARD:
+        lk = _PLAN_LOCKS.get(path)
+        if lk is None:
+            lk = _PLAN_LOCKS[path] = threading.Lock()
+        return lk
 
 
 class Handler(BaseHTTPRequestHandler):
@@ -140,10 +159,14 @@ class Handler(BaseHTTPRequestHandler):
             if not p.is_file():
                 self._reply(404, {"detail": "方案不存在"}); return
             DATA_DIR.mkdir(parents=True, exist_ok=True)
-            thumb = p.with_suffix(".png")
-            tmp = thumb.with_suffix(".png.tmp")
-            tmp.write_bytes(data)
-            tmp.replace(thumb)
+            try:
+                with _plan_lock(p):
+                    thumb = p.with_suffix(".png")
+                    tmp = thumb.with_suffix(".png.tmp")
+                    tmp.write_bytes(data)
+                    tmp.replace(thumb)
+            except OSError:
+                self._reply(500, {"detail": "缩略图写入失败（磁盘 / 权限）"}); return
             self._reply(200, {"ok": True}); return
         try:
             data = json.loads(self.rfile.read(n).decode("utf-8"))
@@ -152,12 +175,16 @@ class Handler(BaseHTTPRequestHandler):
         if not isinstance(data, dict) or not isinstance(data.get("furniture"), list):
             self._reply(400, {"detail": "方案数据不完整"}); return
         DATA_DIR.mkdir(parents=True, exist_ok=True)
-        tmp = p.with_suffix(".json.tmp")    # 先写临时文件再原子替换，避免写一半损坏
-        tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
-        tmp.replace(p)
+        try:
+            with _plan_lock(p):
+                tmp = p.with_suffix(".json.tmp")    # 先写临时文件再原子替换，避免写一半损坏（同名并发由 _plan_lock 串行化）
+                tmp.write_text(json.dumps(data, ensure_ascii=False, indent=2), encoding="utf-8")
+                tmp.replace(p)
+        except OSError:
+            self._reply(500, {"detail": "方案写入失败（磁盘 / 权限）"}); return
         try:
             p.with_suffix(".png").unlink()   # 覆盖方案后清除旧图，等待本次保存上传新缩略图
-        except FileNotFoundError:
+        except OSError:
             pass
         self._reply(200, {"ok": True})
 
@@ -168,11 +195,11 @@ class Handler(BaseHTTPRequestHandler):
             p = self._plan_name()
         except ValueError as e:
             self._reply(400, {"detail": str(e)}); return
-        if p.exists():
-            p.unlink()
         try:
+            if p.exists():
+                p.unlink()
             p.with_suffix(".png").unlink()
-        except FileNotFoundError:
+        except OSError:
             pass
         self._reply(200, {"ok": True})
 
