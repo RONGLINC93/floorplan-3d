@@ -2293,9 +2293,11 @@
         <button class="btn chip on" data-layer="labels" data-en="Rooms">房间</button>
         <button class="btn chip on" data-layer="furn" data-en="Furniture">家具</button>
         <button class="btn chip" data-layer="links" title="始终显示所有开关关联线（开关联络线 + 开关到灯的线）；关闭则仅选中时显示"
-          data-en-title="Always show all switch link lines; when off, only show for the selected object" data-en="Links">关联线</button>
+          data-en-title="Always show all switch link lines; when off, only show for the selected object"
+          data-en="Links">关联线</button>
         <button class="btn chip" data-layer="lightRadius" title="始终显示所有灯的照亮半径圈（含关着的灯）；关闭则仅显示亮着的灯与选中灯"
-          data-en-title="Always show every lamp's light radius (including off lamps); when off, only lit and selected lamps" data-en="Light radius">灯光半径</button>
+          data-en-title="Always show every lamp's light radius (including off lamps); when off, only lit and selected lamps"
+          data-en="Light radius">灯光半径</button>
         <button class="btn chip" data-layer="grid" data-en="Grid">网格</button>
         <button class="btn chip on" data-layer="axis" title="在图纸左下角显示 X / Y 方向指示（跟着图纸一起平移、缩放、旋转）"
           data-en-title="X / Y axis indicator at the plan's bottom-left corner" data-en="Axes">坐标轴</button>
@@ -2875,7 +2877,7 @@
     /* ======================= 多语言（中文 / English，默认中文） ======================= */
     const LANG_KEY = 'huxing-lang';
     const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字）/ English
-    const APP_VER = '1.0.12';                       // 应用版本号：release.py 发布后自动同步 manifest 的 version=
+    const APP_VER = '1.0.13';                       // 应用版本号：release.py 发布后自动同步 manifest 的 version=
     let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zh'; } catch (e) { return 'zh'; } })();
     // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
     const S2T_PHRASES = [['布置', '佈置'], ['布局', '佈局'], ['台面', '檯面'], ['复制', '複製']];
@@ -4067,7 +4069,7 @@
       const byId = new Map(sws.map(s => [s.id, s]));
       const seeds = showAll ? sws.map(s => s.id)
         : isSwitchType(sel.type) ? [sel.id]
-        : sws.filter(s => switchTargets(s).some(x => x.id === sel.id)).map(s => s.id);   // 选中开关=它自己；选中灯=控制它的开关；全局=全部
+          : sws.filter(s => switchTargets(s).some(x => x.id === sel.id)).map(s => s.id);   // 选中开关=它自己；选中灯=控制它的开关；全局=全部
       const group = switchGroup(seeds);
       const seen = new Set();
       let out = '';
