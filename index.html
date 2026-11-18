@@ -12108,10 +12108,11 @@
         const lgs = (o.legs || []).map(leg => {
           const lg = openingWallGeom(leg.wall); if (!lg) return null;
           const [PA, PB] = segPts(lg.A, lg.B, leg.c - leg.w / 2, leg.c + leg.w / 2);   // leg.c 为段中心
-          buildOpening3D(PA, PB, { ...o, kind: 'bay', c: 0, w: leg.w, bayFlip: leg.flip, lcorner: leg.lc, panes: leg.panes ?? o.panes }, top, lg.T);
-          return { PA, PB, leg };
+          return { PA, PB, leg, lg };
         }).filter(Boolean);
-        if (lgs.length === 2) buildLBayCorner3D(o, lgs, top);      // 转角补齐：缺的台板与玻璃
+        const both = lgs.length === 2;                            // 两段都在：台板 / 坐板改为转角处整条生成（同一块板），避免三块板搭接错台
+        lgs.forEach(({ PA, PB, leg, lg }) => buildOpening3D(PA, PB, { ...o, kind: 'bay', c: 0, w: leg.w, bayFlip: leg.flip, lcorner: leg.lc, noPlate: both, panes: leg.panes ?? o.panes }, top, lg.T));
+        if (both) buildLBayCorner3D(o, lgs, top);                  // 转角补齐：缺的台板与玻璃
         return;
       }
       const WL = Math.hypot(B[0] - A[0], B[1] - A[1]);               // 墙可能被改短：把门窗钳回墙内再建
@@ -12326,15 +12327,17 @@
         if (top > head) wallSeg3D(P0, P1, T, head, top);     // 窗上过梁
         const cx = mx + nx * dep / 2, cz = mz + nz * dep / 2;
         const lcEnd = o.lcorner || 0;                         // 转角飘窗的转角端：台板收到洞口边，交给转角台板拼接
-        const slabL = L + (lcEnd ? .03 : .06), slabOff = -lcEnd * .015;
-        const sx = cx + dx * slabOff, sz = cz + dz * slabOff;
-        [sill - .03, head + .03].forEach(y => {              // 上下窗台板：收薄到 60mm，避免窗洞四周一圈深色宽边框
-          const slab = new THREE.Mesh(new THREE.BoxGeometry(slabL, .06, dep + .03), frameMat);
-          slab.position.set(sx, y, sz); slab.rotation.y = rot;
-          slab.castShadow = slab.receiveShadow = true; archUp.add(slab);
-        });
-        const seat = new THREE.Mesh(new THREE.BoxGeometry(L, .04, dep), mat('#e9e2d4', { roughness: .9 }));   // 窗台坐板
-        seat.position.set(cx, sill + .02, cz); seat.rotation.y = rot; seat.receiveShadow = true; archUp.add(seat);
+        if (!o.noPlate) {                                     // 转角飘窗（两段都在）时台板 / 坐板由 buildLBayCorner3D 整条生成，这里不再各段各出一块
+          const slabL = L + (lcEnd ? .03 : .06), slabOff = -lcEnd * .015;
+          const sx = cx + dx * slabOff, sz = cz + dz * slabOff;
+          [sill - .03, head + .03].forEach(y => {             // 上下窗台板：收薄到 60mm，避免窗洞四周一圈深色宽边框
+            const slab = new THREE.Mesh(new THREE.BoxGeometry(slabL, .06, dep + .03), frameMat);
+            slab.position.set(sx, y, sz); slab.rotation.y = rot;
+            slab.castShadow = slab.receiveShadow = true; archUp.add(slab);
+          });
+          const seat = new THREE.Mesh(new THREE.BoxGeometry(L, .04, dep), mat('#e9e2d4', { roughness: .9 }));   // 窗台坐板
+          seat.position.set(cx, sill + .02, cz); seat.rotation.y = rot; seat.receiveShadow = true; archUp.add(seat);
+        }
         if (o.bayCurve) {                                     // 弧形飘窗：正面为圆弧玻璃（平面片近似），两端接墙面
           const R = (L * L / 4 + dep * dep) / (2 * dep);      // 弦长 L、矢高 dep 的圆弧半径
           const pcx = mx - nx * (R - dep), pcz = mz - nz * (R - dep);   // 圆心（室内侧）
@@ -12705,7 +12708,8 @@
       });
       pushWallCollider(P0, P1, T);                           // 窗下不能穿行
     }
-    // 转角飘窗转角补齐：补上两段之间缺的台板 / 坐板 / 两面转角玻璃（否则转角是敞开的缺口）
+    // 转角飘窗转角补齐：台板 / 坐板整条按一个 L 形轮廓生成（转角斜接），再补上两段之间缺的两面转角玻璃。
+    // 之前的做法是把两段的台板各出一块 + 转角处用世界坐标包围盒补一个方块，转角会外扩 / 压进墙里，上下面都出现台阶。
     function buildLBayCorner3D(o, legs, top) {
       const dep = Math.max(.15, Math.min((o.bayDepth ?? 600) / 1000, 1.5)), depMM = dep * 1000;
       const sill = Math.max(0, Math.min((o.sill ?? 500) / 1000, top - .5));
@@ -12714,29 +12718,41 @@
       const info = legs.map(({ PA, PB, leg }) => {
         const dx = PB[0] - PA[0], dy = PB[1] - PA[1], L = Math.hypot(dx, dy) || 1;
         const u = [dx / L, dy / L], n = [-u[1], u[0]], side = leg.flip ? -1 : 1, ov = [n[0] * side, n[1] * side];
-        const Pc = leg.lc === -1 ? PA : PB;
-        return { u, ov, Pc, Qc: [Pc[0] + ov[0] * depMM, Pc[1] + ov[1] * depMM] };
+        const Pc = leg.lc === -1 ? PA : PB, far = leg.lc === -1 ? PB : PA;   // Pc 转角端 / far 另一端
+        const fl = Math.hypot(far[0] - Pc[0], far[1] - Pc[1]) || L;
+        return {
+          u, ov, Pc, fl, away: [(far[0] - Pc[0]) / fl, (far[1] - Pc[1]) / fl],
+          Qc: [Pc[0] + ov[0] * depMM, Pc[1] + ov[1] * depMM]
+        };
       });
       if (info.length < 2) return;
-      const a = info[0], b = info[1], cr = a.u[0] * b.u[1] - a.u[1] * b.u[0];
-      if (Math.abs(cr) < 1e-6) return;
-      const t = ((b.Qc[0] - a.Qc[0]) * b.u[1] - (b.Qc[1] - a.Qc[1]) * b.u[0]) / cr;
-      if (!isFinite(t)) return;
-      const X = [a.Qc[0] + a.u[0] * t, a.Qc[1] + a.u[1] * t];
-      const OV = 30;                                         // 转角台板也外挑 30mm，与两段台板的外沿齐平拼接
-      const aQ = [a.Qc[0] + a.ov[0] * OV, a.Qc[1] + a.ov[1] * OV];
-      const bQ = [b.Qc[0] + b.ov[0] * OV, b.Qc[1] + b.ov[1] * OV];
-      const X2 = [X[0] + (a.ov[0] + b.ov[0]) * OV, X[1] + (a.ov[1] + b.ov[1]) * OV];
-      const pts = [a.Pc, aQ, X2, bQ, b.Pc];
-      const xs = pts.map(q => wx(q[0])), zs = pts.map(q => wz(q[1]));
-      const x0 = Math.min(...xs), x1 = Math.max(...xs), z0 = Math.min(...zs), z1 = Math.max(...zs);
-      [sill - .03, head + .03].forEach(y => {                // 转角上下台板（与两段台板齐平，避免叠面闪烁与错台）
-        const slab = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, .06, z1 - z0), frameMat);
-        slab.position.set((x0 + x1) / 2, y, (z0 + z1) / 2);
-        slab.castShadow = slab.receiveShadow = true; archUp.add(slab);
-      });
-      const seat = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, .04, z1 - z0), mat('#e9e2d4', { roughness: .9 }));
-      seat.position.set((x0 + x1) / 2, sill + .02, (z0 + z1) / 2); seat.receiveShadow = true; archUp.add(seat);
+      const meet = (p, u, q, v) => {                         // 两条直线（点 + 方向）的交点
+        const cr = u[0] * v[1] - u[1] * v[0];
+        if (Math.abs(cr) < 1e-6) return null;
+        const t = ((q[0] - p[0]) * v[1] - (q[1] - p[1]) * v[0]) / cr;
+        return isFinite(t) ? [p[0] + u[0] * t, p[1] + u[1] * t] : null;
+      };
+      const a = info[0], b = info[1];
+      const X = meet(a.Qc, a.u, b.Qc, b.u);                  // 两段外沿延长线交点 = 转角外角
+      if (!X) return;
+      const shift = (g, d) => [g.Pc[0] + g.ov[0] * d, g.Pc[1] + g.ov[1] * d];   // 沿外法向平移后的参考点
+      const bandPts = (ein, eout, efar) => {                 // L 形轮廓：内沿缩进 ein、外沿外挑 eout、远端外挑 efar（mm）
+        const ai = shift(a, -ein), ao = shift(a, depMM + eout), bi = shift(b, -ein), bo = shift(b, depMM + eout);
+        const IC = meet(ai, a.u, bi, b.u), OC = meet(ao, a.u, bo, b.u);         // 转角内角 / 外角都按两条边线求交，斜接
+        if (!IC || !OC) return null;
+        const endPt = (g, d) => [g.Pc[0] + g.away[0] * (g.fl + efar) + g.ov[0] * d, g.Pc[1] + g.away[1] * (g.fl + efar) + g.ov[1] * d];
+        return [endPt(a, -ein), endPt(a, depMM + eout), OC, endPt(b, depMM + eout), endPt(b, -ein), IC];
+      };
+      const band = (pts, y, th, m) => {                      // 把轮廓挤出成一块整板（上下两块台板 / 坐板共用）
+        if (!pts) return;
+        const geo = new THREE.ExtrudeGeometry(shapeOf(pts), { depth: th, bevelEnabled: false });
+        geo.rotateX(-Math.PI / 2);
+        const mesh = new THREE.Mesh(geo, m);
+        mesh.position.y = y; mesh.castShadow = mesh.receiveShadow = true; archUp.add(mesh);
+      };
+      band(bandPts(15, 15, 30), sill - .06, .06, frameMat);  // 下窗台板（与两段同一标高、同一外沿，整条不断缝）
+      band(bandPts(15, 15, 30), head, .06, frameMat);        // 上盖板
+      band(bandPts(0, 0, 0), sill, .04, mat('#e9e2d4', { roughness: .9 }));   // 窗台坐板：与玻璃内表面齐平
       [[X, a.Qc, a.ov], [X, b.Qc, b.ov]].forEach(([p, q, ov]) => {   // 转角两面玻璃也做成可开扇：铰在转角立柱上、向外推开
         addBaySash([wx(p[0]), wz(p[1])], [wx(q[0]), wz(q[1])], sill, wh, ov[0], ov[1]);
       });
