@@ -2571,12 +2571,12 @@
               data-en-title="Floor lamp: click to place (2.2m light radius, shade at 1.5m by default, blocks walking in 3D); glows in night mode, click it in 3D to toggle"
               data-en="Floor lamp"><i data-lucide="lamp-floor"></i>落地灯</button>
             <button class="btn chip" data-dt="lampSocket"
-              title="插座：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换面 / 选样式：二三插 / 二插 / 三插；默认离地 0.3m）"
-              data-en-title="Socket: click a position on a wall (snaps to walls, slide along it, flip side and choose style in the panel: 2+3 pin / 2 pin / 3 pin; 0.3m above floor by default)"
+              title="插座：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换面 / 选样式：二三插 / 二插 / 三插 / 面板材质；默认离地 0.3m）"
+              data-en-title="Socket: click a position on a wall (snaps to walls, slide along it, flip side, choose style and panel material in the panel: 2+3 pin / 2 pin / 3 pin; 0.3m above floor by default)"
               data-en="Socket"><i data-lucide="plug-zap"></i>插座</button>
             <button class="btn chip" data-dt="lampWallSw"
-              title="墙面开关：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换面；默认控制半径 6m、离地 1.1m），3D 里点击面板即可开 / 关范围内的灯"
-              data-en-title="Wall switch: click a position on a wall (snaps to walls, slide along it, flip side in the panel; 6m radius at 1.1m by default); click the plate in 3D to toggle lamps within range"
+              title="墙面开关：点墙上的位置放置（吸附墙体，沿墙拖动调整，右侧可换面 / 选面板材质；默认控制半径 6m、离地 1.1m），3D 里点击面板即可开 / 关所控灯"
+              data-en-title="Wall switch: click a position on a wall (snaps to walls, slide along it, flip side and pick panel material; 6m radius at 1.1m by default); click the plate in 3D to toggle its controlled lamps"
               data-en="Wall switch"><i data-lucide="toggle-right"></i>墙面开关</button>
             <button class="btn chip" data-dt="lampSw"
               title="灯开关：点击位置放置（默认控制半径 6m）；3D 里点击开关面板，范围内的灯一起开 / 关"
@@ -3080,6 +3080,8 @@
     const LAMP_NAMES = { chandelier: ['吊灯', 'Chandelier'], ceil: ['吸顶灯', 'Ceiling lamp'], down: ['筒灯', 'Downlight'], spot: ['射灯', 'Spotlight'], floor: ['落地灯', 'Floor lamp'], wall: ['壁灯', 'Wall lamp'], tube: ['壁装灯管', 'Wall tube light'], bulb: ['壁装灯泡', 'Wall bulb'], socket: ['插座', 'Socket'], wallSwitch: ['墙面开关', 'Wall switch'], switch: ['灯开关', 'Light switch'] };
     const WALL_LAMP_TYPES = ['wall', 'tube', 'bulb', 'socket', 'wallSwitch'];
     const SOCKET_STYLES = { dual: ['二三插', '2+3 pin'], two: ['二插', '2 pin'], three: ['三插', '3 pin'] };
+    const PANEL_MATS = { plastic: ['白色塑料', 'White plastic'], wood: ['木纹', 'Wood grain'], steel: ['不锈钢', 'Stainless steel'], glass: ['玻璃', 'Glass'] };
+    const PANEL_FILL = { plastic: '#d9d4ca', wood: '#a8794f', steel: '#c9ced3', glass: '#cfe6ef' };   // 2D 符号配色
     const isLightType = t => !['socket', 'wallSwitch', 'switch'].includes(t);
     const isSwitchType = t => t === 'switch' || t === 'wallSwitch';
     // 开关控制的灯：ctlMode='list' 时按显式选中的 id（ctl），否则按控制半径（旧方案兼容）
@@ -3946,7 +3948,8 @@
     function renderLamps2() {                                   // 灯具 2D 符号 + 照亮范围虚线圈（亮着的灯画范围，关掉不画）
       return (state.lamps || []).map(l => {
         const on = l.on !== false, isSw = l.type === 'switch', isElec = l.type === 'socket' || l.type === 'wallSwitch', sel = ui.sel?.kind === 'lamp' && ui.sel.id === l.id;
-        const st = `fill="${isElec ? '#d9d4ca' : isSw ? '#8d8069' : '#e8c56a'}" fill-opacity="${on ? .9 : .35}" stroke="${isElec ? '#7a7265' : on ? '#b58a2a' : '#9a917f'}" stroke-width="${sel ? 2 : 1}" vector-effect="non-scaling-stroke"`;
+        const pmFill = isElec || isSw ? (PANEL_FILL[l.panelMat || 'plastic'] || PANEL_FILL.plastic) : null;   // 开关 / 插座：按面板材质取 2D 配色
+        const st = `fill="${pmFill || (isSw ? '#8d8069' : '#e8c56a')}" fill-opacity="${on ? .9 : .35}" stroke="${isElec ? '#7a7265' : on ? '#b58a2a' : '#9a917f'}" stroke-width="${sel ? 2 : 1}" vector-effect="non-scaling-stroke"`;
         let body;
         const wq = l.wall ? wallLampPos(l) : null;              // 壁装灯具：锚点在墙面上，符号朝墙面外侧
         if (wq) {
@@ -7087,6 +7090,10 @@
         const styles = Object.entries(SOCKET_STYLES).map(([v, [szh, sen]]) => `<option value="${v}" ${(l.style || 'dual') === v ? 'selected' : ''}>${tr(szh, sen)}</option>`).join('');
         fields.push(`<label>${tr('插座样式', 'Socket style')}<select id="lStyle">${styles}</select></label>`);
       }
+      if (isSocket || isSw || isWallSw) {                        // 面板材质
+        const pm = Object.entries(PANEL_MATS).map(([v, [zh, en]]) => `<option value="${v}" ${(l.panelMat || 'plastic') === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('');
+        fields.push(`<label class="full" title="${tr('开关 / 插座面板的 3D 材质与 2D 配色', '3D material and 2D tint of the switch / socket plate')}">${tr('面板材质', 'Panel material')}<select id="lPanelMat">${pm}</select></label>`);
+      }
       fields.push(`<label title="${isSocket ? tr('插座面板中心离地高度（常见 300mm）', 'Socket height above floor (300mm typical)') : tr('面板离地高度（300–8000mm）', 'Height above floor (300–8000mm)')}">${tr('安装高度', 'Mount height')} (mm)<input type="number" id="lZ" value="${Math.round(l.z ?? (isSocket ? 300 : 1500))}" min="300" max="8000" step="50"></label>`);
       if (isWall) fields.push(`<label title="${tr('面板中心沿墙到墙起点的距离（0 到墙长）', 'Distance from wall start along the wall (0 to wall length)')}">${tr('沿墙位置', 'Along wall')} (mm)<input type="number" id="lC" value="${Math.round(l.c ?? 0)}" min="0" max="${Math.max(0, Math.round(wL))}" step="10"></label>`);
       if (!isSocket) fields.push(`<label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`);
@@ -7143,6 +7150,7 @@
       });
       const on = $('#lOn'); if (on) on.onchange = e => mutate(() => { const l = g(); if (l) l.on = e.target.value === '1'; });
       const style = $('#lStyle'); if (style) style.onchange = e => mutate(() => { const l = g(); if (l) l.style = e.target.value; });   // 插座样式：二三插 / 二插 / 三插
+      const pm = $('#lPanelMat'); if (pm) pm.onchange = e => mutate(() => { const l = g(); if (l) l.panelMat = e.target.value; });   // 面板材质：塑料 / 木纹 / 不锈钢 / 玻璃
       const mode = $('#lMode'); if (mode) mode.onchange = e => mutate(() => { const l = g(); if (l) l.ctlMode = e.target.value === 'list' ? 'list' : 'radius'; });   // 控制方式：按半径 / 指定灯具
       document.querySelectorAll('#panel [data-ctl]').forEach(cb => {                 // 指定灯具：勾选 / 取消被控灯
         cb.onchange = () => mutate(() => {
@@ -11523,6 +11531,31 @@
       t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
       return floorMats[kind] = new THREE.MeshStandardMaterial({ map: t, roughness: s.rough });
     }
+    // 开关 / 插座面板材质：白色塑料 / 木纹 / 不锈钢 / 玻璃
+    const panelMats = {};
+    function panelMat(kind) {
+      const k = PANEL_MATS[kind] ? kind : 'plastic';
+      if (panelMats[k]) return panelMats[k];
+      let m;
+      if (k === 'steel') m = mat('#c9ced3', { metalness: .92, roughness: .22 });
+      else if (k === 'glass') {
+        m = new THREE.MeshPhysicalMaterial({ color: '#cfe6ef', roughness: .06, metalness: .05, transparent: true, opacity: .55, depthWrite: false, side: THREE.DoubleSide });
+        if (envTex) { m.envMap = envTex; m.envMapIntensity = .8; }
+      } else if (k === 'wood') {
+        const cv = document.createElement('canvas'); cv.width = 256; cv.height = 256;
+        const g = cv.getContext('2d'), R = rng(4211);
+        g.fillStyle = '#a8794f'; g.fillRect(0, 0, 256, 256);
+        for (let i = 0; i < 40; i++) {
+          g.strokeStyle = rgbK('#a8794f', .72 + R() * .4); g.globalAlpha = .45; g.lineWidth = .8 + R() * 2;
+          const y = R() * 256; g.beginPath(); g.moveTo(0, y);
+          for (let x = 0; x <= 256; x += 12) g.lineTo(x, y + Math.sin(x * .045 + i) * 2.2); g.stroke();
+        }
+        g.globalAlpha = 1;
+        const t = new THREE.CanvasTexture(cv); t.colorSpace = THREE.SRGBColorSpace; t.wrapS = t.wrapT = THREE.RepeatWrapping;
+        m = new THREE.MeshStandardMaterial({ map: t, roughness: .5 });
+      } else m = mat('#e8e2d6', { roughness: .65 });
+      return panelMats[k] = m;
+    }
 
     /* ======================= 几何小工具（y = 底面高度） ======================= */
     const asMat = m => typeof m === 'string' ? mat(m) : m;
@@ -12581,7 +12614,7 @@
         } else if (l.type === 'socket') {                       // 插座：86×86 方形面板 + 扁孔（二三插：上三孔、下两孔）
           const base = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#8d8069', { roughness: .8 }));
           base.position.set(0, Y, .004); g.add(base);
-          const plate = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#e8e2d6', { roughness: .65 }));
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), panelMat(l.panelMat));
           plate.position.set(0, Y, .012); plate.castShadow = true; g.add(plate);
           const slot = (w, h, x, y) => {                       // 扁插孔：横槽 = 接地孔，竖槽 = 火 / 零线孔
             const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, .003), mat('#3a3630', { roughness: .9 }));
@@ -12593,9 +12626,9 @@
         } else if (l.type === 'wallSwitch') {                   // 墙面开关：86×86 方形面板 + 翘板 + 开态指示点
           const base = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#8d8069', { roughness: .8 }));
           base.position.set(0, Y, .004); g.add(base);
-          const plate = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), mat('#e8e2d6', { roughness: .65 }));
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.086, .086, .008), panelMat(l.panelMat));
           plate.position.set(0, Y, .012); plate.castShadow = true; g.add(plate);
-          const rocker = new THREE.Mesh(new THREE.BoxGeometry(.048, .055, .01), mat('#f5f0e6', { roughness: .5 }));
+          const rocker = new THREE.Mesh(new THREE.BoxGeometry(.048, .055, .01), (l.panelMat || 'plastic') === 'plastic' ? mat('#f5f0e6', { roughness: .5 }) : panelMat(l.panelMat));
           rocker.position.set(0, Y - .006, .02); g.add(rocker);
           const dot = new THREE.Mesh(new THREE.SphereGeometry(.006, 10, 8), glow); dot.position.set(0, Y + .03, .017); g.add(dot);
         }
@@ -12610,7 +12643,7 @@
         const g = new THREE.Group(); g.position.set(X, 0, Z);
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.015, .02, Y - .07, 8), mat('#5a544b', { roughness: .8 }));
         pole.position.y = (Y - .07) / 2 + .02; pole.castShadow = true; g.add(pole);
-        const plate = new THREE.Mesh(new THREE.BoxGeometry(.1, .13, .02), mat('#e8e2d6', { roughness: .6 }));
+        const plate = new THREE.Mesh(new THREE.BoxGeometry(.1, .13, .02), panelMat(l.panelMat));
         plate.position.y = Y; plate.castShadow = true; g.add(plate);
         const btn = new THREE.Mesh(new THREE.CylinderGeometry(.024, .024, .026, 16), glow);
         btn.rotation.x = Math.PI / 2; btn.position.set(0, Y, .012); g.add(btn);
