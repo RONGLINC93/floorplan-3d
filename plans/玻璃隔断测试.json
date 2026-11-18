@@ -404,8 +404,8 @@
       "id": "fmwlh9fyx100",
       "kind": "fwin",
       "wall": "CWfmwlh65tb96",
-      "c": 4070,
-      "w": 1200,
+      "c": 3490,
+      "w": 1780,
       "sill": 0,
       "dh": 2400,
       "cg": "fmwlh9fyx99"
@@ -415,10 +415,18 @@
       "kind": "fwin",
       "wall": "CWfmwlh7dhj97",
       "c": 0,
-      "w": 1200,
+      "w": 1000,
       "sill": 0,
       "dh": 2400,
       "cg": "fmwlh9fyx99"
+    },
+    {
+      "id": "fmwli1z3s93",
+      "wall": "CWfmwlh65tb96",
+      "c": 1455.50927734375,
+      "w": 1800,
+      "kind": "fwin",
+      "flip": true
     }
   ],
   "deletedWalls": [

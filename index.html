@@ -3496,9 +3496,93 @@
         });
         return out;
       };
+      // 转角窗（两面墙上的两段落地窗成一组）：整条 L 形窗带一次画出 —— 外角两段窗线斜接、内角按两段端线在墙角收口。
+      // 以前是两段各画一个矩形，两矩形在转角互相穿过：转角内圈出现交叉线、外圈多出两块小耳朵，看着像没闭合。
+      const cornerWin2D = (legs, cmap) => {
+        const CS = 'stroke="#2e6e8e" stroke-width="1.2" vector-effect="non-scaling-stroke"', NE = 'pointer-events="none"';
+        const P = q => `${+q[0].toFixed(1)},${+q[1].toFixed(1)}`;
+        const meet = (A, uA, B, uB) => {                          // 两条直线交点（转角斜接点）
+          const cr = uA[0] * uB[1] - uA[1] * uB[0];
+          if (Math.abs(cr) < 1e-6) return null;
+          const t = ((B[0] - A[0]) * uB[1] - (B[1] - A[1]) * uB[0]) / cr;
+          return isFinite(t) ? [A[0] + uA[0] * t, A[1] + uA[1] * t] : null;
+        };
+        const info = legs.map(leg => {
+          const wg = openingWallGeom(leg.wall); if (!wg) return null;
+          const { A, B, T } = wg, wl = Math.hypot(B[0] - A[0], B[1] - A[1]);
+          let c0 = leg.c, c1 = leg.c + leg.w;
+          if (c0 <= T / 2 + 1) c0 = 0;                            // 与单段落地窗一致：贴到墙角时延伸到墙面外沿
+          if (c1 >= wl - T / 2 - 1) c1 = wl;
+          const [Q0, Q1] = segPts(A, B, c0, c1);
+          const dx = Q1[0] - Q0[0], dy = Q1[1] - Q0[1], L = Math.hypot(dx, dy) || 1;
+          return { leg, Q0, Q1, T, L, u: [dx / L, dy / L], n: [-dy / L, dx / L] };
+        });
+        if (info.some(x => !x) || Math.abs(info[0].u[0] * info[1].u[1] - info[0].u[1] * info[1].u[0]) < .3) return '';
+        const C = meet(info[0].Q0, info[0].u, info[1].Q0, info[1].u);       // 两墙中线交点 = 墙角
+        if (!C) return '';
+        const base = info.map(g => {
+          const d0 = Math.hypot(g.Q0[0] - C[0], g.Q0[1] - C[1]), d1 = Math.hypot(g.Q1[0] - C[0], g.Q1[1] - C[1]);
+          const Pc = d0 <= d1 ? g.Q0 : g.Q1, Pf = d0 <= d1 ? g.Q1 : g.Q0;   // Pc 靠墙角的一端，Pf 远端
+          const fl = Math.hypot(Pf[0] - Pc[0], Pf[1] - Pc[1]) || 1;
+          return { ...g, Pc, Pf, fl, d: [(Pf[0] - Pc[0]) / fl, (Pf[1] - Pc[1]) / fl], h: g.T / 2 };
+        });
+        const gg = base.map((g, i) => {                            // e 取转角凸角一侧（两段的 e 都朝外，与另一段背离墙角的方向同侧）
+          const oth = base[1 - i], e0 = g.n;
+          return { ...g, e: e0[0] * oth.d[0] + e0[1] * oth.d[1] < 0 ? [-e0[0], -e0[1]] : e0 };
+        });
+        const [a, b] = gg;
+        const at = (g, p, t) => [p[0] + g.e[0] * t, p[1] + g.e[1] * t];
+        const M = meet(at(a, a.Pc, a.h), a.u, at(b, b.Pc, b.h), b.u);        // 转角外角
+        if (!M) return '';
+        const IC = meet(at(a, a.Pc, -a.h), a.u, at(b, b.Pc, -b.h), b.u);     // 转角内角：同样按墙线延长斜接，转角整块补齐不留缺口
+        if (!IC) return '';
+        const pts = [at(a, a.Pf, -a.h), at(a, a.Pf, a.h), M, at(b, b.Pf, b.h), at(b, b.Pf, -b.h), IC];
+        let art = `<polygon points="${pts.map(P).join(' ')}" fill="#f7fbfd" ${CS}/>`;   // 一整圈闭合轮廓，转角内不出现交叉线
+        const ga = a.T / 6, gb = b.T / 6;                         // 双线玻璃线：内外两条都沿转角斜接，连续绕过去不断线
+        [1, -1].forEach(sg => {
+          const m = meet(at(a, a.Pc, sg * ga), a.u, at(b, b.Pc, sg * gb), b.u);
+          if (!m) return;
+          art += `<polyline points="${[at(a, a.Pf, sg * ga), m, at(b, b.Pf, sg * gb)].map(P).join(' ')}" fill="none" ${CS} ${NE}/>`;
+        });
+        gg.forEach(g => {                                         // 分扇竖线 / 窗花：沿墙等分，跨墙厚
+          const div = [];
+          for (let i = 1; i < Math.max(1, Math.min(4, Math.round(g.leg.panes ?? 2))); i++) div.push(i);
+          if (openGrille(g.leg)) div.push('g1', 'g2');
+          div.forEach(v => {
+            const t = v === 'g1' ? 1 / 3 : v === 'g2' ? 2 / 3 : v / Math.max(1, Math.min(4, Math.round(g.leg.panes ?? 2)));
+            const p = [g.Pc[0] + g.d[0] * g.fl * t, g.Pc[1] + g.d[1] * g.fl * t];
+            art += `<line x1="${p[0] - g.e[0] * g.h}" y1="${p[1] - g.e[1] * g.h}" x2="${p[0] + g.e[0] * g.h}" y2="${p[1] + g.e[1] * g.h}" ${CS} ${NE}/>`;
+          });
+        });
+        gg.forEach(g => {                                         // 洞口编号
+          const cd = cmap.get(g.leg.id); if (!cd) return;
+          const mx = (g.Q0[0] + g.Q1[0]) / 2, my = (g.Q0[1] + g.Q1[1]) / 2;
+          const ang = Math.atan2(g.Q1[1] - g.Q0[1], g.Q1[0] - g.Q0[0]) * 180 / Math.PI;
+          art += `<text x="${mx}" y="${my + 58}" font-size="165" font-weight="600" text-anchor="middle" fill="#3d5b78" stroke="#fbf8f1" stroke-width="46" paint-order="stroke" transform="rotate(${ang} ${mx} ${my})">${cd}</text>`;
+        });
+        const hits = gg.map(g => {                                // 两段各自的点击区域（保持分别可选中 / 可拖动）
+          const q = [at(g, g.Q0, g.h), at(g, g.Q1, g.h), at(g, g.Q1, -g.h), at(g, g.Q0, -g.h)];
+          return `<g class="open" data-open="${g.leg.id}"><polygon points="${q.map(P).join(' ')}" fill="transparent"/></g>`;
+        }).join('');
+        return hits + `<g ${NE}>${art}</g>`;
+      };
       // 自己开的门 / 窗（data-open 使其可选中；整组可拖动沿墙滑动）
       const cm = openingCodeMap();                               // 门窗编号（M1 / C1 / D1…）
+      const cgHTML = new Map(), cgLegs = new Set(), cgDone = new Set();
+      (() => {
+        const groups = new Map();
+        state.openings.forEach(o => { if (o.kind === 'fwin' && o.cg) { if (!groups.has(o.cg)) groups.set(o.cg, []); groups.get(o.cg).push(o); } });
+        groups.forEach((legs, gid) => {
+          if (legs.length !== 2) return;
+          const html = cornerWin2D(legs, cm);
+          if (html) { cgHTML.set(gid, html); legs.forEach(o => cgLegs.add(o.id)); }
+        });
+      })();
       state.openings.forEach(o => {
+        if (cgLegs.has(o.id)) {                                   // 转角窗整组一次画完，其余段跳过
+          if (cgDone.has(o.cg)) return;
+          cgDone.add(o.cg); s += cgHTML.get(o.cg); return;
+        }
         if (o.kind === 'lbay') {
           s += `<g class="open" data-open="${o.id}">`;
           s += bayL2D(o, o.legs || []);
@@ -9909,7 +9993,7 @@
         else if (ui.tool !== 'select') setTool('select');
       }
       else if (k.startsWith('arrow')) {
-        if (!ui.sel || (is3D() && m3dPreview)) return;               // 预览只读；方向键微移仅设计态
+        if (!ui.sel || ui.tool !== 'draw' || ui.drawTool !== 'move' || (is3D() && m3dPreview)) return;   // 方向键微移仅「移动工具」设计态生效（选择工具下不响应）
         e.preventDefault(); const st = e.shiftKey ? 100 : 10;
         const dx = k === 'arrowleft' ? -st : k === 'arrowright' ? st : 0;
         const dy = k === 'arrowup' ? -st : k === 'arrowdown' ? st : 0;
