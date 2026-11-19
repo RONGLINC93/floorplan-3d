@@ -268,12 +268,20 @@
       "flip": false
     },
     {
-      "id": "fmwmu2vye93",
+      "id": "fmwmue63z93",
       "wall": "CWfmwhqg7q7187",
-      "c": 3263.51953125,
-      "w": 2400,
-      "kind": "auto",
-      "flip": true,
+      "c": 5028.185546875,
+      "w": 900,
+      "kind": "sd",
+      "flip": true
+    },
+    {
+      "id": "fmwmuecja94",
+      "wall": "CWfmwhqg7q7187",
+      "c": 2873.7861328125005,
+      "w": 2000,
+      "kind": "revolve",
+      "flip": false,
       "sill": 0,
       "dh": 2400
     }
