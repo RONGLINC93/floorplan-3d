@@ -2590,6 +2590,9 @@
             <button class="btn chip" data-dt="esc" title="点击放置一部自动扶梯（默认 1000×4400 升 2400，约 29°；宽 / 长 / 爬升 / 方向可在右侧改，梯级持续上行，漫游站上梯面会被自动传送上楼）"
               data-en-title="Click to place an escalator (1000×4400, rise 2400 by default, ~29°; width / length / rise / direction editable, steps keep moving up, standing on it carries you up in roam mode)"
               data-en="Escalator"><i data-lucide="arrow-up-right"></i>自动扶梯</button>
+            <button class="btn chip" data-dt="ladder" title="点击放置一架梯子（默认宽 500 · 高 3000，钢制直梯），靠近墙自动吸附贴墙、面朝房间；宽 / 高 / 方向可在右侧改，3D 为两根立柱 + 踏棍 + 顶部扶手弯钩，漫游贴近后按 W / S 攀爬，到顶自动翻越，空格跳离"
+              data-en-title="Click to place a ladder (500 wide × 3000 high, steel), snaps to nearby walls facing the room; width / height / direction editable, 3D shows two posts + rungs + top hooks, walk close and press W / S to climb in roam mode, auto step-over at the top, Space to jump off"
+              data-en="Ladder"><i data-lucide="ladder"></i>梯子</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Structure">结构 · 构件</div>
@@ -4504,6 +4507,7 @@
       if (s.type === 'ramp') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 600 }], lands: [], total: 0, unit: 0, ramp: true }; }
       if (s.type === 'esc') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 2400 }], lands: [], total: 0, unit: 0, esc: true, ramp: true }; }   // 自动扶梯：几何同坡道（单斜跑），漫游高度由 stairH 沿斜面插值
       if (s.type === 'steps') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: Math.max(1, s.steps || 3), y0: 0, y1: s.rise ?? 450 }], lands: [], total: 0, unit: 0, steps: true }; }
+      if (s.type === 'ladder') { const d = s.len ?? 600; return { N: 1, w: s.w, runs: [{ x0: -d / 2, x1: d / 2, dir: 1, z: 0, n: 0, y0: 0, y1: 0 }], lands: [], total: 0, unit: 0, ladder: true }; }   // 梯子：垂直攀爬，俯视只占窄条进深；y1 = 0 不产生支撑高度（攀爬由 ladderClimb 处理）
       if (s.type === 'spiral') {                             // 螺旋楼梯：中心柱 + 绕柱踏步，总转角 = 级数 × 25°（可改）
         const n = Math.max(8, Math.min(48, Math.round(s.nStep || Math.max(12, Math.round((s.rise ?? 2800) / 175)))));
         const cw = s.cw ? -1 : 1;
@@ -4599,6 +4603,18 @@
           o += `<text x="0" y="${z1 + 170}" text-anchor="middle" fill="#7a7164" style="font-size:130px">${tr('坡道', 'RAMP')}</text>`;
           return `<g data-stair="${s.id}" transform="translate(${s.x} ${s.y}) rotate(${s.dir})">
             <rect x="${x0}" y="${z0}" width="${Lr}" height="${z1 - z0}" fill="#fff" fill-opacity="0"/>${o}</g>`;
+        }
+        if (s.type === 'ladder') {                                          // 梯子：窄矩形 + 踏棍投影线 + 攀爬方向箭头（朝梯身背面）
+          const LS = 'stroke="#8b8272" stroke-width="1" vector-effect="non-scaling-stroke"';
+          const d = s.len ?? 600, w = s.w, h = s.h ?? 3000;
+          let o = `<rect x="${-d / 2}" y="${-w / 2}" width="${d}" height="${w}" fill="#eef0ee" ${LS}/>`;
+          const n = Math.max(4, Math.round(h / 300));
+          for (let k = 0; k < n; k++) o += `<line x1="${-d / 2 + 60}" y1="${-w / 2 + (k + .5) * w / n}" x2="${d / 2 - 60}" y2="${-w / 2 + (k + .5) * w / n}" stroke="#b6ac9c" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+          o += `<line x1="${d / 2 + 20}" y1="0" x2="${d / 2 + 150}" y2="0" stroke="#8b8272" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+          o += `<polygon points="${d / 2 + 240},0 ${d / 2 + 150},-70 ${d / 2 + 150},70" fill="#8b8272"/>`;
+          o += `<text x="0" y="${w / 2 + 170}" transform="rotate(${-s.dir} 0 ${w / 2 + 170})" text-anchor="middle" fill="#7a7164" style="font-size:130px">${tr(`梯子 高${Math.round(h)}`, `Ladder H${Math.round(h)}`)}</text>`;
+          return `<g data-stair="${s.id}" transform="translate(${s.x} ${s.y}) rotate(${s.dir})">
+            <rect x="${-d / 2}" y="${-w / 2}" width="${d}" height="${w}" fill="#fff" fill-opacity="0"/>${o}</g>`;
         }
         if (s.type === 'esc') {                                             // 自动扶梯：矩形轮廓 + 密集梯级线 + 两端梳齿线 + 上行箭头
           const RS = 'stroke="#8b8272" stroke-width="1" vector-effect="non-scaling-stroke"';
@@ -5702,7 +5718,7 @@
         <circle data-handle="stairW" cx="0" cy="${bb.z1 + p}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${lay.spiral ? tr('拖动调整外径', 'Drag to change outer ⌀') : tr('拖动调整梯宽（一侧固定）', 'Drag to change stair width')}</title></circle>
       </g>`;
           s += `<text x="${st.x}" y="${st.y}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none"
-        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'esc' ? `${tr('自动扶梯', 'Escalator')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2400)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
+        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'esc' ? `${tr('自动扶梯', 'Escalator')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2400)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : st.type === 'ladder' ? `${tr('梯子', 'Ladder')} ${Math.round(st.w)} × ${tr('高', 'H')} ${Math.round(st.h ?? 3000)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
         }
       } else if (ui.sel?.kind === 'pbox' || ui.sel?.kind === 'wbox') {
         const kind = ui.sel.kind, o = (state[BOX_ARR[kind]] || []).find(x => x.id === ui.sel.id);
@@ -6633,6 +6649,20 @@
       t = Math.max(0, Math.min(L, t));
       return [Math.round((wall.a[0] + ux * t + nx * side * wall.T / 2) / 10) * 10,
       Math.round((wall.a[1] + uy * t + ny * side * wall.T / 2) / 10) * 10];
+    }
+    // 梯子贴墙吸附：点击点距墙 ≤ 墙厚/2+500 时，梯身平面贴到该侧墙面（矩形后缘贴墙）、面朝房间（法线方向取整到 90°）；返回吸附位置或 null
+    function snapLadder(mx, my, len = 600) {
+      const wall = nearestWall([mx, my]);
+      window.__snapDbg = { called: true, mx, my, wall: wall && { T: wall.T, d: +wall.d.toFixed(0), a: wall.a, b: wall.b } };
+      if (!wall || wall.d > wall.T / 2 + 500) return null;
+      const side = wallSideOf([mx, my], wall);
+      const dx = wall.b[0] - wall.a[0], dy = wall.b[1] - wall.a[1], L = wall.L || Math.hypot(dx, dy);
+      const nx = -dy / L * side, ny = dx / L * side;                     // 指向点击点一侧的墙面法线
+      const P = snapPointToWall([mx, my], wall, side);                   // 沿墙投影（限墙长内）
+      const ang = Math.round(Math.atan2(ny, nx) * 180 / Math.PI / 90) * 90;
+      const r = { x: Math.round((P[0] + nx * len / 2) / 10) * 10, y: Math.round((P[1] + ny * len / 2) / 10) * 10, dir: ((ang % 360) + 360) % 360 };
+      window.__snapDbg = { wall, side, nx, ny, ang, r };
+      return r;
     }
     // 阳台贴墙：靠近墙时把矩形贴到墙面，并取消靠墙边的栏板
     function fitBalconyWall(b) {
@@ -8176,6 +8206,21 @@
     <div class="actions"><button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上坡方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button></div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
+    function ladderPanel(s) {                                // 梯子属性面板（宽 / 高 / 方向 / 位置）
+      const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
+      const h = Math.round(s.h ?? 3000), n = Math.max(3, Math.round(h / 300));
+      return `<section><h3>${tr('梯子', 'Ladder')}</h3>
+    <div class="form">
+      ${nameField(s, tr('梯子', 'Ladder') + ' ' + objNo(state.stairs, s, 'type'))}
+      <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="sW" value="${Math.round(s.w)}" min="300" max="1200" step="50"></label>
+      <label>${tr('梯高', 'Height')} (mm)<input type="number" id="sH" value="${h}" min="800" max="6000" step="50"></label>
+      <label>${tr('面朝方向', 'Facing')}<select id="sDir">${dirs.map(([v, t]) => `<option value="${v}" ${s.dir === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
+      <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
+    </div>
+    <div class="muted" style="margin-top:8px">${tr(`钢制直梯，约 ${n} 级踏棍（间距 300mm）。3D 为两根立柱 + 踏棍 + 顶部扶手弯钩；漫游贴近梯子按 W / S 上下攀爬，到顶自动翻越到梯子背面，按空格跳离。拖动时靠近墙自动吸附贴墙。`, `Steel straight ladder, about ${n} rungs (300mm apart). 3D shows two posts + rungs + top hooks; walk close and press W / S to climb in roam mode, auto step-over at the top, Space to jump off. Snaps to walls when dragged near.`)}</div>
+    <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
+    }
     function escPanel(s) {                                   // 自动扶梯属性面板（仿坡道，梯面自带裙板扶手，无扶手开关）
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
       const rise = Math.round(s.rise ?? 2400), deg = (Math.atan2(rise, Math.max(1, s.len)) * 180 / Math.PI).toFixed(1);
@@ -8187,10 +8232,11 @@
       <label>${tr('上行方向', 'Ascend')}<select id="sDir">${dirs.map(([v, t]) => `<option value="${v}" ${s.dir === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('爬升高度', 'Rise')} (mm)<input type="number" id="sRise" value="${rise}" min="800" max="6000" step="10"></label>
       <label class="full">${tr('扶手材质', 'Handrail material')}<select id="sHandMat">${[['black', tr('黑色橡胶', 'Black rubber')], ['steel', tr('不锈钢', 'Stainless steel')], ['wood', tr('木纹', 'Wood')]].map(([v, t]) => `<option value="${v}" ${(s.handMat || 'black') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="full">${tr('围挡材质', 'Balustrade material')}<select id="sPanelMat">${[['glass', tr('玻璃（半透明）', 'Glass (translucent)')], ['steel', tr('不锈钢板', 'Stainless steel')], ['wood', tr('木板', 'Wood')]].map(([v, t]) => `<option value="${v}" ${(s.panelMat || 'glass') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 半透明玻璃栏板 + 可选材质的扶手带与两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送上行，也可步行上下。`, `Incline about ${deg}°. 3D shows slim truss beams, translucent glass balustrades, handrails in the chosen material and golden comb plates, steps continuously moving up; standing on it in roam mode carries you up automatically.`)}</div>
+    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带 + 两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送上行，也可步行上下。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials, golden comb plates, steps continuously moving up; standing on it in roam mode carries you up automatically.`)}</div>
     <div class="actions"><button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上行方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button></div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
@@ -8268,6 +8314,7 @@
       const s = (state.stairs || []).find(x => x.id === id); if (!s) return '';
       if (s.type === 'ramp') return rampPanel(s);
       if (s.type === 'esc') return escPanel(s);
+      if (s.type === 'ladder') return ladderPanel(s);
       if (s.type === 'steps') return stepsPanel(s);
       if (s.type === 'spiral') return spiralPanel(s);
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
@@ -8306,6 +8353,7 @@
       const g = () => (state.stairs || []).find(x => x.id === id);
       if (g()?.type === 'ramp') return bindRampPanel(id);
       if (g()?.type === 'esc') return bindEscPanel(id);
+      if (g()?.type === 'ladder') return bindLadderPanel(id);
       if (g()?.type === 'steps') return bindStepsPanel(id);
       if (g()?.type === 'spiral') return bindSpiralPanel(id);
       const set = (k, fn) => { const el = $('#' + k); if (el) el.onchange = e => { const v = parseFloat(e.target.value); if (isNaN(v)) return; mutate(() => { const s = g(); if (s) fn(s, v); }); }; };
@@ -8381,6 +8429,17 @@
       $('#aDel').onclick = () => { ui.sel = null; mutate(() => state.stairs = (state.stairs || []).filter(x => x.id !== id)); toast(tr('已删除坡道 · Ctrl+Z 可撤销', 'Ramp deleted · Ctrl+Z to undo')); };
       $('#back').onclick = () => select(null);
     }
+    function bindLadderPanel(id) {                           // 梯子面板绑定（宽 / 高 / 方向 / 位置 / 删除）
+      const g = () => (state.stairs || []).find(x => x.id === id);
+      const set = (k, fn) => { const el = $('#' + k); if (el) el.onchange = e => { const v = parseFloat(e.target.value); if (isNaN(v)) return; mutate(() => { const s = g(); if (s) fn(s, v); }); }; };
+      set('sW', (s, v) => s.w = Math.max(300, Math.min(1200, Math.round(v / 50) * 50)));
+      set('sH', (s, v) => s.h = Math.max(800, Math.min(6000, Math.round(v / 50) * 50)));
+      set('sDir', (s, v) => s.dir = v);
+      set('sX', (s, v) => s.x = Math.round(v / 10) * 10);
+      set('sY', (s, v) => s.y = Math.round(v / 10) * 10);
+      $('#aDel').onclick = () => { ui.sel = null; mutate(() => state.stairs = (state.stairs || []).filter(x => x.id !== id)); toast(tr('已删除梯子 · Ctrl+Z 可撤销', 'Ladder deleted · Ctrl+Z to undo')); };
+      $('#back').onclick = () => select(null);
+    }
     function bindEscPanel(id) {                              // 自动扶梯面板绑定（宽 / 长 / 爬升 / 方向 / 位置 / 前后翻转 / 删除）
       const g = () => (state.stairs || []).find(x => x.id === id);
       const set = (k, fn) => { const el = $('#' + k); if (el) el.onchange = e => { const v = parseFloat(e.target.value); if (isNaN(v)) return; mutate(() => { const s = g(); if (s) fn(s, v); }); }; };
@@ -8390,6 +8449,8 @@
       set('sDir', (s, v) => s.dir = v);
       const hm = $('#sHandMat');                              // 扶手材质：黑色橡胶 / 不锈钢 / 木纹
       if (hm) hm.onchange = e => mutate(() => { const s = g(); if (s) s.handMat = e.target.value; });
+      const pm = $('#sPanelMat');                             // 围挡材质：玻璃 / 不锈钢板 / 木板
+      if (pm) pm.onchange = e => mutate(() => { const s = g(); if (s) s.panelMat = e.target.value; });
       set('sX', (s, v) => s.x = Math.round(v / 10) * 10);
       set('sY', (s, v) => s.y = Math.round(v / 10) * 10);
       const fx = $('#aFlipX');
@@ -9977,7 +10038,7 @@
         }
         return;
       }
-      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
+      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
         if (ui.drawTool === 'entry') {                                   // 入户工具：点门洞（原始门洞或自画的门）→ 设为全局唯一的入户门
           const og = t.closest('[data-bopen]'), oc = t.closest('[data-open]');
           let id = null;
@@ -10014,6 +10075,14 @@
           mutate(() => { state.stairs = state.stairs || []; state.stairs.push({ id, x: Math.round(q.x), y: Math.round(q.y), w: 1000, len: 4400, dir: 0, rise: 2400, type: 'esc' }); });
           select({ kind: 'stair', id });
           toast(tr('已放自动扶梯（1000×4400 升 2400）· 宽度 / 长度 / 爬升在右侧改', 'Escalator added (1000×4400, rise 2400) · edit width / length / rise in the panel'));
+          return;
+        }
+        if (ui.drawTool === 'ladder') {                                   // 梯子：点哪里放哪里（靠近墙自动吸附贴墙、面朝房间），宽 / 高在右侧改
+          const q = snapPoint(p, e.shiftKey), id = uid();
+          const sk = snapLadder(q.x, q.y);
+          mutate(() => { state.stairs = state.stairs || []; state.stairs.push({ id, x: Math.round(sk ? sk.x : q.x), y: Math.round(sk ? sk.y : q.y), w: 500, len: 600, h: 3000, dir: sk ? sk.dir : 0, type: 'ladder' }); });
+          select({ kind: 'stair', id });
+          toast(tr('已放梯子（宽 500 · 高 3000' + (sk ? ' · 已吸附墙体' : '') + '）· 漫游贴近后按 W / S 攀爬，到顶自动翻越', 'Ladder added (500 wide, 3000 high' + (sk ? ', snapped to wall' : '') + ') · walk close and press W / S to climb in roam mode'));
           return;
         }
         if (ui.drawTool === 'spiral') {                                   // 螺旋楼梯：点哪里放哪里
@@ -11164,6 +11233,10 @@
         if (drag.kind === 'stairMove') {
           const s = (state.stairs || []).find(x => x.id === drag.id); if (!s) return;
           s.x = Math.round((drag.x0 + p.x - drag.px) / 10) * 10; s.y = Math.round((drag.y0 + p.y - drag.py) / 10) * 10;
+          if (s.type === 'ladder') {                                      // 梯子拖动：靠近墙自动吸附贴墙并转向面朝房间，离开吸附范围自由摆放
+            const sk = snapLadder(s.x, s.y, s.len ?? 600);
+            if (sk) { s.x = sk.x; s.y = sk.y; s.dir = sk.dir; }
+          }
           renderStairs(); return;
         }
         if (drag.kind === 'wallMove') {
@@ -11863,7 +11936,7 @@
       state.openings.forEach(o => opens.push({ kind: 'open', id: o.id, name: o.name || ((o.kind === 'door' ? tr('房门', 'Door') : o.kind === 'roller' ? tr('卷帘门', 'Roller shutter') : o.kind === 'elev' ? tr('电梯门', 'Elevator door') : o.kind === 'fwin' ? tr('落地窗', 'Floor-to-ceiling window') : o.kind === 'slid' ? tr('落地推拉门', 'Sliding glass door') : o.kind === 'arch' ? tr('拱形门洞', 'Arched opening') : o.kind === 'niche' ? tr('壁龛', 'Niche') : o.kind === 'yak' ? tr('垭口', 'Cased opening') : o.kind === 'dble' ? tr('双开门', 'Double door') : o.kind === 'zimu' ? tr('子母门', 'Unequal double door') : o.kind === 'hwin' ? tr('高窗', 'High window') : o.kind === 'hole' ? tr('预留洞 / 窗洞', 'Opening') : o.kind === 'swin' ? tr('推拉窗', 'Sliding window') : o.kind === 'auto' ? tr('自动感应门', 'Automatic door') : o.kind === 'revolve' ? tr('旋转门', 'Revolving door') : o.kind === 'strip' ? tr('带形窗', 'Strip window') : o.kind === 'louver' ? tr('百叶窗', 'Louver window') : o.kind === 'cwin' ? tr('圆窗', 'Round window') : o.kind === 'bay' ? tr('飘窗', 'Bay window') : o.kind === 'dwin' ? tr('门连窗', 'Door + window') : o.kind === 'lbay' ? tr('转角飘窗', 'Corner bay window') : o.kind === 'sd' ? tr('单扇推拉门', 'Single sliding door') : o.kind === 'fold' ? tr('折叠门', 'Folding door') : o.kind === 'window' ? tr('平开窗', 'Casement window') : tr('窗户', 'Window')) + ' ' + objNo(state.openings, o, x => x.kind)), sub: (o.kind === 'lbay' ? (o.legs || []).reduce((a, g) => a + (g.w || 0), 0) : o.w) + ' mm' }));
       const furn = state.furniture.map(f => ({ kind: 'furn', id: f.id, name: nm(f.name), sub: f.w + '×' + f.d }));
       const rectSub = o => Math.round(o.w || 0) + '×' + Math.round(o.d || 0);
-      const stairName = t => t === 'steps' ? tr('台阶', 'Steps') : t === 'ramp' ? tr('坡道', 'Ramp') : t === 'esc' ? tr('自动扶梯', 'Escalator') : t === 'spiral' ? tr('螺旋楼梯', 'Spiral stair') : tr('楼梯', 'Stair');
+      const stairName = t => t === 'steps' ? tr('台阶', 'Steps') : t === 'ramp' ? tr('坡道', 'Ramp') : t === 'esc' ? tr('自动扶梯', 'Escalator') : t === 'spiral' ? tr('螺旋楼梯', 'Spiral stair') : t === 'ladder' ? tr('梯子', 'Ladder') : tr('楼梯', 'Stair');
       const build = [
         ...(state.pillars || []).map(c => ({ kind: 'pillar', id: c.id, name: c.name || tr('柱子', 'Column') + ' ' + objNo(state.pillars, c), sub: Math.round(c.w) + ' mm' })),
         ...(state.stairs || []).map(s => ({ kind: 'stair', id: s.id, name: s.name || stairName(s.type) + ' ' + objNo(state.stairs, s, 'type'), sub: s.type === 'spiral' ? '⌀' + Math.round(s.w || 1400) : Math.round(s.w || 0) + '×' + Math.round(s.len || 0) })),
@@ -13896,6 +13969,29 @@
       }
       archUp.add(g);
     }
+    function buildLadder3D(s) {                                 // 梯子：两根钢立柱 + 均分踏棍（间距约 300）+ 顶部扶手弯钩（立面朝 +x，攀爬由 ladderClimb 处理）
+      const W = s.w / 1000, H = Math.max(.8, (s.h ?? 3000) / 1000);
+      const g = new THREE.Group();
+      g.position.set(wx(s.x), 0, wz(s.y)); tagPick(g, 'stair', s.id);
+      g.rotation.y = -s.dir * Math.PI / 180;
+      const steel = mat('#9aa2ab', { metalness: .6, roughness: .4 });
+      const nR = Math.max(3, Math.round(H / .3)), dy = H / nR;
+      [-1, 1].forEach(sd => {                                   // 两侧立柱 + 顶部扶手弯钩（伸向背面 = 跨上方向）
+        const post = new THREE.Mesh(new THREE.CylinderGeometry(.026, .026, H, 10), steel);
+        post.position.set(0, H / 2, sd * (W / 2 - .05)); post.castShadow = true; g.add(post);
+        const hook = new THREE.Mesh(new THREE.CylinderGeometry(.026, .026, .42, 10), steel);
+        hook.rotation.z = Math.PI / 2;
+        hook.position.set(-.19, H + .02, sd * (W / 2 - .05)); hook.castShadow = true; g.add(hook);
+      });
+      for (let k = 0; k < nR; k++) {                            // 踏棍：横跨梯宽的圆管（轴向沿局部 z，连接两根立柱），间距均分
+        const rung = new THREE.Mesh(new THREE.CylinderGeometry(.02, .02, W - .1, 8), steel);
+        rung.rotation.x = Math.PI / 2;
+        rung.position.set(0, (k + .5) * dy, 0); rung.castShadow = true; g.add(rung);
+      }
+      const caL = Math.cos(s.dir * Math.PI / 180), saL = Math.sin(s.dir * Math.PI / 180);   // 梯身带高度线段碰撞（线沿梯宽方向，局部 z 两端）：拦住穿梯身（含侧面），攀爬贴近不受影响
+      addBarrier(wx(s.x) + W / 2 * saL, wz(s.y) - W / 2 * caL, wx(s.x) - W / 2 * saL, wz(s.y) + W / 2 * caL, 0, H, .1);
+      archUp.add(g);
+    }
     function buildEsc3D(s) {                                    // 自动扶梯：两侧窄桁架梁（中间镂空露出梯级）+ 半透明玻璃栏板（底边贴梯级斜面）+ 顶部黑色扶手带与两端回转端头 + 循环上行的水平梯级（漫游高度由 stairH 沿斜面插值）
       const L = s.len / 1000, W = s.w / 1000, H = Math.max(.05, (s.rise ?? 2400) / 1000);
       const g = new THREE.Group();
@@ -13907,12 +14003,13 @@
         tread = mat('#565d66', { roughness: .8 }), comb = mat('#c9a44a', { roughness: .6 });
       const railMat = ({ black: mat('#34383d', { roughness: .7 }), steel: mat('#b9c0c8', { metalness: .75, roughness: .28 }), wood: mat('#8a6a48', { roughness: .6 }) })[s.handMat] || mat('#34383d', { roughness: .7 });   // 扶手带材质：黑色橡胶（默认）/ 不锈钢 / 木纹
       const glass = mat('#c3d2d8', { metalness: .1, roughness: .2, transparent: true, opacity: .3, depthWrite: false });
+      const panelMat = ({ glass, steel: mat('#b9c0c8', { metalness: .75, roughness: .3 }), wood: mat('#8a6a48', { roughness: .6 }) })[s.panelMat] || glass;   // 围挡（栏板）材质：半透明玻璃（默认）/ 不锈钢板 / 木板
       const railH = .92, dRail = railH + .038;                 // 栏板 / 扶手相对梯级面的高度（沿斜面法线）
       [-1, 1].forEach(sd => {
         const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, .24, .07), metal);    // 桁架窄梁：贴两侧，不再用整块大板盖住梯级
         beam.position.set(nx * .16, H / 2 - ny * .16, sd * (W / 2 - .05)); beam.rotation.z = ang;
         beam.castShadow = beam.receiveShadow = true; g.add(beam);
-        const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), glass);  // 玻璃栏板：中心沿法线抬半个高度，底边正好贴斜面
+        const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), panelMat);   // 围挡栏板：中心沿法线抬半个高度，底边正好贴斜面
         panel.position.set(nx * railH / 2, H / 2 + ny * railH / 2, sd * (W / 2 - .018)); panel.rotation.z = ang;
         g.add(panel);
         const rail = new THREE.Mesh(new THREE.BoxGeometry(sl, .075, .1), railMat);   // 扶手带：紧贴栏板顶边，不悬空
@@ -15937,6 +16034,7 @@
       (state.stairs || []).forEach(s => {                    // 楼梯：悬空踏板 + 踢面 + 斜梁；双跑 / 三跑带折返平台
         if (s.type === 'ramp') return buildRamp3D(s);        // 坡道单独生成
         if (s.type === 'esc') return buildEsc3D(s);          // 自动扶梯单独生成（梯级滚动动画在主循环）
+        if (s.type === 'ladder') return buildLadder3D(s);    // 梯子单独生成（攀爬在 stepWalk）
         if (s.type === 'steps') return buildSteps3D(s);      // 台阶单独生成
         if (s.type === 'spiral') return buildSpiral3D(s);    // 螺旋楼梯单独生成
         const lay = stairLayout(s), W = lay.w / 1000;
@@ -16602,6 +16700,7 @@
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
     let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
     let crouchT = 0;                                             // 姿态插值：0 站立 ~ 1 全蹲 ~ 2 趴下（Ctrl/C 按住蹲下、Z 切换趴下）
+    let ladderOn = null;                                         // 攀梯状态：正在攀爬的那架梯子（null = 未攀爬）
     let proneOn = false;                                         // 趴下开关状态（Z 键切换：再按一次起身）
     const EYE_STAND = 1.6, EYE_CROUCH = .9, EYE_PRONE = .45;     // 站立视高 / 蹲下视高 / 趴下视高
     const HEAD_CROUCH = 1.15, HEAD_PRONE = .4;                   // 蹲下头顶高 / 趴下头顶高（站立头顶 1.6m）
@@ -16618,18 +16717,42 @@
       const wantPosture = !grounded ? 0 : proneOn ? 2 : (keys.ControlLeft || keys.ControlRight || keys.KeyC) ? 1 : 0;   // 目标姿态：Z 切换的趴下（优先）＞ Ctrl/C 按住蹲下 ＞ 站立
       crouchT += (wantPosture - crouchT) * Math.min(1, dt * 9);  // 站起 / 蹲下 / 趴下平滑过渡
       postureHeights(crouchT);
-      if (keys.Space && crouchT < 1.2 && grounded) jumpV = 3.1;   // 空格起跳（趴下时不能起跳，需先起身；按住落地自动连跳）
+      const ladHit = ladderAt(p.x, p.z, fallY === null ? 0 : fallY);   // 脚下位置是否贴近一架可攀爬的梯子（返回梯子对象）
+      let climbing = false;
+      if (ladHit && fallY !== null) {
+        const wUp = keys.KeyW || keys.ArrowUp || (touchWalk && joy.y < -.25);
+        const wDn = keys.KeyS || keys.ArrowDown || (touchWalk && joy.y > .25);
+        const lh = Math.max(.8, (ladHit.h ?? 3000) / 1000);
+        if ((wUp || wDn) && fallY <= lh) ladderOn = ladHit;            // 贴近 + 按上下 → 挂梯
+        else if (ladderOn && ladderOn.id !== ladHit.id) ladderOn = null;
+        if (ladderOn && ladderOn.id === ladHit.id) {                   // 攀爬中：W / S 沿梯上下（约 1.6 m/s），A / D 忽略，不坠不跳
+          climbing = true;
+          fallY = Math.max(0, Math.min(lh, fallY + ((wUp ? 1 : 0) - (wDn ? 1 : 0)) * 1.6 * dt));
+          fallV = 0; jumpY = 0; jumpV = 0;
+          if (fallY >= lh - .05) {                                     // 爬到顶：翻越到梯子背面（目标 = 梯身平面背后 0.35m，与挂梯位置无关；被挡则停在顶端）
+            const a = ladHit.dir * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+            const tx = ladHit.x / 1000 - 6 - ca * ((ladHit.len ?? 600) / 2000 + .35);
+            const tz = ladHit.y / 1000 - 5.3 - sa * ((ladHit.len ?? 600) / 2000 + .35);
+            if (!blocked(tx, tz, .22, lh)) { p.x = tx; p.z = tz; fallY = lh; ladderOn = null; }
+          }
+          if (fallY <= 0) ladderOn = null;                             // 爬到底：脱离，恢复行走
+        }
+      } else ladderOn = null;
+      if (keys.Space && crouchT < 1.2 && grounded && !climbing) jumpV = 3.1;   // 空格起跳（攀梯时禁跳；趴下时不能起跳，需先起身；按住落地自动连跳）
       if (jumpY > 0 || jumpV > 0) { jumpY += jumpV * dt; jumpV -= 9.5 * dt; if (jumpY <= 0) { jumpY = 0; jumpV = 0; } }
       const gy = stairH(p.x, p.z, p.y - eyeH - jumpY);       // 此处的支撑高度（地面 / 楼梯踏步 / 平台）
       if (fallY === null) fallY = gy;
-      if (jumpY > 0 || jumpV > 0) {                          // 跳跃滞空：支撑高度暂不追，落回时再衔接
-      } else if (gy < fallY - .3 || fallV !== 0) {           // 支撑面高差超过一步（走出平台边 / 台阶边）：进入跌落，重力下坠；楼梯踏步高 ≤ .2m 仍贴地顺走
-        fallV -= 9.5 * dt; fallY += fallV * dt;
-        if (fallY <= gy) { fallY = gy; fallV = 0; }          // 落到支撑面：跌落结束
-      } else fallY = gy;                                     // 贴地行走 / 上台阶
+      if (!climbing) {
+        if (jumpY > 0 || jumpV > 0) {                          // 跳跃滞空：支撑高度暂不追，落回时再衔接
+        } else if (gy < fallY - .3 || fallV !== 0) {           // 支撑面高差超过一步（走出平台边 / 台阶边）：进入跌落，重力下坠；楼梯踏步高 ≤ .2m 仍贴地顺走
+          fallV -= 9.5 * dt; fallY += fallV * dt;
+          if (fallY <= gy) { fallY = gy; fallV = 0; }          // 落到支撑面：跌落结束
+        } else fallY = gy;                                     // 贴地行走 / 上台阶
+      }
       const footH = fallY + jumpY;
       p.y = eyeH + footH;
       escCarry(p, footH, dt);                                // 站在自动扶梯上被梯级带着上行（先于输入移动，行走速度可叠加）
+      if (climbing) return;                                  // 攀梯中：A / D 与前后移动全部忽略（W / S 已由攀爬接管），只沿梯上下
       const shift = keys.ShiftLeft || keys.ShiftRight;
       const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : shift ? 2.6 : 1.4) * dt, mv = new THREE.Vector3();   // 趴下最慢（Shift 爬行加速）、蹲下次之、Shift 快走
       const right = new THREE.Vector3(-fwd.z, 0, fwd.x);
@@ -16658,6 +16781,20 @@
         if (!blocked(p.x, p.z + uz * step, .22, foot)) p.z += uz * step;
         break;
       }
+    }
+    function ladderAt(x, z, foot) {                            // 判定脚下位置是否贴近一架可攀爬的梯子：横向在梯宽内、正面 0.42m 内、脚不高于梯顶；返回该梯子对象或 null
+      for (const s of (state.stairs || [])) {
+        if (s.type !== 'ladder') continue;
+        const a = s.dir * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+        const dx = x * 1000 + 6000 - s.x, dy = z * 1000 + 5300 - s.y;
+        const lx = dx * ca + dy * sa, ly = -dx * sa + dy * ca;
+        const h = Math.max(.8, (s.h ?? 3000) / 1000), d = s.len ?? 600;
+        if (Math.abs(ly) > s.w / 2 + 120) continue;
+        if (lx < -150 || lx > d / 2 + 300) continue;           // 正面 0.3m 内可挂梯（背面是跨上方向，不挂）
+        if (foot > h + .05) continue;                          // 已在梯顶上方（上层）不挂梯
+        return s;
+      }
+      return null;
     }
     function pushOutOfRevolve(p, foot, head, pushR = .23) {    // 旋转门翼转到身上时，把对象推离翼（真实旋转门是翼推着人走，避免玻璃翼穿过玩家）；漫游玩家与家禽共用
       for (const w of revolveHit) {
@@ -16956,7 +17093,7 @@
 
     function relang() { syncWalkTexts(); if (inited) buildLabels(); }
 
-    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, toggleLamp, get camera() { return camera; } } };
+    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, ladderAt, toggleLamp, get camera() { return camera; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
   </script>
 </body>
 

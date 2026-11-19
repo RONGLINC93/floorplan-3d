@@ -974,7 +974,19 @@
       "dir": 0,
       "rise": 2400,
       "type": "esc",
-      "flipX": true
+      "flipX": true,
+      "handMat": "black",
+      "panelMat": "glass"
+    },
+    {
+      "id": "fmwnhpwze99",
+      "x": 6210,
+      "y": 7240,
+      "w": 500,
+      "len": 600,
+      "h": 3000,
+      "dir": 90,
+      "type": "ladder"
     }
   ],
   "wallH": {
