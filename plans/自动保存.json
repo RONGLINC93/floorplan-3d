@@ -1,26 +1,26 @@
 {
   "furniture": [
     {
-      "id": "fmwne86ag50",
-      "type": "squirrel",
-      "name": "松鼠",
+      "id": "fmwned3tw50",
+      "type": "cat",
+      "name": "猫",
       "cx": 5950,
       "cy": 5300,
-      "w": 320,
-      "d": 240,
+      "w": 500,
+      "d": 300,
       "rot": 0,
-      "color": "#a8744f"
+      "color": "#9b958c"
     },
     {
-      "id": "fmwne87iy51",
-      "type": "hedgehog",
-      "name": "刺猬",
+      "id": "fmwned52w51",
+      "type": "dog",
+      "name": "狗",
       "cx": 5950,
       "cy": 5300,
-      "w": 300,
-      "d": 240,
+      "w": 650,
+      "d": 350,
       "rot": 0,
-      "color": "#9c8b76"
+      "color": "#c19a6b"
     }
   ],
   "rooms": {},

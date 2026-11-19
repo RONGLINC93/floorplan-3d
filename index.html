@@ -3184,6 +3184,10 @@
           ['chicken', '母鸡', 420, 420, '#e8d5b0'], ['duck', '鸭子', 480, 430, '#f2f0e6'], ['goose', '白鹅', 560, 500, '#fafaf6']]
       },
       {
+        cat: '宠物', items: [
+          ['cat', '猫', 500, 300, '#9b958c'], ['dog', '狗', 650, 350, '#c19a6b']]
+      },
+      {
         cat: '野生动物', items: [
           ['rabbit', '野兔', 360, 280, '#c9beb0'], ['squirrel', '松鼠', 320, 240, '#a8744f'], ['hedgehog', '刺猬', 300, 240, '#9c8b76'],
           ['fox', '赤狐', 700, 350, '#d98e4a'], ['tortoise', '陆龟', 320, 260, '#7c8a52'], ['deer', '梅花鹿', 1100, 450, '#c8a06a']]
@@ -3660,7 +3664,7 @@
           s += `<circle cx="${hx - hr * .42}" cy="${hy - hr * .22}" r="${m * .022}" fill="#2a2a28"/><circle cx="${hx + hr * .42}" cy="${hy - hr * .22}" r="${m * .022}" fill="#2a2a28"/>`;
           return s;
         }
-        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': {
+        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': case 'cat': case 'dog': {
           const hy = -m * .3, hr = m * .13;
           let s = '';
           if (t === 'tortoise') {
@@ -3677,7 +3681,7 @@
             s += pa(`M${-hr * .5} ${hy - hr * .6}q${-hr * .7} ${-hr * 1.5} ${hr * .1} ${-hr * 1.7}q${hr * .5} ${hr * .5} ${hr * .1} ${hr * 1.2}Z`, '#a9855c') + pa(`M${hr * .5} ${hy - hr * .6}q${hr * .7} ${-hr * 1.5} ${-hr * .1} ${-hr * 1.7}q${-hr * .5} ${hr * .5} ${-hr * .1} ${hr * 1.2}Z`, '#a9855c');
             s += `<circle cx="${-hr * .35}" cy="${hy - hr * .1}" r="${m * .02}" fill="#2a2a28"/><circle cx="${hr * .35}" cy="${hy - hr * .1}" r="${m * .02}" fill="#2a2a28"/>`;
           } else {
-            s += ec(0, m * .05, m * .3, t === 'fox' ? m * .5 : m * .36, c);
+            s += ec(0, m * .05, m * .3, t === 'fox' || t === 'dog' ? m * .5 : t === 'cat' ? m * .42 : m * .36, c);
             if (t === 'rabbit') s += ec(-m * .1, -m * .52, m * .06, m * .17, shade(c, 1.06)) + ec(m * .1, -m * .52, m * .06, m * .17, shade(c, 1.06));
             if (t === 'squirrel') s += pa(`M${m * .12} ${m * .3}q${m * .5} ${m * .3} ${m * .3} ${m * .62}q${-m * .25} ${m * .25} ${-m * .48} ${m * .05}Z`, shade(c, .88)) + ec(0, m * .45, m * .2, m * .16, shade(c, .92));
             if (t === 'hedgehog') {
@@ -3685,9 +3689,12 @@
               for (let k = 0; k < 7; k++) { const a = Math.PI * (.25 + k * .38); s += ln(Math.cos(a) * m * .22, m * .12 + Math.sin(a) * m * .24, Math.cos(a) * m * .34, m * .12 + Math.sin(a) * m * .36, 'opacity=".7"'); }
             }
             if (t === 'fox') s += pa(`M${m * .1} ${m * .5}q${m * .34} ${m * .12} ${m * .22} ${m * .4}q${-m * .2} ${m * .18} ${-m * .4} ${m * .02}Z`, shade(c, .9)) + `<ellipse cx="${m * .3}" cy="${m * .86}" rx="${m * .08}" ry="${m * .07}" fill="#f2ede4" ${ST}/>`;
+            if (t === 'cat') s += pa(`M${m * .1} ${m * .34}q${m * .42} ${m * .02} ${m * .44} ${-m * .24}q${m * .03} ${-m * .18} ${-m * .14} ${-m * .2}`, 'none', `stroke="${shade(c, .85)}" stroke-width="${m * .09}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 长尾上翘
+            if (t === 'dog') s += pa(`M${-m * .06} ${m * .42}q${m * .14} ${m * .04} ${m * .22} ${-m * .16}`, 'none', `stroke="${shade(c, .85)}" stroke-width="${m * .12}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 短尾上翘
             s += ec(0, hy, hr, hr * .9, c);
-            if (t === 'fox' || t === 'squirrel') s += pa(`M${-hr * .55} ${hy - hr * .75}l${hr * .35} ${-hr * .1}l${hr * .1} ${hr * .55}Z`, shade(c, .85)) + pa(`M${hr * .55} ${hy - hr * .75}l${-hr * .35} ${-hr * .1}l${-hr * .1} ${hr * .55}Z`, shade(c, .85));
-            if (t === 'hedgehog' || t === 'fox') s += pa(`M0 ${hy - hr * .9}l${-hr * .3} ${hr * .55}l${hr * .3} 0Z`, '#3d352c');
+            if (t === 'fox' || t === 'squirrel' || t === 'cat') s += pa(`M${-hr * .55} ${hy - hr * .75}l${hr * .35} ${-hr * .1}l${hr * .1} ${hr * .55}Z`, shade(c, .85)) + pa(`M${hr * .55} ${hy - hr * .75}l${-hr * .35} ${-hr * .1}l${-hr * .1} ${hr * .55}Z`, shade(c, .85));
+            if (t === 'dog') s += ec(-hr * 1.15, hy + hr * .15, hr * .38, hr * .95, shade(c, .78)) + ec(hr * 1.15, hy + hr * .15, hr * .38, hr * .95, shade(c, .78));   // 垂耳
+            if (t === 'hedgehog' || t === 'fox' || t === 'dog') s += pa(`M0 ${hy - hr * .9}l${-hr * .3} ${hr * .55}l${hr * .3} 0Z`, '#3d352c');
             s += `<circle cx="${-hr * .4}" cy="${hy - hr * .2}" r="${m * .02}" fill="#2a2a28"/><circle cx="${hr * .4}" cy="${hy - hr * .2}" r="${m * .02}" fill="#2a2a28"/>`;
           }
           return s;
@@ -3697,7 +3704,7 @@
     }
 
     /* ======================= 渲染 ======================= */
-    const NOLABEL = ['plant', 'floorlamp', 'sidetable', 'barstool', 'beanbag', 'chicken', 'duck', 'goose', 'rabbit', 'squirrel', 'hedgehog', 'fox', 'tortoise', 'deer'];
+    const NOLABEL = ['plant', 'floorlamp', 'sidetable', 'barstool', 'beanbag', 'chicken', 'duck', 'goose', 'rabbit', 'squirrel', 'hedgehog', 'fox', 'tortoise', 'deer', 'cat', 'dog'];
     function renderRooms() {
       let s = '';
       allRooms().forEach(r => {
@@ -12859,6 +12866,36 @@
           speed = .45 + R() * .25; roam = 16;
           break;
         }
+        case 'cat': {
+          const bd = .19, hipY = .19, white = mat('#f2ede4', { roughness: .9 });
+          body.add(blob(.1, .095, bd, bm, 0, hipY + .03, .01, 18));
+          body.add(blob(.05, .05, .06, white, 0, hipY - .02, -bd * .55, 12));          // 胸前白毛
+          head = new THREE.Group(); head.position.set(0, hipY + .13, -bd * .78);
+          head.add(blob(.07, .068, .075, bm, 0, 0, 0, 16));
+          head.add(rbox(.035, .03, .05, bm, 0, -.028, -.05, .01));                     // 短吻
+          head.add(blob(.011, .011, .013, dark, 0, -.025, -.085, 8));                  // 鼻头
+          [-1, 1].forEach(s => { const ear = cyl(.003, .026, .05, bm, s * .042, .062, .005, 6); ear.rotation.z = s * .25; head.add(ear); });   // 三角立耳
+          body.add(head); eye(head, .042, .015, -.05);
+          body.add(blob(.03, .03, .05, bm, 0, hipY + .05, bd * .95, 12), blob(.034, .034, .04, bm, 0, hipY + .11, bd * 1.1, 12), blob(.032, .032, .038, bm, 0, hipY + .16, bd * .98, 12));   // 长尾上卷
+          quadLegs(hipY, .055, -bd * .5, bd * .5, .011);
+          speed = .45 + R() * .2; roam = 10;
+          break;
+        }
+        case 'dog': {
+          const bd = .22, hipY = .25, white = mat('#f2ede4', { roughness: .9 });
+          body.add(blob(.145, .13, bd, bm, 0, hipY, 0, 20));
+          body.add(blob(.06, .07, .07, white, 0, hipY - .04, -bd * .5, 12));           // 胸口白毛
+          head = new THREE.Group(); head.position.set(0, hipY + .15, -bd * .72);
+          head.add(blob(.085, .08, .09, bm, 0, 0, 0, 18));
+          head.add(rbox(.05, .045, .09, bm, 0, -.03, -.07, .015));                     // 吻部
+          head.add(blob(.018, .018, .022, dark, 0, -.03, -.12, 10));                   // 鼻头
+          [-1, 1].forEach(s => { const ear = blob(.03, .075, .014, mat(darker(c, .8), { roughness: .95 }), s * .075, .015, .01, 12); ear.rotation.z = s * .45; head.add(ear); });   // 垂耳
+          body.add(head); eye(head, .05, .02, -.06);
+          body.add(rod([0, hipY + .1, bd * .85], [0, hipY + .24, bd * 1.1], .02, bm, .014, 8));   // 尾巴上翘
+          quadLegs(hipY, .085, -bd * .5, bd * .55, .015);
+          speed = .5 + R() * .2; roam = 12;
+          break;
+        }
       }
       const homeX = wx(f.cx), homeZ = wz(f.cy);
       g.userData.poultry = {
@@ -13065,7 +13102,7 @@
         }
         case 'chicken': case 'duck': case 'goose':
           poultryModel(g, f, w, d, c, R); break;
-        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer':
+        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': case 'cat': case 'dog':
           wildAnimalModel(g, f, w, d, c, R); break;
         case 'table': {
           const tm = mat(c, { roughness: .4 }), lw = woodM(darker(c, .55)), ns = Math.max(1, Math.round(w / .62)), top = .75;
@@ -15733,7 +15770,7 @@
       clearGroup(furnG);
       const built = state.furniture.map(f => { const g = buildFurniture(f); furnG.add(g); return { f, g }; });
       furnCols = [];                                              // 家具碰撞外接盒（世界矩形 + 高度区间，米）：随家具重建同步刷新
-      const SKIP = { rug: 1, tv: 1, acwall: 1, waterheater: 1, chicken: 1, duck: 1, goose: 1, rabbit: 1, squirrel: 1, hedgehog: 1, fox: 1, tortoise: 1, deer: 1 };  // 地毯贴地可踩；电视 / 挂式空调 / 热水器为壁挂高位物；家禽与野生动物位置动态（漫步中按实时位置挡人），静态外接盒会把它们钉死在放置点，故跳过
+      const SKIP = { rug: 1, tv: 1, acwall: 1, waterheater: 1, chicken: 1, duck: 1, goose: 1, rabbit: 1, squirrel: 1, hedgehog: 1, fox: 1, tortoise: 1, deer: 1, cat: 1, dog: 1 };  // 地毯贴地可踩；电视 / 挂式空调 / 热水器为壁挂高位物；家禽与动物位置动态（漫步中按实时位置挡人），静态外接盒会把它们钉死在放置点，故跳过
       built.forEach(({ f, g }) => {
         const a = aabb(f), cx = wx(f.cx), cz = wz(f.cy), hw = a.hw / 1000 + .02, hh = a.hh / 1000 + .02;
         if (SKIP[f.type]) return;
