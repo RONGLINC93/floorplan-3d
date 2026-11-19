@@ -1,5 +1,61 @@
 {
-  "furniture": [],
+  "furniture": [
+    {
+      "id": "fmwn38nkm99",
+      "type": "duck",
+      "name": "鸭子",
+      "cx": 8640,
+      "cy": 6690,
+      "w": 480,
+      "d": 430,
+      "rot": 0,
+      "color": "#f2f0e6"
+    },
+    {
+      "id": "fmwn38seu100",
+      "type": "duck",
+      "name": "鸭子",
+      "cx": -4160,
+      "cy": 7220,
+      "w": 480,
+      "d": 430,
+      "rot": 0,
+      "color": "#f2f0e6"
+    },
+    {
+      "id": "fmwn390rq101",
+      "type": "goose",
+      "name": "白鹅",
+      "cx": 1160,
+      "cy": 7220,
+      "w": 560,
+      "d": 500,
+      "rot": 0,
+      "color": "#fafaf6"
+    },
+    {
+      "id": "fmwn391gm102",
+      "type": "chicken",
+      "name": "母鸡",
+      "cx": -550,
+      "cy": 7090,
+      "w": 420,
+      "d": 420,
+      "rot": 0,
+      "color": "#e8d5b0"
+    },
+    {
+      "id": "fmwn392cu103",
+      "type": "goose",
+      "name": "白鹅",
+      "cx": 2680,
+      "cy": 7220,
+      "w": 560,
+      "d": 500,
+      "rot": 0,
+      "color": "#fafaf6"
+    }
+  ],
   "rooms": {
     "__t2": {
       "name": "tmp2",
