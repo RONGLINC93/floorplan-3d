@@ -13344,8 +13344,7 @@
         post.position.set(Math.sin(a) * rr, stepH * i + .45, Math.cos(a) * rr);
         post.castShadow = true; g.add(post);
       }
-      const rr2 = R - .05;                                       // 占碰撞：外接方形略缩
-      colliders.push([wx(s.x) - rr2 * .98, wz(s.y) - rr2 * .98, wx(s.x) + rr2 * .98, wz(s.y) + rr2 * .98]);
+      colliders.push([wx(s.x) - rc, wz(s.y) - rc, wx(s.x) + rc, wz(s.y) + rc]);  // 只挡中心柱：整圈外接方形会连踏步区一起挡住，漫游时无法走上楼梯
       archUp.add(g);
     }
     function buildSteps3D(s) {                                  // 台阶：逐级实心踏步块（漫游可逐级上下）
@@ -15745,10 +15744,11 @@
           if (dist > lay.rCore && dist < lay.rOuter) {
             const ca2 = Math.cos(a), sa2 = Math.sin(a);
             const lx2 = dx * ca2 + dy * sa2, ly2 = -dx * sa2 + dy * ca2;
-            let u = (Math.atan2(lx2, ly2) - (s.flipX ? Math.PI : 0)) / lay.ang;   // 前后翻转 = 3D 整组转 180°（起步角换到另一头），高度比例同步转回
-            if (lay.ang < 0) u = -u;
-            u = ((u % 1) + 1) % 1;                            // 缠绕多圈时取余数继续上行
-            cand.push((s.rise ?? 2800) * u / 1000);
+            const phi = Math.atan2(lx2, ly2) - (s.flipX ? Math.PI : 0);   // 前后翻转 = 3D 整组转 180°（起步角换到另一头），高度比例同步转回
+            const A = lay.ang, lo = Math.min(0, A), hi = Math.max(0, A), TAU = Math.PI * 2;
+            const ang0 = lo + (((phi - lo) % TAU) + TAU) % TAU; // 把 atan2 的 (-π,π] 解缠绕回 [lo,lo+2π)
+            for (let ang = ang0; ang <= hi + 1e-9; ang += TAU)  // 同一平面角可能对应多圈踏步，全部作为候选，由当前层高度就近选取
+              cand.push((s.rise ?? 2800) * (ang / A) / 1000);
           }
           return;
         }
