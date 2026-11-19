@@ -2497,8 +2497,8 @@
             <button class="btn chip" data-dt="auto" title="自动感应门：点击墙面放置 2400mm 玻璃自动门（两扇对开），3D 漫游走近自动滑开、离开关上"
               data-en-title="Automatic door: click a wall for a 2400mm glass auto door (two sliding leaves); leaves slide open as you walk near in 3D and close after you leave"
               data-en="Auto door"><i data-lucide="move-horizontal"></i>自动门</button>
-            <button class="btn chip" data-dt="revolve" title="旋转门：点击墙面放置 2000mm 旋转门（十字四翼玻璃），3D 为圆筒玻璃与旋翼"
-              data-en-title="Revolving door: click a wall for a 2000mm revolving door (four glass wings); cylinder + wings in 3D"
+            <button class="btn chip" data-dt="revolve" title="旋转门：点击墙面放置 2000mm 旋转门（三翼玻璃），3D 为圆筒玻璃与持续旋转的三翼旋翼"
+              data-en-title="Revolving door: click a wall for a 2000mm revolving door (three glass wings); cylinder + continuously rotating wings in 3D"
               data-en="Revolving door"><i data-lucide="rotate-cw"></i>旋转门</button>
             <button class="btn chip" data-dt="elev" title="点击墙上的位置开一个 900mm 电梯门（金属中分双扇，3D 中点击可开合）"
               data-en-title="Click a wall for a 900mm elevator door (metal centre-split leaves, click to open / close in 3D)"
@@ -3997,14 +3997,14 @@
             s += `<line x1="${a[0] + n[0] * off}" y1="${a[1] + n[1] * off}" x2="${b[0] + n[0] * off}" y2="${b[1] + n[1] * off}" ${AS} stroke-width="1.8" ${NE}/>`;
           });
           s += `<line x1="${sm[0] - n[0] * T / 2}" y1="${sm[1] - n[1] * T / 2}" x2="${sm[0] + n[0] * T / 2}" y2="${sm[1] + n[1] * T / 2}" ${AS} ${NE}/>`;
-        } else if (o.kind === 'revolve') {                    // 旋转门：圆筒轮廓 + 十字旋翼 + 转向箭头
+        } else if (o.kind === 'revolve') {                    // 旋转门：圆筒轮廓 + 三翼旋翼 + 转向箭头
           const RS = 'stroke="#2e6e8e" stroke-width="1.1" vector-effect="non-scaling-stroke"';
           const mm = [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2], r = o.w / 2;
           s += `<circle cx="${mm[0]}" cy="${mm[1]}" r="${r}" fill="#f7fbfd" ${RS}/>`;
           s += `<circle cx="${mm[0]}" cy="${mm[1]}" r="${r * .22}" fill="none" ${RS} ${NE}/>`;
-          [0, 1].forEach(k => {                               // 十字四翼（两条斜线）
-            const ang = Math.PI / 4 + k * Math.PI / 2, ex = Math.cos(ang) * r * .92, ey = Math.sin(ang) * r * .92;
-            s += `<line x1="${mm[0] - ex}" y1="${mm[1] - ey}" x2="${mm[0] + ex}" y2="${mm[1] + ey}" ${RS} ${NE}/>`;
+          [0, 1, 2].forEach(k => {                              // 三翼：从中心到外缘，均布 120°（与 3D 一致）
+            const ang = Math.PI / 4 + k * Math.PI * 2 / 3, ex = Math.cos(ang) * r * .92, ey = Math.sin(ang) * r * .92;
+            s += `<line x1="${mm[0]}" y1="${mm[1]}" x2="${mm[0] + ex}" y2="${mm[1] + ey}" ${RS} ${NE}/>`;
           });
           s += `<path d="M${mm[0] + r * .55} ${mm[1] - r * .55}A${r * .78} ${r * .78} 0 0 1 ${mm[0] + r * .95} ${mm[1]}" fill="none" ${RS} stroke-dasharray="60 40" ${NE}/>`;
         } else if (o.kind === 'cwin') {                      // 圆窗：以洞口中心画圆 + 圆心十字
@@ -7600,7 +7600,7 @@
     ${['window', 'hwin', 'dwin'].includes(o.kind) ? `<div class="form"><label class="chk full"><input type="checkbox" id="oGrille" ${openGrille(o) ? 'checked' : ''}>${tr('窗花（窗上亮子：横向带框玻璃带）', 'Transom: framed glass band above the window')}</label></div>` : ''}
     ${['window', 'hwin', 'dwin'].includes(o.kind) && openGrille(o) ? `<div class="form"><label title="${tr('窗花高度不能超过窗户高度', 'Transom height cannot exceed the window height')}">${tr('窗花高度', 'Transom height')} (mm · ≤ ${Math.round(o.wh ?? Math.max(300, 2400 - Math.round(o.sill ?? (o.kind === 'hwin' ? 1400 : 900))))})<input type="number" id="oTh" value="${Math.round(o.th ?? 500)}" min="150" max="${Math.round(o.wh ?? Math.max(300, 2400 - Math.round(o.sill ?? (o.kind === 'hwin' ? 1400 : 900))))}" step="50"></label></div>` : ''}
     ${['door', 'dble', 'zimu', 'yak', 'dwin', 'slid', 'sd', 'fold', 'elev', 'roller', 'auto', 'revolve'].includes(o.kind) ? `<div class="form"><label title="${tr(`墙高 ${wallH} − 门槛 ${sillMM} = 最大 ${maxDh} mm`, `Wall ${wallH} − threshold ${sillMM} = max ${maxDh} mm`)}">${tr('门高', 'Door height')} (mm · ≤ ${maxDh})<input type="number" id="oDh" value="${dhMM}" min="300" max="${maxDh}" step="50"></label><label>${tr('门槛高（门洞下沿离地）', 'Threshold height')} (mm)<input type="number" id="oBase" value="${sillMM}" min="0" max="${Math.max(0, wallH - dhMM)}" step="10"></label></div>` : ''}
-    <div class="muted" style="margin-top:8px">${tr('在 2D 里拖动门窗可沿墙滑动。', 'Drag the opening in 2D to slide it along its wall.')}${(o.kind === 'window' || o.kind === 'hwin') ? tr(' 窗扇数在右侧设置（1–4 扇，相邻扇交错滑轨）；3D 里点哪扇开哪扇。', ' Sash count is editable on the right (1–4 sashes on offset tracks); click any sash in 3D to slide it open.') : o.kind === 'auto' ? tr(' 自动感应门为双扇平移玻璃门，3D 带门机箱与感应器，漫游走近两扇自动滑开、离开关上；平时可直接穿行。', ' Automatic sliding glass door with header and sensor; in 3D walk mode the leaves slide open as you approach and close after you leave; always walk-through.') : o.kind === 'revolve' ? tr(' 旋转门为圆筒玻璃加三翼旋翼，3D 中可直接穿行。', ' Revolving door: cylindrical glass with three wings.') : o.kind === 'strip' ? tr(' 带形窗通长连续采光，3D 按约 1200mm 分格加竖梃。', ' Strip window with mullions every ~1200mm in 3D.') : o.kind === 'louver' ? tr(' 百叶窗为固定叶片，3D 中不可开启。', ' Louver blades are fixed (not openable in 3D).') : o.kind === 'cwin' ? tr(' 圆窗直径跟随宽度，高度不可单独设置。', ' The circle diameter follows the width.') : o.kind === 'bay' ? tr(' 飘窗向外凸出，进深与朝向可改；3D 中为固定窗不可开启。', ' The bay protrudes outward; depth and side are editable. Fixed glass (not openable) in 3D.') : o.kind === 'lbay' ? tr(' 转角飘窗跨两面墙，点任一段都选中同一个对象；窗台 / 窗高 / 进深两段共用。', ' The Corner bay spans two walls and stays one object.') : o.kind === 'sd' ? tr(' 3D 里点门扇可沿墙推开。', ' Click the door in 3D to slide it open.') : o.kind === 'fold' ? tr(' 3D 里点门扇可折起 / 展开；折起后中间可直接通行。', ' Click the door in 3D to fold / unfold it.') : ''}</div>
+    <div class="muted" style="margin-top:8px">${tr('在 2D 里拖动门窗可沿墙滑动。', 'Drag the opening in 2D to slide it along its wall.')}${(o.kind === 'window' || o.kind === 'hwin') ? tr(' 窗扇数在右侧设置（1–4 扇，相邻扇交错滑轨）；3D 里点哪扇开哪扇。', ' Sash count is editable on the right (1–4 sashes on offset tracks); click any sash in 3D to slide it open.') : o.kind === 'auto' ? tr(' 自动感应门为双扇平移玻璃门，3D 带门机箱与感应器，漫游走近两扇自动滑开、离开关上；平时可直接穿行。', ' Automatic sliding glass door with header and sensor; in 3D walk mode the leaves slide open as you approach and close after you leave; always walk-through.') : o.kind === 'revolve' ? tr(' 旋转门为圆筒玻璃加三翼旋翼，3D 中旋翼持续匀速旋转、可直接穿行。', ' Revolving door: cylindrical glass with three wings that rotate continuously in 3D; walk-through.') : o.kind === 'strip' ? tr(' 带形窗通长连续采光，3D 按约 1200mm 分格加竖梃。', ' Strip window with mullions every ~1200mm in 3D.') : o.kind === 'louver' ? tr(' 百叶窗为固定叶片，3D 中不可开启。', ' Louver blades are fixed (not openable in 3D).') : o.kind === 'cwin' ? tr(' 圆窗直径跟随宽度，高度不可单独设置。', ' The circle diameter follows the width.') : o.kind === 'bay' ? tr(' 飘窗向外凸出，进深与朝向可改；3D 中为固定窗不可开启。', ' The bay protrudes outward; depth and side are editable. Fixed glass (not openable) in 3D.') : o.kind === 'lbay' ? tr(' 转角飘窗跨两面墙，点任一段都选中同一个对象；窗台 / 窗高 / 进深两段共用。', ' The Corner bay spans two walls and stays one object.') : o.kind === 'sd' ? tr(' 3D 里点门扇可沿墙推开。', ' Click the door in 3D to slide it open.') : o.kind === 'fold' ? tr(' 3D 里点门扇可折起 / 展开；折起后中间可直接通行。', ' Click the door in 3D to fold / unfold it.') : ''}</div>
     ${o.kind === 'elev' ? `<div class="form"><label>${tr('呼叫按钮位置', 'Call button side')}<select id="oBtn"><option value="r" ${(o.btn || 'r') === 'r' ? 'selected' : ''}>${tr('门右侧', 'Right of door')}</option><option value="l" ${o.btn === 'l' ? 'selected' : ''}>${tr('门左侧', 'Left of door')}</option></select></label></div>` : ''}
     ${(o.kind === 'door' || o.kind === 'dwin') ? `<div class="form"><label>${tr('门扇材质', 'Leaf material')}<select id="oMat"><option value="wood" ${(o.mat || 'wood') === 'wood' ? 'selected' : ''}>${tr('木制', 'Wood')}</option><option value="steel" ${o.mat === 'steel' ? 'selected' : ''}>${tr('不锈钢', 'Stainless steel')}</option><option value="glass" ${o.mat === 'glass' ? 'selected' : ''}>${tr('玻璃', 'Glass')}</option></select></label></div>` : ''}
     ${o.kind === 'door' ? `<div class="actions"><button class="btn" id="oDir" title="点击循环切换开启方式：左开 → 右开 → 左开反向 → 右开反向">${tr('改变开门方向', 'Change swing')}</button></div>` : ''}
@@ -9411,7 +9411,7 @@
                                     : kind === 'auto'
                                       ? tr(`已放自动感应门 ${Math.round(w)} mm（双扇平移玻璃门）`, `Automatic sliding door ${Math.round(w)} mm added`)
                                       : kind === 'revolve'
-                                        ? tr(`已放旋转门 ${Math.round(w)} mm（圆筒玻璃 + 十字旋翼）`, `Revolving door ${Math.round(w)} mm added`)
+                                        ? tr(`已放旋转门 ${Math.round(w)} mm（圆筒玻璃 + 持续旋转的三翼）`, `Revolving door ${Math.round(w)} mm added (cylinder + rotating wings)`)
                                         : kind === 'strip'
                                           ? tr(`已放带形窗 ${Math.round(w)} mm · 3D 按约 1200 分格`, `Strip window ${Math.round(w)} mm added · mullions every ~1200 in 3D`)
                                           : kind === 'dwin'
@@ -11571,7 +11571,7 @@
       if (dt === 'hole') toast(tr('预留洞 / 窗洞：点击墙上的位置开门洞；洞口宽 / 窗台 / 洞高在右侧改（3D 只开洞不装窗）', 'Opening: click a wall; edit width / sill / height in the panel (no frame or sash in 3D)'));
       if (dt === 'swin') toast(tr('推拉窗：点击墙上的位置放置；窗台 / 窗高在右侧改，3D 中点窗扇可推开', 'Sliding window: click a wall; edit sill / height in the panel. Click a sash in 3D to slide it open'));
       if (dt === 'auto') toast(tr('自动感应门：点击墙面放置（默认 2400 宽、门高 2400）；门宽 / 门高在右侧改，3D 漫游走近自动开合', 'Automatic door: click a wall (2400 wide, 2400 high); edit width / height in the panel; slides open as you approach in 3D walk mode'));
-      if (dt === 'revolve') toast(tr('旋转门：点击墙面放置（默认 2000 宽、门高 2400）；门宽 / 门高在右侧改，3D 为圆筒玻璃加三翼', 'Revolving door: click a wall (2000 wide); edit width / height in the panel'));
+      if (dt === 'revolve') toast(tr('旋转门：点击墙面放置（默认 2000 宽、门高 2400）；门宽 / 门高在右侧改，3D 为圆筒玻璃加持续旋转的三翼', 'Revolving door: click a wall (2000 wide); edit width / height in the panel; three rotating wings in 3D'));
       if (dt === 'strip') toast(tr('带形窗：点击墙面放置（默认 3000 宽、窗台 600、窗高 1500）；宽度 / 窗台 / 窗高在右侧改', 'Strip window: click a wall (3000 wide, sill 600, height 1500); edit in the panel'));
       if (dt === 'seal') toast(tr('封洞：点击已有的门窗洞口即可封上（Ctrl+Z 可撤销）', 'Seal: click an existing opening to close it (Ctrl+Z to undo)'));
       if (dt === 'leader') toast(tr('引线标注：先点锚点（圆点），再点文字位置；文字 / 两端位置在右侧改', 'Leader note: click the anchor dot, then the text position'));
@@ -12150,7 +12150,7 @@
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
-    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], selKey = null, selHelpers = [], lampGlowMats = [];   // barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
+    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], revolveSpins = [], revolveHit = [], selKey = null, selHelpers = [], lampGlowMats = [];   // barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
     let sigArch = '', sigFurn = '', sigLabels = '', grow = 1, furnGrow = 1;
     const doors = [], keys = {};
 
@@ -14367,7 +14367,7 @@
         sensor.position.set(mx, dT - .14, mz); sensor.rotation.y = rot; archUp.add(sensor);
         return;                                               // 感应门不设碰撞：关闭/开启都可穿行，门扇动画只作视觉表现
       }
-      if (o.kind === 'revolve') {                             // 旋转门：圆筒玻璃 + 十字旋翼 + 上下环梁
+      if (o.kind === 'revolve') {                             // 旋转门：圆筒玻璃 + 三翼旋翼 + 上下环梁
         const hh = Math.max(.8, dT - dB), L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1);
         const r = Math.max(.4, L / 2), TT = M(T);
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);          // 门顶过梁
@@ -14378,14 +14378,18 @@
           ring.rotation.x = Math.PI / 2; ring.position.set(mx, y, mz); ring.castShadow = true; archUp.add(ring);
         });
         const wingMat = oneMat(glassMat.clone());
-        for (let k = 0; k < 3; k++) {                          // 三翼旋翼
-          const ang = rot + k * Math.PI * 2 / 3, grpW = new THREE.Group();
-          grpW.position.set(mx, dB + hh / 2, mz); grpW.rotation.y = ang; archUp.add(grpW);
+        const spin = new THREE.Group();                        // 三翼统一挂一个父组，父组绕中心轴持续旋转（主循环里驱动）
+        spin.position.set(mx, dB + hh / 2, mz); spin.rotation.y = rot; archUp.add(spin);
+        for (let k = 0; k < 3; k++) {                          // 三翼旋翼：相对父组均布 120°
+          const grpW = new THREE.Group(); grpW.rotation.y = k * Math.PI * 2 / 3; spin.add(grpW);
           const wing = new THREE.Mesh(new THREE.BoxGeometry(r * .94, hh - .1, .02), wingMat);
           wing.position.x = r * .47; grpW.add(wing);
           const post = new THREE.Mesh(new THREE.BoxGeometry(.04, hh, .04), frameMat);
           post.position.x = r * .94; grpW.add(post);
         }
+        revolveSpins.push(spin);
+        revolveHit.push({ spin, mx, mz, r: r * .94, y0: dB, y1: dT });   // 三翼随动碰撞：端点是中心的径向线段，角度每帧从 spin.rotation.y 实时取
+        colliders.push([mx - .06, mz - .06, mx + .06, mz + .06]);        // 中心实心轴：静态碰撞，任何高度都挡（玩家不会钻进轴心）
         const core = new THREE.Mesh(new THREE.CylinderGeometry(.05, .05, hh, 12), frameMat);
         core.position.set(mx, dB + hh / 2, mz); archUp.add(core);
         return;
@@ -14716,7 +14720,7 @@
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
       selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null;
-      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; lampGlowMats.length = 0;
+      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; revolveSpins = []; revolveHit = []; lampGlowMats.length = 0;
       const top = opt.cut;
       allRooms().forEach(r => {
         const st = state.rooms[r.id]; if (!st) return;               // 空方案：3D 里也不生成房间地面
@@ -15727,6 +15731,18 @@
     }
     function blocked(x, z, r = .22, footH = null) {
       for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
+      for (const w of revolveHit) {                               // 旋转门三翼：径向线段从中心到外缘，角度随旋翼实时转动
+        if (footH !== null && (footH + 1.6 < w.y0 || footH > w.y1)) continue;
+        const dx = x - w.mx, dz = z - w.mz;
+        if (dx * dx + dz * dz > (w.r + r) * (w.r + r)) continue;   // 在转盘外，快速跳过
+        for (let k = 0; k < 3; k++) {
+          const a = w.spin.rotation.y + k * Math.PI * 2 / 3, ux = Math.cos(a), uz = -Math.sin(a);  // 翼的世界方向（局部 +x 绕 Y 旋转后）
+          const ex = w.mx + ux * w.r, ez = w.mz + uz * w.r;        // 翼外端
+          const vx = ex - w.mx, vz = ez - w.mz, len2 = vx * vx + vz * vz;
+          const t = Math.max(0, Math.min(1, (dx * vx + dz * vz) / len2));
+          if (Math.hypot(dx - vx * t, dz - vz * t) < r * .9) return true;   // 碰到翼玻璃（玻璃很薄，用玩家半径的 0.9）
+        }
+      }
       if (footH !== null) for (const [ax, az, bx, bz, y0, y1, reach] of barriers) {
         if (footH + 1.6 < y0 || footH > y1) continue;            // 玩家身体（脚到头顶 1.6m）与栏杆高度区间无交集：不挡（可从下方/上方通过）
         const vx = bx - ax, vz = bz - az, len2 = vx * vx + vz * vz;
@@ -15820,6 +15836,24 @@
       const p = camera.position;
       if (!blocked(p.x + mv.x, p.z, .22, footH)) p.x += mv.x;
       if (!blocked(p.x, p.z + mv.z, .22, footH)) p.z += mv.z;
+    }
+    function pushOutOfRevolve() {                              // 旋转门翼转到玩家身上时，把玩家推离翼（真实旋转门是翼推着人走，避免玻璃翼穿过玩家）
+      const p = camera.position, foot = p.y - 1.6;
+      for (const w of revolveHit) {
+        if (foot + 1.6 < w.y0 || foot > w.y1) continue;         // 高度不匹配（隔层）
+        const dx = p.x - w.mx, dz = p.z - w.mz;
+        if (dx * dx + dz * dz > (w.r + .3) ** 2) continue;       // 不在转盘内
+        for (let k = 0; k < 3; k++) {
+          const a = w.spin.rotation.y + k * Math.PI * 2 / 3, ux = Math.cos(a), uz = -Math.sin(a);
+          let t = (dx * ux + dz * uz) / w.r; t = Math.max(0, Math.min(1, t));   // 玩家在翼线段上的最近点参数
+          const qx = w.mx + ux * w.r * t, qz = w.mz + uz * w.r * t;
+          let nx = p.x - qx, nz = p.z - qz, d = Math.hypot(nx, nz), pushR = .23;
+          if (d < pushR) {
+            if (d < 1e-5) { nx = -uz; nz = ux; d = 1; }         // 恰好压在翼上：沿切向推开，避免除零
+            p.x = qx + nx / d * pushR; p.z = qz + nz / d * pushR;
+          }
+        }
+      }
     }
 
     /* ======================= 射击彩蛋 ======================= */
@@ -15998,6 +16032,8 @@
         });
       } else doors.forEach(d => { if (d.auto) d.open = false; });   // 非漫游态自动门关合
       doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起
+      revolveSpins.forEach(g => { g.rotation.y += dt * .7; });   // 旋转门三翼持续匀速转动（约 9 秒一圈），鸟瞰 / 漫游均生效
+      if (opt.mode === 'walk') pushOutOfRevolve();              // 漫游时翼扫到玩家则推开，避免穿模
       updateDoorWalkTip();
       flagAnims.forEach((a, id) => {                             // 旗面升降：逐帧插值旗面高度；播完只写状态并入撤销栈，不走 buildArch 重建（否则门窗动画会被重置）
         const k = clamp01((now - a.t0) / a.dur), v = (a.from + (a.to - a.from) * ease(k)) / 1000;
@@ -16029,7 +16065,7 @@
 
     function relang() { syncWalkTexts(); if (inited) buildLabels(); }
 
-    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get lampG() { return lampG; }, toggleLamp, get camera() { return camera; } } };
+    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get lampG() { return lampG; }, toggleLamp, get camera() { return camera; }, get revolveHit() { return revolveHit; }, blocked } };
   </script>
 </body>
 
