@@ -500,7 +500,7 @@
     {
       "id": "fmwnfib2j113",
       "a": [
-        -60,
+        -250,
         -10200
       ],
       "b": [
@@ -537,7 +537,7 @@
         -3400
       ],
       "b": [
-        -60,
+        -250,
         -10200
       ]
     }
@@ -977,7 +977,7 @@
       "flipX": true,
       "handMat": "black",
       "panelMat": "glass",
-      "runs": "B"
+      "runs": "X"
     },
     {
       "id": "fmwnhpwze99",
@@ -997,7 +997,9 @@
       "len": 4400,
       "dir": 0,
       "rise": 2400,
-      "type": "esc"
+      "type": "esc",
+      "railLand": false,
+      "land": false
     }
   ],
   "wallH": {

@@ -2587,10 +2587,12 @@
               title="螺旋楼梯：点击放置（默认外径 1400、升 2800，绕中心柱逐级盘旋）；外径 / 爬升 / 级数 / 转向 / 方向可在右侧改，3D 为中心柱 + 楔形踏步 + 螺旋扶手，漫游可上下"
               data-en-title="Spiral stair: click to place (⌀1400, rise 2800 by default); steps wind around a centre post; diameter / rise / steps / turn editable in 3D with spiral handrail, walkable"
               data-en="Spiral stair"><i data-lucide="shell"></i>螺旋楼梯</button>
-            <button class="btn chip" data-dt="esc" title="点击放置一部自动扶梯（默认 1000×4400 升 2400，约 29°；宽 / 长 / 爬升 / 方向可在右侧改，梯级持续上行，漫游站上梯面会被自动传送上楼）"
+            <button class="btn chip" data-dt="esc"
+              title="点击放置一部自动扶梯（默认 1000×4400 升 2400，约 29°；宽 / 长 / 爬升 / 方向可在右侧改，梯级持续上行，漫游站上梯面会被自动传送上楼）"
               data-en-title="Click to place an escalator (1000×4400, rise 2400 by default, ~29°; width / length / rise / direction editable, steps keep moving up, standing on it carries you up in roam mode)"
               data-en="Escalator"><i data-lucide="arrow-up-right"></i>自动扶梯</button>
-            <button class="btn chip" data-dt="ladder" title="点击放置一架梯子（默认宽 500 · 高 3000，钢制直梯），靠近墙自动吸附贴墙、面朝房间；宽 / 高 / 方向可在右侧改，3D 为两根立柱 + 踏棍 + 顶部扶手弯钩，漫游贴近后按 W / S 攀爬，到顶自动翻越，空格跳离"
+            <button class="btn chip" data-dt="ladder"
+              title="点击放置一架梯子（默认宽 500 · 高 3000，钢制直梯），靠近墙自动吸附贴墙、面朝房间；宽 / 高 / 方向可在右侧改，3D 为两根立柱 + 踏棍 + 顶部扶手弯钩，漫游贴近后按 W / S 攀爬，到顶自动翻越，空格跳离"
               data-en-title="Click to place a ladder (500 wide × 3000 high, steel), snaps to nearby walls facing the room; width / height / direction editable, 3D shows two posts + rungs + top hooks, walk close and press W / S to climb in roam mode, auto step-over at the top, Space to jump off"
               data-en="Ladder"><i data-lucide="ladder"></i>梯子</button>
           </div>
@@ -4506,13 +4508,15 @@
     function stairLayout(s) {                                // 楼梯布局（mm，局部坐标：x 沿上行方向，y = 横向）
       if (s.type === 'ramp') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 600 }], lands: [], total: 0, unit: 0, ramp: true }; }
       if (s.type === 'esc') {
-        if (s.runs === 'B') {                                 // 双向扶梯：两跑并排（中间留 100 梯井），一上一下各自爬完全程，无折返平台
-          const gap = 100, w = s.w, H = s.rise ?? 2400, f = s.flipX ? -1 : 1;
+        if (s.runs === 'B' || s.runs === 'X') {               // 双向扶梯：两跑并排（中间留 100 梯井），一上一下各自爬完全程，无折返平台。B = 并排式（两跑同坡向，视觉平行）；X = 交叉式（剪刀式，下行跑坡向相反，3D 呈 X 形）
+          const gap = 100, w = s.w, H = s.rise ?? 2400, f = s.flipX ? -1 : 1, cross = s.runs === 'X';
           const zc = i => -(2 * w + gap) / 2 + w / 2 + i * (w + gap);
           const n = Math.max(6, Math.round(s.len / 400));
           const runs = [
             { x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: zc(0), n, y0: 0, y1: H },     // 上行跑：低端在起始端
-            { x0: s.len / 2 * f, x1: -s.len / 2 * f, dir: -f, z: zc(1), n, y0: H, y1: 0 },    // 下行跑：与上行跑同坡向（低 / 高端各自并排在同侧，视觉平行不交叉），梯级与传送沿 -x 下行
+            cross
+              ? { x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: zc(1), n, y0: H, y1: 0 }   // 交叉：下行跑高端在另一端，梯级与传送沿 +x 下行
+              : { x0: s.len / 2 * f, x1: -s.len / 2 * f, dir: -f, z: zc(1), n, y0: H, y1: 0 },// 并排：与上行跑同坡向（低 / 高端各自并排在同侧，视觉平行不交叉），梯级与传送沿 -x 下行
           ];
           if (s.flipZ) runs.forEach(r => r.z = -r.z);       // 左右翻转：下行跑换到另一侧
           return { N: 2, w, Wtot: 2 * w + gap, runs, lands: [], H, esc: true, ramp: true, total: n * 2, unit: H / n };
@@ -5762,7 +5766,7 @@
         <circle data-handle="stairW" cx="0" cy="${bb.z1 + p}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${lay.spiral ? tr('拖动调整外径', 'Drag to change outer ⌀') : tr('拖动调整梯宽（一侧固定）', 'Drag to change stair width')}</title></circle>
       </g>`;
           s += `<text x="${st.x}" y="${st.y}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none"
-        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'esc' ? `${tr('自动扶梯', 'Escalator')}${lay.runs.length > 1 ? ' · ' + tr('双跑', 'Double') : ''} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2400)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : st.type === 'ladder' ? `${tr('梯子', 'Ladder')} ${Math.round(st.w)} × ${tr('高', 'H')} ${Math.round(st.h ?? 3000)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
+        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'esc' ? `${tr('自动扶梯', 'Escalator')}${lay.runs.length > 1 ? ' · ' + (st.runs === 'B' || st.runs === 'X' ? tr('双向', 'Bidirectional') : tr('双跑', 'Double')) : ''} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2400)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : st.type === 'ladder' ? `${tr('梯子', 'Ladder')} ${Math.round(st.w)} × ${tr('高', 'H')} ${Math.round(st.h ?? 3000)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
         }
       } else if (ui.sel?.kind === 'pbox' || ui.sel?.kind === 'wbox') {
         const kind = ui.sel.kind, o = (state[BOX_ARR[kind]] || []).find(x => x.id === ui.sel.id);
@@ -7167,15 +7171,15 @@
       } else {
         const groups = [['devices', WEAK_DEVICES, tr('内部设备（可多选）', 'Internal devices (multi-select)')]];
         blocks = groups.map(([key, defs, title]) => {
-        const arr = b[key] || [];
-        const rows = Object.entries(defs).map(([k, [zh, en]]) => {
-          const n = arr.filter(x => x === k).length;
-          return `<label class="chk full" title="${esc(en)}"><input type="checkbox" data-boxdev="${key}:${k}" ${n ? 'checked' : ''}><span>${tr(zh, en)}</span>
+          const arr = b[key] || [];
+          const rows = Object.entries(defs).map(([k, [zh, en]]) => {
+            const n = arr.filter(x => x === k).length;
+            return `<label class="chk full" title="${esc(en)}"><input type="checkbox" data-boxdev="${key}:${k}" ${n ? 'checked' : ''}><span>${tr(zh, en)}</span>
             <input type="number" class="boxQty" data-boxqty="${key}:${k}" value="${n || 1}" min="1" max="12" step="1" ${n ? '' : 'disabled'} style="width:56px;margin-left:auto"></label>`;
-        }).join('');
-        return `<div class="full" style="grid-column:1/-1;margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:6px 10px">
+          }).join('');
+          return `<div class="full" style="grid-column:1/-1;margin-top:6px;border:1px solid var(--line);border-radius:6px;padding:6px 10px">
           <div class="muted" style="margin-bottom:4px">${title} · ${tr('勾选后填数量，可同时选多种', 'Check and set a quantity; multiple types allowed')}</div>${rows}</div>`;
-      }).join('');
+        }).join('');
       }
       return `<section><h3>${zn}</h3>
     <div class="form">
@@ -8275,11 +8279,11 @@
     function escPanel(s) {                                   // 自动扶梯属性面板（仿坡道，梯面自带裙板扶手，无扶手开关）
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
       const rise = Math.round(s.rise ?? 2400), deg = (Math.atan2(rise, Math.max(1, s.len)) * 180 / Math.PI).toFixed(1);
-      const bidir = s.runs === 'B';                           // 双向扶梯：两跑并排一上一下，无折返平台，平台相关项不适用
+      const bidir = s.runs === 'B' || s.runs === 'X';         // 双向扶梯（并排 / 交叉）：两跑一上一下，无折返平台，平台相关项不适用
       return `<section><h3>${tr('自动扶梯', 'Escalator')}</h3>
     <div class="form">
       ${nameField(s, tr('自动扶梯', 'Escalator') + ' ' + objNo(state.stairs, s, 'type'))}
-      <label class="full">${tr('跑数', 'Runs')}<select id="sEscRuns">${[[1, tr('单跑', 'Single')], [2, tr('双跑（带折返平台）', 'Double (with landings)')], ['B', tr('双向（一上一下）', 'Bidirectional (up + down)')]].map(([v, t]) => `<option value="${v}" ${(s.runs || 1) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="full">${tr('跑数', 'Runs')}<select id="sEscRuns">${[[1, tr('单跑', 'Single')], [2, tr('双跑（带折返平台）', 'Double (with landings)')], ['B', tr('并排双向', 'Parallel bidirectional')], ['X', tr('交叉双向（剪刀式）', 'Crossed bidirectional (scissors)')]].map(([v, t]) => `<option value="${v}" ${(s.runs || 1) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="sW" value="${Math.round(s.w)}" min="600" max="2000" step="50"></label>
       <label>${tr('梯长', 'Length')} (mm)<input type="number" id="sLen" value="${Math.round(s.len)}" min="2000" max="12000" step="50"></label>
       <label class="chk full"><input type="checkbox" id="sLand" ${(s.land !== false) ? 'checked' : ''} ${bidir ? 'disabled' : ''}> ${tr('带末端平台（进深 = 梯宽）', 'Top landing (depth = width)')}</label>
@@ -8292,9 +8296,9 @@
       <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带 + 两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送，也可步行上下。双跑为两段扶梯 + 两块折返平台（平台进深 = 梯宽）；双向为两跑并排一上一下、各自爬完全程。切换时占地不够会自动放长。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials, golden comb plates, steps continuously moving; standing on it in roam mode carries you along automatically. Double-run shows two flights with two landings (landing depth = width); bidirectional shows two side-by-side flights, one up and one down, each covering the full rise. Auto-elongated when switched.`)}</div>
+    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带 + 两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送，也可步行上下。双跑为两段扶梯 + 两块折返平台（平台进深 = 梯宽）；并排双向两跑同坡向、一上一下；交叉双向（剪刀式）两跑坡向相反、3D 呈 X 形，两端都能上下换层。切换时占地不够会自动放长。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials, golden comb plates, steps continuously moving; standing on it in roam mode carries you along automatically. Double-run shows two flights with two landings (landing depth = width); parallel bidirectional shows two same-slope flights, one up one down; crossed bidirectional (scissors) shows two opposite-slope flights forming an X, connecting both levels at both ends. Auto-elongated when switched.`)}</div>
     <div class="actions">
-      ${(s.runs || 1) === 2 || s.runs === 'B' ? `<button class="btn" id="aFlipZ" title="${tr('沿上行方向看，折返 / 下行的一跑换到另一侧（旋转做不到）', 'Swap the return / down run to the other side')}">${tr('左右翻转', 'Flip L-R')}</button>` : ''}
+      ${(s.runs || 1) === 2 || s.runs === 'B' || s.runs === 'X' ? `<button class="btn" id="aFlipZ" title="${tr('沿上行方向看，折返 / 下行的一跑换到另一侧（旋转做不到）', 'Swap the return / down run to the other side')}">${tr('左右翻转', 'Flip L-R')}</button>` : ''}
       <button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上行方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button>
     </div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
@@ -8521,8 +8525,8 @@
       const er = $('#sEscRuns');                              // 跑数：切双跑 / 双向时占地长度不够就自动放长，保持约 30° 倾角（双跑两跑各约 1.75×爬升，双向每跑爬全程约 1.75×爬升）
       if (er) er.onchange = e => mutate(() => {
         const s = g(); if (!s) return;
-        if (e.target.value === 'B') {
-          s.runs = 'B';
+        if (e.target.value === 'B' || e.target.value === 'X') {
+          s.runs = e.target.value;
           s.len = Math.min(12000, Math.max(s.len, Math.round(((s.rise ?? 2400) * 1.75) / 50) * 50));
         } else if (e.target.value === '2') {
           s.runs = 2;
@@ -14028,8 +14032,8 @@
       for (let i = 1; i <= mSeg; i++) {                        // 坡体底碰撞：每 .4m 一条横向线（y 区间 = 该处坡面高度段，单段升 ≤ .34）：坡底视作实体，漫游不能从坡道下方穿过坡体；坡面上行走高度连续，不受影响
         const xs = -L / 2 * fR + L * fR * i / mSeg, yi = H * i / mSeg, yp = H * (i - 1) / mSeg;
         addBarrier(wx(s.x) + xs * caR - W / 2 * saR, wz(s.y) + xs * saR + W / 2 * caR,
-                   wx(s.x) + xs * caR + W / 2 * saR, wz(s.y) + xs * saR - W / 2 * caR,
-                   yp, Math.min(yi, yp + .34), .25, true);
+          wx(s.x) + xs * caR + W / 2 * saR, wz(s.y) + xs * saR - W / 2 * caR,
+          yp, Math.min(yi, yp + .34), .25, true);
       }
       [-1, 1].forEach(sd => {                                  // 两侧挡条：贴着坡面走
         const c = new THREE.Mesh(new THREE.BoxGeometry(sl, .16, .07), curbMat);
@@ -14127,14 +14131,14 @@
       [-1, 1].forEach(sd => {                                  // 两侧玻璃栏板 / 桁架：带高度线段碰撞，漫游不能横穿扶梯侧身，站梯面边缘也不会侧向掉出
         const zl = sd * (W / 2 - .02);
         addBarrier(wx(s.x) + lx0 * caD - zl * saD, wz(s.y) + lx0 * saD + zl * caD,
-                   wx(s.x) + lx1 * caD - zl * saD, wz(s.y) + lx1 * saD + zl * caD,
-                   0, H + railH, .18);
+          wx(s.x) + lx1 * caD - zl * saD, wz(s.y) + lx1 * saD + zl * caD,
+          0, H + railH, .18);
       });
       for (let i = 1; i <= n; i++) {                           // 底部桁架碰撞：每级梯级一条横向线（y 区间 = 该级踢面段，超出 .34 收缩）——不能从扶梯下方水平穿入梯段；梯面上因单级升 ≤ 可跨步高 .35，通行与传送不受影响
         const xs = lx0 + (lx1 - lx0) * i / n, yi = H * i / n, yp = H * (i - 1) / n;
         addBarrier(wx(s.x) + xs * caD - W / 2 * saD, wz(s.y) + xs * saD + W / 2 * caD,
-                   wx(s.x) + xs * caD + W / 2 * saD, wz(s.y) + xs * saD - W / 2 * caD,
-                   yp, Math.min(yi, yp + .34), .25, true);
+          wx(s.x) + xs * caD + W / 2 * saD, wz(s.y) + xs * saD - W / 2 * caD,
+          yp, Math.min(yi, yp + .34), .25, true);
       }
       if (lay0.lands.length) {                                 // 末端平台：实心楼板压住梯段端头（组局部 [L/2-W-0.2, L/2]，前后翻转由组旋转承担）+ 底部实体碰撞
         const py = Math.max(.12, lay0.lands[0].y / 1000), pw = W + .2;
@@ -15247,7 +15251,7 @@
             const f0 = -phi + 2 * phi * i / nS, f1 = -phi + 2 * phi * (i + 1) / nS, fm = (f0 + f1) / 2;
             const dirX = dx * Math.sin(fm) + nx * Math.cos(fm), dirZ = dz * Math.sin(fm) + nz * Math.cos(fm);
             addBarrier(pcx + (dx * Math.sin(f0) + nx * Math.cos(f0)) * R, pcz + (dz * Math.sin(f0) + nz * Math.cos(f0)) * R,
-                       pcx + (dx * Math.sin(f1) + nx * Math.cos(f1)) * R, pcz + (dz * Math.sin(f1) + nz * Math.cos(f1)) * R, sill, head, .1);   // 弧玻璃逐段挡人
+              pcx + (dx * Math.sin(f1) + nx * Math.cos(f1)) * R, pcz + (dz * Math.sin(f1) + nz * Math.cos(f1)) * R, sill, head, .1);   // 弧玻璃逐段挡人
             const seg = 2 * R * Math.sin((f1 - f0) / 2) + .004;
             const g = new THREE.Mesh(new THREE.BoxGeometry(seg, wh, .02), glassMat);
             g.position.set(pcx + dirX * R, sill + wh / 2, pcz + dirZ * R);
@@ -16283,8 +16287,8 @@
           for (let i = 1; i <= n; i++) {                       // 梯段底碰撞：每级踢面一条横向线（y 区间 = 该踢面高度段，单级升超 .34 时收缩）——楼梯底视作实体，漫游不能从梯段下方水平穿过；梯面上因每级升 ≤ 可跨步高 .35，逐级上下不受影响
             const xs = (r.x0 + dir * i * Tmm) / 1000, yi = r.y0 / 1000 + i * R, yp = yi - R;
             addBarrier(wx(s.x) + xs * caS - (z - W / 2) * saS, wz(s.y) + xs * saS + (z - W / 2) * caS,
-                       wx(s.x) + xs * caS - (z + W / 2) * saS, wz(s.y) + xs * saS + (z + W / 2) * caS,
-                       yp, Math.min(yi, yp + .34), .25, true);
+              wx(s.x) + xs * caS - (z + W / 2) * saS, wz(s.y) + xs * saS + (z + W / 2) * caS,
+              yp, Math.min(yi, yp + .34), .25, true);
           }
           const dh = (r.y1 - r.y0) / 1000, slope = Math.hypot(runL, dh), ang = Math.atan2(dh, runL) * dir;
           [-1, 1].forEach(sd => {                              // 两侧斜梁
@@ -16316,8 +16320,8 @@
           const line = (x0, z0, x1, z1, y0, y1) => {           // 沿一段直线布扶手 + 均分立柱
             const a = s.dir * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);   // 局部(米)→世界：dx=lx·ca-lz·sa, dz=lx·sa+lz·ca
             addBarrier(wx(s.x) + x0 * ca - z0 * sa, wz(s.y) + x0 * sa + z0 * ca,
-                       wx(s.x) + x1 * ca - z1 * sa, wz(s.y) + x1 * sa + z1 * ca,
-                       Math.min(y0, y1), Math.max(y0, y1) + RH, .18);            // 带高度线段碰撞：扶手只在其高度拦人，不挡梯段中间通行
+              wx(s.x) + x1 * ca - z1 * sa, wz(s.y) + x1 * sa + z1 * ca,
+              Math.min(y0, y1), Math.max(y0, y1) + RH, .18);            // 带高度线段碰撞：扶手只在其高度拦人，不挡梯段中间通行
             seg([x0, y0 + RH, z0], [x1, y1 + RH, z1]);
             if (railGlass) {                                   // 玻璃栏板：斜面梯形，贴合梯段坡度
               const h = RH - .06, gg = new THREE.BufferGeometry();
@@ -17165,7 +17169,7 @@
         }
         walkTip.textContent = h.door.auto ? tr('自动感应门（走近自动开合）', 'Automatic door (opens as you approach)')
           : h.door.lift ? (touchWalk ? tr('点电梯门开关（稍后自动关）', 'Tap elevator door; auto-closes') : tr('点 / E 开电梯门（稍后自动关）', 'Tap / E to open; auto-closes'))
-          : touchWalk ? (h.door.win ? tr('点窗开关', 'Tap to toggle') : tr('点门开关', 'Tap to toggle')) : (h.door.win ? tr('E 开关窗', 'Press E to toggle') : tr('E 开关门', 'Press E to toggle'));
+            : touchWalk ? (h.door.win ? tr('点窗开关', 'Tap to toggle') : tr('点门开关', 'Tap to toggle')) : (h.door.win ? tr('E 开关窗', 'Press E to toggle') : tr('E 开关门', 'Press E to toggle'));
         walkTip.classList.add('open');
       } else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5 && doorHiRef) {   // 瞄准旗杆（杆身 / 顶球 / 旗面）：高亮整根杆身 + 提示升降
         const ex = (state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle));
@@ -17247,8 +17251,10 @@
           }
           st.position.x = x; st.position.y = y; st.position.z = e.z;
         }
-        else { let x = -e.L / 2 + t, y = (x + e.L / 2) * (e.H / e.L); if (e.clipX0 !== null && x > e.clipX0) y -= .25;   // 高端被末端平台压住 200mm：梯级进入压住区下沉到板下
-          st.position.x = x; st.position.y = y; }
+        else {
+          let x = -e.L / 2 + t, y = (x + e.L / 2) * (e.H / e.L); if (e.clipX0 !== null && x > e.clipX0) y -= .25;   // 高端被末端平台压住 200mm：梯级进入压住区下沉到板下
+          st.position.x = x; st.position.y = y;
+        }
       });
       // 家禽随机漫步：在放置点半径内选无障碍目标慢行、停歇；带平滑转向与步态，避开墙 / 门扇 / 家具 / 栏杆，旋转门翼扫到会被推走（与人一致，鸟瞰 / 漫游均生效）
       furnG.children.forEach(g => {
