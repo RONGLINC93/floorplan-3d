@@ -4054,8 +4054,8 @@
             s += `<line x1="${a[0]}" y1="${a[1]}" x2="${b[0]}" y2="${b[1]}" ${SS} ${NE}/>`;
           });
           const off = T * .26, th = Math.min(45, T * .34), lap2 = 40;   // 门扇比洞口宽，每边搭接 40mm
-          const sg2 = o.flip ? -1 : 1, dg2 = o.dir === -1 ? -1 : 1;   // 翻转：门扇翻到墙另一侧；开门方向：沿墙偏向滑动端
-          const n2 = [n[0] * sg2, n[1] * sg2], slid = dg2 * L * .04;
+          const sg2 = o.flip ? -1 : 1, dg2 = o.dir === -1 ? -1 : 1;   // 翻转：门扇翻到墙另一侧；开门方向：偏向滑动端
+          const n2 = [u[1] * sg2, -u[0] * sg2], slid = -dg2 * L * .04;   // 贴墙侧取 3D 门扇偏移方向 (dz,−dx)、滑向取 3D 滑动轴 (−u·dir)；此前用 n=(−u[1],u[0]) 恰好差一个负号，2D 与 3D 反侧、滑向也相反
           const A2 = [P0[0] - u[0] * lap2 + n2[0] * off + u[0] * slid, P0[1] - u[1] * lap2 + n2[1] * off + u[1] * slid];
           const B2 = [P1[0] + u[0] * lap2 + n2[0] * off + u[0] * slid, P1[1] + u[1] * lap2 + n2[1] * off + u[1] * slid];
           s += `<polygon points="${A2[0]},${A2[1]} ${B2[0]},${B2[1]} ${B2[0] + n2[0] * th},${B2[1] + n2[1] * th} ${A2[0] + n2[0] * th},${A2[1] + n2[1] * th}" fill="#fff" ${SS} ${NE}/>`;
@@ -12158,7 +12158,7 @@
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
-    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], revolveSpins = [], revolveHit = [], selKey = null, selHelpers = [], lampGlowMats = [];   // barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
+    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], revolveSpins = [], revolveHit = [], furnCols = [], selKey = null, selHelpers = [], lampGlowMats = [];   // barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；furnCols：家具外接盒碰撞（buildFurn 独立重建，与 colliders 清空时机解耦）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
     let sigArch = '', sigFurn = '', sigLabels = '', grow = 1, furnGrow = 1;
     const doors = [], keys = {};
 
@@ -13276,7 +13276,7 @@
       const sgn = (ox * uz - oz * ux) < 0 ? -1 : 1;            // 往窗外那一侧转
       const pg = new THREE.Group();
       pg.position.set(p0[0], 0, p0[1]); pg.rotation.y = rot;
-      const sash = { pivot: pg, win: true, open: false, a0: rot, a1: rot + sgn * 1.3, cur: rot };
+      const sash = { pivot: pg, win: true, open: false, a0: rot, a1: rot + sgn * 1.3, cur: rot, len, y0: yb, y1: yb + wh };   // len / y0 / y1：碰撞按扇宽与玻璃高度区间判定
       const pane = new THREE.Mesh(new THREE.BoxGeometry(len, wh, .014), oneMat(glassMat.clone()));   // 克隆玻璃材质：pick() 跳过原始 glassMat，克隆体才能点击
       pane.position.set(len / 2, yb + wh / 2, 0); pane.userData.door = sash; pg.add(pane);
       const bar = (w, h, x, y) => {                             // 扇框：四边梃
@@ -14271,6 +14271,8 @@
           for (let i = 0; i < nS; i++) {
             const f0 = -phi + 2 * phi * i / nS, f1 = -phi + 2 * phi * (i + 1) / nS, fm = (f0 + f1) / 2;
             const dirX = dx * Math.sin(fm) + nx * Math.cos(fm), dirZ = dz * Math.sin(fm) + nz * Math.cos(fm);
+            addBarrier(pcx + (dx * Math.sin(f0) + nx * Math.cos(f0)) * R, pcz + (dz * Math.sin(f0) + nz * Math.cos(f0)) * R,
+                       pcx + (dx * Math.sin(f1) + nx * Math.cos(f1)) * R, pcz + (dz * Math.sin(f1) + nz * Math.cos(f1)) * R, sill, head, .1);   // 弧玻璃逐段挡人
             const seg = 2 * R * Math.sin((f1 - f0) / 2) + .004;
             const g = new THREE.Mesh(new THREE.BoxGeometry(seg, wh, .02), glassMat);
             g.position.set(pcx + dirX * R, sill + wh / 2, pcz + dirZ * R);
@@ -14296,6 +14298,7 @@
         }
         [-1, 1].forEach(sd => {                              // 两侧玻璃（沿进深方向、靠墙）：固定玻璃，不可开启
           if (o.lcorner === sd) return;                       // 转角飘窗：转角那侧不封玻璃
+          addBarrier(mx + dx * sd * L / 2, mz + dz * sd * L / 2, mx + dx * sd * L / 2 + nx * dep, mz + dz * sd * L / 2 + nz * dep, sill, head, .1);   // 侧玻璃挡人：飘窗凸出体不能穿过
           const gp = new THREE.Mesh(new THREE.BoxGeometry(dep, wh, .02), glassMat);
           gp.position.set(mx + dx * sd * L / 2 + nx * dep / 2, sill + wh / 2, mz + dz * sd * L / 2 + nz * dep / 2);
           gp.rotation.y = rot + Math.PI / 2; archUp.add(gp);
@@ -15003,6 +15006,7 @@
             const h = Math.max(.3, M(e.h || 2800)), px = wx(e.x), pz = wz(e.y);
             if (T3 === 'tree') {                                // 景观树：树干 + 球状树冠
               const r = Math.max(.15, M(e.w || 900) / 2), trunkM = mat('#7d6247', { roughness: .95 });
+              colliders.push([px - r * .14 - .05, pz - r * .14 - .05, px + r * .14 + .05, pz + r * .14 + .05]);   // 只挡树干：树冠悬空可走到树下
               const tr = new THREE.Mesh(new THREE.CylinderGeometry(r * .1, r * .14, h * .62, 10), trunkM);
               tr.position.set(px, h * .31, pz); tr.castShadow = true; archUp.add(tr);
               [[h * .62, r], [h * .8, r * .72], [h * .95, r * .45]].forEach(([yy, rr]) => {
@@ -15014,6 +15018,7 @@
             if (T3 === 'tiecol' || T3 === 'chimney') {          // 构造柱 / 烟囱：方柱（烟囱从屋面标高起）
               const s = Math.max(.06, M(e.w || 240)), z = T3 === 'chimney' ? Math.max(0, M(e.z || 2800)) : 0;
               const m = mat('#c2bbab', { roughness: .92 });
+              if (z < .3) colliders.push([px - s / 2 - .02, pz - s / 2 - .02, px + s / 2 + .02, pz + s / 2 + .02]);   // 落地构造柱挡人；烟囱从屋面起，不挡地面行走
               box(s, h, s, px, z + h / 2, pz, m);
               if (T3 === 'chimney') {
                 box(s + .08, .08, s + .08, px, z + h + .04, pz, mat('#a9a293', { roughness: .9 }));
@@ -15465,6 +15470,12 @@
     function buildFurn() {
       clearGroup(furnG);
       state.furniture.forEach(f => furnG.add(buildFurniture(f)));
+      furnCols = [];                                              // 家具碰撞外接盒（世界矩形，米）：随家具重建同步刷新
+      const SKIP = { rug: 1, tv: 1, acwall: 1, waterheater: 1 };  // 地毯贴地可踩；电视 / 挂式空调 / 热水器为壁挂高位物，挡地面行走反而错误
+      state.furniture.forEach(f => {
+        const a = aabb(f), cx = wx(f.cx), cz = wz(f.cy), hw = a.hw / 1000 + .02, hh = a.hh / 1000 + .02;
+        if (!SKIP[f.type]) furnCols.push([cx - hw, cz - hh, cx + hw, cz + hh]);
+      });
       furnG.visible = opt.furn; selKey = null; selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; applyGrow();
     }
 
@@ -15756,6 +15767,7 @@
     }
     function blocked(x, z, r = .22, footH = null) {
       for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
+      for (const [x0, z0, x1, z1] of furnCols) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;   // 家具外接盒：床 / 沙发 / 桌柜 / 洁具 / 电器等实物不可穿行（地毯与壁挂高位物除外，见 buildFurn）
       for (const w of revolveHit) {                               // 旋转门三翼：径向线段从中心到外缘，角度随旋翼实时转动
         if (footH !== null && (footH + 1.6 < w.y0 || footH > w.y1)) continue;
         const dx = x - w.mx, dz = z - w.mz;
@@ -15803,7 +15815,15 @@
           }
           continue;
         }
-        if (d.win) continue;                                 // 飘窗可开扇在窗台上方，不挡地面行走
+        if (d.win) {                                         // 飘窗可开扇：关闭时玻璃挡人（此前一律放行，整扇飘窗都能穿过去），开启后可从洞口穿出
+          if (d.open) continue;
+          if (footH !== null && (footH + 1.6 < (d.y0 ?? 0) || footH > (d.y1 ?? 2.5))) continue;   // 玻璃高度区间（窗台上方的玻璃不挡低处）
+          const a = d.a0, px2 = d.pivot.position.x, pz2 = d.pivot.position.z, ln = d.len ?? .9;
+          const ex2 = px2 + Math.cos(a) * ln, ez2 = pz2 - Math.sin(a) * ln;
+          const t = clamp01(((x - px2) * (ex2 - px2) + (z - pz2) * (ez2 - pz2)) / ((ex2 - px2) ** 2 + (ez2 - pz2) ** 2));
+          if (Math.hypot(x - (px2 + (ex2 - px2) * t), z - (pz2 + (ez2 - pz2) * t)) < r * .8) return true;
+          continue;
+        }
         const a = d.pivot.rotation.y, px = d.pivot.position.x, pz = d.pivot.position.z, ex = px + Math.cos(a) * .9, ez = pz - Math.sin(a) * .9;
         const t = clamp01(((x - px) * (ex - px) + (z - pz) * (ez - pz)) / ((ex - px) ** 2 + (ez - pz) ** 2));
         if (Math.hypot(x - (px + t * (ex - px)), z - (pz + t * (ez - pz))) < r * .8) return true;
