@@ -15629,6 +15629,7 @@
     async function exit() {
       if (opt.mode === 'walk') {
         walkCtl.unlock(); stopTouchWalk(); $('#hint3d').textContent = HINT_ORBIT; $('#walkOverlay').style.display = 'none'; $('#cross').style.display = 'none';
+        $('#tools').style.visibility = ''; $('#sunPad').style.visibility = '';   // 恢复漫游时临时隐藏的工具条（从漫游直接切回 2D 也要恢复，否则「预览/测量/设计」一直不显示）
         const dir = new THREE.Vector3(); camera.getWorldDirection(dir); orbit.target.copy(camera.position).addScaledVector(dir, 3).setY(0); opt.mode = 'orbit'; syncModeBtns();
       }
       fly = null; orbit.enabled = false; showLabels(false); stage.classList.add('animating');
