@@ -15928,11 +15928,16 @@
       }
       return false;
     }
-    function poultryFree(x, z) {                                  // 家禽能否走到 (x,z)：复用墙 / 家具 / 栏杆碰撞，按家禽小体型（半径 0.1m、高 0.3m）判高度，避免穿墙穿家具、走出阳台
+    function poultryFree(x, z, self) {                            // 家禽能否走到 (x,z)：复用墙 / 家具 / 栏杆碰撞，按家禽小体型（半径 0.1m、高 0.3m）判高度，避免穿墙穿家具、走出阳台；self 为自身组（家禽互相避让时排除）
       const r = .1;
       if (opt.mode === 'walk') {                                  // 漫游时不走向玩家所在位置，避免家禽钻进玩家身体
         const dxp = x - camera.position.x, dzp = z - camera.position.z;
         if (dxp * dxp + dzp * dzp < .45 * .45) return false;
+      }
+      for (const g of furnG.children) {                           // 家禽与家禽之间保持最小间距，互相不穿模
+        if (g === self || !g.userData.poultry) continue;
+        const dxp = x - g.position.x, dzp = z - g.position.z;
+        if (dxp * dxp + dzp * dzp < .28 * .28) return false;
       }
       for (const [x0, z0, x1, z1, y0 = -Infinity, y1 = Infinity] of colliders)
         if (y0 < .3 && y1 > 0 && x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return false;
@@ -16248,22 +16253,22 @@
         const p = g.userData.poultry; if (!p) return;
         let dx = p.tx - g.position.x, dz = p.tz - g.position.z, dist = Math.hypot(dx, dz);
         if (p.wait > 0) p.wait -= dt;
-        else if (dist < .04 || !poultryFree(p.tx, p.tz)) {                 // 到达或目标被占：从当前位置朝随机方向选一个较远且整段可达的目标
+        else if (dist < .04 || !poultryFree(p.tx, p.tz, g)) {              // 到达或目标被占：从当前位置朝随机方向选一个较远且整段可达的目标
           let ok = false;
           for (let k = 0; k < 30 && !ok; k++) {
             const a = Math.random() * Math.PI * 2, r = 1.5 + Math.random() * 3.5, ux = Math.cos(a), uz = Math.sin(a);
             const nx = g.position.x + ux * r, nz = g.position.z + uz * r;
             if (Math.hypot(nx - p.homeX, nz - p.homeZ) > p.roam) continue;   // 离放置点不超过 10m
             let clear = true;
-            for (let s = .25; s <= r; s += .25) if (!poultryFree(g.position.x + ux * s, g.position.z + uz * s)) { clear = false; break; }
-            if (clear && poultryFree(nx, nz)) { p.tx = nx; p.tz = nz; ok = true; }
+            for (let s = .25; s <= r; s += .25) if (!poultryFree(g.position.x + ux * s, g.position.z + uz * s, g)) { clear = false; break; }
+            if (clear && poultryFree(nx, nz, g)) { p.tx = nx; p.tz = nz; ok = true; }
           }
           if (!ok) { p.tx = p.homeX; p.tz = p.homeZ; }
           p.wait = .3 + Math.random() * 1.2; dx = p.tx - g.position.x; dz = p.tz - g.position.z; dist = Math.hypot(dx, dz);
         }
         if (p.wait <= 0 && dist >= .04) {
           const step = Math.min(p.speed * dt, dist), nx = g.position.x + dx / dist * step, nz = g.position.z + dz / dist * step;
-          if (poultryFree(nx, nz)) { g.position.x = nx; g.position.z = nz; p.gait += dt * 9; }   // 下一脚落点无障碍才前进
+          if (poultryFree(nx, nz, g)) { g.position.x = nx; g.position.z = nz; p.gait += dt * 9; }   // 下一脚落点无障碍才前进（含其他家禽占位）
           else { p.wait = 0; p.tx = g.position.x; p.tz = g.position.z; }                           // 撞到边缘：立即原地重选目标，避免卡住
           const want = Math.atan2(-dx, -dz); let diff = ((want - p.heading + Math.PI) % (Math.PI * 2) + Math.PI * 2) % (Math.PI * 2) - Math.PI;
           p.heading += diff * Math.min(1, dt * 3); g.rotation.y = p.heading;
