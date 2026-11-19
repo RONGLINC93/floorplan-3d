@@ -2587,6 +2587,9 @@
               title="螺旋楼梯：点击放置（默认外径 1400、升 2800，绕中心柱逐级盘旋）；外径 / 爬升 / 级数 / 转向 / 方向可在右侧改，3D 为中心柱 + 楔形踏步 + 螺旋扶手，漫游可上下"
               data-en-title="Spiral stair: click to place (⌀1400, rise 2800 by default); steps wind around a centre post; diameter / rise / steps / turn editable in 3D with spiral handrail, walkable"
               data-en="Spiral stair"><i data-lucide="shell"></i>螺旋楼梯</button>
+            <button class="btn chip" data-dt="esc" title="点击放置一部自动扶梯（默认 1000×4400 升 2400，约 29°；宽 / 长 / 爬升 / 方向可在右侧改，梯级持续上行，漫游站上梯面会被自动传送上楼）"
+              data-en-title="Click to place an escalator (1000×4400, rise 2400 by default, ~29°; width / length / rise / direction editable, steps keep moving up, standing on it carries you up in roam mode)"
+              data-en="Escalator"><i data-lucide="arrow-up-right"></i>自动扶梯</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Structure">结构 · 构件</div>
@@ -3185,12 +3188,21 @@
       },
       {
         cat: '宠物', items: [
-          ['cat', '猫', 500, 300, '#9b958c'], ['dog', '狗', 650, 350, '#c19a6b']]
+          ['cat', '猫', 500, 300, '#9b958c'], ['dog', '狗', 650, 350, '#c19a6b'],
+          ['hamster', '仓鼠', 220, 180, '#d8b072'], ['petrabbit', '兔子', 380, 300, '#f4f2ee'], ['parrot', '鹦鹉', 280, 340, '#4aa54a']]
+      },
+      {
+        cat: '农场', items: [
+          ['sheep', '绵羊', 850, 460, '#eceae2'], ['goat', '山羊', 780, 420, '#b6ada2'], ['pig', '猪', 950, 520, '#eab8b2'],
+          ['cow', '奶牛', 1500, 650, '#f5f2ec'], ['horse', '矮马', 1250, 500, '#a97444'], ['donkey', '毛驴', 1050, 460, '#9a948c']]
       },
       {
         cat: '野生动物', items: [
           ['rabbit', '野兔', 360, 280, '#c9beb0'], ['squirrel', '松鼠', 320, 240, '#a8744f'], ['hedgehog', '刺猬', 300, 240, '#9c8b76'],
-          ['fox', '赤狐', 700, 350, '#d98e4a'], ['tortoise', '陆龟', 320, 260, '#7c8a52'], ['deer', '梅花鹿', 1100, 450, '#c8a06a']]
+          ['fox', '赤狐', 700, 350, '#d98e4a'], ['wolf', '狼', 820, 400, '#8f8d8a'], ['raccoon', '浣熊', 560, 300, '#9a948e'],
+          ['frog', '青蛙', 220, 180, '#6a9a4a'], ['kangaroo', '袋鼠', 750, 480, '#c98a5a'], ['tortoise', '陆龟', 320, 260, '#7c8a52'],
+          ['ostrich', '鸵鸟', 480, 300, '#c0a882'], ['penguin', '企鹅', 320, 280, '#3a3f46'], ['snake', '蛇', 620, 160, '#7a9a4a'],
+          ['deer', '梅花鹿', 1100, 450, '#c8a06a']]
       },
     ];
     const LIB = LIB_FURN.concat(LIB_ANIMAL);   // 全量目录（家具在前）：itemOf / typeColor 按此索引，动物库条目的 data-key 带上家具数偏移
@@ -3664,7 +3676,7 @@
           s += `<circle cx="${hx - hr * .42}" cy="${hy - hr * .22}" r="${m * .022}" fill="#2a2a28"/><circle cx="${hx + hr * .42}" cy="${hy - hr * .22}" r="${m * .022}" fill="#2a2a28"/>`;
           return s;
         }
-        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': case 'cat': case 'dog': {
+        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': case 'cat': case 'dog': case 'hamster': case 'petrabbit': case 'parrot': case 'sheep': case 'goat': case 'pig': case 'cow': case 'horse': case 'donkey': case 'wolf': case 'raccoon': case 'frog': case 'kangaroo': case 'ostrich': case 'penguin': case 'snake': {
           const hy = -m * .3, hr = m * .13;
           let s = '';
           if (t === 'tortoise') {
@@ -3680,21 +3692,69 @@
             s += ec(0, hy, hr * .9, hr * .8, c);
             s += pa(`M${-hr * .5} ${hy - hr * .6}q${-hr * .7} ${-hr * 1.5} ${hr * .1} ${-hr * 1.7}q${hr * .5} ${hr * .5} ${hr * .1} ${hr * 1.2}Z`, '#a9855c') + pa(`M${hr * .5} ${hy - hr * .6}q${hr * .7} ${-hr * 1.5} ${-hr * .1} ${-hr * 1.7}q${-hr * .5} ${hr * .5} ${-hr * .1} ${hr * 1.2}Z`, '#a9855c');
             s += `<circle cx="${-hr * .35}" cy="${hy - hr * .1}" r="${m * .02}" fill="#2a2a28"/><circle cx="${hr * .35}" cy="${hy - hr * .1}" r="${m * .02}" fill="#2a2a28"/>`;
+          } else if (t === 'snake') {
+            s += pa(`M${-m * .18} ${m * .08}q${m * .14} ${-m * .3} ${m * .28} ${-m * .08}q${m * .1} ${m * .16} ${m * .28} ${m * .02}`, 'none', `stroke="${c}" stroke-width="${m * .12}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // S 形蛇身
+            s += ec(-m * .34, m * .18, m * .075, m * .06, c);
+            s += `<circle cx="${-m * .37}" cy="${m * .16}" r="${m * .02}" fill="#2a2a28"/><circle cx="${-m * .3}" cy="${m * .14}" r="${m * .02}" fill="#2a2a28"/>`;
+            s += pa(`M${-m * .42} ${m * .2}l${-m * .08} ${m * .02}l${m * .08} ${m * .04}Z`, '#c06050');   // 吐信
+          } else if (t === 'parrot') {
+            s += ec(0, m * .05, m * .24, m * .3, c);
+            s += pa(`M${m * .07} ${m * .28}l${m * .03} ${m * .28}l${-m * .13} ${m * .06}Z`, shade(c, .8)) + pa(`M${-m * .07} ${m * .28}l${-m * .03} ${m * .28}l${m * .13} ${m * .06}Z`, shade(c, .8));   // 尾羽
+            s += ec(0, hy, hr * .8, hr * .7, '#d94436');   // 红头
+            s += pa(`M${-hr * .2} ${hy - hr * .5}q${hr * .3} ${-hr * .9} ${hr * .6} ${-hr * .05}q${-hr * .3} ${hr * .3} ${-hr * .3} ${-hr * .2}Z`, '#8a8a80');   // 弯喙
+            s += `<circle cx="${-hr * .28}" cy="${hy - hr * .1}" r="${m * .018}" fill="#2a2a28"/><circle cx="${hr * .28}" cy="${hy - hr * .1}" r="${m * .018}" fill="#2a2a28"/>`;
+          } else if (t === 'ostrich') {
+            s += ec(m * .08, m * .05, m * .26, m * .34, c);
+            s += ln(m * .02, -m * .22, -m * .22, -m * .5, `stroke-width="${m * .05}" stroke="#d8a878"`);   // 长颈
+            s += ec(-m * .26, -m * .55, m * .07, m * .06, c) + pa(`M${-m * .33} ${-m * .57}l${-m * .1} ${m * .02}l${m * .1} ${m * .03}Z`, '#c08050');
+            s += `<circle cx="${-m * .29}" cy="${-m * .57}" r="${m * .016}" fill="#2a2a28"/>`;
+            s += ln(m * .18, m * .3, m * .22, m * .46, `stroke-width="${m * .04}" stroke="#d8a878"`) + ln(-m * .02, m * .3, -m * .06, m * .46, `stroke-width="${m * .04}" stroke="#d8a878"`);   // 两腿
+          } else if (t === 'penguin') {
+            s += ec(0, 0, m * .26, m * .36, c);
+            s += ec(0, -m * .04, m * .17, m * .27, '#f2f0ea');   // 白肚
+            s += ec(-m * .28, m * .05, m * .07, m * .17, shade(c, 1.25)) + ec(m * .28, m * .05, m * .07, m * .17, shade(c, 1.25));   // 鳍
+            s += pa(`M0 ${-m * .35}l${-m * .08} ${m * .1}l${m * .08} 0Z`, '#d97a3a');   // 喙
+            s += `<circle cx="${-m * .07}" cy="${-m * .25}" r="${m * .018}" fill="#2a2a28"/><circle cx="${m * .07}" cy="${-m * .25}" r="${m * .018}" fill="#2a2a28"/>`;
+          } else if (t === 'cow') {
+            s += ec(0, m * .1, m * .32, m * .48, c);
+            [[-.13, -.05], [.13, -.02], [-.09, .22], [.1, .28]].forEach(([px, py]) => s += ec(px * m, py * m, m * .09, m * .12, '#3a3835'));   // 黑斑
+            s += ec(0, hy, hr, hr * .8, c);
+            s += ln(-hr * .5, hy - hr * .6, -hr * .85, hy - hr * .95, `stroke-width="${m * .035}" stroke="#d8c8a8"`) + ln(hr * .5, hy - hr * .6, hr * .85, hy - hr * .95, `stroke-width="${m * .035}" stroke="#d8c8a8"`);   // 牛角
+            s += ec(-hr * .95, hy - hr * .2, hr * .22, hr * .3, shade(c, .9)) + ec(hr * .95, hy - hr * .2, hr * .22, hr * .3, shade(c, .9));   // 耳
+            s += `<circle cx="${-hr * .35}" cy="${hy - hr * .15}" r="${m * .02}" fill="#2a2a28"/><circle cx="${hr * .35}" cy="${hy - hr * .15}" r="${m * .02}" fill="#2a2a28"/>`;
+          } else if (t === 'kangaroo') {
+            s += pa(`M${m * .08} ${m * .34}q${m * .32} ${m * .1} ${m * .36} ${-m * .14}`, 'none', `stroke="${shade(c, .9)}" stroke-width="${m * .17}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 粗尾
+            s += ec(0, m * .12, m * .2, m * .32, c);
+            s += ec(0, hy, hr, hr * .8, c);
+            s += ec(-hr * .8, hy - hr * .55, hr * .3, hr * .5, c) + ec(hr * .8, hy - hr * .55, hr * .3, hr * .5, c);   // 立耳
+            s += `<circle cx="${-hr * .35}" cy="${hy - hr * .15}" r="${m * .02}" fill="#2a2a28"/><circle cx="${hr * .35}" cy="${hy - hr * .15}" r="${m * .02}" fill="#2a2a28"/>`;
           } else {
-            s += ec(0, m * .05, m * .3, t === 'fox' || t === 'dog' ? m * .5 : t === 'cat' ? m * .42 : m * .36, c);
-            if (t === 'rabbit') s += ec(-m * .1, -m * .52, m * .06, m * .17, shade(c, 1.06)) + ec(m * .1, -m * .52, m * .06, m * .17, shade(c, 1.06));
+            const ry = ['fox', 'wolf', 'dog', 'pig', 'sheep', 'horse', 'donkey'].includes(t) ? m * .5 : t === 'cat' ? m * .42 : m * .36;
+            s += ec(0, m * .05, m * .3, ry, c);
+            if (t === 'rabbit' || t === 'petrabbit') s += ec(-m * .1, -m * .52, m * .06, m * .17, shade(c, 1.06)) + ec(m * .1, -m * .52, m * .06, m * .17, shade(c, 1.06));
             if (t === 'squirrel') s += pa(`M${m * .12} ${m * .3}q${m * .5} ${m * .3} ${m * .3} ${m * .62}q${-m * .25} ${m * .25} ${-m * .48} ${m * .05}Z`, shade(c, .88)) + ec(0, m * .45, m * .2, m * .16, shade(c, .92));
             if (t === 'hedgehog') {
               s += ec(0, m * .12, m * .28, m * .3, '#5c5148');
               for (let k = 0; k < 7; k++) { const a = Math.PI * (.25 + k * .38); s += ln(Math.cos(a) * m * .22, m * .12 + Math.sin(a) * m * .24, Math.cos(a) * m * .34, m * .12 + Math.sin(a) * m * .36, 'opacity=".7"'); }
             }
-            if (t === 'fox') s += pa(`M${m * .1} ${m * .5}q${m * .34} ${m * .12} ${m * .22} ${m * .4}q${-m * .2} ${m * .18} ${-m * .4} ${m * .02}Z`, shade(c, .9)) + `<ellipse cx="${m * .3}" cy="${m * .86}" rx="${m * .08}" ry="${m * .07}" fill="#f2ede4" ${ST}/>`;
+            if (t === 'fox' || t === 'wolf') s += pa(`M${m * .1} ${m * .5}q${m * .34} ${m * .12} ${m * .22} ${m * .4}q${-m * .2} ${m * .18} ${-m * .4} ${m * .02}Z`, shade(c, .9)) + (t === 'fox' ? `<ellipse cx="${m * .3}" cy="${m * .86}" rx="${m * .08}" ry="${m * .07}" fill="#f2ede4" ${ST}/>` : '');   // 蓬尾（狼无白尖）
+            if (t === 'raccoon') s += pa(`M${m * .1} ${m * .3}q${m * .3} ${m * .1} ${m * .22} ${m * .3}`, 'none', `stroke="${shade(c, .9)}" stroke-width="${m * .12}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`) + ec(m * .24, m * .42, m * .07, m * .07, '#3a352f') + ec(m * .3, m * .55, m * .065, m * .065, shade(c, .9)) + ec(m * .34, m * .67, m * .058, m * .058, '#3a352f');   // 环纹尾
             if (t === 'cat') s += pa(`M${m * .1} ${m * .34}q${m * .42} ${m * .02} ${m * .44} ${-m * .24}q${m * .03} ${-m * .18} ${-m * .14} ${-m * .2}`, 'none', `stroke="${shade(c, .85)}" stroke-width="${m * .09}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 长尾上翘
             if (t === 'dog') s += pa(`M${-m * .06} ${m * .42}q${m * .14} ${m * .04} ${m * .22} ${-m * .16}`, 'none', `stroke="${shade(c, .85)}" stroke-width="${m * .12}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 短尾上翘
-            s += ec(0, hy, hr, hr * .9, c);
-            if (t === 'fox' || t === 'squirrel' || t === 'cat') s += pa(`M${-hr * .55} ${hy - hr * .75}l${hr * .35} ${-hr * .1}l${hr * .1} ${hr * .55}Z`, shade(c, .85)) + pa(`M${hr * .55} ${hy - hr * .75}l${-hr * .35} ${-hr * .1}l${-hr * .1} ${hr * .55}Z`, shade(c, .85));
+            if (t === 'pig') s += pa(`M${m * .1} ${m * .4}q${m * .18} ${m * .08} ${m * .16} ${-m * .08}q${-m * .05} ${-m * .1} ${-m * .13} ${-m * .02}`, 'none', `stroke="${shade(c, .88)}" stroke-width="${m * .08}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 卷尾
+            if (t === 'hamster') s += ec(m * .17, m * .32, m * .05, m * .05, shade(c, .92));   // 短尾
+            if (t === 'sheep') [[-.24, -.05], [.24, -.05], [-.18, .22], [.18, .22], [0, -.24]].forEach(([px, py]) => s += ec(px * m, m * .05 + py * m * .8, m * .115, m * .1, c));   // 蓬毛团
+            s += ec(0, hy, hr, hr * .9, t === 'sheep' ? '#4a423a' : c);
+            if (t === 'fox' || t === 'squirrel' || t === 'cat' || t === 'wolf') s += pa(`M${-hr * .55} ${hy - hr * .75}l${hr * .35} ${-hr * .1}l${hr * .1} ${hr * .55}Z`, shade(c, .85)) + pa(`M${hr * .55} ${hy - hr * .75}l${-hr * .35} ${-hr * .1}l${-hr * .1} ${hr * .55}Z`, shade(c, .85));
             if (t === 'dog') s += ec(-hr * 1.15, hy + hr * .15, hr * .38, hr * .95, shade(c, .78)) + ec(hr * 1.15, hy + hr * .15, hr * .38, hr * .95, shade(c, .78));   // 垂耳
-            if (t === 'hedgehog' || t === 'fox' || t === 'dog') s += pa(`M0 ${hy - hr * .9}l${-hr * .3} ${hr * .55}l${hr * .3} 0Z`, '#3d352c');
+            if (t === 'hamster') s += ec(-hr * .65, hy - hr * .75, hr * .3, hr * .3, shade(c, 1.05)) + ec(hr * .65, hy - hr * .75, hr * .3, hr * .3, shade(c, 1.05));   // 小圆耳
+            if (t === 'goat') s += pa(`M${-hr * .35} ${hy - hr * .7}q${-hr * .85} ${-hr * 1.3} ${-hr * .15} ${-hr * 1.55}`, 'none', `stroke="#a9855c" stroke-width="${m * .035}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`) + pa(`M${hr * .35} ${hy - hr * .7}q${hr * .85} ${-hr * 1.3} ${hr * .15} ${-hr * 1.55}`, 'none', `stroke="#a9855c" stroke-width="${m * .035}" fill="none" vector-effect="non-scaling-stroke" stroke-linecap="round"`);   // 后弯角
+            if (t === 'horse' || t === 'donkey') s += ln(0, hy - hr * .8, 0, m * .28, `stroke-width="${m * .045}" stroke="${shade(c, .7)}"`);   // 背鬃
+            if (t === 'pig') s += ec(0, hy - hr * .95, hr * .48, hr * .32, '#d89a92') + `<circle cx="${-m * .045}" cy="${hy - hr * .95}" r="${m * .022}" fill="#a86a60"/><circle cx="${m * .045}" cy="${hy - hr * .95}" r="${m * .022}" fill="#a86a60"/>`;   // 猪鼻
+            if (t === 'goat') s += pa(`M0 ${hy + hr * .85}l${-hr * .22} ${hr * .5}l${hr * .22} 0Z`, shade(c, .85));   // 山羊胡
+            if (t === 'frog') s += ec(-m * .1, -m * .36, m * .065, m * .065, shade(c, 1.12)) + ec(m * .1, -m * .36, m * .065, m * .065, shade(c, 1.12)) + `<circle cx="${-m * .1}" cy="${-m * .36}" r="${m * .028}" fill="#2a2a28"/><circle cx="${m * .1}" cy="${-m * .36}" r="${m * .028}" fill="#2a2a28"/>`;   // 大眼睛
+            if (t === 'raccoon') s += ec(-m * .02, hy - hr * .1, hr * .95, hr * .38, '#3a352f') + `<circle cx="${-hr * .4}" cy="${hy - hr * .15}" r="${m * .02}" fill="#f2ede4"/><circle cx="${hr * .4}" cy="${hy - hr * .15}" r="${m * .02}" fill="#f2ede4"/>`;   // 黑眼罩
+            if (t === 'hedgehog' || t === 'fox' || t === 'dog' || t === 'hamster') s += pa(`M0 ${hy - hr * .9}l${-hr * .3} ${hr * .55}l${hr * .3} 0Z`, '#3d352c');
             s += `<circle cx="${-hr * .4}" cy="${hy - hr * .2}" r="${m * .02}" fill="#2a2a28"/><circle cx="${hr * .4}" cy="${hy - hr * .2}" r="${m * .02}" fill="#2a2a28"/>`;
           }
           return s;
@@ -3704,7 +3764,7 @@
     }
 
     /* ======================= 渲染 ======================= */
-    const NOLABEL = ['plant', 'floorlamp', 'sidetable', 'barstool', 'beanbag', 'chicken', 'duck', 'goose', 'rabbit', 'squirrel', 'hedgehog', 'fox', 'tortoise', 'deer', 'cat', 'dog'];
+    const NOLABEL = ['plant', 'floorlamp', 'sidetable', 'barstool', 'beanbag', 'chicken', 'duck', 'goose', 'rabbit', 'squirrel', 'hedgehog', 'fox', 'tortoise', 'deer', 'cat', 'dog', 'hamster', 'petrabbit', 'parrot', 'sheep', 'goat', 'pig', 'cow', 'horse', 'donkey', 'wolf', 'raccoon', 'frog', 'kangaroo', 'ostrich', 'penguin', 'snake'];
     function renderRooms() {
       let s = '';
       allRooms().forEach(r => {
@@ -4442,6 +4502,7 @@
 
     function stairLayout(s) {                                // 楼梯布局（mm，局部坐标：x 沿上行方向，y = 横向）
       if (s.type === 'ramp') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 600 }], lands: [], total: 0, unit: 0, ramp: true }; }
+      if (s.type === 'esc') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 2400 }], lands: [], total: 0, unit: 0, esc: true, ramp: true }; }   // 自动扶梯：几何同坡道（单斜跑），漫游高度由 stairH 沿斜面插值
       if (s.type === 'steps') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: Math.max(1, s.steps || 3), y0: 0, y1: s.rise ?? 450 }], lands: [], total: 0, unit: 0, steps: true }; }
       if (s.type === 'spiral') {                             // 螺旋楼梯：中心柱 + 绕柱踏步，总转角 = 级数 × 25°（可改）
         const n = Math.max(8, Math.min(48, Math.round(s.nStep || Math.max(12, Math.round((s.rise ?? 2800) / 175)))));
@@ -4536,6 +4597,20 @@
           o += `<line x1="${ax0}" y1="0" x2="${ax1}" y2="0" stroke="#8b8272" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
           o += `<polygon points="${ax1 + (fwd ? 110 : -110)},0 ${ax1 + (fwd ? 10 : -10)},-80 ${ax1 + (fwd ? 10 : -10)},80" fill="#8b8272"/>`;
           o += `<text x="0" y="${z1 + 170}" text-anchor="middle" fill="#7a7164" style="font-size:130px">${tr('坡道', 'RAMP')}</text>`;
+          return `<g data-stair="${s.id}" transform="translate(${s.x} ${s.y}) rotate(${s.dir})">
+            <rect x="${x0}" y="${z0}" width="${Lr}" height="${z1 - z0}" fill="#fff" fill-opacity="0"/>${o}</g>`;
+        }
+        if (s.type === 'esc') {                                             // 自动扶梯：矩形轮廓 + 密集梯级线 + 两端梳齿线 + 上行箭头
+          const RS = 'stroke="#8b8272" stroke-width="1" vector-effect="non-scaling-stroke"';
+          const fwd = !s.flipX, x0 = bb.x0, x1 = bb.x1, z0 = bb.z0, z1 = bb.z1, Lr = x1 - x0;
+          let o = `<rect x="${x0}" y="${z0}" width="${Lr}" height="${z1 - z0}" fill="#eef0ee" ${RS}/>`;
+          const n = Math.max(6, Math.round(Lr / 350));
+          for (let k = 1; k < n; k++) o += `<line x1="${x0 + k * Lr / n}" y1="${z0}" x2="${x0 + k * Lr / n}" y2="${z1}" stroke="#bcc2bd" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+          [-1, 1].forEach(e => o += `<line x1="${e * (Lr / 2 - 250)}" y1="${z0}" x2="${e * (Lr / 2 - 250)}" y2="${z1}" stroke="#c9a44a" stroke-width="2.5" vector-effect="non-scaling-stroke"/>`);   // 两端梳齿板
+          const ax0 = fwd ? x0 + 120 : x1 - 120, ax1 = fwd ? x1 - 200 : x0 + 200;
+          o += `<line x1="${ax0}" y1="0" x2="${ax1}" y2="0" stroke="#8b8272" stroke-width="1.4" vector-effect="non-scaling-stroke"/>`;
+          o += `<polygon points="${ax1 + (fwd ? 110 : -110)},0 ${ax1 + (fwd ? 10 : -10)},-80 ${ax1 + (fwd ? 10 : -10)},80" fill="#8b8272"/>`;
+          o += `<text x="0" y="${z1 + 170}" text-anchor="middle" fill="#7a7164" style="font-size:130px">${tr('自动扶梯', 'ESCALATOR')}</text>`;
           return `<g data-stair="${s.id}" transform="translate(${s.x} ${s.y}) rotate(${s.dir})">
             <rect x="${x0}" y="${z0}" width="${Lr}" height="${z1 - z0}" fill="#fff" fill-opacity="0"/>${o}</g>`;
         }
@@ -5627,7 +5702,7 @@
         <circle data-handle="stairW" cx="0" cy="${bb.z1 + p}" r="${6 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${lay.spiral ? tr('拖动调整外径', 'Drag to change outer ⌀') : tr('拖动调整梯宽（一侧固定）', 'Drag to change stair width')}</title></circle>
       </g>`;
           s += `<text x="${st.x}" y="${st.y}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none"
-        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
+        stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${st.type === 'ramp' ? `${tr('坡道', 'Ramp')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 600)}` : st.type === 'esc' ? `${tr('自动扶梯', 'Escalator')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2400)}` : st.type === 'steps' ? `${tr('台阶', 'Steps')} ${Math.round(st.w)} × ${Math.round(st.len)} · ${tr('级数', 'steps')} ${Math.round(st.steps || 3)}` : lay.spiral ? `${tr('螺旋楼梯', 'Spiral stair')} ⌀${Math.round(st.w || 1400)} · ${tr('升', 'rise')} ${Math.round(st.rise ?? 2800)}` : `${tr('楼梯', 'Stair')} · ${tn} ${Math.round(st.w)} × ${Math.round(st.len)}`}</text>`;
         }
       } else if (ui.sel?.kind === 'pbox' || ui.sel?.kind === 'wbox') {
         const kind = ui.sel.kind, o = (state[BOX_ARR[kind]] || []).find(x => x.id === ui.sel.id);
@@ -8101,6 +8176,23 @@
     <div class="actions"><button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上坡方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button></div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
+    function escPanel(s) {                                   // 自动扶梯属性面板（仿坡道，梯面自带裙板扶手，无扶手开关）
+      const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
+      const rise = Math.round(s.rise ?? 2400), deg = (Math.atan2(rise, Math.max(1, s.len)) * 180 / Math.PI).toFixed(1);
+      return `<section><h3>${tr('自动扶梯', 'Escalator')}</h3>
+    <div class="form">
+      ${nameField(s, tr('自动扶梯', 'Escalator') + ' ' + objNo(state.stairs, s, 'type'))}
+      <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="sW" value="${Math.round(s.w)}" min="600" max="2000" step="50"></label>
+      <label>${tr('梯长', 'Length')} (mm)<input type="number" id="sLen" value="${Math.round(s.len)}" min="2000" max="12000" step="50"></label>
+      <label>${tr('上行方向', 'Ascend')}<select id="sDir">${dirs.map(([v, t]) => `<option value="${v}" ${s.dir === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label>${tr('爬升高度', 'Rise')} (mm)<input type="number" id="sRise" value="${rise}" min="800" max="6000" step="10"></label>
+      <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
+      <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
+    </div>
+    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 半透明玻璃栏板 + 黑色扶手带与两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送上行，也可步行上下。`, `Incline about ${deg}°. 3D shows slim truss beams, translucent glass balustrades with black handrails and golden comb plates, steps continuously moving up; standing on it in roam mode carries you up automatically.`)}</div>
+    <div class="actions"><button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上行方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button></div>
+    <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
+    }
     function stepsPanel(s) {
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
       const n = Math.max(1, Math.round(s.steps || 3)), rise = Math.round(s.rise ?? 450);
@@ -8174,6 +8266,7 @@
     function stairPanel(id) {
       const s = (state.stairs || []).find(x => x.id === id); if (!s) return '';
       if (s.type === 'ramp') return rampPanel(s);
+      if (s.type === 'esc') return escPanel(s);
       if (s.type === 'steps') return stepsPanel(s);
       if (s.type === 'spiral') return spiralPanel(s);
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
@@ -8211,6 +8304,7 @@
     function bindStairPanel(id) {
       const g = () => (state.stairs || []).find(x => x.id === id);
       if (g()?.type === 'ramp') return bindRampPanel(id);
+      if (g()?.type === 'esc') return bindEscPanel(id);
       if (g()?.type === 'steps') return bindStepsPanel(id);
       if (g()?.type === 'spiral') return bindSpiralPanel(id);
       const set = (k, fn) => { const el = $('#' + k); if (el) el.onchange = e => { const v = parseFloat(e.target.value); if (isNaN(v)) return; mutate(() => { const s = g(); if (s) fn(s, v); }); }; };
@@ -8284,6 +8378,20 @@
       const fx = $('#aFlipX');
       if (fx) fx.onclick = () => mutate(() => { const s = g(); if (s) s.flipX = !s.flipX; });
       $('#aDel').onclick = () => { ui.sel = null; mutate(() => state.stairs = (state.stairs || []).filter(x => x.id !== id)); toast(tr('已删除坡道 · Ctrl+Z 可撤销', 'Ramp deleted · Ctrl+Z to undo')); };
+      $('#back').onclick = () => select(null);
+    }
+    function bindEscPanel(id) {                              // 自动扶梯面板绑定（宽 / 长 / 爬升 / 方向 / 位置 / 前后翻转 / 删除）
+      const g = () => (state.stairs || []).find(x => x.id === id);
+      const set = (k, fn) => { const el = $('#' + k); if (el) el.onchange = e => { const v = parseFloat(e.target.value); if (isNaN(v)) return; mutate(() => { const s = g(); if (s) fn(s, v); }); }; };
+      set('sW', (s, v) => s.w = Math.max(600, Math.min(2000, Math.round(v / 50) * 50)));
+      set('sLen', (s, v) => s.len = Math.max(2000, Math.min(12000, Math.round(v / 50) * 50)));
+      set('sRise', (s, v) => s.rise = Math.max(800, Math.min(6000, Math.round(v / 10) * 10)));
+      set('sDir', (s, v) => s.dir = v);
+      set('sX', (s, v) => s.x = Math.round(v / 10) * 10);
+      set('sY', (s, v) => s.y = Math.round(v / 10) * 10);
+      const fx = $('#aFlipX');
+      if (fx) fx.onclick = () => mutate(() => { const s = g(); if (s) s.flipX = !s.flipX; });
+      $('#aDel').onclick = () => { ui.sel = null; mutate(() => state.stairs = (state.stairs || []).filter(x => x.id !== id)); toast(tr('已删除自动扶梯 · Ctrl+Z 可撤销', 'Escalator deleted · Ctrl+Z to undo')); };
       $('#back').onclick = () => select(null);
     }
 
@@ -9866,7 +9974,7 @@
         }
         return;
       }
-      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
+      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
         if (ui.drawTool === 'entry') {                                   // 入户工具：点门洞（原始门洞或自画的门）→ 设为全局唯一的入户门
           const og = t.closest('[data-bopen]'), oc = t.closest('[data-open]');
           let id = null;
@@ -9896,6 +10004,13 @@
           mutate(() => { state.stairs = state.stairs || []; state.stairs.push({ id, x: Math.round(q.x), y: Math.round(q.y), w: 1200, len: 4000, dir: 0, rise: 600, runs: 1, type: 'ramp' }); });
           select({ kind: 'stair', id });
           toast(tr('已放坡道（1200×4000 升 600）· 宽度 / 长度 / 坡度在右侧改', 'Ramp added (1200×4000, rise 600) · edit width / length / rise in the panel'));
+          return;
+        }
+        if (ui.drawTool === 'esc') {                                      // 自动扶梯：点哪里放哪里，宽度 / 长度 / 爬升在右侧改
+          const q = snapPoint(p, e.shiftKey), id = uid();
+          mutate(() => { state.stairs = state.stairs || []; state.stairs.push({ id, x: Math.round(q.x), y: Math.round(q.y), w: 1000, len: 4400, dir: 0, rise: 2400, type: 'esc' }); });
+          select({ kind: 'stair', id });
+          toast(tr('已放自动扶梯（1000×4400 升 2400）· 宽度 / 长度 / 爬升在右侧改', 'Escalator added (1000×4400, rise 2400) · edit width / length / rise in the panel'));
           return;
         }
         if (ui.drawTool === 'spiral') {                                   // 螺旋楼梯：点哪里放哪里
@@ -11745,7 +11860,7 @@
       state.openings.forEach(o => opens.push({ kind: 'open', id: o.id, name: o.name || ((o.kind === 'door' ? tr('房门', 'Door') : o.kind === 'roller' ? tr('卷帘门', 'Roller shutter') : o.kind === 'elev' ? tr('电梯门', 'Elevator door') : o.kind === 'fwin' ? tr('落地窗', 'Floor-to-ceiling window') : o.kind === 'slid' ? tr('落地推拉门', 'Sliding glass door') : o.kind === 'arch' ? tr('拱形门洞', 'Arched opening') : o.kind === 'niche' ? tr('壁龛', 'Niche') : o.kind === 'yak' ? tr('垭口', 'Cased opening') : o.kind === 'dble' ? tr('双开门', 'Double door') : o.kind === 'zimu' ? tr('子母门', 'Unequal double door') : o.kind === 'hwin' ? tr('高窗', 'High window') : o.kind === 'hole' ? tr('预留洞 / 窗洞', 'Opening') : o.kind === 'swin' ? tr('推拉窗', 'Sliding window') : o.kind === 'auto' ? tr('自动感应门', 'Automatic door') : o.kind === 'revolve' ? tr('旋转门', 'Revolving door') : o.kind === 'strip' ? tr('带形窗', 'Strip window') : o.kind === 'louver' ? tr('百叶窗', 'Louver window') : o.kind === 'cwin' ? tr('圆窗', 'Round window') : o.kind === 'bay' ? tr('飘窗', 'Bay window') : o.kind === 'dwin' ? tr('门连窗', 'Door + window') : o.kind === 'lbay' ? tr('转角飘窗', 'Corner bay window') : o.kind === 'sd' ? tr('单扇推拉门', 'Single sliding door') : o.kind === 'fold' ? tr('折叠门', 'Folding door') : o.kind === 'window' ? tr('平开窗', 'Casement window') : tr('窗户', 'Window')) + ' ' + objNo(state.openings, o, x => x.kind)), sub: (o.kind === 'lbay' ? (o.legs || []).reduce((a, g) => a + (g.w || 0), 0) : o.w) + ' mm' }));
       const furn = state.furniture.map(f => ({ kind: 'furn', id: f.id, name: nm(f.name), sub: f.w + '×' + f.d }));
       const rectSub = o => Math.round(o.w || 0) + '×' + Math.round(o.d || 0);
-      const stairName = t => t === 'steps' ? tr('台阶', 'Steps') : t === 'ramp' ? tr('坡道', 'Ramp') : t === 'spiral' ? tr('螺旋楼梯', 'Spiral stair') : tr('楼梯', 'Stair');
+      const stairName = t => t === 'steps' ? tr('台阶', 'Steps') : t === 'ramp' ? tr('坡道', 'Ramp') : t === 'esc' ? tr('自动扶梯', 'Escalator') : t === 'spiral' ? tr('螺旋楼梯', 'Spiral stair') : tr('楼梯', 'Stair');
       const build = [
         ...(state.pillars || []).map(c => ({ kind: 'pillar', id: c.id, name: c.name || tr('柱子', 'Column') + ' ' + objNo(state.pillars, c), sub: Math.round(c.w) + ' mm' })),
         ...(state.stairs || []).map(s => ({ kind: 'stair', id: s.id, name: s.name || stairName(s.type) + ' ' + objNo(state.stairs, s, 'type'), sub: s.type === 'spiral' ? '⌀' + Math.round(s.w || 1400) : Math.round(s.w || 0) + '×' + Math.round(s.len || 0) })),
@@ -12234,7 +12349,7 @@
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
-    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], sills = [], revolveSpins = [], revolveHit = [], furnCols = [], selKey = null, selHelpers = [], lampGlowMats = [];   // sills：电梯门抬高门槛的可踩踏台面（不挡人）；barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；furnCols：家具外接盒碰撞（buildFurn 独立重建，与 colliders 清空时机解耦）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
+    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], sills = [], revolveSpins = [], revolveHit = [], escSteps = [], furnCols = [], selKey = null, selHelpers = [], lampGlowMats = [];   // sills：电梯门抬高门槛的可踩踏台面（不挡人）；barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；escSteps：自动扶梯梯级组（主循环沿斜坡循环平移）；furnCols：家具外接盒碰撞（buildFurn 独立重建，与 colliders 清空时机解耦）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
     let sigArch = '', sigFurn = '', sigLabels = '', grow = 1, furnGrow = 1;
     const doors = [], keys = {};
 
@@ -12762,7 +12877,7 @@
         g.add(leg); legs.push(leg);
       });
       switch (t) {
-        case 'rabbit': {
+        case 'rabbit': case 'petrabbit': {
           const bw = w * .3, bd = d * .42;
           body.add(blob(bw, .12, bd, bm, 0, .13, .01, 18));
           const hm = mat(darker(c, .88), { roughness: .9 });
@@ -12774,10 +12889,10 @@
           body.add(blob(.034, .034, .034, mat('#f4f1ea', { roughness: .9 }), 0, .12, bd * .9, 12));   // 短尾
           head = new THREE.Group(); head.position.set(0, .2, -bd * .55);
           head.add(blob(.072, .068, .072, bm, 0, 0, 0, 16));
-          [-1, 1].forEach(s => { const ear = blob(.026, .095, .014, bm, s * .028, .11, .012, 12); ear.rotation.z = s * .18; ear.rotation.x = -.12; head.add(ear); });
+          [-1, 1].forEach(s => { const ear = blob(.026, .095, .014, bm, s * .028, .11, .012, 12); ear.rotation.z = s * (t === 'petrabbit' ? .95 : .18); ear.rotation.x = t === 'petrabbit' ? -.3 : -.12; head.add(ear); });   // 宠物兔垂耳
           body.add(head); eye(head, .045, .02, -.052);
           [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * bw * .5, .1, .01); leg.add(rod([0, 0, 0], [0, -.1, 0], .012, bm, .01, 8), box(.05, .014, .055, bm, 0, -.105, -.012)); g.add(leg); legs.push(leg); });
-          speed = .4 + R() * .25; roam = 8;
+          speed = .4 + R() * .25; roam = t === 'petrabbit' ? 6 : 8;
           break;
         }
         case 'squirrel': {
@@ -12818,10 +12933,11 @@
           speed = .12 + R() * .06; roam = 5;
           break;
         }
-        case 'fox': {
+        case 'fox': case 'wolf': {
           const bd = .19, hipY = .27, white = mat('#f2ede4', { roughness: .9 });
           body.add(blob(.15, .14, bd, bm, 0, hipY, 0, 20));
-          body.add(blob(.05, .06, .06, white, 0, hipY - .05, -bd * .5, 12));       // 胸口白毛
+          if (t === 'wolf') body.add(blob(.12, .045, bd * .7, mat('#55534f', { roughness: .95 }), 0, hipY + .12, 0, 16));   // 狼背鬃毛
+          else body.add(blob(.05, .06, .06, white, 0, hipY - .05, -bd * .5, 12));   // 胸口白毛
           head = new THREE.Group(); head.position.set(0, .38, -bd * .72);
           head.add(blob(.082, .078, .09, bm, 0, 0, 0, 18));
           head.add(rbox(.05, .045, .1, bm, 0, -.02, -.08, .015));                  // 尖吻
@@ -12829,9 +12945,9 @@
           [-1, 1].forEach(s => { const ear = cyl(.004, .032, .07, bm, s * .045, .075, .01, 6); ear.rotation.z = s * .22; head.add(ear); });
           body.add(head); eye(head, .05, .02, -.062);
           body.add(blob(.065, .065, .17, mat(darker(c, .92), { roughness: .95 }), 0, hipY + .04, bd * 1.05, 16));   // 蓬尾
-          body.add(blob(.05, .05, .08, white, 0, hipY + .07, bd * 1.5, 12));       // 尾尖白
+          if (t === 'fox') body.add(blob(.05, .05, .08, white, 0, hipY + .07, bd * 1.5, 12));       // 尾尖白（狼无）
           quadLegs(hipY, .075, -bd * .5, bd * .55, .014);
-          speed = .5 + R() * .2; roam = 14;
+          speed = .5 + R() * .2; roam = t === 'wolf' ? 18 : 14;
           break;
         }
         case 'tortoise': {
@@ -12896,11 +13012,184 @@
           speed = .5 + R() * .2; roam = 12;
           break;
         }
+        case 'hamster': {
+          body.add(blob(.055, .06, .065, bm, 0, .06, .005, 16));
+          head = new THREE.Group(); head.position.set(0, .09, -.045);
+          head.add(blob(.045, .042, .045, bm, 0, 0, 0, 14));
+          head.add(blob(.012, .012, .014, dark, 0, -.008, -.04, 8));               // 鼻
+          [-1, 1].forEach(s => head.add(blob(.014, .016, .008, bm, s * .032, .04, .005, 8)));   // 小圆耳
+          body.add(head); eye(head, .026, .012, -.032, .009);
+          body.add(blob(.02, .02, .02, mat('#f4f0e8', { roughness: .9 }), 0, .05, .07, 8));       // 短尾
+          [-1, 1].forEach(s => {                                   // 四条小腿：左右各一组
+            const leg = new THREE.Group(); leg.position.set(s * .03, .055, 0);
+            leg.add(rod([0, 0, -.03], [0, -.055, -.03], .008, bm, .007, 8), rod([0, 0, .03], [0, -.055, .03], .009, bm, .007, 8));
+            g.add(leg); legs.push(leg);
+          });
+          speed = .12 + R() * .06; roam = 4;
+          break;
+        }
+        case 'parrot': {
+          body.add(blob(.055, .07, .09, bm, 0, .16, .01, 16));
+          const wingM = mat(darker(c, .9), { roughness: .95 }), tailM = mat('#3a7a3a', { roughness: .9 });
+          [-1, 1].forEach(s => { const wing = blob(.012, .05, .08, wingM, s * .06, .16, .01, 10); wing.rotation.z = s * .15; body.add(wing); });   // 收拢的翅膀
+          body.add(blob(.02, .012, .08, tailM, 0, .14, .13, 8), blob(.015, .01, .07, tailM, .02, .13, .15, 8), blob(.015, .01, .07, tailM, -.02, .13, .15, 8));   // 长尾羽
+          head = new THREE.Group(); head.position.set(0, .27, -.05);
+          head.add(blob(.04, .042, .045, mat('#d94436', { roughness: .9 }), 0, 0, 0, 14));          // 红头
+          const bk1 = cyl(.002, .016, .035, mat('#8a8a80', { roughness: .5 }), 0, -.015, -.05, 8); bk1.rotation.x = Math.PI / 2.2; head.add(bk1);   // 弯喙
+          [-1, 1].forEach(s => head.add(blob(.01, .018, .008, bm, s * .03, .048, .01, 8)));          // 冠羽
+          body.add(head); eye(head, .028, .012, -.032, .008);
+          [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * .028, .11, .01); leg.add(rod([0, 0, 0], [0, -.11, 0], .007, mat('#8a8a80', { roughness: .6 }), .006, 6)); g.add(leg); legs.push(leg); });
+          speed = .3 + R() * .15; roam = 6;
+          break;
+        }
+        case 'sheep': {
+          const hipY = .32, wool = mat('#eceae2', { roughness: 1 }), face = mat('#4a423a', { roughness: .9 });
+          body.add(blob(.17, .16, .21, wool, 0, hipY + .02, 0, 22));
+          body.add(blob(.13, .12, .16, wool, 0, hipY + .17, 0, 18));               // 背上毛团
+          head = new THREE.Group(); head.position.set(0, hipY + .16, -.16);
+          head.add(blob(.07, .07, .08, face, 0, 0, 0, 16));
+          head.add(rbox(.04, .03, .05, face, 0, -.03, -.06, .01));
+          [-1, 1].forEach(s => head.add(blob(.018, .018, .014, face, s * .05, .045, .02, 8)));     // 深色耳
+          body.add(head); eye(head, .045, .02, -.05, .012);
+          quadLegs(hipY, .08, -.1, .1, .018);
+          speed = .3 + R() * .1; roam = 8;
+          break;
+        }
+        case 'goat': {
+          const hipY = .35, horn = mat('#a9855c', { roughness: .8 });
+          body.add(blob(.15, .14, .19, bm, 0, hipY, 0, 20));
+          head = new THREE.Group(); head.position.set(0, hipY + .18, -.15);
+          head.add(blob(.065, .065, .075, bm, 0, 0, 0, 16));
+          head.add(rbox(.035, .03, .05, bm, 0, -.03, -.055, .01));
+          head.add(rbox(.016, .045, .016, mat(darker(c, .85), { roughness: .95 }), 0, -.075, -.03, .004));   // 山羊胡
+          [-1, 1].forEach(s => head.add(rod([s * .02, .05, .005], [s * .06, .13, -.03], .011, horn, .007, 6)));   // 后弯角
+          body.add(head); eye(head, .042, .018, -.05, .012);
+          quadLegs(hipY, .07, -.095, .095, .015);
+          speed = .35 + R() * .1; roam = 9;
+          break;
+        }
+        case 'pig': {
+          const hipY = .3, snoutM = mat('#d89a92', { roughness: .85 });
+          body.add(blob(.19, .17, .24, bm, 0, hipY, 0, 22));
+          head = new THREE.Group(); head.position.set(0, hipY + .12, -.17);
+          head.add(blob(.11, .1, .1, bm, 0, 0, 0, 18));
+          const nose = cyl(.042, .045, .03, snoutM, 0, -.01, -.06, 12); nose.rotation.x = Math.PI / 2; head.add(nose);   // 翘鼻
+          [-1, 1].forEach(s => head.add(blob(.006, .006, .006, dark, s * .016, -.01, -.078, 6)));   // 鼻孔
+          [-1, 1].forEach(s => { const ear = blob(.03, .04, .008, bm, s * .07, .08, .01, 10); ear.rotation.z = s * .3; ear.rotation.x = -.2; head.add(ear); });
+          body.add(head); eye(head, .06, .025, -.05, .012);
+          body.add(rod([0, hipY + .08, .22], [0, hipY + .13, .29], .014, bm, .01, 6));             // 卷尾（短棒上翘）
+          quadLegs(hipY, .09, -.12, .13, .02);
+          speed = .15 + R() * .08; roam = 6;
+          break;
+        }
+        case 'cow': {
+          const hipY = .55, black = mat('#3a3835', { roughness: .9 });
+          body.add(blob(.3, .26, .36, bm, 0, hipY, 0, 24));
+          [[-.16, -.1], [.17, -.05], [-.12, .08], [.13, .14], [-.05, .17]].forEach(([px, pz]) => body.add(blob(.075, .05, .06, black, px, hipY + .06, pz, 12)));   // 黑斑
+          body.add(rod([0, hipY + .14, -.14], [0, hipY + .38, -.22], .08, bm, .05, 10));           // 颈
+          head = new THREE.Group(); head.position.set(0, hipY + .42, -.24);
+          head.add(blob(.13, .12, .14, bm, 0, 0, 0, 18));
+          head.add(rbox(.08, .06, .08, mat('#e8c8c0', { roughness: .85 }), 0, -.06, -.09, .01));   // 粉鼻
+          [-1, 1].forEach(s => { head.add(blob(.008, .008, .008, dark, s * .028, -.07, -.13, 6)); head.add(blob(.025, .05, .012, bm, s * .12, .06, .02, 8)); head.add(rod([s * .06, .09, 0], [s * .1, .16, -.02], .014, mat('#d8c8a8', { roughness: .7 }), .009, 6)); });   // 鼻孔 / 耳 / 角
+          body.add(head); eye(head, .075, .03, -.06, .014);
+          quadLegs(hipY, .12, -.16, .18, .03);
+          speed = .25 + R() * .1; roam = 10;
+          break;
+        }
+        case 'horse': case 'donkey': {
+          const hipY = .62, maneM = mat(darker(c, .65), { roughness: .95 });
+          body.add(blob(.24, .22, .32, bm, 0, hipY, 0, 22));
+          body.add(rod([0, hipY + .12, -.16], [0, hipY + .44, -.2], .07, bm, .055, 10));           // 颈
+          head = new THREE.Group(); head.position.set(0, hipY + .5, -.22);
+          head.add(blob(.075, .08, .13, bm, 0, 0, 0, 18));
+          head.add(blob(.02, .02, .025, dark, 0, -.045, -.075, 8));                                // 鼻头
+          const earL = t === 'donkey' ? .09 : .045;
+          [-1, 1].forEach(s => head.add(blob(.02, earL, .012, bm, s * .05, .09, .02, 8)));         // 耳（毛驴更长）
+          body.add(head); eye(head, .05, .025, -.06, .013);
+          body.add(rod([0, hipY + .3, -.14], [0, hipY + .12, -.24], .022, maneM, .016, 8));        // 额前鬃
+          body.add(rod([0, hipY + .1, .16], [0, hipY - .18, .22], .035, maneM, .026, 8));          // 尾
+          quadLegs(hipY, .1, -.145, .16, .022);
+          speed = (t === 'horse' ? .5 : .4) + R() * .2; roam = t === 'horse' ? 14 : 12;
+          break;
+        }
+        case 'raccoon': {
+          const hipY = .22, ring = mat('#3a352f', { roughness: .95 });
+          body.add(blob(.14, .13, .18, bm, 0, hipY, 0, 20));
+          body.add(blob(.05, .05, .08, bm, 0, hipY + .05, .18, 12), blob(.048, .048, .075, ring, 0, hipY + .07, .23, 12), blob(.042, .042, .07, bm, 0, hipY + .1, .28, 12), blob(.036, .036, .06, ring, 0, hipY + .14, .31, 12));   // 环纹尾
+          head = new THREE.Group(); head.position.set(0, hipY + .16, -.13);
+          head.add(blob(.08, .075, .085, bm, 0, 0, 0, 16));
+          head.add(rbox(.05, .035, .05, mat('#f2ede4', { roughness: .9 }), 0, -.028, -.05, .01));  // 白吻
+          head.add(blob(.014, .014, .018, dark, 0, -.03, -.08, 8));                                // 鼻
+          [-1, 1].forEach(s => head.add(blob(.024, .02, .012, ring, s * .04, .02, -.05, 8)));      // 黑眼罩
+          body.add(head); eye(head, .04, .02, -.05, .011);
+          quadLegs(hipY, .07, -.09, .1, .016);
+          speed = .4 + R() * .15; roam = 10;
+          break;
+        }
+        case 'frog': {
+          body.add(blob(.07, .05, .08, bm, 0, .055, 0, 16));
+          head = new THREE.Group(); head.position.set(0, .08, -.05);
+          head.add(blob(.05, .04, .05, bm, 0, 0, 0, 14));
+          [-1, 1].forEach(s => head.add(blob(.02, .022, .02, bm, s * .03, .032, -.005, 10)));      // 眼包
+          body.add(head); eye(head, .03, .045, -.008, .01);
+          [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * .04, .04, -.03); leg.add(rod([0, 0, 0], [0, -.04, 0], .006, bm, .005, 6)); g.add(leg); legs.push(leg); });   // 前小爪
+          [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * .055, .05, .05); leg.add(blob(.035, .045, .04, bm, 0, -.01, 0, 10), rbox(.028, .014, .06, bm, 0, -.045, .01, .004)); g.add(leg); legs.push(leg); });   // 后蹬腿
+          speed = .3 + R() * .15; roam = 5;
+          break;
+        }
+        case 'kangaroo': {
+          body.add(blob(.13, .17, .11, bm, 0, .3, .08, 18));                       // 后躯
+          body.add(blob(.08, .1, .09, bm, 0, .48, -.04, 16));                      // 前躯上抬
+          head = new THREE.Group(); head.position.set(0, .62, -.12);
+          head.add(blob(.06, .06, .07, bm, 0, 0, 0, 16));
+          head.add(rbox(.03, .02, .045, bm, 0, -.03, -.05, .008));
+          [-1, 1].forEach(s => head.add(blob(.016, .042, .01, bm, s * .042, .055, .02, 8)));       // 立耳
+          body.add(head); eye(head, .036, .015, -.045, .011);
+          body.add(rod([0, .18, .18], [0, .05, .3], .04, bm, .03, 10));            // 粗尾撑地
+          [-1, 1].forEach(s => body.add(blob(.02, .02, .025, bm, s * .055, .42, -.09, 8)));        // 小前爪
+          [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * .09, .3, .07); leg.add(blob(.06, .12, .06, bm, 0, -.04, 0, 12), rbox(.05, .02, .12, bm, 0, -.11, .01, .006)); g.add(leg); legs.push(leg); });   // 大后腿
+          speed = .5 + R() * .2; roam = 12;
+          break;
+        }
+        case 'ostrich': {
+          body.add(blob(.11, .1, .14, bm, 0, .55, .02, 18));
+          const neckM = mat('#d8a878', { roughness: .85 });
+          body.add(rod([0, .58, -.1], [0, 1.02, -.16], .035, neckM, .022, 8));     // 长颈
+          head = new THREE.Group(); head.position.set(0, 1.04, -.17);
+          head.add(blob(.05, .05, .06, bm, 0, 0, 0, 14));
+          const bk2 = cyl(.002, .02, .05, mat('#c08050', { roughness: .6 }), 0, -.008, -.05, 8); bk2.rotation.x = Math.PI / 2; head.add(bk2);
+          body.add(head); eye(head, .03, .015, -.03, .009);
+          [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * .05, .5, .02); leg.add(rod([0, 0, 0], [0, -.48, 0], .02, neckM, .014, 8), rbox(.05, .02, .09, neckM, 0, -.49, -.01, .005)); g.add(leg); legs.push(leg); });
+          speed = .55 + R() * .2; roam = 14;
+          break;
+        }
+        case 'penguin': {
+          body.add(blob(.075, .13, .085, bm, 0, .15, 0, 18));
+          body.add(blob(.06, .11, .05, mat('#f2f0ea', { roughness: .9 }), 0, .14, -.04, 14));      // 白肚
+          [-1, 1].forEach(s => { const flip = blob(.012, .06, .04, bm, s * .08, .15, 0, 10); flip.rotation.z = s * .2; body.add(flip); });   // 鳍
+          head = new THREE.Group(); head.position.set(0, .3, -.01);
+          head.add(blob(.055, .05, .055, bm, 0, 0, 0, 16));
+          const bk3 = cyl(.003, .012, .035, mat('#d97a3a', { roughness: .6 }), 0, -.01, -.05, 8); bk3.rotation.x = Math.PI / 2; head.add(bk3);
+          body.add(head); eye(head, .028, .012, -.036, .008);
+          [-1, 1].forEach(s => { const leg = new THREE.Group(); leg.position.set(s * .035, .028, .01); leg.add(rbox(.02, .02, .05, mat('#d97a3a', { roughness: .7 }), 0, -.01, 0, .005)); g.add(leg); legs.push(leg); });
+          speed = .18 + R() * .08; roam = 5;
+          break;
+        }
+        case 'snake': {
+          body.add(blob(.05, .04, .3, bm, 0, .035, .02, 14));
+          body.add(blob(.04, .032, .1, bm, 0, .04, .19, 12));                      // 尾段收窄
+          head = new THREE.Group(); head.position.set(0, .05, -.2);
+          head.add(blob(.045, .035, .07, bm, 0, 0, .01, 12));
+          head.add(blob(.012, .01, .02, dark, 0, -.01, -.04, 8));
+          body.add(head); eye(head, .028, .02, -.02, .008);
+          speed = .15 + R() * .1; roam = 6;
+          break;
+        }
       }
       const homeX = wx(f.cx), homeZ = wz(f.cy);
       g.userData.poultry = {
         phase: R() * Math.PI * 2, body, head, legs, homeX, homeZ, roam,
-        speed, heading: R() * Math.PI * 2, hop: t === 'rabbit',
+        speed, heading: R() * Math.PI * 2, hop: t === 'rabbit' || t === 'petrabbit' || t === 'frog' || t === 'kangaroo', slither: t === 'snake',
         tx: homeX, tz: homeZ, wait: R() * 1.2, gait: 0
       };
     }
@@ -13102,7 +13391,7 @@
         }
         case 'chicken': case 'duck': case 'goose':
           poultryModel(g, f, w, d, c, R); break;
-        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': case 'cat': case 'dog':
+        case 'rabbit': case 'squirrel': case 'hedgehog': case 'fox': case 'tortoise': case 'deer': case 'cat': case 'dog': case 'hamster': case 'petrabbit': case 'parrot': case 'sheep': case 'goat': case 'pig': case 'cow': case 'horse': case 'donkey': case 'wolf': case 'raccoon': case 'frog': case 'kangaroo': case 'ostrich': case 'penguin': case 'snake':
           wildAnimalModel(g, f, w, d, c, R); break;
         case 'table': {
           const tm = mat(c, { roughness: .4 }), lw = woodM(darker(c, .55)), ns = Math.max(1, Math.round(w / .62)), top = .75;
@@ -13576,6 +13865,14 @@
       const deck = new THREE.Mesh(new THREE.BoxGeometry(sl, thk, W), deckMat);
       deck.position.set(nx * thk / 2, H / 2 - ny * thk / 2, 0); deck.rotation.z = ang;
       deck.castShadow = deck.receiveShadow = true; g.add(deck);
+      const fR = s.flipX ? -1 : 1, aR = s.dir * Math.PI / 180, caR = Math.cos(aR), saR = Math.sin(aR);
+      const mSeg = Math.max(2, Math.ceil(L / .4));
+      for (let i = 1; i <= mSeg; i++) {                        // 坡体底碰撞：每 .4m 一条横向线（y 区间 = 该处坡面高度段，单段升 ≤ .34）：坡底视作实体，漫游不能从坡道下方穿过坡体；坡面上行走高度连续，不受影响
+        const xs = -L / 2 * fR + L * fR * i / mSeg, yi = H * i / mSeg, yp = H * (i - 1) / mSeg;
+        addBarrier(wx(s.x) + xs * caR - W / 2 * saR, wz(s.y) + xs * saR + W / 2 * caR,
+                   wx(s.x) + xs * caR + W / 2 * saR, wz(s.y) + xs * saR - W / 2 * caR,
+                   yp, Math.min(yi, yp + .34), .25, true);
+      }
       [-1, 1].forEach(sd => {                                  // 两侧挡条：贴着坡面走
         const c = new THREE.Mesh(new THREE.BoxGeometry(sl, .16, .07), curbMat);
         c.position.set(nx * .08, H / 2 + ny * .08, sd * (W / 2 - .035));
@@ -13593,6 +13890,73 @@
           bar.position.set(nx * .45, H / 2 + ny * .45 + .9, sd * (W / 2 - .06));
           bar.rotation.z = ang; bar.castShadow = true; g.add(bar);
         });
+      }
+      archUp.add(g);
+    }
+    function buildEsc3D(s) {                                    // 自动扶梯：两侧窄桁架梁（中间镂空露出梯级）+ 半透明玻璃栏板（底边贴梯级斜面）+ 顶部黑色扶手带与两端回转端头 + 循环上行的水平梯级（漫游高度由 stairH 沿斜面插值）
+      const L = s.len / 1000, W = s.w / 1000, H = Math.max(.05, (s.rise ?? 2400) / 1000);
+      const g = new THREE.Group();
+      g.position.set(wx(s.x), 0, wz(s.y)); tagPick(g, 'stair', s.id);
+      g.rotation.y = -s.dir * Math.PI / 180 + (s.flipX ? Math.PI : 0);   // 前后翻转 = 整段调头，上行方向反过来
+      const ang = Math.atan2(H, L), sl = Math.hypot(L, H);
+      const nx = -Math.sin(ang), ny = Math.cos(ang);
+      const metal = mat('#9aa2ab', { metalness: .55, roughness: .45 }), dark = mat('#34383d', { roughness: .7 }),
+        tread = mat('#565d66', { roughness: .8 }), comb = mat('#c9a44a', { roughness: .6 });
+      const glass = mat('#c3d2d8', { metalness: .1, roughness: .2, transparent: true, opacity: .3, depthWrite: false });
+      const railH = .92, dRail = railH + .038;                 // 栏板 / 扶手相对梯级面的高度（沿斜面法线）
+      [-1, 1].forEach(sd => {
+        const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, .24, .07), metal);    // 桁架窄梁：贴两侧，不再用整块大板盖住梯级
+        beam.position.set(nx * .16, H / 2 - ny * .16, sd * (W / 2 - .05)); beam.rotation.z = ang;
+        beam.castShadow = beam.receiveShadow = true; g.add(beam);
+        const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), glass);  // 玻璃栏板：中心沿法线抬半个高度，底边正好贴斜面
+        panel.position.set(nx * railH / 2, H / 2 + ny * railH / 2, sd * (W / 2 - .018)); panel.rotation.z = ang;
+        g.add(panel);
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(sl, .075, .1), dark);      // 扶手带：紧贴栏板顶边，不悬空
+        rail.position.set(nx * dRail, H / 2 + ny * dRail, sd * (W / 2 - .018)); rail.rotation.z = ang;
+        rail.castShadow = true; g.add(rail);
+        [-1, 1].forEach(e => {                                 // 两端扶手水平回转段 + 圆端头，消除斜切生硬感
+          const x0 = e * L / 2 + nx * dRail, y0 = (e < 0 ? 0 : H) + ny * dRail;
+          const hr = new THREE.Mesh(new THREE.BoxGeometry(.36, .075, .1), dark);
+          hr.position.set(x0 + e * .18, y0, sd * (W / 2 - .018)); hr.castShadow = true; g.add(hr);
+          const cap = new THREE.Mesh(new THREE.SphereGeometry(.052, 10, 8), dark);
+          cap.position.set(x0 + e * .36, y0, sd * (W / 2 - .018)); g.add(cap);
+        });
+      });
+      [-1, 1].forEach(e => {                                   // 两端梳齿板（金色）+ 端部平地延伸板
+        const yEnd = e < 0 ? 0 : H;
+        const c = new THREE.Mesh(new THREE.BoxGeometry(.42, .028, W * .92), comb);
+        c.position.set(e * (L / 2 - .16), yEnd + .014, 0);
+        c.castShadow = c.receiveShadow = true; g.add(c);
+        const land = new THREE.Mesh(new THREE.BoxGeometry(.44, .03, W), metal);
+        land.position.set(e * (L / 2 + .26), yEnd + .015, 0);
+        land.castShadow = land.receiveShadow = true; g.add(land);
+      });
+      const n = Math.max(6, Math.round(L / .4)), pitch = L / n;   // 梯级水平间距（真实扶梯约 400mm），梯面保持水平
+      for (let i = 0; i < n; i++) {
+        const st = new THREE.Group();
+        const t1 = new THREE.Mesh(new THREE.BoxGeometry(.38, .035, W * .84), tread);   // 踏面
+        t1.castShadow = t1.receiveShadow = true;
+        const edge = new THREE.Mesh(new THREE.BoxGeometry(.035, .038, W * .84), comb);  // 前缘黄色安全边
+        edge.position.x = -.17;
+        const t2 = new THREE.Mesh(new THREE.BoxGeometry(.025, .19, W * .84), metal);    // 立面（朝下行方向）
+        t2.position.set(-.19, -.1, 0);
+        st.add(t1, t2, edge);
+        st.userData.esc = { i, pitch, L, H };
+        g.add(st); escSteps.push(st);
+      }
+      const aDir = s.dir * Math.PI / 180, caD = Math.cos(aDir), saD = Math.sin(aDir), fD = s.flipX ? -1 : 1;
+      const lx0 = -L / 2 * fD, lx1 = L / 2 * fD;               // 低端（y=0）与高端（y=H）沿跑坐标（与 stairH 插值同一约定）
+      [-1, 1].forEach(sd => {                                  // 两侧玻璃栏板 / 桁架：带高度线段碰撞，漫游不能横穿扶梯侧身，站梯面边缘也不会侧向掉出
+        const zl = sd * (W / 2 - .02);
+        addBarrier(wx(s.x) + lx0 * caD - zl * saD, wz(s.y) + lx0 * saD + zl * caD,
+                   wx(s.x) + lx1 * caD - zl * saD, wz(s.y) + lx1 * saD + zl * caD,
+                   0, H + railH, .18);
+      });
+      for (let i = 1; i <= n; i++) {                           // 底部桁架碰撞：每级梯级一条横向线（y 区间 = 该级踢面段，超出 .34 收缩）——不能从扶梯下方水平穿入梯段；梯面上因单级升 ≤ 可跨步高 .35，通行与传送不受影响
+        const xs = lx0 + (lx1 - lx0) * i / n, yi = H * i / n, yp = H * (i - 1) / n;
+        addBarrier(wx(s.x) + xs * caD - W / 2 * saD, wz(s.y) + xs * saD + W / 2 * caD,
+                   wx(s.x) + xs * caD + W / 2 * saD, wz(s.y) + xs * saD - W / 2 * caD,
+                   yp, Math.min(yi, yp + .34), .25, true);
       }
       archUp.add(g);
     }
@@ -15037,7 +15401,7 @@
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
       selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null;
-      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; lampGlowMats.length = 0;
+      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0;
       const top = opt.cut;
       allRooms().forEach(r => {
         const st = state.rooms[r.id]; if (!st) return;               // 空方案：3D 里也不生成房间地面
@@ -15568,6 +15932,7 @@
       });
       (state.stairs || []).forEach(s => {                    // 楼梯：悬空踏板 + 踢面 + 斜梁；双跑 / 三跑带折返平台
         if (s.type === 'ramp') return buildRamp3D(s);        // 坡道单独生成
+        if (s.type === 'esc') return buildEsc3D(s);          // 自动扶梯单独生成（梯级滚动动画在主循环）
         if (s.type === 'steps') return buildSteps3D(s);      // 台阶单独生成
         if (s.type === 'spiral') return buildSpiral3D(s);    // 螺旋楼梯单独生成
         const lay = stairLayout(s), W = lay.w / 1000;
@@ -15587,6 +15952,13 @@
             riser.position.set(xc + dir * (T / 2 - .01), ty - R / 2, z);
             step.castShadow = riser.castShadow = true; step.receiveShadow = riser.receiveShadow = true;
             g.add(step, riser);
+          }
+          const aS = s.dir * Math.PI / 180, caS = Math.cos(aS), saS = Math.sin(aS);
+          for (let i = 1; i <= n; i++) {                       // 梯段底碰撞：每级踢面一条横向线（y 区间 = 该踢面高度段，单级升超 .34 时收缩）——楼梯底视作实体，漫游不能从梯段下方水平穿过；梯面上因每级升 ≤ 可跨步高 .35，逐级上下不受影响
+            const xs = (r.x0 + dir * i * Tmm) / 1000, yi = r.y0 / 1000 + i * R, yp = yi - R;
+            addBarrier(wx(s.x) + xs * caS - (z - W / 2) * saS, wz(s.y) + xs * saS + (z - W / 2) * caS,
+                       wx(s.x) + xs * caS - (z + W / 2) * saS, wz(s.y) + xs * saS + (z + W / 2) * caS,
+                       yp, Math.min(yi, yp + .34), .25, true);
           }
           const dh = (r.y1 - r.y0) / 1000, slope = Math.hypot(runL, dh), ang = Math.atan2(dh, runL) * dir;
           [-1, 1].forEach(sd => {                              // 两侧斜梁
@@ -15770,7 +16142,7 @@
       clearGroup(furnG);
       const built = state.furniture.map(f => { const g = buildFurniture(f); furnG.add(g); return { f, g }; });
       furnCols = [];                                              // 家具碰撞外接盒（世界矩形 + 高度区间，米）：随家具重建同步刷新
-      const SKIP = { rug: 1, tv: 1, acwall: 1, waterheater: 1, chicken: 1, duck: 1, goose: 1, rabbit: 1, squirrel: 1, hedgehog: 1, fox: 1, tortoise: 1, deer: 1, cat: 1, dog: 1 };  // 地毯贴地可踩；电视 / 挂式空调 / 热水器为壁挂高位物；家禽与动物位置动态（漫步中按实时位置挡人），静态外接盒会把它们钉死在放置点，故跳过
+      const SKIP = { rug: 1, tv: 1, acwall: 1, waterheater: 1, chicken: 1, duck: 1, goose: 1, rabbit: 1, squirrel: 1, hedgehog: 1, fox: 1, tortoise: 1, deer: 1, cat: 1, dog: 1, hamster: 1, petrabbit: 1, parrot: 1, sheep: 1, goat: 1, pig: 1, cow: 1, horse: 1, donkey: 1, wolf: 1, raccoon: 1, frog: 1, kangaroo: 1, ostrich: 1, penguin: 1, snake: 1 };  // 地毯贴地可踩；电视 / 挂式空调 / 热水器为壁挂高位物；家禽与动物位置动态（漫步中按实时位置挡人），静态外接盒会把它们钉死在放置点，故跳过
       built.forEach(({ f, g }) => {
         const a = aabb(f), cx = wx(f.cx), cz = wz(f.cy), hw = a.hw / 1000 + .02, hh = a.hh / 1000 + .02;
         if (SKIP[f.type]) return;
@@ -16066,9 +16438,9 @@
     }
     const _v1 = new THREE.Vector3();                             // blocked() 复用的临时向量（避免漫游每帧分配）
     const WALK_STEP_OVER = .35;                                 // 碰撞体顶面低于脚底 + 这一步高时视作可踩踏 / 可跨过（与矮门槛、楼梯踏步同尺度）
-    function addBarrier(ax, az, bx, bz, y0, y1, reach) {          // 扶手 / 围栏的带高度线段碰撞：reach 为水平挡人距离（米）
+    function addBarrier(ax, az, bx, bz, y0, y1, reach, stepOver) { // 扶手 / 围栏的带高度线段碰撞：reach 为水平挡人距离（米）；stepOver = 踢面类可跨步屏障（楼梯 / 坡道 / 扶梯的逐级踢面线），顶边低于可跨步高时不挡，保证逐级上下通行
       if (Math.hypot(bx - ax, bz - az) < .06) return;
-      barriers.push([ax, az, bx, bz, Math.min(y0, y1), Math.max(y0, y1), reach ?? .12]);
+      barriers.push([ax, az, bx, bz, Math.min(y0, y1), Math.max(y0, y1), reach ?? .12, stepOver]);
     }
     function blocked(x, z, r = .22, footH = null, noPoultry = false) {
       const passByHeight = (y0, y1) => footH !== null && (footH + headH < y0 || footH > y1 || y1 <= footH + WALK_STEP_OVER);
@@ -16092,8 +16464,9 @@
           if (Math.hypot(dx - vx * t, dz - vz * t) < r * .9) return true;   // 碰到翼玻璃（玻璃很薄，用玩家半径的 0.9）
         }
       }
-      if (footH !== null) for (const [ax, az, bx, bz, y0, y1, reach] of barriers) {
+      if (footH !== null) for (const [ax, az, bx, bz, y0, y1, reach, so] of barriers) {
         if (footH + headH < y0 || footH > y1) continue;            // 玩家身体（脚到头顶 1.6m）与栏杆高度区间无交集：不挡（可从下方/上方通过）
+        if (so && y1 <= footH + WALK_STEP_OVER) continue;          // 可跨步屏障（踢面线）：顶边低于可跨步高 .35 视作可跨上——梯面上逐级上下不受影响，梯段下方仍视作实体
         const vx = bx - ax, vz = bz - az, len2 = vx * vx + vz * vz;
         const t = len2 ? Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / len2)) : 0;
         if (Math.hypot(x - (ax + vx * t), z - (az + vz * t)) < reach) return true;
@@ -16117,7 +16490,7 @@
           continue;
         }
         if (d.slide) {                                      // 推拉门 / 电梯门：闭合时按门扇实际覆盖范围挡路，开启后可穿行
-          if (d.auto || d.open) continue;                   // 自动感应门始终可穿行，门扇开合只作视觉表现
+          if (!d.auto && d.open) continue;                  // 普通推拉 / 电梯门已开直接放行；自动感应门按门扇实时位置判定——未滑开前挡路（此前始终放行导致动物直接穿门），感应滑开后才可穿行
           for (const p of d.pivots) {
             p.g.getWorldPosition(_v1);                       // 门扇组可能嵌在带旋转的父组里（电梯 l.dir），位置取世界系
             const ux = p.ew ? p.ew[0] : p.ax, uz = p.ew ? p.ew[1] : p.az;   // 门扇铺开方向：墙上门是世界系 ax/az；电梯门是轿厢局部系，建门时已换算成世界系 ew
@@ -16252,6 +16625,7 @@
       } else fallY = gy;                                     // 贴地行走 / 上台阶
       const footH = fallY + jumpY;
       p.y = eyeH + footH;
+      escCarry(p, footH, dt);                                // 站在自动扶梯上被梯级带着上行（先于输入移动，行走速度可叠加）
       const shift = keys.ShiftLeft || keys.ShiftRight;
       const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : shift ? 2.6 : 1.4) * dt, mv = new THREE.Vector3();   // 趴下最慢（Shift 爬行加速）、蹲下次之、Shift 快走
       const right = new THREE.Vector3(-fwd.z, 0, fwd.x);
@@ -16263,6 +16637,23 @@
       mv.normalize().multiplyScalar(sp * mag);
       if (!blocked(p.x + mv.x, p.z, .22, footH)) p.x += mv.x;
       if (!blocked(p.x, p.z + mv.z, .22, footH)) p.z += mv.z;
+    }
+    function escCarry(p, foot, dt) {                           // 自动扶梯传送：脚落在梯面上（高度吻合且非滞空）时，沿上行方向以梯级同速（.35 m/s，与主循环梯级动画一致）被带动；两端梳齿 150mm 内不传送（视作落在端部地板）；带 blocked 碰撞，不会被推穿墙
+      for (const s of (state.stairs || [])) {
+        if (s.type !== 'esc') continue;
+        const a = s.dir * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a), f = s.flipX ? -1 : 1;
+        const dx = p.x * 1000 + 6000 - s.x, dy = p.z * 1000 + 5300 - s.y;   // 世界米 → 平面毫米（与 stairH 同一套坐标换算）
+        const lx = dx * ca + dy * sa, ly = -dx * sa + dy * ca;
+        if (Math.abs(ly) > s.w / 2) continue;
+        const x0 = -s.len / 2 * f, x1 = s.len / 2 * f;
+        if (lx < Math.min(x0, x1) + 150 || lx > Math.max(x0, x1) - 150) continue;
+        const t = f > 0 ? (lx - x0) / (x1 - x0) : (x0 - lx) / (x0 - x1);    // 沿跑的爬升比例（与 stairH 插值一致）
+        if (Math.abs(foot - t * (s.rise ?? 2400) / 1000) > .25) continue;   // 脚不在梯面上（空中 / 梯下 / 隔层）不传送
+        const ux = ca * f, uz = sa * f, step = .35 * dt;
+        if (!blocked(p.x + ux * step, p.z, .22, foot)) p.x += ux * step;
+        if (!blocked(p.x, p.z + uz * step, .22, foot)) p.z += uz * step;
+        break;
+      }
     }
     function pushOutOfRevolve(p, foot, head, pushR = .23) {    // 旋转门翼转到身上时，把对象推离翼（真实旋转门是翼推着人走，避免玻璃翼穿过玩家）；漫游玩家与家禽共用
       for (const w of revolveHit) {
@@ -16455,22 +16846,34 @@
       else if (fly) { const t = clamp01((now - fly.t0) / fly.dur); camTween(fly.A, fly.B, ease(t)); if (t >= 1) fly = null; }
       else if (opt.mode === 'orbit') orbit.update();
       else stepWalk(dt);
-      if (opt.mode === 'walk') {                              // 自动感应门：漫游时按玩家与门的距离自动开合（靠近滑开、离开关上）
+      doors.forEach(d => {                                   // 自动感应门：玩家 / 动物靠近自动滑开、离开关上（漫游态检测玩家，两种模式均检测漫步中的动物）
+        if (!d.auto) return;
+        let near = false;
+        if (opt.mode === 'walk') {
+          const dist = Math.hypot(camera.position.x - d.mx, camera.position.z - d.mz);      // 玩家到门中心的水平距离
+          near = dist < Math.max(1.8, d.half + 1.6) && camera.position.y > d.base - .3 && camera.position.y < d.top + .5;   // 接近门宽+余量，且玩家高度落在门洞附近（避免隔层触发）
+        }
+        if (!near) for (const g of furnG.children) {          // 动物感应：漫步靠近门也会触发开门，高度不在门洞附近（隔层）不触发
+          if (!g.userData.poultry) continue;
+          if (g.position.y < d.base - .3 || g.position.y > d.top + .5) continue;
+          if (Math.hypot(g.position.x - d.mx, g.position.z - d.mz) < Math.max(1.5, d.half + 1)) { near = true; break; }
+        }
+        d.open = near;
+      });
+      if (opt.mode === 'walk') {                               // 电梯门：手动开门后延时自动关；玩家在门口 / 轿厢附近则顺延，走远再关
         const p = camera.position;
         doors.forEach(d => {
-          if (!d.auto) return;
-          const dist = Math.hypot(p.x - d.mx, p.z - d.mz);      // 玩家到门中心的水平距离
-          const near = dist < Math.max(1.8, d.half + 1.6) && p.y > d.base - .3 && p.y < d.top + .5;   // 接近门宽+余量，且玩家高度落在门洞附近（避免隔层触发）
-          d.open = near;
-        });
-        doors.forEach(d => {                                  // 电梯门：手动开门后延时自动关；玩家在门口 / 轿厢附近则顺延，走远再关
           if (!d.lift || !d.open || !d.tAuto || now <= d.tAuto) return;
           if (Math.hypot(p.x - d.gx, p.z - d.gz) > 1.8) { d.open = false; d.tAuto = 0; }
           else d.tAuto = now + 1200;
         });
-      } else doors.forEach(d => { if (d.auto) d.open = false; });   // 非漫游态自动门关合
+      }
       doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起
       revolveSpins.forEach(g => { g.rotation.y += dt * .7; });   // 旋转门三翼持续匀速转动（约 9 秒一圈），鸟瞰 / 漫游均生效
+      escSteps.forEach(st => {                                  // 自动扶梯梯级循环上行（约 0.35 m/s）：沿斜坡平移，越过顶端即回卷到底端，梯面始终水平
+        const e = st.userData.esc, x = -e.L / 2 + ((e.i + .5) * e.pitch + (now * .00035) % e.pitch) % e.L;
+        st.position.x = x; st.position.y = (x + e.L / 2) * (e.H / e.L);
+      });
       // 家禽随机漫步：在放置点半径内选无障碍目标慢行、停歇；带平滑转向与步态，避开墙 / 门扇 / 家具 / 栏杆，旋转门翼扫到会被推走（与人一致，鸟瞰 / 漫游均生效）
       furnG.children.forEach(g => {
         const p = g.userData.poultry; if (!p) return;
@@ -16505,6 +16908,10 @@
           p.body.rotation.z = up ? 0 : Math.sin(t * 1.3) * .02;
           p.head.rotation.x = up ? -Math.cos(p.gait) * .08 : Math.sin(t * 3.1) * .16 - .06;
           p.legs.forEach((lg, i) => { lg.rotation.x = up ? Math.cos(p.gait) * (i < 2 ? .7 : -.75) : 0; });
+        } else if (p.slither) {                                  // 蛇：无腿，身体左右摆行
+          p.body.rotation.y = moving ? Math.sin(p.gait) * .3 : Math.sin(t * 1.3) * .06;
+          p.body.position.y = Math.sin(t * 2.2) * .004;
+          p.head.rotation.x = moving ? Math.sin(p.gait * .5) * .1 : Math.sin(t * 3.1) * .08;
         } else {
           p.body.position.y = moving ? Math.abs(Math.sin(p.gait)) * .018 : Math.sin(t * 2.2) * .008;
           p.body.rotation.z = moving ? Math.sin(p.gait) * .045 : Math.sin(t * 1.3) * .02;
@@ -16545,7 +16952,7 @@
 
     function relang() { syncWalkTexts(); if (inited) buildLabels(); }
 
-    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, toggleLamp, get camera() { return camera; } } };
+    window.View3D = { enter, exit, relang, sync: () => sync(), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, toggleLamp, get camera() { return camera; } } };
   </script>
 </body>
 

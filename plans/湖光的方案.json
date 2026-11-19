@@ -208,6 +208,160 @@
       "d": 300,
       "rot": 0,
       "color": "#9b958c"
+    },
+    {
+      "id": "fmwnf37zh99",
+      "type": "raccoon",
+      "name": "浣熊",
+      "cx": 5390,
+      "cy": 5310,
+      "w": 560,
+      "d": 300,
+      "rot": 0,
+      "color": "#9a948e"
+    },
+    {
+      "id": "fmwnf3in8100",
+      "type": "wolf",
+      "name": "狼",
+      "cx": 2830,
+      "cy": 50,
+      "w": 820,
+      "d": 400,
+      "rot": 0,
+      "color": "#8f8d8a"
+    },
+    {
+      "id": "fmwnf3n8m101",
+      "type": "penguin",
+      "name": "企鹅",
+      "cx": 4240,
+      "cy": 210,
+      "w": 320,
+      "d": 280,
+      "rot": 0,
+      "color": "#3a3f46"
+    },
+    {
+      "id": "fmwnf3op4102",
+      "type": "snake",
+      "name": "蛇",
+      "cx": 5230,
+      "cy": -70,
+      "w": 620,
+      "d": 160,
+      "rot": 0,
+      "color": "#7a9a4a"
+    },
+    {
+      "id": "fmwnf3qal103",
+      "type": "deer",
+      "name": "梅花鹿",
+      "cx": 3900,
+      "cy": -880,
+      "w": 1100,
+      "d": 450,
+      "rot": 0,
+      "color": "#c8a06a"
+    },
+    {
+      "id": "fmwnf3rsh104",
+      "type": "ostrich",
+      "name": "鸵鸟",
+      "cx": 2430,
+      "cy": -420,
+      "w": 480,
+      "d": 300,
+      "rot": 0,
+      "color": "#c0a882"
+    },
+    {
+      "id": "fmwnf3sl1105",
+      "type": "kangaroo",
+      "name": "袋鼠",
+      "cx": 1130,
+      "cy": -100,
+      "w": 750,
+      "d": 480,
+      "rot": 0,
+      "color": "#c98a5a"
+    },
+    {
+      "id": "fmwnf3tko106",
+      "type": "frog",
+      "name": "青蛙",
+      "cx": -160,
+      "cy": -220,
+      "w": 220,
+      "d": 180,
+      "rot": 0,
+      "color": "#6a9a4a"
+    },
+    {
+      "id": "fmwnf3voi107",
+      "type": "cow",
+      "name": "奶牛",
+      "cx": 6500,
+      "cy": 70,
+      "w": 1500,
+      "d": 650,
+      "rot": 0,
+      "color": "#f5f2ec"
+    },
+    {
+      "id": "fmwnf42rd108",
+      "type": "pig",
+      "name": "猪",
+      "cx": 8160,
+      "cy": 250,
+      "w": 950,
+      "d": 520,
+      "rot": 0,
+      "color": "#eab8b2"
+    },
+    {
+      "id": "fmwnf43wd109",
+      "type": "horse",
+      "name": "矮马",
+      "cx": 9980,
+      "cy": 150,
+      "w": 1250,
+      "d": 500,
+      "rot": 0,
+      "color": "#a97444"
+    },
+    {
+      "id": "fmwnf44rm110",
+      "type": "donkey",
+      "name": "毛驴",
+      "cx": 7200,
+      "cy": -890,
+      "w": 1050,
+      "d": 460,
+      "rot": 0,
+      "color": "#9a948c"
+    },
+    {
+      "id": "fmwnf45wi111",
+      "type": "sheep",
+      "name": "绵羊",
+      "cx": 8250,
+      "cy": -930,
+      "w": 850,
+      "d": 460,
+      "rot": 0,
+      "color": "#eceae2"
+    },
+    {
+      "id": "fmwnf46t2112",
+      "type": "goat",
+      "name": "山羊",
+      "cx": 5850,
+      "cy": -990,
+      "w": 780,
+      "d": 420,
+      "rot": 0,
+      "color": "#b6ada2"
     }
   ],
   "rooms": {
@@ -341,6 +495,50 @@
       "b": [
         7106,
         2260
+      ]
+    },
+    {
+      "id": "fmwnfib2j113",
+      "a": [
+        -60,
+        -10200
+      ],
+      "b": [
+        15440,
+        -10200
+      ]
+    },
+    {
+      "id": "fmwnfibnc114",
+      "a": [
+        15440,
+        -10200
+      ],
+      "b": [
+        15440,
+        -3400
+      ]
+    },
+    {
+      "id": "fmwnfic89115",
+      "a": [
+        15440,
+        -3400
+      ],
+      "b": [
+        -250,
+        -3400
+      ]
+    },
+    {
+      "id": "fmwnfieyn116",
+      "a": [
+        -250,
+        -3400
+      ],
+      "b": [
+        -60,
+        -10200
       ]
     }
   ],
@@ -485,6 +683,24 @@
       "flip": false,
       "sill": 1200,
       "btn": "l"
+    },
+    {
+      "id": "fmwnfjnwo119",
+      "wall": "CWfmwnfic89115",
+      "c": 11210,
+      "w": 2400,
+      "kind": "auto",
+      "flip": false,
+      "sill": 0,
+      "dh": 2400
+    },
+    {
+      "id": "fmwnfjq7k120",
+      "wall": "CWfmwnfic89115",
+      "c": 3030,
+      "w": 2400,
+      "kind": "slid",
+      "flip": true
     }
   ],
   "deletedWalls": [
@@ -748,6 +964,17 @@
       "rise": 4200,
       "type": "spiral",
       "flipX": false
+    },
+    {
+      "id": "fmwnfl3ir99",
+      "x": 13630,
+      "y": -690,
+      "w": 1000,
+      "len": 4400,
+      "dir": 0,
+      "rise": 2400,
+      "type": "esc",
+      "flipX": true
     }
   ],
   "wallH": {
@@ -1023,7 +1250,7 @@
       "id": "fmwkbesmf93",
       "x": 18750,
       "y": 9040,
-      "flagY": 800
+      "flagY": 5500
     },
     {
       "type": "signbd",
@@ -1076,7 +1303,7 @@
       "y": 6170,
       "r": 4200,
       "z": 3600,
-      "on": true,
+      "on": false,
       "links": [],
       "ctlByGang": []
     },
@@ -1358,7 +1585,7 @@
       "c": 7850,
       "z": 1900,
       "r": 2600,
-      "on": true,
+      "on": false,
       "x": 5270,
       "y": 6700,
       "links": [],
