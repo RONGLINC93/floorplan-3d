@@ -13576,7 +13576,7 @@
         glass.position.y = Y + Hw - .02; glass.receiveShadow = true; g.add(glass);
         [[W + .04, .05, .07, 0, -D / 2], [W + .04, .05, .07, 0, D / 2], [.07, .05, D + .04, -W / 2, 0], [.07, .05, D + .04, W / 2, 0]]
           .forEach(([w, h, d, x, z]) => put(w, h, d, x, z, rm));
-        colliders.push([wx(p.x) - W / 2, wz(p.y) - D / 2, wx(p.x) + W / 2, wz(p.y) + D / 2]);
+        colliders.push([wx(p.x) - W / 2, wz(p.y) - D / 2, wx(p.x) + W / 2, wz(p.y) + D / 2, Y, Y + Hw]);
         archUp.add(g); return;
       }
       const wallMat3 = mat('#cfc6b4', { roughness: .95 }), soilMat = mat('#5c4a34', { roughness: 1 });
@@ -13600,7 +13600,7 @@
         });
       }
       archUp.add(g);
-      colliders.push([wx(p.x) - W / 2, wz(p.y) - D / 2, wx(p.x) + W / 2, wz(p.y) + D / 2]);
+      colliders.push([wx(p.x) - W / 2, wz(p.y) - D / 2, wx(p.x) + W / 2, wz(p.y) + D / 2, Y, Y + (p.bench ? Math.max(H, .35) : H)]);
     }
     function buildFlue3D(f) {                                   // 烟道 / 风道：方管体 + 顶部压边
       const W = Math.max(.1, (f.w ?? 300) / 1000), D = Math.max(.1, (f.d ?? 300) / 1000);
@@ -13610,7 +13610,7 @@
       body.castShadow = body.receiveShadow = true; tagPick(body, 'flue', f.id); archUp.add(body);
       const cap = new THREE.Mesh(new THREE.BoxGeometry(W + .04, .04, D + .04), mat('#a9a294', { roughness: .85 }));
       cap.position.set(wx(f.x), Y + H + .02, wz(f.y)); cap.castShadow = true; tagPick(cap, 'flue', f.id); archUp.add(cap);
-      colliders.push([wx(f.x) - W / 2, wz(f.y) - D / 2, wx(f.x) + W / 2, wz(f.y) + D / 2]);
+      colliders.push([wx(f.x) - W / 2, wz(f.y) - D / 2, wx(f.x) + W / 2, wz(f.y) + D / 2, Y, Y + H]);
     }
     function buildLamp3D(l) {                                   // 灯具 / 灯开关：灯体 + 夜景点光源（点光源挂 lampG，applyLight 统一按夜景与开关状态点亮）
       const X = wx(l.x), Z = wz(l.y), Y = ['floorSocket', 'deskSocket'].includes(l.type) ? Math.max(0, (l.z ?? (l.type === 'deskSocket' ? 750 : 0)) / 1000) : Math.max(.3, (l.z ?? 1500) / 1000);
@@ -13789,7 +13789,7 @@
           [-.075, -.035].forEach(x => hole(.006, .012, x, .032));
           hole(.02, .008, .08, 0, '#4a4238');
         }
-        if (fl) colliders.push([X - W / 2, Z - D / 2, X + W / 2, Z + D / 2]);
+        if (fl) colliders.push([X - W / 2, Z - D / 2, X + W / 2, Z + D / 2, Y, Y + .032]);   // 面板仅 3cm 高：贴地可踩踏，抬高安装后只在对应高度挡人
         tagPick(g, 'lamp', l.id); archUp.add(g);
         return;
       }
@@ -13804,7 +13804,7 @@
         base.position.y = .015; base.castShadow = true; g.add(base);
         const pole = new THREE.Mesh(new THREE.CylinderGeometry(.018, .018, Math.max(.1, Y - .12), 10), mat('#4d4a45', { roughness: .6 }));
         pole.position.y = (Y - .12) / 2 + .04; pole.castShadow = true; g.add(pole);
-        colliders.push([X - .18, Z - .18, X + .18, Z + .18]);
+        colliders.push([X - .18, Z - .18, X + .18, Z + .18, 0, Y + .1]);
       }
       const shade = new THREE.Mesh(new THREE.CylinderGeometry(R * .55, R, l.type === 'down' ? .05 : .14, 24), headMat('#ddd3c0'));
       shade.position.y = Y + (l.type === 'floor' ? .06 : 0); shade.castShadow = true; g.add(shade);
@@ -14929,7 +14929,7 @@
           const post = new THREE.Mesh(new THREE.BoxGeometry(ps, H, ps), outWood);
           post.position.set(x0 + (x1 - x0 - ps) * i / (nx - 1) + ps / 2, H / 2, z0 + (z1 - z0 - ps) * j / (ny - 1) + ps / 2);
           post.castShadow = post.receiveShadow = true; archUp.add(post);
-          colliders.push([post.position.x - ps / 2, post.position.z - ps / 2, post.position.x + ps / 2, post.position.z + ps / 2]);   // 廊架立柱挡人（顶部格栅悬空不挡）
+          colliders.push([post.position.x - ps / 2, post.position.z - ps / 2, post.position.x + ps / 2, post.position.z + ps / 2, 0, H]);   // 廊架立柱挡人（顶部格栅悬空不挡）
         }
         [z0, z1].forEach(z => {
           const b = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, beam, beam), outWood);
@@ -14988,7 +14988,7 @@
         [A, B].forEach(P => {
           const post = new THREE.Mesh(new THREE.BoxGeometry(PS, PH, PS), postMat);
           post.position.set(P[0], PH / 2, P[1]); post.castShadow = post.receiveShadow = true; archUp.add(post);
-          colliders.push([P[0] - PS / 2, P[1] - PS / 2, P[0] + PS / 2, P[1] + PS / 2]);   // 门柱挡人
+          colliders.push([P[0] - PS / 2, P[1] - PS / 2, P[0] + PS / 2, P[1] + PS / 2, 0, PH]);   // 门柱挡人
         });
         const addLeaf = (O, dir, trim = 0) => {                // O 铰链点，dir 关门时门扇沿墙的朝向，trim 中缝留缝
           const base = Math.atan2(-uz * dir, ux * dir), Lh = Math.max(.2, L / 2 - PS / 2 - trim), HH = Math.max(.4, GH - .05);
@@ -15024,7 +15024,7 @@
             const h = Math.max(.3, M(e.h || 2800)), px = wx(e.x), pz = wz(e.y);
             if (T3 === 'tree') {                                // 景观树：树干 + 球状树冠
               const r = Math.max(.15, M(e.w || 900) / 2), trunkM = mat('#7d6247', { roughness: .95 });
-              colliders.push([px - r * .14 - .05, pz - r * .14 - .05, px + r * .14 + .05, pz + r * .14 + .05]);   // 只挡树干：树冠悬空可走到树下
+              colliders.push([px - r * .14 - .05, pz - r * .14 - .05, px + r * .14 + .05, pz + r * .14 + .05, 0, h * .62]);   // 只挡树干：树冠悬空可走到树下
               const tr = new THREE.Mesh(new THREE.CylinderGeometry(r * .1, r * .14, h * .62, 10), trunkM);
               tr.position.set(px, h * .31, pz); tr.castShadow = true; archUp.add(tr);
               [[h * .62, r], [h * .8, r * .72], [h * .95, r * .45]].forEach(([yy, rr]) => {
@@ -15036,7 +15036,7 @@
             if (T3 === 'tiecol' || T3 === 'chimney') {          // 构造柱 / 烟囱：方柱（烟囱从屋面标高起）
               const s = Math.max(.06, M(e.w || 240)), z = T3 === 'chimney' ? Math.max(0, M(e.z || 2800)) : 0;
               const m = mat('#c2bbab', { roughness: .92 });
-              if (z < .3) colliders.push([px - s / 2 - .02, pz - s / 2 - .02, px + s / 2 + .02, pz + s / 2 + .02]);   // 落地构造柱挡人；烟囱从屋面起，不挡地面行走
+              if (z < .3) colliders.push([px - s / 2 - .02, pz - s / 2 - .02, px + s / 2 + .02, pz + s / 2 + .02, z, z + h]);   // 落地构造柱挡人；烟囱从屋面起，不挡地面行走
               box(s, h, s, px, z + h / 2, pz, m);
               if (T3 === 'chimney') {
                 box(s + .08, .08, s + .08, px, z + h + .04, pz, mat('#a9a293', { roughness: .9 }));
@@ -15046,7 +15046,7 @@
             }
             if (T3 === 'flag') {                                // 旗杆：底座 + 细杆 + 顶球 + 竖直旗面 + 升降手柄
               const r = Math.max(.02, M(e.w || 120) / 2);
-              colliders.push([px - r * 4, pz - r * 4, px + r * 4, pz + r * 4]);   // 按底座半径挡人（旗面悬空不挡）
+              colliders.push([px - r * 4, pz - r * 4, px + r * 4, pz + r * 4, 0, .45]);   // 按底座半径挡人（旗面悬空不挡）
               const base = new THREE.Mesh(new THREE.CylinderGeometry(r * 3.2, r * 4, .45, 16), mat('#c9c3b5', { roughness: .9 }));
               base.position.set(px, .225, pz); base.castShadow = base.receiveShadow = true; archUp.add(base);
               const pole = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.3, h, 10), mat('#d8d5cc', { metalness: .4, roughness: .5 }));
@@ -15060,7 +15060,7 @@
               return;
             }
             const r = Math.max(.02, M(e.w || 100) / 2);
-            colliders.push([px - r - .02, pz - r - .02, px + r + .02, pz + r + .02]);   // 雨水管细管也占碰撞
+            colliders.push([px - r - .02, pz - r - .02, px + r + .02, pz + r + .02, 0, h]);   // 雨水管细管也占碰撞
             const pipeMat = mat('#9aa1a6', { metalness: .5, roughness: .45 });
             const p = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), pipeMat);
             p.position.set(px, h / 2, pz); p.castShadow = true; archUp.add(p);
@@ -15161,7 +15161,7 @@
             [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
               const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 12), colM);
               c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
-              colliders.push([px - cr, pz - cr, px + cr, pz + cr]);   // 凉亭立柱挡人
+              colliders.push([px - cr, pz - cr, px + cr, pz + cr, 0, h]);   // 凉亭立柱挡人
             });
             box(w, .1, d, cx, h + .05, cz, roofM);
             box(w + .3, .12, d + .3, cx, h + .16, cz, mat('#6f5f49', { roughness: .9 }));
@@ -15173,7 +15173,7 @@
             [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
               const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 10), colM);
               c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
-              colliders.push([px - cr, pz - cr, px + cr, pz + cr]);   // 车棚钢柱挡人
+              colliders.push([px - cr, pz - cr, px + cr, pz + cr, 0, h]);   // 车棚钢柱挡人
             });
             box(w + .25, .07, d + .25, cx, h + .035, cz, roofM);
             box(w + .25, .05, .08, cx, h + .09, z0 - .12, roofM); box(w + .25, .05, .08, cx, h + .09, z0 + d + .12, roofM);
@@ -15191,7 +15191,7 @@
           }
           if (T3 === 'shaft') {                                 // 管道井：四壁井道 + 顶部收口
             const h = Math.max(.6, M(e.h || 2800)), t = Math.max(.06, M(e.t || 120)), m = mat('#c2bbab', { roughness: .95 });
-            colliders.push([x0, z0, x0 + w, z0 + d]);           // 实体井道：整井占碰撞，人不能走进井里
+            colliders.push([x0, z0, x0 + w, z0 + d, 0, h]);     // 实体井道：整井占碰撞，人不能走进井里
             box(w, h, t, cx, h / 2, z0 + t / 2, m); box(w, h, t, cx, h / 2, z0 + d - t / 2, m);
             box(t, h, Math.max(.1, d - t * 2), x0 + t / 2, h / 2, cz, m); box(t, h, Math.max(.1, d - t * 2), x0 + w - t / 2, h / 2, cz, m);
             box(w + .06, .06, d + .06, cx, h + .03, cz, mat('#a9a293', { roughness: .9 }));
@@ -15266,7 +15266,7 @@
           }
           if (T3 === 'equip') {                                 // 设备基础：混凝土基础 + 机组体量
             const t = Math.max(.06, M(e.thick || 150)), y = M(e.z || 0), h = Math.max(.2, M(e.h || 800));
-            if (y < .3) colliders.push([x0, z0, x0 + w, z0 + d]);   // 落地设备基础挡人；架设在屋面（z 高）时不挡地面
+            if (y < .3) colliders.push([x0, z0, x0 + w, z0 + d, y, y + t + h]);   // 落地设备基础挡人；架设在屋面（z 高）时不挡地面
             box(w, t, d, cx, y + t / 2, cz, mat('#c6bfae', { roughness: .95 }));
             box(w * .78, h, d * .78, cx, y + t + h / 2, cz, mat('#b8bcbf', { metalness: .35, roughness: .5 }));
             [-.28, 0, .28].forEach(f => box(w * .7, .02, .02, cx, y + t + h * (.45 + f), cz - d * .39 - .01, mat('#8b9094', { metalness: .4, roughness: .5 })));
@@ -15290,7 +15290,7 @@
         tagPick(m, 'pillar', c.id);
         if (shape === 'L' || shape === 'cross') { m.castShadow = m.receiveShadow = true; archUp.add(m); }
         else { m.position.set(wx(c.x), top / 2, wz(c.y)); m.castShadow = m.receiveShadow = true; archUp.add(m); }
-        colliders.push([wx(c.x) - r, wz(c.y) - r, wx(c.x) + r, wz(c.y) + r]);
+        colliders.push([wx(c.x) - r, wz(c.y) - r, wx(c.x) + r, wz(c.y) + r, 0, top]);
       });
       (state.stairs || []).forEach(s => {                    // 楼梯：悬空踏板 + 踢面 + 斜梁；双跑 / 三跑带折返平台
         if (s.type === 'ramp') return buildRamp3D(s);        // 坡道单独生成
@@ -15420,7 +15420,7 @@
         const sill = i === 0 ? 1.4 : i >= 6 ? .45 : .9, head = 2.4;
         const band = top > head && (state.bover['w' + i] || {}).grille === true;   // 窗花：窗上亮子玻璃带
         wallBox(r, 0, Math.min(sill, top)); if (top > head && !band) wallBox(r, head, top);
-        colliders.push([wx(r[0]), wz(r[1]), wx(r[2]), wz(r[3])]);
+        colliders.push([wx(r[0]), wz(r[1]), wx(r[2]), wz(r[3]), 0, Math.min(sill, top)]);   // 窗下墙：矮窗台能跨过，高窗台仍挡人
         const gTop = Math.min(head, top); if (gTop <= sill) return;
         const [x0, y0, x1, y1] = r, hz = (x1 - x0) >= (y1 - y0), L = M(hz ? x1 - x0 : y1 - y0), gh = gTop - sill, cx = wx((x0 + x1) / 2), cz = wz((y0 + y1) / 2);
         if (band) {                                            // 亮子：横向带框固定玻璃（替代洞口上段实墙）
@@ -15494,12 +15494,15 @@
 
     function buildFurn() {
       clearGroup(furnG);
-      state.furniture.forEach(f => furnG.add(buildFurniture(f)));
-      furnCols = [];                                              // 家具碰撞外接盒（世界矩形，米）：随家具重建同步刷新
+      const built = state.furniture.map(f => { const g = buildFurniture(f); furnG.add(g); return { f, g }; });
+      furnCols = [];                                              // 家具碰撞外接盒（世界矩形 + 高度区间，米）：随家具重建同步刷新
       const SKIP = { rug: 1, tv: 1, acwall: 1, waterheater: 1 };  // 地毯贴地可踩；电视 / 挂式空调 / 热水器为壁挂高位物，挡地面行走反而错误
-      state.furniture.forEach(f => {
+      built.forEach(({ f, g }) => {
         const a = aabb(f), cx = wx(f.cx), cz = wz(f.cy), hw = a.hw / 1000 + .02, hh = a.hh / 1000 + .02;
-        if (!SKIP[f.type]) furnCols.push([cx - hw, cz - hh, cx + hw, cz + hh]);
+        if (SKIP[f.type]) return;
+        g.updateMatrixWorld(true);
+        const bb = new THREE.Box3().setFromObject(g), y0 = Number.isFinite(bb.min.y) ? bb.min.y : 0, y1 = Number.isFinite(bb.max.y) ? bb.max.y : 0;
+        furnCols.push([cx - hw, cz - hh, cx + hw, cz + hh, y0, y1]);
       });
       furnG.visible = opt.furn; selKey = null; selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; applyGrow();
     }
@@ -15788,13 +15791,21 @@
       });
     }
     const _v1 = new THREE.Vector3();                             // blocked() 复用的临时向量（避免漫游每帧分配）
+    const WALK_STEP_OVER = .35;                                 // 碰撞体顶面低于脚底 + 这一步高时视作可踩踏 / 可跨过（与矮门槛、楼梯踏步同尺度）
     function addBarrier(ax, az, bx, bz, y0, y1, reach) {          // 扶手 / 围栏的带高度线段碰撞：reach 为水平挡人距离（米）
       if (Math.hypot(bx - ax, bz - az) < .06) return;
       barriers.push([ax, az, bx, bz, Math.min(y0, y1), Math.max(y0, y1), reach ?? .12]);
     }
     function blocked(x, z, r = .22, footH = null) {
-      for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
-      for (const [x0, z0, x1, z1] of furnCols) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;   // 家具外接盒：床 / 沙发 / 桌柜 / 洁具 / 电器等实物不可穿行（地毯与壁挂高位物除外，见 buildFurn）
+      const passByHeight = (y0, y1) => footH !== null && (footH + headH < y0 || footH > y1 || y1 <= footH + WALK_STEP_OVER);
+      for (const [x0, z0, x1, z1, y0 = -Infinity, y1 = Infinity] of colliders) {
+        if (passByHeight(y0, y1)) continue;                      // 高度不重叠，或顶面低到可以踩上去 / 跨过去：不挡人
+        if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
+      }
+      for (const [x0, z0, x1, z1, y0 = -Infinity, y1 = Infinity] of furnCols) {
+        if (passByHeight(y0, y1)) continue;                      // 家具同样按 3D 包围盒高度判断：壁挂高位可从下方钻过，矮台可踩踏
+        if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;   // 家具外接盒：床 / 沙发 / 桌柜 / 洁具 / 电器等实物不可穿行（地毯与壁挂高位物除外，见 buildFurn）
+      }
       for (const w of revolveHit) {                               // 旋转门三翼：径向线段从中心到外缘，角度随旋翼实时转动
         if (footH !== null && (footH + headH < w.y0 || footH > w.y1)) continue;
         const dx = x - w.mx, dz = z - w.mz;
