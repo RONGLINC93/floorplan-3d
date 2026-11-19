@@ -967,26 +967,37 @@
     },
     {
       "id": "fmwnfl3ir99",
-      "x": 13630,
-      "y": -690,
+      "x": 25620,
+      "y": 950,
       "w": 1000,
-      "len": 4400,
+      "len": 12000,
       "dir": 0,
-      "rise": 2400,
+      "rise": 4200,
       "type": "esc",
       "flipX": true,
       "handMat": "black",
-      "panelMat": "glass"
+      "panelMat": "glass",
+      "runs": "B"
     },
     {
       "id": "fmwnhpwze99",
-      "x": 6210,
+      "x": 5910,
       "y": 7240,
       "w": 500,
       "len": 600,
       "h": 3000,
       "dir": 90,
       "type": "ladder"
+    },
+    {
+      "id": "fmwnj6w1v99",
+      "x": 24100,
+      "y": -9780,
+      "w": 1000,
+      "len": 4400,
+      "dir": 0,
+      "rise": 2400,
+      "type": "esc"
     }
   ],
   "wallH": {
