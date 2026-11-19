@@ -273,7 +273,8 @@
       "w": 900,
       "kind": "elev",
       "flip": false,
-      "sill": 1200
+      "sill": 1200,
+      "btn": "l"
     }
   ],
   "deletedWalls": [
@@ -1164,7 +1165,9 @@
       "on": true,
       "style": "track2",
       "x": 4300,
-      "y": 6700
+      "y": 6700,
+      "links": [],
+      "ctlByGang": []
     }
   ],
   "powerBoxes": [

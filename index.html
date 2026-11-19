@@ -13979,7 +13979,7 @@
       const dH = DH, lH = H - dH;                                 // 门洞过梁
       if (lH > .01) add(t, lH, DW, W / 2 - t / 2, dH + lH / 2, DOFF, shMat);
       const leaf = DW / 2 + .01;                                  // 每扇略过半洞宽：闭合时中缝重叠，不留缝
-      const edoor = { slide: true, lift: true, open: false, cur: 0, pivots: [] };   // 两扇共用一个门对象：点门扇 / E 键手动开合，开门延时自动关；门开后可走进轿厢
+      const edoor = { slide: true, lift: true, open: false, cur: 0, pivots: [], y0: B, y1: B + dH };   // 两扇共用一个门对象：点门扇 / E 键手动开合，开门延时自动关；门开后可走进轿厢
       {                                                     // 门洞中点世界坐标（自动关门时判断玩家是否还在门口 / 轿厢附近）
         const th0 = -(l.dir || 0) * Math.PI / 180;
         edoor.gx = wx(l.x) + W / 2 * Math.cos(th0) + DOFF * Math.sin(th0);
@@ -14021,7 +14021,7 @@
       const th = -(l.dir || 0) * Math.PI / 180, ct = Math.cos(th), st = Math.sin(th);
       const pushCol = (lx0, lz0, lx1, lz1) => {                  // 井道壁逐面占位（门洞处留缺口）：门开 / 自动滑开后可走进轿厢，整体外接盒会把轿厢变成进不去的实心块
         const px = [lx0 * ct + lz0 * st, lx1 * ct + lz1 * st], pz = [-lx0 * st + lz0 * ct, -lx1 * st + lz1 * ct];
-        colliders.push([wx(l.x) + Math.min(...px), wz(l.y) + Math.min(...pz), wx(l.x) + Math.max(...px), wz(l.y) + Math.max(...pz)]);
+        colliders.push([wx(l.x) + Math.min(...px), wz(l.y) + Math.min(...pz), wx(l.x) + Math.max(...px), wz(l.y) + Math.max(...pz), B, B + H]);
       };
       pushCol(-W / 2, -D / 2, -W / 2 + t, D / 2);                // 左壁（-X）
       pushCol(-W / 2, -D / 2, W / 2, -D / 2 + t);                // 后壁（-Z）
@@ -14466,7 +14466,7 @@
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;   // 沿墙单位方向（世界系）
         const pm = mat('#c6ccd1', { roughness: .4, metalness: .5 });
-        const edoor = { slide: true, lift: true, open: false, cur: 0, pivots: [], gx: mx, gz: mz };   // 两扇共用一个门对象：点任意一扇 / E 键手动开合，开门延时自动关；门开后可穿行
+        const edoor = { slide: true, lift: true, open: false, cur: 0, pivots: [], gx: mx, gz: mz, y0: dB, y1: dT };   // 两扇共用一个门对象：点任意一扇 / E 键手动开合，开门延时自动关；门开后可穿行
         [-1, 1].forEach(sd => {                              // 两扇：闭合时从中缝到各自洞口端，开启时滑向墙内
           const pw = L / 2 - .01, pg = new THREE.Group();
           pg.position.set(mx + dx * sd * L / 4, 0, mz + dz * sd * L / 4); pg.rotation.y = rot;
@@ -15825,6 +15825,7 @@
         if (Math.hypot(x - (ax + vx * t), z - (az + vz * t)) < reach) return true;
       }
       for (const d of doors) {
+        if (footH !== null && (footH + headH < (d.y0 ?? -Infinity) || footH > (d.y1 ?? Infinity))) continue;   // 门扇高度区间：抬高的电梯门不挡下方通行
         if (d.fold) {                                       // 折叠门：没折起的那半扇挡路
           if (!d.open) {
             const p0x = d.mx + d.ax * d.s0, p0z = d.mz + d.az * d.s0;
@@ -15902,6 +15903,15 @@
         const t = ((px - s.x0) * ax + (py - s.z0) * az) / L2;
         if (t < 0 || t > 1) return;
         if (Math.abs((px - s.x0) * az - (py - s.z0) * ax) / Math.sqrt(L2) <= s.T / 2 + 120) cand.push(s.y);
+      });
+      (state.lifts || []).forEach(l => {                      // 独立电梯：停靠层底板是可踩支撑面，否则走进轿厢会因采样不到高度而坠落
+        const B = Math.max(0, (l.stop ?? 0) / 1000);
+        if (B <= .001) return;                                // 停靠在地面时 cand 里已有 0，无需重复
+        const th = -(l.dir || 0) * Math.PI / 180, ct = Math.cos(th), st = Math.sin(th);   // 与 buildLift3D 的旋转符号一致（平面顺时针 = 绕 Y 负向）
+        const dx = px - l.x, dy = py - l.y;                  // 平面毫米坐标 → 轿厢局部（逆旋转）
+        const lx = dx * ct - dy * st, ly = dx * st + dy * ct;
+        const hw = Math.max(800, l.w ?? 2000) / 2 + 120, hd = Math.max(800, l.d ?? 2000) / 2 + 120;   // 门口多留 120mm，避免刚跨进门就掉下去
+        if (Math.abs(lx) <= hw && Math.abs(ly) <= hd) cand.push(B);
       });
       const base = ref ?? 0, near = cand.filter(v => v <= base + .55);   // 只认当前层高度附近的那一层，避免钻到上层去
       return near.length ? Math.max(...near) : Math.min(...cand);
