@@ -54,6 +54,72 @@
       "d": 500,
       "rot": 0,
       "color": "#fafaf6"
+    },
+    {
+      "id": "fmwndhhx299",
+      "type": "rabbit",
+      "name": "野兔",
+      "cx": 1220,
+      "cy": 3910,
+      "w": 360,
+      "d": 280,
+      "rot": 0,
+      "color": "#c9beb0"
+    },
+    {
+      "id": "fmwndhj63100",
+      "type": "squirrel",
+      "name": "松鼠",
+      "cx": 2060,
+      "cy": 3980,
+      "w": 320,
+      "d": 240,
+      "rot": 0,
+      "color": "#a8744f"
+    },
+    {
+      "id": "fmwndhk89101",
+      "type": "fox",
+      "name": "赤狐",
+      "cx": 890,
+      "cy": 4690,
+      "w": 700,
+      "d": 350,
+      "rot": 0,
+      "color": "#d98e4a"
+    },
+    {
+      "id": "fmwndhlak102",
+      "type": "hedgehog",
+      "name": "刺猬",
+      "cx": 1850,
+      "cy": 5030,
+      "w": 300,
+      "d": 240,
+      "rot": 0,
+      "color": "#9c8b76"
+    },
+    {
+      "id": "fmwndhmcm103",
+      "type": "tortoise",
+      "name": "陆龟",
+      "cx": 1070,
+      "cy": 5890,
+      "w": 320,
+      "d": 260,
+      "rot": 0,
+      "color": "#7c8a52"
+    },
+    {
+      "id": "fmwndhnbn104",
+      "type": "deer",
+      "name": "梅花鹿",
+      "cx": 2160,
+      "cy": 5730,
+      "w": 1100,
+      "d": 450,
+      "rot": 0,
+      "color": "#c8a06a"
     }
   ],
   "rooms": {
