@@ -163,17 +163,6 @@
       "grille": true
     },
     {
-      "id": "fmwhuwbzv93",
-      "wall": "CWfmwhqizs2191",
-      "c": 499.061279296875,
-      "w": 900,
-      "kind": "elev",
-      "flip": false,
-      "dh": 2200,
-      "sill": 1100,
-      "btn": "l"
-    },
-    {
       "id": "fmwhuwh9z94",
       "wall": "CWfmwhqj7n7192",
       "c": 5137.6376953125,
@@ -285,6 +274,15 @@
       "flip": false,
       "sill": 0,
       "dh": 2400
+    },
+    {
+      "id": "fmwmzd6yi94",
+      "wall": "CWfmwhqizs2191",
+      "c": 477.428466796875,
+      "w": 900,
+      "kind": "elev",
+      "flip": false,
+      "sill": 1200
     }
   ],
   "deletedWalls": [
@@ -579,13 +577,13 @@
     {
       "id": "fmwiw6lnm93",
       "x": 7900,
-      "y": 900,
+      "y": 3180,
       "w": 1230,
       "d": 1340,
       "h": 2400,
       "dw": 900,
       "dir": 0,
-      "stop": 0,
+      "stop": 1200,
       "dpos": 0
     }
   ],

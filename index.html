@@ -12158,7 +12158,7 @@
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
-    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], revolveSpins = [], revolveHit = [], furnCols = [], selKey = null, selHelpers = [], lampGlowMats = [];   // barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；furnCols：家具外接盒碰撞（buildFurn 独立重建，与 colliders 清空时机解耦）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
+    let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], sills = [], revolveSpins = [], revolveHit = [], furnCols = [], selKey = null, selHelpers = [], lampGlowMats = [];   // sills：电梯门抬高门槛的可踩踏台面（不挡人）；barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；furnCols：家具外接盒碰撞（buildFurn 独立重建，与 colliders 清空时机解耦）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
     let sigArch = '', sigFurn = '', sigLabels = '', grow = 1, furnGrow = 1;
     const doors = [], keys = {};
 
@@ -13165,9 +13165,9 @@
     // ---------- 任意角度的墙段 / 门 / 窗（设计模式画的墙、开的门窗用） ----------
     const wallAngle = (P0, P1) => Math.atan2(-(wz(P1[1]) - wz(P0[1])), wx(P1[0]) - wx(P0[0]));
     const wallMid = (P0, P1) => [wx((P0[0] + P1[0]) / 2), wz((P0[1] + P1[1]) / 2)];
-    function pushWallCollider(P0, P1, T) {
+    function pushWallCollider(P0, P1, T, top) {
       const h = T / 2, xs = [P0[0] - h, P0[0] + h, P1[0] - h, P1[0] + h], ys = [P0[1] - h, P0[1] + h, P1[1] - h, P1[1] + h];
-      colliders.push([wx(Math.min(...xs)), wz(Math.min(...ys)), wx(Math.max(...xs)), wz(Math.max(...ys))]);
+      colliders.push([wx(Math.min(...xs)), wz(Math.min(...ys)), wx(Math.max(...xs)), wz(Math.max(...ys)), top]);   // 第 5 项 = 墙顶高（米），供攀爬 / 墙顶行走判定；其他碰撞体没有此项
     }
     const pushSillCollider = (P0, P1, T, dB) => { if (dB > .35) pushWallCollider(P0, P1, T); };   // 门槛 / 龛底矮墙：高过半步才挡路，矮门槛可直接跨过
     function wallSeg3D(P0, P1, T, yb, yt) {
@@ -14458,7 +14458,10 @@
       if (o.kind === 'elev') {                               // 电梯门：金属中分双扇，点击开合（扇板滑入墙内）
         const hh = dT - dB;
         if (dB > .001) wallSeg3D(P0, P1, T, 0, dB);          // 门槛下的墙
-        pushSillCollider(P0, P1, T, dB);
+        if (dB > .06) {
+          sills.push({ x0: P0[0], z0: P0[1], x1: P1[0], z1: P1[1], T, y: dB });   // 抬高门槛登记为可踩踏台面，漫游自动迈上去
+          barriers.push([wx(P0[0]), wz(P0[1]), wx(P1[0]), wz(P1[1]), 0, dB - .01, T / 2000 + .1]);   // 门槛下墙段按高度挡人：站上门槛（脚高 = dB）后不再挡，走出去自然落下
+        }
         if (top > dT) wallSeg3D(P0, P1, T, dT, top);         // 门洞上方过梁
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;   // 沿墙单位方向（世界系）
@@ -14760,7 +14763,7 @@
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
       selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null;
-      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; revolveSpins = []; revolveHit = []; lampGlowMats.length = 0;
+      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; lampGlowMats.length = 0;
       const top = opt.cut;
       allRooms().forEach(r => {
         const st = state.rooms[r.id]; if (!st) return;               // 空方案：3D 里也不生成房间地面
@@ -14815,7 +14818,7 @@
         const s = builtinSeg(i), os = openingsOf(id), cuts = wallCuts(id, s.L), ht = wallTop(id, wallTypeOf(i) === 'low' ? Math.min(1, top) : top);
         if (!cuts.length) {
           wallBox(w, 0, ht);
-          colliders.push([wx(w[0]), wz(w[1]), wx(w[2]), wz(w[3])]);
+          colliders.push([wx(w[0]), wz(w[1]), wx(w[2]), wz(w[3]), ht]);
           return;
         }
         wallSegs(id, s.L).forEach(([c0, c1]) => {
@@ -14823,7 +14826,7 @@
           const lbo = c1 - c0 <= 400 && ((c1 >= s.L - 1 && lbCornerAt(id, 1)) || (c0 <= 1 && lbCornerAt(id, 0)));
           if (lbo) cornerStub3D(P0, P1, s.T, ht, lbo);
           else wallSegHoles3D(P0, P1, s.T, ht, boxHolesOf(id, ht).map(h => ({ c0: h.c0 - c0, c1: h.c1 - c0, yb: h.yb, yt: h.yt })).filter(h => h.c1 > 0 && h.c0 < c1 - c0));
-          pushWallCollider(P0, P1, s.T);
+          pushWallCollider(P0, P1, s.T, ht);
         });
         os.forEach(o => { const s0 = archUp.children.length; buildOpening3D(s.A, s.B, o, ht, s.T); markNew(s0, 'open', o.id); });   // 自画门窗：点击可开合并选中
       });
@@ -14850,7 +14853,7 @@
           } else {
             wallSegHoles3D(P0, P1, cwT(w), ht, boxHolesOf(id, ht).map(h => ({ c0: h.c0 - c0, c1: h.c1 - c0, yb: h.yb, yt: h.yt })).filter(h => h.c1 > 0 && h.c0 < c1 - c0));
           }
-          pushWallCollider(P0, P1, cwT(w));
+          pushWallCollider(P0, P1, cwT(w), ht);
         });
         openingsOf(id).forEach(o => { const s0 = archUp.children.length; buildOpening3D(w.a, w.b, o, ht, cwT(w)); markNew(s0, 'open', o.id); });
       });
@@ -14863,7 +14866,7 @@
         const ht = Math.min(top, Math.max(.6, (+w.h || 2800) / 1000));
         for (let i = 0; i < pts.length - 1; i++) {
           wallSeg3D(pts[i], pts[i + 1], th, 0, ht);
-          pushWallCollider(pts[i], pts[i + 1], th);
+          pushWallCollider(pts[i], pts[i + 1], th, ht);
         }
       });
       pickWallId = null; pickWallKind = 'wall';                // 后续洞口过梁等不属于任何可选墙
@@ -15629,6 +15632,7 @@
     async function exit() {
       if (opt.mode === 'walk') {
         walkCtl.unlock(); stopTouchWalk(); $('#hint3d').textContent = HINT_ORBIT; $('#walkOverlay').style.display = 'none'; $('#cross').style.display = 'none';
+        climbY = 0; climbWall = null; climbHold = false; climbArmed = false;   // 退出漫游清除攀爬状态，避免再次进入时从半空落下
         $('#tools').style.visibility = ''; $('#sunPad').style.visibility = '';   // 恢复漫游时临时隐藏的工具条（从漫游直接切回 2D 也要恢复，否则「预览/测量/设计」一直不显示）
         const dir = new THREE.Vector3(); camera.getWorldDirection(dir); orbit.target.copy(camera.position).addScaledVector(dir, 3).setY(0); opt.mode = 'orbit'; syncModeBtns();
       }
@@ -15714,7 +15718,7 @@
     const HINT_ORBIT = () => COARSE ? tr('单指旋转 · 双指缩放 / 平移 · 点选家具后可拖动摆放 · 点门开关', '1 finger orbits · 2 fingers zoom / pan · select furniture to drag it · tap doors to open')
       : tr('左键旋转 · 右键平移 · 滚轮缩放 · 选中家具后拖动可摆放 · 点击门开关', 'Left-drag orbits · right-drag pans · scroll zooms · select furniture to drag it · click doors to open');
     const HINT_TOUCHWALK = () => tr('左下摇杆移动 · 拖动画面转向 · 点门开关', 'Joystick moves · drag to look · tap doors to open');
-    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · Z 切换趴下 · 空格跳跃 · E 开关门 · 点击射击 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · Space jumps · E opens doors · click to shoot · Esc pauses');
+    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · Z 切换趴下 · R 贴墙攀爬（R+S 下爬）· 空格跳跃 · E 开关门 · 点击射击 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · R climbs walls (R+S descends) · Space jumps · E opens doors · click to shoot · Esc pauses');
     function syncHint3d() { $('#hint3d').textContent = opt.mode === 'orbit' ? HINT_ORBIT() : touchWalk ? HINT_TOUCHWALK() : HINT_WALK(); }
     let touchWalk = false;
     const joy = { x: 0, y: 0, id: null }, eul = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -15750,7 +15754,7 @@
       opt.mode = m; syncModeBtns();
       if (m === 'walk') {
         window.select(null);
-        proneOn = false;                                                 // 进入漫游时恢复站立姿态
+        proneOn = false; climbY = 0; climbWall = null; climbHold = false; climbArmed = false;   // 进入漫游时恢复站立姿态、清除攀爬状态
         if (opt.cut < H) { opt.cut = H; syncCutBtns(); sync(); }
         orbit.enabled = false; fly = null;
         const eg = entryGeom();
@@ -15789,9 +15793,11 @@
       if (Math.hypot(bx - ax, bz - az) < .06) return;
       barriers.push([ax, az, bx, bz, Math.min(y0, y1), Math.max(y0, y1), reach ?? .12]);
     }
-    window.__walkDbg = () => ({ colliders, furnCols, doors, blocked, camera, state });   // TODO: 临时调试钩子，验证后删除
     function blocked(x, z, r = .22, footH = null) {
-      for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
+      for (const [x0, z0, x1, z1, top] of colliders) {
+        if (footH !== null && top !== undefined && footH >= top - .05) continue;   // 已爬到墙顶：该墙不再挡人，可在墙顶行走
+        if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
+      }
       for (const [x0, z0, x1, z1] of furnCols) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;   // 家具外接盒：床 / 沙发 / 桌柜 / 洁具 / 电器等实物不可穿行（地毯与壁挂高位物除外，见 buildFurn）
       for (const w of revolveHit) {                               // 旋转门三翼：径向线段从中心到外缘，角度随旋翼实时转动
         if (footH !== null && (footH + headH < w.y0 || footH > w.y1)) continue;
@@ -15884,11 +15890,24 @@
           if (lx >= Math.min(L.x0, L.x1) && lx <= Math.max(L.x0, L.x1) && ly >= L.z0 && ly <= L.z1) cand.push(L.y / 1000);
         });
       });
+      sills.forEach(s => {                                    // 电梯门抬高门槛：按门宽范围作为可踩踏台面（斜墙也按沿墙投影判定）
+        const ax = s.x1 - s.x0, az = s.z1 - s.z0, L2 = ax * ax + az * az || 1;
+        const t = ((px - s.x0) * ax + (py - s.z0) * az) / L2;
+        if (t < 0 || t > 1) return;
+        if (Math.abs((px - s.x0) * az - (py - s.z0) * ax) / Math.sqrt(L2) <= s.T / 2 + 120) cand.push(s.y);
+      });
+      if (ref !== undefined && ref >= 0) for (const [x0, z0, x1, z1, top] of colliders) {   // 墙顶支撑：只在脚已经爬到墙顶附近时生效，可在墙顶行走 / 继续攀爬
+        if (top === undefined || ref < top - .3) continue;
+        if (x >= x0 - .7 && x <= x1 + .7 && z >= z0 - .7 && z <= z1 + .7) cand.push(top);   // 容差需覆盖起攀距离（.65m），否则刚爬到顶下一帧就判定脚不在墙顶上方而坠落
+      }
       const base = ref ?? 0, near = cand.filter(v => v <= base + .55);   // 只认当前层高度附近的那一层，避免钻到上层去
       return near.length ? Math.max(...near) : Math.min(...cand);
     }
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
     let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
+    let climbY = 0, climbTarget = 0, climbWall = null, climbDir = 1;   // 攀爬：相对脚底支撑高度的偏移 / 本次目标脚高 / 当前贴着的墙碰撞体 / 上爬或下爬
+    let climbArmed = false, climbHold = false, climbHoldT = 0;   // R 按下待触发 / 到一段顶后贴墙停住 / 停留计时（继续按 R 自动接下一段）
+    const CLIMB_REACH = .65, CLIMB_LIMIT = 1.2, CLIMB_SPEED = 1.05;   // 贴墙距离 / 每段最多爬升 / 攀爬速度（米）
     let crouchT = 0;                                             // 姿态插值：0 站立 ~ 1 全蹲 ~ 2 趴下（Ctrl/C 按住蹲下、Z 切换趴下）
     let proneOn = false;                                         // 趴下开关状态（Z 键切换：再按一次起身）
     const EYE_STAND = 1.6, EYE_CROUCH = .9, EYE_PRONE = .45;     // 站立视高 / 蹲下视高 / 趴下视高
@@ -15900,32 +15919,73 @@
     }
     function stepWalk(dt) {
       if (!walkCtl.isLocked && !touchWalk) return;
+      const p = camera.position, fwd = new THREE.Vector3();
+      camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
       const grounded = jumpY <= 0 && jumpV <= 0;                 // 滞空时保持当前姿态，落回地面再生效
-      const wantPosture = !grounded ? 0 : proneOn ? 2 : (keys.ControlLeft || keys.ControlRight || keys.KeyC) ? 1 : 0;   // 目标姿态：Z 切换的趴下（优先）＞ Ctrl/C 按住蹲下 ＞ 站立
+      const wantPosture = !grounded || climbWall ? 0 : proneOn ? 2 : (keys.ControlLeft || keys.ControlRight || keys.KeyC) ? 1 : 0;   // 目标姿态：Z 切换的趴下（优先）＞ Ctrl/C 按住蹲下 ＞ 站立
       crouchT += (wantPosture - crouchT) * Math.min(1, dt * 9);  // 站起 / 蹲下 / 趴下平滑过渡
       postureHeights(crouchT);
-      if (keys.Space && crouchT < 1.2 && jumpY <= 0 && jumpV <= 0) jumpV = 3.1;   // 空格起跳（趴下时不能起跳，需先起身；按住落地自动连跳）
-      if (jumpY > 0 || jumpV > 0) { jumpY += jumpV * dt; jumpV -= 9.5 * dt; if (jumpY <= 0) { jumpY = 0; jumpV = 0; } }
-      const gy = stairH(camera.position.x, camera.position.z, camera.position.y - eyeH - jumpY);   // 此处的支撑高度（地面 / 楼梯踏步 / 平台）
-      if (fallY === null) fallY = gy;
-      if (jumpY > 0 || jumpV > 0) {                            // 跳跃滞空：支撑高度暂不追，落回时再衔接
-      } else if (gy < fallY - .3 || fallV !== 0) {             // 支撑面高差超过一步（走出平台边 / 台阶边）：进入跌落，重力下坠；楼梯踏步高 ≤ .2m 仍贴地顺走
-        fallV -= 9.5 * dt; fallY += fallV * dt;
-        if (fallY <= gy) { fallY = gy; fallV = 0; }            // 落到支撑面：跌落结束
-      } else fallY = gy;                                       // 贴地行走 / 上台阶
-      const footH = fallY + jumpY;
-      camera.position.y = eyeH + footH;
+      if (climbWall) {                                           // 攀爬中：平滑升降，不应用重力 / 跳跃
+        if (climbHold) {
+          climbHoldT += dt;
+          if (keys.KeyR && climbHoldT > .25) {                   // 按住 R 自动接下一段（每段最多 1.2m），松开即掉落
+            const foot = fallY + climbY;
+            climbTarget = climbDir > 0 ? Math.min(climbWall[4], foot + CLIMB_LIMIT) : Math.max(0, foot - CLIMB_LIMIT);
+            climbHold = false; climbHoldT = 0;
+          }
+        } else {
+          const cur = fallY + climbY, step = CLIMB_SPEED * dt;
+          climbY += climbTarget > cur ? Math.min(step, climbTarget - cur) : -Math.min(step, cur - climbTarget);
+          if (Math.abs(fallY + climbY - climbTarget) < .001) {
+            if ((climbDir > 0 && climbTarget >= climbWall[4] - .001) || (climbDir < 0 && climbTarget <= .01)) {   // 到地面 / 到墙顶：站稳，墙顶可继续行走
+              fallY = climbTarget; climbY = 0; climbWall = null; climbHold = false; fallV = 0;
+            } else { climbHold = true; climbHoldT = 0; }          // 半途停住贴墙，按住可继续爬
+          }
+        }
+      } else {
+        if (keys.Space && crouchT < 1.2 && grounded) jumpV = 3.1;   // 空格起跳（趴下时不能起跳，需先起身；按住落地自动连跳）
+        if (jumpY > 0 || jumpV > 0) { jumpY += jumpV * dt; jumpV -= 9.5 * dt; if (jumpY <= 0) { jumpY = 0; jumpV = 0; } }
+        const gy = stairH(p.x, p.z, p.y - eyeH - jumpY);       // 此处的支撑高度（地面 / 楼梯踏步 / 平台 / 墙顶）
+        if (fallY === null) fallY = gy;
+        if (jumpY > 0 || jumpV > 0) {                          // 跳跃滞空：支撑高度暂不追，落回时再衔接
+        } else if (gy < fallY - .3 || fallV !== 0) {           // 支撑面高差超过一步（走出平台边 / 台阶边）：进入跌落，重力下坠；楼梯踏步高 ≤ .2m 仍贴地顺走
+          fallV -= 9.5 * dt; fallY += fallV * dt;
+          if (fallY <= gy) { fallY = gy; fallV = 0; }          // 落到支撑面：跌落结束
+        } else fallY = gy;                                     // 贴地行走 / 上台阶
+      }
+      const footH = fallY + climbY + jumpY;
+      p.y = eyeH + footH;
+      if (!climbWall && keys.KeyR && climbArmed && grounded) {   // 起攀：贴近、面朝且高于脚底 0.3m 的墙；R+S 从墙顶往下爬
+        const base = fallY ?? 0, down = keys.KeyS || keys.ArrowDown;
+        let best = null, bd = CLIMB_REACH;
+        for (const c of colliders) {
+          const top = c[4]; if (top === undefined) continue;
+          const cx = Math.max(c[0], Math.min(p.x, c[2])), cz = Math.max(c[1], Math.min(p.z, c[3]));
+          const d = Math.hypot(p.x - cx, p.z - cz);
+          if (d >= bd) continue;
+          if (!down) {
+            if (top <= base + .3 || top > base + 4) continue;    // 矮墙直接跨过，过高的墙（隔层）不爬
+            const nx = (cx - p.x) / (d || 1), nz = (cz - p.z) / (d || 1);
+            if (fwd.x * nx + fwd.z * nz < .35) continue;         // 必须面朝墙
+          } else if (base <= .2 || top > base + .05) continue;   // 下爬：脚需在墙顶（或高台）上
+          best = c; bd = d;
+        }
+        if (best) {
+          climbWall = best; climbArmed = false; climbHold = false; climbHoldT = 0; fallV = 0;
+          climbDir = down ? -1 : 1;                              // 记录上爬 / 下爬方向，供分段接续与到顶判定使用
+          climbTarget = down ? Math.max(0, base - CLIMB_LIMIT) : Math.min(best[4], base + CLIMB_LIMIT);
+        }
+      }
+      if (climbWall) return;                                     // 攀爬时不做水平移动
       const shift = keys.ShiftLeft || keys.ShiftRight;
-      const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : shift ? 2.6 : 1.4) * dt, fwd = new THREE.Vector3();   // 趴下最慢（Shift 爬行加速）、蹲下次之、Shift 快走
-      camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
-      const right = new THREE.Vector3(-fwd.z, 0, fwd.x), mv = new THREE.Vector3();
+      const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : shift ? 2.6 : 1.4) * dt, mv = new THREE.Vector3();   // 趴下最慢（Shift 爬行加速）、蹲下次之、Shift 快走
+      const right = new THREE.Vector3(-fwd.z, 0, fwd.x);
       if (keys.KeyW || keys.ArrowUp) mv.add(fwd); if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
       if (keys.KeyD || keys.ArrowRight) mv.add(right); if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
       if (touchWalk) { mv.addScaledVector(fwd, -joy.y).addScaledVector(right, joy.x); }
       const mag = Math.min(1, mv.length());        // 摇杆推得越远走得越快
       if (mag < .05) return;
       mv.normalize().multiplyScalar(sp * mag);
-      const p = camera.position;
       if (!blocked(p.x + mv.x, p.z, .22, footH)) p.x += mv.x;
       if (!blocked(p.x, p.z + mv.z, .22, footH)) p.z += mv.z;
     }
@@ -16011,11 +16071,15 @@
       if (!active || e.target.matches('input,select,textarea')) return;
       if (opt.mode === 'walk' && e.code === 'Space') e.preventDefault();   // 空格用于跳跃，阻止页面滚动
       if (opt.mode === 'walk' && e.code === 'KeyZ') proneOn = !proneOn;    // Z 切换趴下 / 起身
+      if (opt.mode === 'walk' && e.code === 'KeyR' && !keys.KeyR) climbArmed = true;   // R 起攀（按住贴墙向上爬，R+S 向下）
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
       if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); }
     });
-    addEventListener('keyup', e => keys[e.code] = false);
+    addEventListener('keyup', e => {
+      if (e.code === 'KeyR' && climbWall) { fallY += climbY; climbY = 0; climbWall = null; climbHold = false; }   // 松开 R：从当前高度落下（到墙顶则已站稳）
+      keys[e.code] = false;
+    });
 
     /* ======================= 工具栏 ======================= */
     function syncModeBtns() { document.querySelectorAll('#modes3d .btn').forEach(b => b.classList.toggle('on', b.dataset.mode === opt.mode)); }
@@ -16026,7 +16090,7 @@
         tr('点门开关 · 点「退出漫游」回到鸟瞰', 'Tap doors to open · "Exit walk" returns to orbit')]
         : [tr('点击开始，从入户门进入', 'Click to start at the front door'),
         tr('<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> 移动 · 鼠标转向 · <kbd>Shift</kbd> 快走 · <kbd>Ctrl</kbd> 蹲下', '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move · mouse looks · <kbd>Shift</kbd> runs · <kbd>Ctrl</kbd> crouch'),
-        tr('<kbd>C</kbd> 也可蹲下 · <kbd>Z</kbd> 切换趴下 · <kbd>E</kbd> 交互 · <kbd>空格</kbd> 跳跃 · <kbd>Esc</kbd> 暂停', '<kbd>C</kbd> also crouches · <kbd>Z</kbd> toggles prone · <kbd>E</kbd> interact · <kbd>Space</kbd> jumps · <kbd>Esc</kbd> pauses')];
+        tr('<kbd>C</kbd> 也可蹲下 · <kbd>Z</kbd> 切换趴下 · <kbd>R</kbd> 贴墙攀爬（<kbd>R</kbd>+<kbd>S</kbd> 下爬）· <kbd>E</kbd> 交互 · <kbd>空格</kbd> 跳跃 · <kbd>Esc</kbd> 暂停', '<kbd>C</kbd> also crouches · <kbd>Z</kbd> toggles prone · <kbd>R</kbd> climbs walls (<kbd>R</kbd>+<kbd>S</kbd> descends) · <kbd>E</kbd> interact · <kbd>Space</kbd> jumps · <kbd>Esc</kbd> pauses')];
       t.forEach((h, i) => $('#wo' + (i + 1)).innerHTML = h);
       syncHint3d();
     }
