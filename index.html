@@ -8186,10 +8186,11 @@
       <label>${tr('梯长', 'Length')} (mm)<input type="number" id="sLen" value="${Math.round(s.len)}" min="2000" max="12000" step="50"></label>
       <label>${tr('上行方向', 'Ascend')}<select id="sDir">${dirs.map(([v, t]) => `<option value="${v}" ${s.dir === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('爬升高度', 'Rise')} (mm)<input type="number" id="sRise" value="${rise}" min="800" max="6000" step="10"></label>
+      <label class="full">${tr('扶手材质', 'Handrail material')}<select id="sHandMat">${[['black', tr('黑色橡胶', 'Black rubber')], ['steel', tr('不锈钢', 'Stainless steel')], ['wood', tr('木纹', 'Wood')]].map(([v, t]) => `<option value="${v}" ${(s.handMat || 'black') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 半透明玻璃栏板 + 黑色扶手带与两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送上行，也可步行上下。`, `Incline about ${deg}°. 3D shows slim truss beams, translucent glass balustrades with black handrails and golden comb plates, steps continuously moving up; standing on it in roam mode carries you up automatically.`)}</div>
+    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 半透明玻璃栏板 + 可选材质的扶手带与两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送上行，也可步行上下。`, `Incline about ${deg}°. 3D shows slim truss beams, translucent glass balustrades, handrails in the chosen material and golden comb plates, steps continuously moving up; standing on it in roam mode carries you up automatically.`)}</div>
     <div class="actions"><button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上行方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button></div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
@@ -8387,6 +8388,8 @@
       set('sLen', (s, v) => s.len = Math.max(2000, Math.min(12000, Math.round(v / 50) * 50)));
       set('sRise', (s, v) => s.rise = Math.max(800, Math.min(6000, Math.round(v / 10) * 10)));
       set('sDir', (s, v) => s.dir = v);
+      const hm = $('#sHandMat');                              // 扶手材质：黑色橡胶 / 不锈钢 / 木纹
+      if (hm) hm.onchange = e => mutate(() => { const s = g(); if (s) s.handMat = e.target.value; });
       set('sX', (s, v) => s.x = Math.round(v / 10) * 10);
       set('sY', (s, v) => s.y = Math.round(v / 10) * 10);
       const fx = $('#aFlipX');
@@ -13900,8 +13903,9 @@
       g.rotation.y = -s.dir * Math.PI / 180 + (s.flipX ? Math.PI : 0);   // 前后翻转 = 整段调头，上行方向反过来
       const ang = Math.atan2(H, L), sl = Math.hypot(L, H);
       const nx = -Math.sin(ang), ny = Math.cos(ang);
-      const metal = mat('#9aa2ab', { metalness: .55, roughness: .45 }), dark = mat('#34383d', { roughness: .7 }),
+      const metal = mat('#9aa2ab', { metalness: .55, roughness: .45 }),
         tread = mat('#565d66', { roughness: .8 }), comb = mat('#c9a44a', { roughness: .6 });
+      const railMat = ({ black: mat('#34383d', { roughness: .7 }), steel: mat('#b9c0c8', { metalness: .75, roughness: .28 }), wood: mat('#8a6a48', { roughness: .6 }) })[s.handMat] || mat('#34383d', { roughness: .7 });   // 扶手带材质：黑色橡胶（默认）/ 不锈钢 / 木纹
       const glass = mat('#c3d2d8', { metalness: .1, roughness: .2, transparent: true, opacity: .3, depthWrite: false });
       const railH = .92, dRail = railH + .038;                 // 栏板 / 扶手相对梯级面的高度（沿斜面法线）
       [-1, 1].forEach(sd => {
@@ -13911,14 +13915,14 @@
         const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), glass);  // 玻璃栏板：中心沿法线抬半个高度，底边正好贴斜面
         panel.position.set(nx * railH / 2, H / 2 + ny * railH / 2, sd * (W / 2 - .018)); panel.rotation.z = ang;
         g.add(panel);
-        const rail = new THREE.Mesh(new THREE.BoxGeometry(sl, .075, .1), dark);      // 扶手带：紧贴栏板顶边，不悬空
+        const rail = new THREE.Mesh(new THREE.BoxGeometry(sl, .075, .1), railMat);   // 扶手带：紧贴栏板顶边，不悬空
         rail.position.set(nx * dRail, H / 2 + ny * dRail, sd * (W / 2 - .018)); rail.rotation.z = ang;
         rail.castShadow = true; g.add(rail);
         [-1, 1].forEach(e => {                                 // 两端扶手水平回转段 + 圆端头，消除斜切生硬感
           const x0 = e * L / 2 + nx * dRail, y0 = (e < 0 ? 0 : H) + ny * dRail;
-          const hr = new THREE.Mesh(new THREE.BoxGeometry(.36, .075, .1), dark);
+          const hr = new THREE.Mesh(new THREE.BoxGeometry(.36, .075, .1), railMat);
           hr.position.set(x0 + e * .18, y0, sd * (W / 2 - .018)); hr.castShadow = true; g.add(hr);
-          const cap = new THREE.Mesh(new THREE.SphereGeometry(.052, 10, 8), dark);
+          const cap = new THREE.Mesh(new THREE.SphereGeometry(.052, 10, 8), railMat);
           cap.position.set(x0 + e * .36, y0, sd * (W / 2 - .018)); g.add(cap);
         });
       });

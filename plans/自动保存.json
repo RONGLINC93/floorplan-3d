@@ -106,35 +106,15 @@
   "weakBoxes": [],
   "stairs": [
     {
-      "id": "fmwngi6m850",
-      "x": 5760,
-      "y": 7370,
-      "w": 1000,
-      "len": 4000,
-      "dir": 0,
-      "rise": 2800,
-      "runs": 1
-    },
-    {
-      "id": "fmwngi7mh51",
+      "id": "fmwngra0r50",
       "x": 8130,
       "y": 7370,
       "w": 1000,
       "len": 4400,
       "dir": 0,
       "rise": 2400,
-      "type": "esc"
-    },
-    {
-      "id": "fmwngi8ly52",
-      "x": 10510,
-      "y": 7370,
-      "w": 1200,
-      "len": 4000,
-      "dir": 0,
-      "rise": 600,
-      "runs": 1,
-      "type": "ramp"
+      "type": "esc",
+      "handMat": "wood"
     }
   ],
   "layers": {
