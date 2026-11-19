@@ -273,7 +273,8 @@
       "c": 5028.185546875,
       "w": 900,
       "kind": "sd",
-      "flip": true
+      "flip": false,
+      "dir": -1
     },
     {
       "id": "fmwmuecja94",
