@@ -4002,11 +4002,11 @@
           const mm = [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2], r = o.w / 2;
           s += `<circle cx="${mm[0]}" cy="${mm[1]}" r="${r}" fill="#f7fbfd" ${RS}/>`;
           s += `<circle cx="${mm[0]}" cy="${mm[1]}" r="${r * .22}" fill="none" ${RS} ${NE}/>`;
-          [0, 1, 2].forEach(k => {                              // 三翼：从中心到外缘，均布 120°（与 3D 一致）
-            const ang = Math.PI / 4 + k * Math.PI * 2 / 3, ex = Math.cos(ang) * r * .92, ey = Math.sin(ang) * r * .92;
+          [0, 1, 2].forEach(k => {                              // 三翼：从中心到外缘，均布 120°，起步沿墙方向（与 3D 初始相位一致）
+            const ang = Math.atan2(u[1], u[0]) + k * Math.PI * 2 / 3, ex = Math.cos(ang) * r * .92, ey = Math.sin(ang) * r * .92;
             s += `<line x1="${mm[0]}" y1="${mm[1]}" x2="${mm[0] + ex}" y2="${mm[1] + ey}" ${RS} ${NE}/>`;
           });
-          s += `<path d="M${mm[0] + r * .55} ${mm[1] - r * .55}A${r * .78} ${r * .78} 0 0 1 ${mm[0] + r * .95} ${mm[1]}" fill="none" ${RS} stroke-dasharray="60 40" ${NE}/>`;
+          s += `<path d="M${mm[0] + r * .95} ${mm[1]}A${r * .78} ${r * .78} 0 0 0 ${mm[0] + r * .55} ${mm[1] - r * .55}" fill="none" ${RS} stroke-dasharray="60 40" ${NE}/>`;   // 转向箭头：屏幕逆时针（sweep=0），与 3D 旋翼 rotation.y 增大的转向一致；此前 sweep=1 画反
         } else if (o.kind === 'cwin') {                      // 圆窗：以洞口中心画圆 + 圆心十字
           const CS = 'stroke="#2e6e8e" stroke-width="1.2" vector-effect="non-scaling-stroke"';
           const mm = [(P0[0] + P1[0]) / 2, (P0[1] + P1[1]) / 2], r = o.w / 2;
