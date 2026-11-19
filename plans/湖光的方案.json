@@ -701,6 +701,175 @@
       "w": 2400,
       "kind": "slid",
       "flip": true
+    },
+    {
+      "id": "fmwnnbcjx99",
+      "wall": "CWfmwnfibnc114",
+      "c": 4329.863980044046,
+      "w": 1500,
+      "kind": "bay",
+      "flip": false,
+      "sill": 500,
+      "wh": 1200,
+      "bayDepth": 600,
+      "panes": 3,
+      "bayFlip": true
+    },
+    {
+      "id": "fmwnnbrzx100",
+      "wall": "CWfmwnfib2j113",
+      "c": 2747.3803550237567,
+      "w": 900,
+      "kind": "niche",
+      "flip": true,
+      "sill": 900,
+      "wh": 700,
+      "nd": 250
+    },
+    {
+      "id": "fmwnnc2hw101",
+      "wall": "CWfmwnfib2j113",
+      "c": 5418.038021656005,
+      "w": 1200,
+      "kind": "louver",
+      "flip": true,
+      "sill": 900,
+      "wh": 1200
+    },
+    {
+      "id": "fmwnnc4a8102",
+      "wall": "CWfmwnfib2j113",
+      "c": 6944.222505493894,
+      "w": 3000,
+      "kind": "strip",
+      "flip": false,
+      "sill": 600,
+      "wh": 1500
+    },
+    {
+      "id": "fmwnnc6zz103",
+      "wall": "CWfmwnfib2j113",
+      "c": 10696.84703220456,
+      "w": 900,
+      "kind": "cwin",
+      "flip": true,
+      "sill": 900
+    },
+    {
+      "id": "fmwnnc9pc105",
+      "kind": "fwin",
+      "wall": "CWfmwnfibnc114",
+      "c": 0,
+      "w": 1200,
+      "sill": 0,
+      "dh": 2400,
+      "cg": "fmwnnc9pc104"
+    },
+    {
+      "id": "fmwnnc9pc106",
+      "kind": "fwin",
+      "wall": "CWfmwnfib2j113",
+      "c": 14490,
+      "w": 1200,
+      "sill": 0,
+      "dh": 2400,
+      "cg": "fmwnnc9pc104"
+    },
+    {
+      "id": "fmwnncdk2107",
+      "wall": "CWfmwnfib2j113",
+      "c": 200.1204159789687,
+      "w": 1500,
+      "kind": "dwin",
+      "flip": true
+    },
+    {
+      "id": "fmwnncil0108",
+      "wall": "CWfmwnfieyn116",
+      "c": 3452.651364772968,
+      "w": 1500,
+      "kind": "swin",
+      "flip": false,
+      "sill": 900,
+      "wh": 1200,
+      "panes": 2
+    },
+    {
+      "id": "fmwnncmfk109",
+      "wall": "CWfmwnfieyn116",
+      "c": 589.4772370303672,
+      "w": 1800,
+      "kind": "fwin",
+      "flip": true
+    },
+    {
+      "id": "fmwnncoiq110",
+      "wall": "CWfmwnfieyn116",
+      "c": 5143.598934037308,
+      "w": 1200,
+      "kind": "hwin",
+      "flip": false,
+      "sill": 1400
+    },
+    {
+      "id": "fmwnncqnj111",
+      "wall": "CWfmwnfic89115",
+      "c": 5960,
+      "w": 1200,
+      "kind": "window",
+      "flip": false
+    },
+    {
+      "id": "fmwnnd8ps112",
+      "wall": "CWfmwnfic89115",
+      "c": 8096.966537333206,
+      "w": 1800,
+      "kind": "fold",
+      "flip": true
+    },
+    {
+      "id": "fmwnndfjn113",
+      "wall": "CWfmwnfic89115",
+      "c": 14256.960678752586,
+      "w": 1200,
+      "kind": "arch",
+      "flip": false,
+      "sh": 2100,
+      "rise": 600
+    },
+    {
+      "id": "fmwnndheu114",
+      "wall": "CWfmwnfic89115",
+      "c": 10269.345632878907,
+      "w": 900,
+      "kind": "hole",
+      "flip": true,
+      "sill": 900,
+      "wh": 900
+    },
+    {
+      "id": "fmwnndk38115",
+      "wall": "CWfmwnfic89115",
+      "c": 1310.3892326034165,
+      "w": 1200,
+      "kind": "yak",
+      "flip": false
+    },
+    {
+      "id": "fmwnndm1q116",
+      "wall": "CWfmwnfibnc114",
+      "c": 2859.462686437895,
+      "w": 1200,
+      "kind": "zimu",
+      "flip": false
+    },
+    {
+      "id": "fmwnndod4117",
+      "wall": "CWfmwnfib2j113",
+      "c": 12137.341617090793,
+      "w": 1500,
+      "kind": "dble",
+      "flip": false
     }
   ],
   "deletedWalls": [

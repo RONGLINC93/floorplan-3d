@@ -2979,7 +2979,7 @@
 
   <script src="./libs/lucide.min.js"></script>
   <script>
-    lucide.createIcons();
+    lucide.createIcons({ icons: { ...lucide.icons, Ladder: [['path', { d: 'M6 3v18' }], ['path', { d: 'M18 3v18' }], ['path', { d: 'M6 7.5h12' }], ['path', { d: 'M6 12h12' }], ['path', { d: 'M6 16.5h12' }]] } });   // 本地打包的 lucide 没有 ladder 图标，补一个自绘的（两条立柱 + 三根踏棍）
     /* ======================= 多语言（中文 / English，默认中文） ======================= */
     const LANG_KEY = 'huxing-lang';
     const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字）/ English
