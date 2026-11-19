@@ -15713,7 +15713,7 @@
     const HINT_ORBIT = () => COARSE ? tr('单指旋转 · 双指缩放 / 平移 · 点选家具后可拖动摆放 · 点门开关', '1 finger orbits · 2 fingers zoom / pan · select furniture to drag it · tap doors to open')
       : tr('左键旋转 · 右键平移 · 滚轮缩放 · 选中家具后拖动可摆放 · 点击门开关', 'Left-drag orbits · right-drag pans · scroll zooms · select furniture to drag it · click doors to open');
     const HINT_TOUCHWALK = () => tr('左下摇杆移动 · 拖动画面转向 · 点门开关', 'Joystick moves · drag to look · tap doors to open');
-    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · 空格跳跃 · E 开关门 · 点击射击 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Space jumps · E opens doors · click to shoot · Esc pauses');
+    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · Z 切换趴下 · 空格跳跃 · E 开关门 · 点击射击 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · Space jumps · E opens doors · click to shoot · Esc pauses');
     function syncHint3d() { $('#hint3d').textContent = opt.mode === 'orbit' ? HINT_ORBIT() : touchWalk ? HINT_TOUCHWALK() : HINT_WALK(); }
     let touchWalk = false;
     const joy = { x: 0, y: 0, id: null }, eul = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -15749,6 +15749,7 @@
       opt.mode = m; syncModeBtns();
       if (m === 'walk') {
         window.select(null);
+        proneOn = false;                                                 // 进入漫游时恢复站立姿态
         if (opt.cut < H) { opt.cut = H; syncCutBtns(); sync(); }
         orbit.enabled = false; fly = null;
         const eg = entryGeom();
@@ -15887,16 +15888,22 @@
     }
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
     let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
-    let crouchT = 0;                                             // 下蹲插值：0 站立 ~ 1 全蹲（Ctrl 按住蹲下，松开站起）
-    const EYE_STAND = 1.6, EYE_CROUCH = .9, HEAD_CROUCH = 1.15;  // 站立视高 / 蹲下视高 / 蹲下头顶高（站立头顶 1.6m）
+    let crouchT = 0;                                             // 姿态插值：0 站立 ~ 1 全蹲 ~ 2 趴下（Ctrl/C 按住蹲下、Z 切换趴下）
+    let proneOn = false;                                         // 趴下开关状态（Z 键切换：再按一次起身）
+    const EYE_STAND = 1.6, EYE_CROUCH = .9, EYE_PRONE = .45;     // 站立视高 / 蹲下视高 / 趴下视高
+    const HEAD_CROUCH = 1.15, HEAD_PRONE = .4;                   // 蹲下头顶高 / 趴下头顶高（站立头顶 1.6m）
     let eyeH = EYE_STAND, headH = EYE_STAND;                     // 当前视高 / 头顶高（随姿态插值，blocked() 判头高用）
+    function postureHeights(t) {                                 // 姿态 → 视高 / 头顶高：0~1 站→蹲，1~2 蹲→趴
+      if (t <= 1) { eyeH = EYE_STAND - (EYE_STAND - EYE_CROUCH) * t; headH = EYE_STAND - (EYE_STAND - HEAD_CROUCH) * t; }
+      else { eyeH = EYE_CROUCH - (EYE_CROUCH - EYE_PRONE) * (t - 1); headH = HEAD_CROUCH - (HEAD_CROUCH - HEAD_PRONE) * (t - 1); }
+    }
     function stepWalk(dt) {
       if (!walkCtl.isLocked && !touchWalk) return;
-      const wantCrouch = !!(keys.ControlLeft || keys.ControlRight || keys.KeyC) && jumpY <= 0 && jumpV <= 0;   // Ctrl（或 C）蹲下：滞空时保持当前姿态，落回地面再生效
-      crouchT += ((wantCrouch ? 1 : 0) - crouchT) * Math.min(1, dt * 9);   // 站起 / 蹲下平滑过渡
-      eyeH = EYE_STAND - (EYE_STAND - EYE_CROUCH) * crouchT;
-      headH = EYE_STAND - (EYE_STAND - HEAD_CROUCH) * crouchT;
-      if (keys.Space && jumpY <= 0 && jumpV <= 0) jumpV = 3.1;   // 空格起跳（按住落地自动连跳）
+      const grounded = jumpY <= 0 && jumpV <= 0;                 // 滞空时保持当前姿态，落回地面再生效
+      const wantPosture = !grounded ? 0 : proneOn ? 2 : (keys.ControlLeft || keys.ControlRight || keys.KeyC) ? 1 : 0;   // 目标姿态：Z 切换的趴下（优先）＞ Ctrl/C 按住蹲下 ＞ 站立
+      crouchT += (wantPosture - crouchT) * Math.min(1, dt * 9);  // 站起 / 蹲下 / 趴下平滑过渡
+      postureHeights(crouchT);
+      if (keys.Space && crouchT < 1.2 && jumpY <= 0 && jumpV <= 0) jumpV = 3.1;   // 空格起跳（趴下时不能起跳，需先起身；按住落地自动连跳）
       if (jumpY > 0 || jumpV > 0) { jumpY += jumpV * dt; jumpV -= 9.5 * dt; if (jumpY <= 0) { jumpY = 0; jumpV = 0; } }
       const gy = stairH(camera.position.x, camera.position.z, camera.position.y - eyeH - jumpY);   // 此处的支撑高度（地面 / 楼梯踏步 / 平台）
       if (fallY === null) fallY = gy;
@@ -15907,7 +15914,8 @@
       } else fallY = gy;                                       // 贴地行走 / 上台阶
       const footH = fallY + jumpY;
       camera.position.y = eyeH + footH;
-      const sp = (crouchT > .5 ? .7 : keys.ShiftLeft || keys.ShiftRight ? 2.6 : 1.4) * dt, fwd = new THREE.Vector3();   // 蹲下时放慢脚步
+      const shift = keys.ShiftLeft || keys.ShiftRight;
+      const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : shift ? 2.6 : 1.4) * dt, fwd = new THREE.Vector3();   // 趴下最慢（Shift 爬行加速）、蹲下次之、Shift 快走
       camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
       const right = new THREE.Vector3(-fwd.z, 0, fwd.x), mv = new THREE.Vector3();
       if (keys.KeyW || keys.ArrowUp) mv.add(fwd); if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
@@ -16001,6 +16009,7 @@
     addEventListener('keydown', e => {
       if (!active || e.target.matches('input,select,textarea')) return;
       if (opt.mode === 'walk' && e.code === 'Space') e.preventDefault();   // 空格用于跳跃，阻止页面滚动
+      if (opt.mode === 'walk' && e.code === 'KeyZ') proneOn = !proneOn;    // Z 切换趴下 / 起身
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
       if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); }
@@ -16016,7 +16025,7 @@
         tr('点门开关 · 点「退出漫游」回到鸟瞰', 'Tap doors to open · "Exit walk" returns to orbit')]
         : [tr('点击开始，从入户门进入', 'Click to start at the front door'),
         tr('<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> 移动 · 鼠标转向 · <kbd>Shift</kbd> 快走 · <kbd>Ctrl</kbd> 蹲下', '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move · mouse looks · <kbd>Shift</kbd> runs · <kbd>Ctrl</kbd> crouch'),
-        tr('<kbd>C</kbd> 也可蹲下 · <kbd>E</kbd> 交互 · <kbd>空格</kbd> 跳跃 · <kbd>Esc</kbd> 暂停', '<kbd>C</kbd> also crouches · <kbd>E</kbd> opens the door ahead · <kbd>Space</kbd> jumps · <kbd>Esc</kbd> pauses')];
+        tr('<kbd>C</kbd> 也可蹲下 · <kbd>Z</kbd> 切换趴下 · <kbd>E</kbd> 交互 · <kbd>空格</kbd> 跳跃 · <kbd>Esc</kbd> 暂停', '<kbd>C</kbd> also crouches · <kbd>Z</kbd> toggles prone · <kbd>E</kbd> interact · <kbd>Space</kbd> jumps · <kbd>Esc</kbd> pauses')];
       t.forEach((h, i) => $('#wo' + (i + 1)).innerHTML = h);
       syncHint3d();
     }
