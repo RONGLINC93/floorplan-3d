@@ -15886,11 +15886,19 @@
       return near.length ? Math.max(...near) : Math.min(...cand);
     }
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
+    let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
     function stepWalk(dt) {
       if (!walkCtl.isLocked && !touchWalk) return;
       if (keys.Space && jumpY <= 0 && jumpV <= 0) jumpV = 3.1;   // 空格起跳（按住落地自动连跳）
       if (jumpY > 0 || jumpV > 0) { jumpY += jumpV * dt; jumpV -= 9.5 * dt; if (jumpY <= 0) { jumpY = 0; jumpV = 0; } }
-      const footH = stairH(camera.position.x, camera.position.z, camera.position.y - 1.6 - jumpY) + jumpY;
+      const gy = stairH(camera.position.x, camera.position.z, camera.position.y - 1.6 - jumpY);   // 此处的支撑高度（地面 / 楼梯踏步 / 平台）
+      if (fallY === null) fallY = gy;
+      if (jumpY > 0 || jumpV > 0) {                            // 跳跃滞空：支撑高度暂不追，落回时再衔接
+      } else if (gy < fallY - .3 || fallV !== 0) {             // 支撑面高差超过一步（走出平台边 / 台阶边）：进入跌落，重力下坠；楼梯踏步高 ≤ .2m 仍贴地顺走
+        fallV -= 9.5 * dt; fallY += fallV * dt;
+        if (fallY <= gy) { fallY = gy; fallV = 0; }            // 落到支撑面：跌落结束
+      } else fallY = gy;                                       // 贴地行走 / 上台阶
+      const footH = fallY + jumpY;
       camera.position.y = 1.6 + footH;
       const sp = (keys.ShiftLeft || keys.ShiftRight ? 2.6 : 1.4) * dt, fwd = new THREE.Vector3();
       camera.getWorldDirection(fwd); fwd.y = 0; fwd.normalize();
