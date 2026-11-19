@@ -12342,7 +12342,7 @@
         const tap = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) <= TAP;
         if (look?.id === e.pointerId) {
           look = null;
-          if (tap) { const h = pick(e); if (h?.door && h.dist < 3.5) h.door.open = !h.door.open; else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else shoot(e); }   // 漫游时点门开关 / 点旗杆升降旗 / 点灯具或开关灯；点别处 = 射击
+          if (tap) { const h = pick(e); if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else shoot(e); }   // 漫游时点门开关 / 点旗杆升降旗 / 点灯具或开关灯；点别处 = 射击
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
@@ -13979,7 +13979,12 @@
       const dH = DH, lH = H - dH;                                 // 门洞过梁
       if (lH > .01) add(t, lH, DW, W / 2 - t / 2, dH + lH / 2, DOFF, shMat);
       const leaf = DW / 2 + .01;                                  // 每扇略过半洞宽：闭合时中缝重叠，不留缝
-      const edoor = { slide: true, open: false, cur: 0, pivots: [] };
+      const edoor = { slide: true, lift: true, open: false, cur: 0, pivots: [] };   // 两扇共用一个门对象：点门扇 / E 键手动开合，开门延时自动关；门开后可走进轿厢
+      {                                                     // 门洞中点世界坐标（自动关门时判断玩家是否还在门口 / 轿厢附近）
+        const th0 = -(l.dir || 0) * Math.PI / 180;
+        edoor.gx = wx(l.x) + W / 2 * Math.cos(th0) + DOFF * Math.sin(th0);
+        edoor.gz = wz(l.y) - W / 2 * Math.sin(th0) + DOFF * Math.cos(th0);
+      }
       [-1, 1].forEach(sd => {
         const pg = new THREE.Group();
         pg.position.set(W / 2 - t - .02, 0, DOFF + sd * DW / 4);
@@ -14013,9 +14018,16 @@
       call.castShadow = true; call.userData.door = edoor; g.add(call);
       doors.push(edoor);
       archUp.add(g);
-      const a = (l.dir || 0) * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a));
-      const hx = (c * W + s * D) / 2, hz = (s * W + c * D) / 2;
-      colliders.push([wx(l.x) - hx, wz(l.y) - hz, wx(l.x) + hx, wz(l.y) + hz]);   // 井道整体占位
+      const th = -(l.dir || 0) * Math.PI / 180, ct = Math.cos(th), st = Math.sin(th);
+      const pushCol = (lx0, lz0, lx1, lz1) => {                  // 井道壁逐面占位（门洞处留缺口）：门开 / 自动滑开后可走进轿厢，整体外接盒会把轿厢变成进不去的实心块
+        const px = [lx0 * ct + lz0 * st, lx1 * ct + lz1 * st], pz = [-lx0 * st + lz0 * ct, -lx1 * st + lz1 * ct];
+        colliders.push([wx(l.x) + Math.min(...px), wz(l.y) + Math.min(...pz), wx(l.x) + Math.max(...px), wz(l.y) + Math.max(...pz)]);
+      };
+      pushCol(-W / 2, -D / 2, -W / 2 + t, D / 2);                // 左壁（-X）
+      pushCol(-W / 2, -D / 2, W / 2, -D / 2 + t);                // 后壁（-Z）
+      pushCol(-W / 2, D / 2 - t, W / 2, D / 2);                  // 前壁（+Z）
+      pushCol(W / 2 - t, -D / 2, W / 2, z0);                     // 门洞侧墙垛（+X）
+      pushCol(W / 2 - t, z1, W / 2, D / 2);
     }
     function buildOpening3D(A, B, o, top, T) {
       if (o.kind === 'lbay') {                                    // 转角飘窗：两段各自建，共用窗台 / 窗高 / 进深
@@ -14451,7 +14463,7 @@
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;   // 沿墙单位方向（世界系）
         const pm = mat('#c6ccd1', { roughness: .4, metalness: .5 });
-        const edoor = { slide: true, open: false, cur: 0, pivots: [] };   // 两扇共用一个门对象：点任意一扇，两扇同步开合
+        const edoor = { slide: true, lift: true, open: false, cur: 0, pivots: [], gx: mx, gz: mz };   // 两扇共用一个门对象：点任意一扇 / E 键手动开合，开门延时自动关；门开后可穿行
         [-1, 1].forEach(sd => {                              // 两扇：闭合时从中缝到各自洞口端，开启时滑向墙内
           const pw = L / 2 - .01, pg = new THREE.Group();
           pg.position.set(mx + dx * sd * L / 4, 0, mz + dz * sd * L / 4); pg.rotation.y = rot;
@@ -14914,6 +14926,7 @@
           const post = new THREE.Mesh(new THREE.BoxGeometry(ps, H, ps), outWood);
           post.position.set(x0 + (x1 - x0 - ps) * i / (nx - 1) + ps / 2, H / 2, z0 + (z1 - z0 - ps) * j / (ny - 1) + ps / 2);
           post.castShadow = post.receiveShadow = true; archUp.add(post);
+          colliders.push([post.position.x - ps / 2, post.position.z - ps / 2, post.position.x + ps / 2, post.position.z + ps / 2]);   // 廊架立柱挡人（顶部格栅悬空不挡）
         }
         [z0, z1].forEach(z => {
           const b = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, beam, beam), outWood);
@@ -14956,6 +14969,7 @@
         };
         curb(w, cp, wx(p.x), z0 + cp / 2); curb(w, cp, wx(p.x), z0 + d - cp / 2);
         curb(cp, d - cp * 2, x0 + cp / 2, wz(p.y)); curb(cp, d - cp * 2, x0 + w - cp / 2, wz(p.y));
+        colliders.push([x0 + cp, z0 + cp, x0 + w - cp, z0 + d - cp]);   // 泳池水体占碰撞：不能走进水里（池沿可绕行）
         markNew(s0, 'pool', p.id);
       });
       (state.gates || []).forEach(g => {                     // 院门：两端门柱 + 双扇外开门扇（按开启角度，3D 可点击开关）
@@ -14971,12 +14985,13 @@
         [A, B].forEach(P => {
           const post = new THREE.Mesh(new THREE.BoxGeometry(PS, PH, PS), postMat);
           post.position.set(P[0], PH / 2, P[1]); post.castShadow = post.receiveShadow = true; archUp.add(post);
+          colliders.push([P[0] - PS / 2, P[1] - PS / 2, P[0] + PS / 2, P[1] + PS / 2]);   // 门柱挡人
         });
         const addLeaf = (O, dir, trim = 0) => {                // O 铰链点，dir 关门时门扇沿墙的朝向，trim 中缝留缝
           const base = Math.atan2(-uz * dir, ux * dir), Lh = Math.max(.2, L / 2 - PS / 2 - trim), HH = Math.max(.4, GH - .05);
           const outer = new THREE.Group(); outer.position.set(O[0], 0, O[1]); outer.rotation.y = base;
           const pg = new THREE.Group();
-          const leaf = { pivot: pg, a0: 0, a1: -dir * sd * Math.PI / 2, open: false, cur: 0 };   // 默认关闭，点击门扇完全打开 90°
+          const leaf = { pivot: pg, a0: 0, a1: -dir * sd * Math.PI / 2, open: false, cur: 0, len: Lh };   // 默认关闭，点击门扇完全打开 90°；len 供碰撞按实际扇宽判定
           pg.rotation.y = leaf.cur;
           const pane = new THREE.Mesh(new THREE.BoxGeometry(Lh, HH, .05), leafMat);
           pane.position.set(Lh / 2, HH / 2, 0); pane.castShadow = true; pane.userData.door = leaf; pg.add(pane);
@@ -15028,6 +15043,7 @@
             }
             if (T3 === 'flag') {                                // 旗杆：底座 + 细杆 + 顶球 + 竖直旗面 + 升降手柄
               const r = Math.max(.02, M(e.w || 120) / 2);
+              colliders.push([px - r * 4, pz - r * 4, px + r * 4, pz + r * 4]);   // 按底座半径挡人（旗面悬空不挡）
               const base = new THREE.Mesh(new THREE.CylinderGeometry(r * 3.2, r * 4, .45, 16), mat('#c9c3b5', { roughness: .9 }));
               base.position.set(px, .225, pz); base.castShadow = base.receiveShadow = true; archUp.add(base);
               const pole = new THREE.Mesh(new THREE.CylinderGeometry(r, r * 1.3, h, 10), mat('#d8d5cc', { metalness: .4, roughness: .5 }));
@@ -15041,6 +15057,7 @@
               return;
             }
             const r = Math.max(.02, M(e.w || 100) / 2);
+            colliders.push([px - r - .02, pz - r - .02, px + r + .02, pz + r + .02]);   // 雨水管细管也占碰撞
             const pipeMat = mat('#9aa1a6', { metalness: .5, roughness: .45 });
             const p = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), pipeMat);
             p.position.set(px, h / 2, pz); p.castShadow = true; archUp.add(p);
@@ -15059,6 +15076,7 @@
             if (T3 === 'retain') {                              // 挡土墙：实心墙 + 压顶
               box(L, h, w, mx, h / 2, mz, mat('#b9b2a3', { roughness: .95 }), rot);
               box(L + .02, .05, w + .06, mx, h + .025, mz, mat('#cdc6b6', { roughness: .9 }), rot);
+              pushWallCollider(e.a, e.b, (e.w || 300));         // 实心挡土墙挡人
             } else if (T3 === 'gutter') {                       // 天沟：深色槽底 + 两侧沟壁
               box(L, h, w, mx, h / 2, mz, mat('#8f8b80', { roughness: .9 }), rot);
               const ny = [Math.sin(rot), Math.cos(rot)];          // 墙厚方向的单位向量（3D 中 x/z）
@@ -15140,6 +15158,7 @@
             [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
               const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 12), colM);
               c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
+              colliders.push([px - cr, pz - cr, px + cr, pz + cr]);   // 凉亭立柱挡人
             });
             box(w, .1, d, cx, h + .05, cz, roofM);
             box(w + .3, .12, d + .3, cx, h + .16, cz, mat('#6f5f49', { roughness: .9 }));
@@ -15151,6 +15170,7 @@
             [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
               const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 10), colM);
               c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
+              colliders.push([px - cr, pz - cr, px + cr, pz + cr]);   // 车棚钢柱挡人
             });
             box(w + .25, .07, d + .25, cx, h + .035, cz, roofM);
             box(w + .25, .05, .08, cx, h + .09, z0 - .12, roofM); box(w + .25, .05, .08, cx, h + .09, z0 + d + .12, roofM);
@@ -15168,6 +15188,7 @@
           }
           if (T3 === 'shaft') {                                 // 管道井：四壁井道 + 顶部收口
             const h = Math.max(.6, M(e.h || 2800)), t = Math.max(.06, M(e.t || 120)), m = mat('#c2bbab', { roughness: .95 });
+            colliders.push([x0, z0, x0 + w, z0 + d]);           // 实体井道：整井占碰撞，人不能走进井里
             box(w, h, t, cx, h / 2, z0 + t / 2, m); box(w, h, t, cx, h / 2, z0 + d - t / 2, m);
             box(t, h, Math.max(.1, d - t * 2), x0 + t / 2, h / 2, cz, m); box(t, h, Math.max(.1, d - t * 2), x0 + w - t / 2, h / 2, cz, m);
             box(w + .06, .06, d + .06, cx, h + .03, cz, mat('#a9a293', { roughness: .9 }));
@@ -15242,6 +15263,7 @@
           }
           if (T3 === 'equip') {                                 // 设备基础：混凝土基础 + 机组体量
             const t = Math.max(.06, M(e.thick || 150)), y = M(e.z || 0), h = Math.max(.2, M(e.h || 800));
+            if (y < .3) colliders.push([x0, z0, x0 + w, z0 + d]);   // 落地设备基础挡人；架设在屋面（z 高）时不挡地面
             box(w, t, d, cx, y + t / 2, cz, mat('#c6bfae', { roughness: .95 }));
             box(w * .78, h, d * .78, cx, y + t + h / 2, cz, mat('#b8bcbf', { metalness: .35, roughness: .5 }));
             [-.28, 0, .28].forEach(f => box(w * .7, .02, .02, cx, y + t + h * (.45 + f), cz - d * .39 - .01, mat('#8b9094', { metalness: .4, roughness: .5 })));
@@ -15765,6 +15787,7 @@
       if (Math.hypot(bx - ax, bz - az) < .06) return;
       barriers.push([ax, az, bx, bz, Math.min(y0, y1), Math.max(y0, y1), reach ?? .12]);
     }
+    window.__walkDbg = () => ({ colliders, furnCols, doors, blocked, camera, state });   // TODO: 临时调试钩子，验证后删除
     function blocked(x, z, r = .22, footH = null) {
       for (const [x0, z0, x1, z1] of colliders) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
       for (const [x0, z0, x1, z1] of furnCols) if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;   // 家具外接盒：床 / 沙发 / 桌柜 / 洁具 / 电器等实物不可穿行（地毯与壁挂高位物除外，见 buildFurn）
@@ -15824,7 +15847,7 @@
           if (Math.hypot(x - (px2 + (ex2 - px2) * t), z - (pz2 + (ez2 - pz2) * t)) < r * .8) return true;
           continue;
         }
-        const a = d.pivot.rotation.y, px = d.pivot.position.x, pz = d.pivot.position.z, ex = px + Math.cos(a) * .9, ez = pz - Math.sin(a) * .9;
+        const ln = d.len ?? .9, a = d.pivot.rotation.y, px = d.pivot.position.x, pz = d.pivot.position.z, ex = px + Math.cos(a) * ln, ez = pz - Math.sin(a) * ln;   // 按门扇实际宽度判定（院门宽扇此前只挡靠铰链的 0.9m）
         const t = clamp01(((x - px) * (ex - px) + (z - pz) * (ez - pz)) / ((ex - px) ** 2 + (ez - pz) ** 2));
         if (Math.hypot(x - (px + t * (ex - px)), z - (pz + t * (ez - pz))) < r * .8) return true;
       }
@@ -15964,7 +15987,7 @@
       if (!active || e.target.matches('input,select,textarea')) return;
       if (opt.mode === 'walk' && e.code === 'Space') e.preventDefault();   // 空格用于跳跃，阻止页面滚动
       keys[e.code] = true;
-      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) h.door.open = !h.door.open; else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); }
+      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); }
     });
     addEventListener('keyup', e => keys[e.code] = false);
 
@@ -16006,6 +16029,10 @@
     function startLoop() { if (!raf) { clock.getDelta(); raf = requestAnimationFrame(loop); } }
     // 漫游门交互提醒：准星瞄准门（<2.5m）→ 门扇高亮 + 准星下方提示按键 / 点击
     const walkTip = document.createElement('div'); walkTip.id = 'walkDoorTip'; document.body.appendChild(walkTip);
+    const toggleDoor = d => {                                     // 电梯门手动开合统一入口：开门时记自动关定时，手动关时清掉
+      d.open = !d.open;
+      if (d.lift) d.tAuto = d.open ? performance.now() + 6000 : 0;   // 开门 6 秒后自动关（主循环按玩家位置顺延）
+    };
     function updateDoorWalkTip() {
       const walking = active && opt.mode === 'walk' && $('#walkOverlay').style.display !== 'flex';   // 未暂停
       const h = walking ? pick() : null;
@@ -16018,6 +16045,7 @@
           h.mesh.add(doorHiRef);
         }
         walkTip.textContent = h.door.auto ? tr('自动感应门（走近自动开合）', 'Automatic door (opens as you approach)')
+          : h.door.lift ? (touchWalk ? tr('点电梯门开关（稍后自动关）', 'Tap elevator door; auto-closes') : tr('点 / E 开电梯门（稍后自动关）', 'Tap / E to open; auto-closes'))
           : touchWalk ? (h.door.win ? tr('点窗开关', 'Tap to toggle') : tr('点门开关', 'Tap to toggle')) : (h.door.win ? tr('E 开关窗', 'Press E to toggle') : tr('E 开关门', 'Press E to toggle'));
         walkTip.classList.add('open');
       } else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5 && doorHiRef) {   // 瞄准旗杆（杆身 / 顶球 / 旗面）：高亮整根杆身 + 提示升降
@@ -16074,6 +16102,11 @@
           const dist = Math.hypot(p.x - d.mx, p.z - d.mz);      // 玩家到门中心的水平距离
           const near = dist < Math.max(1.8, d.half + 1.6) && p.y > d.base - .3 && p.y < d.top + .5;   // 接近门宽+余量，且玩家高度落在门洞附近（避免隔层触发）
           d.open = near;
+        });
+        doors.forEach(d => {                                  // 电梯门：手动开门后延时自动关；玩家在门口 / 轿厢附近则顺延，走远再关
+          if (!d.lift || !d.open || !d.tAuto || now <= d.tAuto) return;
+          if (Math.hypot(p.x - d.gx, p.z - d.gz) > 1.8) { d.open = false; d.tAuto = 0; }
+          else d.tAuto = now + 1200;
         });
       } else doors.forEach(d => { if (d.auto) d.open = false; });   // 非漫游态自动门关合
       doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起

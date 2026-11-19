@@ -169,8 +169,8 @@
       "w": 900,
       "kind": "elev",
       "flip": false,
-      "dh": 2100,
-      "sill": 1200,
+      "dh": 2200,
+      "sill": 1100,
       "btn": "l"
     },
     {
@@ -823,7 +823,7 @@
       "id": "fmwkbesmf93",
       "x": 18750,
       "y": 9040,
-      "flagY": 5500
+      "flagY": 800
     },
     {
       "type": "signbd",
