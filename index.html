@@ -4544,8 +4544,8 @@
           if (s.flipZ) runs.forEach(r => r.z = -r.z);       // 左右翻转：下行跑换到另一侧
           const za = Math.min(zc(0), zc(1)) - w / 2, zb = Math.max(zc(0), zc(1)) + w / 2;   // 双向休息平台：覆盖两跑整宽的端部平台板（抬高 150mm、外移 350mm，与单跑 / 双跑一致）；并排式仅高的一端，交叉式两端各一块（两端都有一跑到达上层）
           const mk = (a, b) => ({ x0: Math.min(a * f, b * f), x1: Math.max(a * f, b * f), z0: za, z1: zb, y: H });
-          const lo = Math.max(600, Math.min(3000, s.landOut ?? 1500));   // 双向端部平台外伸宽度（属性面板可调，默认 1500mm，内边距梯级端头 150mm）
-          const lands = cross ? [mk(s.len / 2 + 150, s.len / 2 + 150 + lo), mk(-s.len / 2 - 150 - lo, -s.len / 2 - 150)] : [mk(s.len / 2 + 150, s.len / 2 + 150 + lo)];
+          const lo = Math.max(600, Math.min(3000, s.landOut ?? 1500));   // 双向端部平台外伸宽度（属性面板可调，默认 1500mm，内边距梯级端头 150mm），可由「带末端平台」开关关闭
+          const lands = s.land === false ? [] : cross ? [mk(s.len / 2 + 150, s.len / 2 + 150 + lo), mk(-s.len / 2 - 150 - lo, -s.len / 2 - 150)] : [mk(s.len / 2 + 150, s.len / 2 + 150 + lo)];   // 双向端部平台可由「带末端平台」开关关闭
           if (s.flipZ) lands.forEach(L => { const a2 = -L.z1, b = -L.z0; L.z0 = a2; L.z1 = b; });
           return { N: 2, w, Wtot: 2 * w + gap, runs, lands, H, esc: true, ramp: true, total: n * 2, unit: H / n };
         }
@@ -4555,7 +4555,7 @@
           const xs = -s.len / 2 + land, xe = xs + run;
           const runs = [{ x0: xs, x1: xe, dir: 1, z: zc(0) }, { x0: xe, x1: xs, dir: -1, z: zc(1) }];
           const lo = Math.max(600, Math.min(3000, s.landOut ?? 1500));   // 端部平台外伸宽度（属性面板可调，默认 1500mm，内边距梯级端头 150mm）
-          const lands = [{ x0: xe + 150, x1: xe + 150 + lo, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 }, { x0: -xe - 150 - lo, x1: -xe - 150, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 }];
+          const lands = s.land === false ? [] : [{ x0: xe + 150, x1: xe + 150 + lo, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 }, { x0: -xe - 150 - lo, x1: -xe - 150, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 }];   // 双跑折返平台可关闭
           const n1 = Math.max(6, Math.round(run / 400));
           runs[0].n = n1; runs[0].y0 = 0; runs[0].y1 = H / 2;
           runs[1].n = n1; runs[1].y0 = H / 2; runs[1].y1 = H;
@@ -8309,17 +8309,17 @@
     function escPanel(s) {                                   // 自动扶梯属性面板（仿坡道，梯面自带裙板扶手，无扶手开关）
       const dirs = [[0, tr('向右 (+X)', '+X')], [90, tr('向上 (+Y)', '+Y')], [180, tr('向左 (-X)', '−X')], [270, tr('向下 (-Y)', '−Y')]];
       const rise = Math.round(s.rise ?? 2400), deg = (Math.atan2(rise, Math.max(1, s.len)) * 180 / Math.PI).toFixed(1);
-      const bidir = s.runs === 'B' || s.runs === 'X';         // 双向扶梯（并排 / 交叉）：两跑一上一下，无折返平台，平台相关项不适用
+      const bidir = s.runs === 'B' || s.runs === 'X';         // 双向扶梯（并排 / 交叉）：两跑一上一下，端部平台可开关
       return `<section><h3>${tr('自动扶梯', 'Escalator')}</h3>
     <div class="form">
       ${nameField(s, tr('自动扶梯', 'Escalator') + ' ' + objNo(state.stairs, s, 'type'))}
       <label class="full">${tr('跑数', 'Runs')}<select id="sEscRuns">${[[1, tr('单跑', 'Single')], [2, tr('双跑（带折返平台）', 'Double (with landings)')], ['B', tr('并排双向', 'Parallel bidirectional')], ['X', tr('交叉双向（剪刀式）', 'Crossed bidirectional (scissors)')]].map(([v, t]) => `<option value="${v}" ${(s.runs || 1) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="sW" value="${Math.round(s.w)}" min="600" max="2000" step="50"></label>
       <label>${tr('梯长', 'Length')} (mm)<input type="number" id="sLen" value="${Math.round(s.len)}" min="2000" max="12000" step="50"></label>
-      <label class="full">${tr('端部平台外伸宽度', 'Landing outreach')} (mm)<input type="number" id="sLandOut" value="${Math.round(s.landOut ?? 1500)}" min="600" max="3000" step="50" ${!bidir && s.land === false && (s.runs || 1) === 1 ? 'disabled' : ''}></label>
-      <label class="chk full"><input type="checkbox" id="sLand" ${(s.land !== false) ? 'checked' : ''} ${bidir ? 'disabled' : ''}> ${tr('带末端平台（进深 = 梯宽）', 'Top landing (depth = width)')}</label>
-      <label class="chk full"><input type="checkbox" id="sRailLand" ${(s.railLand !== false) ? 'checked' : ''} ${s.land === false && (s.runs || 1) === 1 || bidir ? 'disabled' : ''}> ${tr('平台围栏（平台四周悬空边）', 'Landing balustrade')}</label>
-      <label class="full">${tr('围栏方向', 'Fence sides')}<select id="sFenceSide" ${(s.railLand === false && (s.runs || 1) === 1) || bidir ? 'disabled' : ''}>${[['all', tr('四周（外端 + 两侧）', 'All sides')], ['end', tr('仅外端', 'Outer end only')], ['sides', tr('仅两侧', 'Two sides only')]].map(([v, t]) => `<option value="${v}" ${(s.fenceSide || 'all') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+      <label class="full">${tr('端部平台外伸宽度', 'Landing outreach')} (mm)<input type="number" id="sLandOut" value="${Math.round(s.landOut ?? 1500)}" min="600" max="3000" step="50" ${s.land === false ? 'disabled' : ''}></label>
+      <label class="chk full"><input type="checkbox" id="sLand" ${(s.land !== false) ? 'checked' : ''}> ${tr('带末端平台（进深 = 梯宽）', 'Top landing (depth = width)')}</label>
+      <label class="chk full"><input type="checkbox" id="sRailLand" ${(s.railLand !== false) ? 'checked' : ''} ${s.land === false ? 'disabled' : ''}> ${tr('平台围栏（平台四周悬空边）', 'Landing balustrade')}</label>
+      <label class="full">${tr('围栏方向', 'Fence sides')}<select id="sFenceSide" ${s.land === false || s.railLand === false && (s.runs || 1) === 1 ? 'disabled' : ''}>${[['all', tr('四周（外端 + 两侧）', 'All sides')], ['end', tr('仅外端', 'Outer end only')], ['sides', tr('仅两侧', 'Two sides only')]].map(([v, t]) => `<option value="${v}" ${(s.fenceSide || 'all') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('上行方向', 'Ascend')}<select id="sDir">${dirs.map(([v, t]) => `<option value="${v}" ${s.dir === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('爬升高度', 'Rise')} (mm)<input type="number" id="sRise" value="${rise}" min="800" max="6000" step="10"></label>
       <label class="full">${tr('扶手材质', 'Handrail material')}<select id="sHandMat">${[['black', tr('黑色橡胶', 'Black rubber')], ['steel', tr('不锈钢', 'Stainless steel')], ['wood', tr('木纹', 'Wood')]].map(([v, t]) => `<option value="${v}" ${(s.handMat || 'black') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
@@ -8327,7 +8327,7 @@
       <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带，梯级沿闭环连贯循环转动：骑行段梯面保持水平，两端沿圆弧回转翻转 180° 沉入端部楼板之下，斜面下方倒挂平行回程；漫游站上梯面会被自动传送，也可步行上下。双跑为两段扶梯 + 两块折返平台（平台进深 = 梯宽）；并排双向两跑同坡向、一上一下；交叉双向（剪刀式）两跑坡向相反、3D 呈 X 形，两端都能上下换层。切换时占地不够会自动放长。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials; steps run in a continuous loop — treads stay level on the incline, pivot 180° around the curved ends under the floor, and travel back upside-down beneath the flight; standing on it in roam mode carries you along automatically. Double-run shows two flights with two landings (landing depth = width); parallel bidirectional shows two same-slope flights, one up one down; crossed bidirectional (scissors) shows two opposite-slope flights forming an X, connecting both levels at both ends. Auto-elongated when switched.`)}</div>
+    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带，梯级沿闭环连贯循环转动：骑行段梯面保持水平，两端沿圆弧回转翻转 180° 沉入端部楼板之下，斜面下方倒挂平行回程；漫游站上梯面会被自动传送，也可步行上下。双跑为两段扶梯 + 两块折返平台；并排双向两跑同坡向、一上一下；交叉双向（剪刀式）两跑坡向相反、3D 呈 X 形，两端都能上下换层。端部平台外伸宽度可在上方「端部平台外伸宽度」自定义（600~3000mm）；切换跑数时占地不够会自动放长。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials; steps run in a continuous loop — treads stay level on the incline, pivot 180° around the curved ends under the floor, and travel back upside-down beneath the flight; standing on it in roam mode carries you along automatically. Double-run shows two flights with two landings; parallel bidirectional shows two same-slope flights, one up one down; crossed bidirectional (scissors) shows two opposite-slope flights forming an X, connecting both levels at both ends. Landing outreach is customizable above (600–3000 mm). Auto-elongated when switched.`)}</div>
     <div class="actions">
       ${(s.runs || 1) === 2 || s.runs === 'B' || s.runs === 'X' ? `<button class="btn" id="aFlipZ" title="${tr('沿上行方向看，折返 / 下行的一跑换到另一侧（旋转做不到）', 'Swap the return / down run to the other side')}">${tr('左右翻转', 'Flip L-R')}</button>` : ''}
       <button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上行方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button>
@@ -8557,6 +8557,7 @@
       const er = $('#sEscRuns');                              // 跑数：切双跑 / 双向时占地长度不够就自动放长，保持约 30° 倾角（双跑两跑各约 1.75×爬升，双向每跑爬全程约 1.75×爬升）
       if (er) er.onchange = e => mutate(() => {
         const s = g(); if (!s) return;
+        s.land = true;                                         // 切换跑数时平台恢复开启，避免切过去发现平台是关的
         if (e.target.value === 'B' || e.target.value === 'X') {
           s.runs = e.target.value;
           s.len = Math.min(12000, Math.max(s.len, Math.round(((s.rise ?? 2400) * 1.75) / 50) * 50));
@@ -14184,11 +14185,12 @@
           wx(s.x) + xs * caD + W / 2 * saD, wz(s.y) + xs * saD - W / 2 * caD,
           yp, Math.min(yi, yp + .34), .25, true);
       }
-      if (lay0.lands.length) {                                 // 末端平台：实心楼板整体外移 350mm（组局部 [L/2-W+0.15, L/2+0.8]），顶面抬高 150mm，前后翻转由组旋转承担 + 底部实体碰撞；围栏外移 350mm / 抬高 180mm（与平台板分开调整）
-        const py = Math.max(.12, lay0.lands[0].y / 1000), pyT = py + .15, pyF = py + .18, pw = W + .65;
+      if (lay0.lands.length) {                                 // 末端平台：实心楼板（组局部内边距梯级端头 150mm，外伸宽度由属性面板 landOut 决定），顶面抬高 150mm，前后翻转由组旋转承担 + 底部实体碰撞；围栏抬高 180mm
+        const py = Math.max(.12, lay0.lands[0].y / 1000), pyT = py + .15, pyF = py + .18;
+        const lo = Math.max(.6, Math.min(3, (s.landOut ?? 1500) / 1000)), pxIn = L / 2 - W + .15, pxOut = pxIn + lo, pw = lo;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(pw, .12, W), metal);
-        slab.position.set(L / 2 - W / 2 + .475, pyT - .06, 0); slab.castShadow = slab.receiveShadow = true; g.add(slab);
-        const c0 = [wx(s.x) + (L / 2 - W + .15) * caD, wz(s.y) + (L / 2 - W + .15) * saD], c1 = [wx(s.x) + (L / 2 + .8) * caD, wz(s.y) + (L / 2 + .8) * saD];
+        slab.position.set((pxIn + pxOut) / 2, pyT - .06, 0); slab.castShadow = slab.receiveShadow = true; g.add(slab);
+        const c0 = [wx(s.x) + pxIn * caD, wz(s.y) + pxIn * saD], c1 = [wx(s.x) + pxOut * caD, wz(s.y) + pxOut * saD];
         colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), 0, pyT]);
         if (s.railLand !== false) {                            // 平台围栏：位置 / 高度固定，外端 + 两侧悬空边（接梯段的一边不围）
           const fence = (x0, z0, x1, z1) => {
@@ -14201,8 +14203,9 @@
             addBarrier(w0[0], w0[1], w1[0], w1[1], 0, pyF + railH, .18);
           };
           const fs = s.fenceSide || 'all';
-          if (fs !== 'sides') fence(L / 2 + .8, -W / 2, L / 2 + .8, W / 2);
-          if (fs !== 'end') { fence(L / 2 - W + .15, -W / 2, L / 2 + .8, -W / 2); fence(L / 2 - W + .15, W / 2, L / 2 + .8, W / 2); }
+          const fx = pxIn - .05, fxe = pxOut - .05;           // 围栏随平台板宽度走（两端各内缩 50mm）
+          if (fs !== 'sides') fence(fxe, -W / 2, fxe, W / 2);
+          if (fs !== 'end') { fence(fx, -W / 2, fxe, -W / 2); fence(fx, W / 2, fxe, W / 2); }
         }
       }
       archUp.add(g);
@@ -14246,7 +14249,7 @@
         const mx = cx + (cutA - cutB) / 2, my = cy + Math.tan(ang) * (cutA - cutB) / 2;   // 收边后的中点（沿斜段平移）
         const eA = lowFirst ? ya + Hy * tLo / Lr : yb - Hy * tHi / Lr, eB = lowFirst ? yb - Hy * tHi / Lr : ya + Hy * tLo / Lr;   // 左右两端收边处的梯面标高
         [-1, 1].forEach(sd => {
-          const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, .24, .07), metal);
+          const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, .24, .18), metal);   // 两侧下部保护挡板加宽到 180mm
           beam.position.set(mx + nx * .16, my - ny * .16, z + sd * (W / 2 - .05)); beam.rotation.z = ang; beam.castShadow = beam.receiveShadow = true; g.add(beam);
           const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), panelMat);
           panel.position.set(mx + nx * railH / 2, my + ny * railH / 2, z + sd * (W / 2 - .018)); panel.rotation.z = ang; g.add(panel);
