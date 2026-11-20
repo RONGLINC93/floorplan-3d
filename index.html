@@ -8317,7 +8317,7 @@
       <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="sW" value="${Math.round(s.w)}" min="600" max="2000" step="50"></label>
       <label>${tr('梯长', 'Length')} (mm)<input type="number" id="sLen" value="${Math.round(s.len)}" min="2000" max="12000" step="50"></label>
       <label class="full">${tr('端部平台外伸宽度', 'Landing outreach')} (mm)<input type="number" id="sLandOut" value="${Math.round(s.landOut ?? 1500)}" min="600" max="3000" step="50" ${s.land === false ? 'disabled' : ''}></label>
-      <label>${tr('下护板高度', 'Skirt height')} (mm)<input type="number" id="sSkirtH" value="${Math.round(s.skirtH ?? 1200)}" min="200" max="2000" step="50"></label>
+      <label>${tr('下护板高度', 'Skirt height')} (mm)<input type="number" id="sSkirtH" value="${Math.round(s.skirtH ?? 900)}" min="200" max="2000" step="50"></label>
       <label class="chk full"><input type="checkbox" id="sLand" ${(s.land !== false) ? 'checked' : ''}> ${tr('带末端平台（进深 = 梯宽）', 'Top landing (depth = width)')}</label>
       <label class="chk full"><input type="checkbox" id="sRailLand" ${(s.railLand !== false) ? 'checked' : ''} ${s.land === false ? 'disabled' : ''}> ${tr('平台围栏（平台四周悬空边）', 'Landing balustrade')}</label>
       <label class="full">${tr('围栏方向', 'Fence sides')}<select id="sFenceSide" ${s.land === false || s.railLand === false && (s.runs || 1) === 1 ? 'disabled' : ''}>${[['all', tr('四周（外端 + 两侧）', 'All sides')], ['end', tr('仅外端', 'Outer end only')], ['sides', tr('仅两侧', 'Two sides only')]].map(([v, t]) => `<option value="${v}" ${(s.fenceSide || 'all') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
@@ -14252,7 +14252,7 @@
         const mx = cx + (cutA - cutB) / 2, my = cy + Math.tan(ang) * (cutA - cutB) / 2;   // 收边后的中点（沿斜段平移）
         const eA = lowFirst ? ya + Hy * tLo / Lr : yb - Hy * tHi / Lr, eB = lowFirst ? yb - Hy * tHi / Lr : ya + Hy * tLo / Lr;   // 左右两端收边处的梯面标高
         [-1, 1].forEach(sd => {
-          const skH = Math.max(.2, Math.min(2, (s.skirtH ?? 1200) / 1000)), skD = (skH - .24) / 2;   // 下护板顶边固定，只向下延伸，不遮住玻璃栏板
+          const skH = Math.max(.2, Math.min(2, (s.skirtH ?? 900) / 1000)), skD = (skH - .24) / 2;   // 下护板默认 900mm，顶边固定，只向下延伸，不遮住玻璃栏板
           const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, skH, .07), metal);
           beam.position.set(mx + nx * (.16 - skD), my - ny * (.16 + skD), z + sd * (W / 2 - .05)); beam.rotation.z = ang; beam.castShadow = beam.receiveShadow = true; g.add(beam);
           const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), panelMat);
