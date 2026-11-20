@@ -3,19 +3,7 @@
   "rooms": {},
   "demolished": [],
   "measures": [],
-  "walls": [
-    {
-      "id": "test1",
-      "a": [
-        2000,
-        8000
-      ],
-      "b": [
-        8000,
-        8000
-      ]
-    }
-  ],
+  "walls": [],
   "openings": [],
   "deletedWalls": [
     "w0",
@@ -114,34 +102,60 @@
   "extras": [],
   "leaders": [],
   "lamps": [],
-  "powerBoxes": [
+  "powerBoxes": [],
+  "weakBoxes": [],
+  "stairs": [
     {
-      "id": "pbtest1",
-      "wall": "CWtest1",
-      "c": 3000,
-      "side": 1,
+      "id": "fmwol1968295",
+      "x": 4370,
+      "y": 8930,
+      "w": 1000,
+      "len": 10000,
       "dir": 0,
-      "front": 1,
-      "w": 600,
-      "d": 150,
-      "h": 320,
-      "z": 1500,
-      "x": 5000,
-      "y": 8045,
-      "rcd": [
-        "rcd2p63"
-      ],
-      "mcb": [
-        "mcb1p16",
-        "mcb3p40"
-      ],
-      "devices": [],
-      "doorOpen": false,
-      "ang": 120,
-      "hinge": 1
+      "rise": 6000,
+      "type": "esc",
+      "land": true,
+      "runs": "X",
+      "skirtH": 950
+    },
+    {
+      "id": "fmwol19vs296",
+      "x": 2600,
+      "y": 5510,
+      "w": 1000,
+      "len": 4400,
+      "dir": 0,
+      "rise": 2400,
+      "type": "esc",
+      "land": true,
+      "runs": "B",
+      "skirtH": 900
+    },
+    {
+      "id": "fmwol1bey297",
+      "x": 5910,
+      "y": 2200,
+      "w": 1000,
+      "len": 10400,
+      "dir": 0,
+      "rise": 2400,
+      "type": "esc",
+      "land": true,
+      "runs": 2
+    },
+    {
+      "id": "fmwol1c0s298",
+      "x": 3050,
+      "y": -540,
+      "w": 1000,
+      "len": 4400,
+      "dir": 0,
+      "rise": 2400,
+      "type": "esc"
     }
   ],
-  "weakBoxes": [],
+  "pillars": [],
+  "wallH": {},
   "layers": {
     "dims": true,
     "labels": true,
