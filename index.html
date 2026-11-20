@@ -14143,7 +14143,7 @@
       const panelMat = ({ glass, steel: mat('#b9c0c8', { metalness: .75, roughness: .3 }), wood: mat('#8a6a48', { roughness: .6 }) })[s.panelMat] || glass;   // 围挡（栏板）材质：半透明玻璃（默认）/ 不锈钢板 / 木板
       const railH = .92, dRail = railH + .038;                 // 栏板 / 扶手相对梯级面的高度（沿斜面法线）
       [-1, 1].forEach(sd => {
-        const skH = Math.max(.2, Math.min(2, (s.skirtH ?? 1200) / 1000)), skD = (skH - .24) / 2;   // 下护板：高度可调（默认 1200mm），顶边固定在原桁架梁上沿（斜面下方），只向下延伸，不遮住上方玻璃栏板
+        const skH = Math.max(.2, Math.min(2, (s.skirtH ?? 900) / 1000)), skD = (skH - .24) / 2;   // 下护板：高度可调（默认 900mm），顶边固定在原桁架梁上沿（斜面下方），只向下延伸，不遮住上方玻璃栏板
         const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, skH, .07), metal);
         beam.position.set(nx * (.16 - skD), H / 2 - ny * (.16 + skD), sd * (W / 2 - .05)); beam.rotation.z = ang;
         beam.castShadow = beam.receiveShadow = true; sub.add(beam);
