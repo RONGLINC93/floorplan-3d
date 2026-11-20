@@ -14147,6 +14147,11 @@
         const beam = new THREE.Mesh(new THREE.BoxGeometry(sl, skH, .07), metal);
         beam.position.set(nx * (.16 - skD), H / 2 - ny * (.16 + skD), sd * (W / 2 - .05)); beam.rotation.z = ang;
         beam.castShadow = beam.receiveShadow = true; sub.add(beam);
+        if (lay0.lands.length) {                              // 高端护板顶边接到末端平台板，消除护板与平台之间的空档
+          const yTop = H - ny * .04, yPlat = Math.max(.12, lay0.lands[0].y / 1000) + .15;
+          const con = new THREE.Mesh(new THREE.BoxGeometry(.3, Math.max(.06, yPlat - yTop), .07), metal);
+          con.position.set(Lr / 2 + .075, (yTop + yPlat) / 2, sd * (W / 2 - .05)); con.castShadow = true; sub.add(con);
+        }
         const panel = new THREE.Mesh(new THREE.BoxGeometry(sl, railH, .035), panelMat);   // 围挡栏板：中心沿法线抬半个高度，底边正好贴斜面
         panel.position.set(nx * railH / 2, H / 2 + ny * railH / 2, sd * (W / 2 - .018)); panel.rotation.z = ang;
         sub.add(panel);
@@ -14259,6 +14264,14 @@
           panel.position.set(mx + nx * railH / 2, my + ny * railH / 2, z + sd * (W / 2 - .018)); panel.rotation.z = ang; g.add(panel);
           const rail = new THREE.Mesh(new THREE.BoxGeometry(sl, .075, .1), railMat);
           rail.position.set(mx + nx * dRail, my + ny * dRail, z + sd * (W / 2 - .018)); rail.rotation.z = ang; rail.castShadow = true; g.add(rail);
+          [[xA + cutA, eA], [xB - cutB, eB]].forEach(([ec, ey]) => {       // 平台端护板顶边接到平台板，消除护板与平台之间的空档
+            const L = lay.lands.find(q => Math.abs(q.y / 1000 - ey) < .2 && ec >= Math.min(q.x0, q.x1) / 1000 - .6 && ec <= Math.max(q.x0, q.x1) / 1000 + .6);
+            if (!L) return;
+            const to = (Math.min(L.x0, L.x1) + Math.max(L.x0, L.x1)) / 2000 > ec ? 1 : -1;
+            const yTop = ey - ny * .04, yPlat = Math.max(.12, L.y / 1000) + .15;
+            const con = new THREE.Mesh(new THREE.BoxGeometry(.3, Math.max(.06, yPlat - yTop), .07), metal);
+            con.position.set(ec + to * .075, (yTop + yPlat) / 2, z + sd * (W / 2 - .05)); con.castShadow = true; g.add(con);
+          });
           [[xA + cutA, eA], [xB - cutB, eB]].forEach(([ec, ey], ei) => {   // 端头收尾：平台端扶手带收到平台边缘即止（由平台上的连接围栏续接，不再加立柱悬在半空），落地端仍做水平回转段 + 圆端头
             const out = ei === 0 ? -1 : 1, atLand = (ei === 0 ? cutA : cutB) > 0;
             if (atLand) return;
