@@ -117,7 +117,8 @@
       "land": true,
       "runs": "X",
       "skirtH": 950,
-      "platSkirtH": 1550
+      "platSkirtH": 1550,
+      "fenceH": 1200
     },
     {
       "id": "fmwol19vs296",
