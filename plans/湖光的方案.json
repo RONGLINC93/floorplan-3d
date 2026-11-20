@@ -784,32 +784,12 @@
       "flip": true
     },
     {
-      "id": "fmwnncil0108",
-      "wall": "CWfmwnfieyn116",
-      "c": 3452.651364772968,
-      "w": 1500,
-      "kind": "swin",
-      "flip": false,
-      "sill": 900,
-      "wh": 1200,
-      "panes": 2
-    },
-    {
       "id": "fmwnncmfk109",
       "wall": "CWfmwnfieyn116",
       "c": 589.4772370303672,
       "w": 1800,
       "kind": "fwin",
       "flip": true
-    },
-    {
-      "id": "fmwnncoiq110",
-      "wall": "CWfmwnfieyn116",
-      "c": 5143.598934037308,
-      "w": 1200,
-      "kind": "hwin",
-      "flip": false,
-      "sill": 1400
     },
     {
       "id": "fmwnncqnj111",
@@ -870,6 +850,17 @@
       "w": 1500,
       "kind": "dble",
       "flip": false
+    },
+    {
+      "id": "fmwo97ipz99",
+      "wall": "CWfmwnfieyn116",
+      "c": 4483.2490234375,
+      "w": 1500,
+      "kind": "swin",
+      "flip": false,
+      "sill": 900,
+      "wh": 1200,
+      "panes": 2
     }
   ],
   "deletedWalls": [

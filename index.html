@@ -4057,7 +4057,7 @@
           if (c1 >= wl - 400) c1 = wl;
         }
         const [P0, P1] = segPts(A, B, c0, c1);
-        const dx = P1[0] - P0[0], dy = P1[1] - P0[1], L = Math.hypot(dx, dy) || 1;
+        const dx = P1[0] - P0[0], dy = P1[1] - P0[1], L = Math.hypot(dx, dy) || 1;   // dx/dy 是洞口全长向量：分格位置用 dx*t，不能再乘 L
         const u = [dx / L, dy / L], n = [-u[1], u[0]], NE = 'pointer-events="none"';
         const g = cwGeom([P0[0], P0[1], P1[0], P1[1]]);
         const shape = inner => g.rot
@@ -4073,13 +4073,13 @@
           });
           if (openGrille(o)) {                               // 窗花：沿窗宽三等分的分格线（横跨墙厚）
             [1 / 3, 2 / 3].forEach(t => {
-              const a = [P0[0] + dx * L * t - n[0] * T / 2, P0[1] + dy * L * t - n[1] * T / 2];
+              const a = [P0[0] + dx * t - n[0] * T / 2, P0[1] + dy * t - n[1] * T / 2];
               s += `<line x1="${a[0]}" y1="${a[1]}" x2="${a[0] + n[0] * T}" y2="${a[1] + n[1] * T}" ${WS} ${NE}/>`;
             });
           }
           const NP = Math.max(1, Math.min(4, Math.round(o.panes ?? 2)));   // 窗扇数（默认 2）：非 2 扇时按扇数画分扇竖线
           for (let k = 1; k < NP; k++) {
-            const px = P0[0] + dx * L * k / NP, py = P0[1] + dy * L * k / NP;
+            const px = P0[0] + dx * k / NP, py = P0[1] + dy * k / NP;
             s += `<line x1="${px - n[0] * T / 2}" y1="${py - n[1] * T / 2}" x2="${px + n[0] * T / 2}" y2="${py + n[1] * T / 2}" ${WS} ${NE}/>`;
           }
         } else if (o.kind === 'louver') {                    // 百叶窗：双线窗符号 + 沿宽均分的叶片线（跨墙厚）
@@ -4091,7 +4091,7 @@
           });
           const nL = Math.max(3, Math.round(L / 150));
           for (let k = 1; k < nL; k++) {
-            const px = P0[0] + dx * L * k / nL, py = P0[1] + dy * L * k / nL;
+            const px = P0[0] + dx * k / nL, py = P0[1] + dy * k / nL;
             s += `<line x1="${px - n[0] * T / 2}" y1="${py - n[1] * T / 2}" x2="${px + n[0] * T / 2}" y2="${py + n[1] * T / 2}" ${LS} ${NE}/>`;
           }
         } else if (o.kind === 'hole') {                       // 预留洞 / 窗洞：虚线矩形洞口（无框无扇）
@@ -4106,8 +4106,8 @@
           });
           const NP = Math.max(1, Math.min(4, Math.round(o.panes ?? 2)));   // 推拉窗扇数（默认 2）：各扇占 1/N，按奇偶贴墙厚两侧交错
           for (let i = 0; i < NP; i++) {
-            const off = (i % 2 ? 1 : -1) * T * .22, sx = P0[0] + dx * L * i / NP, sy = P0[1] + dy * L * i / NP;
-            s += `<line x1="${sx + n[0] * off}" y1="${sy + n[1] * off}" x2="${sx + dx * L / NP + n[0] * off}" y2="${sy + dy * L / NP + n[1] * off}" ${SS} stroke-width="1.6" ${NE}/>`;
+            const off = (i % 2 ? 1 : -1) * T * .22, sx = P0[0] + dx * i / NP, sy = P0[1] + dy * i / NP;
+            s += `<line x1="${sx + n[0] * off}" y1="${sy + n[1] * off}" x2="${sx + dx / NP + n[0] * off}" y2="${sy + dy / NP + n[1] * off}" ${SS} stroke-width="1.6" ${NE}/>`;
           }
         } else if (o.kind === 'strip') {                      // 带形窗：通长双线玻璃 + 约 1200 分格竖梃
           const SS = 'stroke="#2e6e8e" stroke-width="1.1" vector-effect="non-scaling-stroke"';
@@ -4118,7 +4118,7 @@
           });
           const nM = Math.max(1, Math.round(L / 1200));
           for (let k = 1; k < nM; k++) {
-            const px = P0[0] + dx * L * k / nM, py = P0[1] + dy * L * k / nM;
+            const px = P0[0] + dx * k / nM, py = P0[1] + dy * k / nM;
             s += `<line x1="${px - n[0] * T / 2}" y1="${py - n[1] * T / 2}" x2="${px + n[0] * T / 2}" y2="${py + n[1] * T / 2}" ${SS} ${NE}/>`;
           }
         } else if (o.kind === 'auto') {                       // 自动感应门：双扇玻璃 + 中缝 + 感应器
