@@ -4542,14 +4542,20 @@
               : { x0: s.len / 2 * f, x1: -s.len / 2 * f, dir: -f, z: zc(1), n, y0: H, y1: 0 },// 并排：与上行跑同坡向（低 / 高端各自并排在同侧，视觉平行不交叉），梯级与传送沿 -x 下行
           ];
           if (s.flipZ) runs.forEach(r => r.z = -r.z);       // 左右翻转：下行跑换到另一侧
-          return { N: 2, w, Wtot: 2 * w + gap, runs, lands: [], H, esc: true, ramp: true, total: n * 2, unit: H / n };
+          const za = Math.min(zc(0), zc(1)) - w / 2, zb = Math.max(zc(0), zc(1)) + w / 2;   // 双向休息平台：覆盖两跑整宽的端部平台板（抬高 150mm、外移 350mm，与单跑 / 双跑一致）；并排式仅高的一端，交叉式两端各一块（两端都有一跑到达上层）
+          const mk = (a, b) => ({ x0: Math.min(a * f, b * f), x1: Math.max(a * f, b * f), z0: za, z1: zb, y: H });
+          const lo = Math.max(600, Math.min(3000, s.landOut ?? 1500));   // 双向端部平台外伸宽度（属性面板可调，默认 1500mm，内边距梯级端头 150mm）
+          const lands = cross ? [mk(s.len / 2 + 150, s.len / 2 + 150 + lo), mk(-s.len / 2 - 150 - lo, -s.len / 2 - 150)] : [mk(s.len / 2 + 150, s.len / 2 + 150 + lo)];
+          if (s.flipZ) lands.forEach(L => { const a2 = -L.z1, b = -L.z0; L.z0 = a2; L.z1 = b; });
+          return { N: 2, w, Wtot: 2 * w + gap, runs, lands, H, esc: true, ramp: true, total: n * 2, unit: H / n };
         }
         if ((s.runs || 1) === 2) {                            // 双跑扶梯：复用双跑楼梯布局——近端起步 → 一跑上行 → 远端平台折返 → 二跑上行回近端平台，两端各一块平台
           const gap = 100, w = s.w, land = w, run = Math.max(600, s.len - 2 * land), H = s.rise ?? 2400;
           const zc = i => -(2 * w + gap) / 2 + w / 2 + i * (w + gap);
           const xs = -s.len / 2 + land, xe = xs + run;
           const runs = [{ x0: xs, x1: xe, dir: 1, z: zc(0) }, { x0: xe, x1: xs, dir: -1, z: zc(1) }];
-          const lands = [{ x0: xe + 150, x1: s.len / 2 + 800, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 }, { x0: -s.len / 2 - 800, x1: xs - 150, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 }];   // 平台板整体外移 350mm（比梯级端头再远 150mm）；围栏保持原外移 200mm 位置不跟随
+          const lo = Math.max(600, Math.min(3000, s.landOut ?? 1500));   // 端部平台外伸宽度（属性面板可调，默认 1500mm，内边距梯级端头 150mm）
+          const lands = [{ x0: xe + 150, x1: xe + 150 + lo, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 }, { x0: -xe - 150 - lo, x1: -xe - 150, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 }];
           const n1 = Math.max(6, Math.round(run / 400));
           runs[0].n = n1; runs[0].y0 = 0; runs[0].y1 = H / 2;
           runs[1].n = n1; runs[1].y0 = H / 2; runs[1].y1 = H;
@@ -4558,8 +4564,9 @@
           if (s.flipX) { runs.forEach(r => { r.x0 = -r.x0; r.x1 = -r.x1; r.dir = -r.dir; }); lands.forEach(L => { const a2 = -L.x1, b = -L.x0; L.x0 = a2; L.x1 = b; }); }
           return { N: 2, w, Wtot: 2 * w + gap, runs, lands, H, esc: true, ramp: true, total: n1 * 2, unit: H / 2 / n1 };
         }
-        const f = s.flipX ? -1 : 1, hasLand = s.land !== false, xm = Math.max(-s.len / 2 + 600, s.len / 2 - (hasLand ? s.w : 0));   // 单跑：几何同坡道，末端平台仿单跑楼梯（进深 = 梯宽），向梯段端头压 200mm
-        return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: xm * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 2400 }], lands: hasLand ? [{ x0: Math.min((xm + 150) * f, (s.len / 2 + 800) * f), x1: Math.max((xm + 150) * f, (s.len / 2 + 800) * f), z0: -s.w / 2, z1: s.w / 2, y: s.rise ?? 2400, after: 0 }] : [], total: 0, unit: 0, esc: true, ramp: true };   // 末端平台板整体外移 350mm；围栏保持原外移 200mm 位置不跟随
+        const f = s.flipX ? -1 : 1, hasLand = s.land !== false, xm = Math.max(-s.len / 2 + 600, s.len / 2 - (hasLand ? s.w : 0));   // 单跑：几何同坡道，末端平台仿单跑楼梯（进深 = 梯宽）
+        const lo = Math.max(600, Math.min(3000, s.landOut ?? 1500)), lx0 = (xm + 150) * f, lx1 = (xm + 150 + lo) * f;   // 端部平台外伸宽度（属性面板可调，默认 1500mm，内边距梯级端头 150mm）
+        return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: xm * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 2400 }], lands: hasLand ? [{ x0: Math.min(lx0, lx1), x1: Math.max(lx0, lx1), z0: -s.w / 2, z1: s.w / 2, y: s.rise ?? 2400, after: 0 }] : [], total: 0, unit: 0, esc: true, ramp: true };
       }
       if (s.type === 'steps') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: Math.max(1, s.steps || 3), y0: 0, y1: s.rise ?? 450 }], lands: [], total: 0, unit: 0, steps: true }; }
       if (s.type === 'ladder') { const d = s.len ?? 600; return { N: 1, w: s.w, runs: [{ x0: -d / 2, x1: d / 2, dir: 1, z: 0, n: 0, y0: 0, y1: 0 }], lands: [], total: 0, unit: 0, ladder: true }; }   // 梯子：垂直攀爬，俯视只占窄条进深；y1 = 0 不产生支撑高度（攀爬由 ladderClimb 处理）
@@ -8309,6 +8316,7 @@
       <label class="full">${tr('跑数', 'Runs')}<select id="sEscRuns">${[[1, tr('单跑', 'Single')], [2, tr('双跑（带折返平台）', 'Double (with landings)')], ['B', tr('并排双向', 'Parallel bidirectional')], ['X', tr('交叉双向（剪刀式）', 'Crossed bidirectional (scissors)')]].map(([v, t]) => `<option value="${v}" ${(s.runs || 1) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
       <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="sW" value="${Math.round(s.w)}" min="600" max="2000" step="50"></label>
       <label>${tr('梯长', 'Length')} (mm)<input type="number" id="sLen" value="${Math.round(s.len)}" min="2000" max="12000" step="50"></label>
+      <label class="full">${tr('端部平台外伸宽度', 'Landing outreach')} (mm)<input type="number" id="sLandOut" value="${Math.round(s.landOut ?? 1500)}" min="600" max="3000" step="50" ${!bidir && s.land === false && (s.runs || 1) === 1 ? 'disabled' : ''}></label>
       <label class="chk full"><input type="checkbox" id="sLand" ${(s.land !== false) ? 'checked' : ''} ${bidir ? 'disabled' : ''}> ${tr('带末端平台（进深 = 梯宽）', 'Top landing (depth = width)')}</label>
       <label class="chk full"><input type="checkbox" id="sRailLand" ${(s.railLand !== false) ? 'checked' : ''} ${s.land === false && (s.runs || 1) === 1 || bidir ? 'disabled' : ''}> ${tr('平台围栏（平台四周悬空边）', 'Landing balustrade')}</label>
       <label class="full">${tr('围栏方向', 'Fence sides')}<select id="sFenceSide" ${(s.railLand === false && (s.runs || 1) === 1) || bidir ? 'disabled' : ''}>${[['all', tr('四周（外端 + 两侧）', 'All sides')], ['end', tr('仅外端', 'Outer end only')], ['sides', tr('仅两侧', 'Two sides only')]].map(([v, t]) => `<option value="${v}" ${(s.fenceSide || 'all') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
@@ -8536,6 +8544,7 @@
       set('sW', (s, v) => s.w = Math.max(600, Math.min(2000, Math.round(v / 50) * 50)));
       set('sLen', (s, v) => s.len = Math.max(2000, Math.min(12000, Math.round(v / 50) * 50)));
       set('sRise', (s, v) => s.rise = Math.max(800, Math.min(6000, Math.round(v / 10) * 10)));
+      set('sLandOut', (s, v) => s.landOut = Math.max(600, Math.min(3000, Math.round(v / 50) * 50)));   // 双向扶梯端部平台外伸宽度（600~3000，默认 1500）
       set('sDir', (s, v) => s.dir = v);
       const sl = $('#sLand');                                 // 末端平台开关（默认带，与单跑楼梯一致）
       if (sl) sl.onchange = e => mutate(() => { const s = g(); if (s) s.land = e.target.checked; });

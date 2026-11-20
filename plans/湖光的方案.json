@@ -1137,8 +1137,9 @@
       "flipX": false,
       "handMat": "black",
       "panelMat": "glass",
-      "runs": 2,
-      "flipZ": true
+      "runs": "X",
+      "flipZ": true,
+      "landOut": 1500
     },
     {
       "id": "fmwnhpwze99",
