@@ -14115,6 +14115,15 @@
       addBarrier(wx(s.x) + W / 2 * saL, wz(s.y) - W / 2 * caL, wx(s.x) - W / 2 * saL, wz(s.y) + W / 2 * caL, 0, H, .1);
       archUp.add(g);
     }
+    function escRailLink(g, a, b, railMat, overlap = .06) {       // 扶手带 / 平台围栏之间的矩形搭接段：按三维端点自动定向，截面与扶手带一致
+      const A = new THREE.Vector3(a[0], a[1], a[2]), B = new THREE.Vector3(b[0], b[1], b[2]);
+      const d = new THREE.Vector3().subVectors(B, A), L = d.length();
+      if (L < .09) return;
+      const m = new THREE.Mesh(new THREE.BoxGeometry(L + overlap, .075, .1), railMat);
+      m.position.copy(A).add(B).multiplyScalar(.5);
+      m.quaternion.setFromUnitVectors(new THREE.Vector3(1, 0, 0), d.normalize());
+      m.castShadow = true; g.add(m);
+    }
     function escLoopPos(e, t) {                                 // 自动扶梯梯级闭环取位：0..Lr 骑行斜面（梯面保持水平）→ 端部圆弧回转翻转 180°（沉入端部楼板之下）→ 骑行面下方 2R 处倒挂平行回程 → 另一端圆弧回转复位，全程切线连续、沿弧长匀速，形成真实连贯的循环转动。r 为绕 z 俯仰角；k 为转弯方向（按行进 x 向取号，保证回程始终在骑行面下方）
       const Lr = e.Lr, Re = e.Re, arc = Math.PI * Re;
       const ux = (e.x1 - e.x0) / Lr, uy = (e.y1 - e.y0) / Lr, th = Math.atan2(e.y1 - e.y0, e.x1 - e.x0), k = ux > 0 ? -1 : 1;
@@ -14160,7 +14169,9 @@
         const rail = new THREE.Mesh(new THREE.BoxGeometry(sl, .075, .1), railMat);   // 扶手带：紧贴栏板顶边，不悬空
         rail.position.set(nx * dRail, H / 2 + ny * dRail, sd * (W / 2 - .018)); rail.rotation.z = ang;
         rail.castShadow = true; sub.add(rail);
-        [-1, 1].forEach(e => {                                 // 两端扶手水平回转段 + 圆端头，消除斜切生硬感
+        const linkToLand = lay0.lands.length && s.railLand !== false && (s.fenceSide || 'all') !== 'end';
+        [-1, 1].forEach(e => {                                 // 两端扶手水平回转段 + 圆端头；高端有平台侧栏时改由搭接段续接，避免多出一截端头
+          if (e > 0 && linkToLand) return;
           const x0 = e * Lr / 2 + nx * dRail, y0 = (e < 0 ? 0 : H) + ny * dRail;
           const hr = new THREE.Mesh(new THREE.BoxGeometry(.36, .075, .1), railMat);
           hr.position.set(x0 + e * .18, y0, sd * (W / 2 - .018)); hr.castShadow = true; sub.add(hr);
@@ -14209,20 +14220,28 @@
         });
         const c0 = [wx(s.x) + pxIn * caD, wz(s.y) + pxIn * saD], c1 = [wx(s.x) + pxOut * caD, wz(s.y) + pxOut * saD];
         colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), 0, pyT]);
-        if (s.railLand !== false) {                            // 平台围栏：位置 / 高度固定，外端 + 两侧悬空边（接梯段的一边不围）
+        if (s.railLand !== false) {                            // 平台围栏：扶手与斜段扶手同高，外端 + 两侧悬空边（接梯段的一边不围）
+          let fRailY = H + ny * dRail;                          // 平台扶手标高 = 斜段扶手在平台端的真实标高，不再高出 180mm
+          const fPanelH = Math.max(.3, fRailY - pyF - .038);
+          fRailY = pyF + fPanelH + .038;
           const fence = (x0, z0, x1, z1) => {
             const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, len3 = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0);
-            const pn = new THREE.Mesh(new THREE.BoxGeometry(len3, railH, .035), panelMat);
-            pn.position.set(cx, pyF + railH / 2, cz); pn.rotation.y = ry; g.add(pn);
+            const pn = new THREE.Mesh(new THREE.BoxGeometry(len3, fPanelH, .035), panelMat);
+            pn.position.set(cx, pyF + fPanelH / 2, cz); pn.rotation.y = ry; g.add(pn);
             const rl = new THREE.Mesh(new THREE.BoxGeometry(len3, .075, .1), railMat);
-            rl.position.set(cx, pyF + dRail, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
+            rl.position.set(cx, fRailY, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
             const w0 = [wx(s.x) + x0 * caD - z0 * saD, wz(s.y) + x0 * saD + z0 * caD], w1 = [wx(s.x) + x1 * caD - z1 * saD, wz(s.y) + x1 * saD + z1 * caD];
-            addBarrier(w0[0], w0[1], w1[0], w1[1], 0, pyF + railH, .18);
+            addBarrier(w0[0], w0[1], w1[0], w1[1], 0, pyF + fPanelH, .18);
           };
           const fs = s.fenceSide || 'all';
           const fx = pxIn - .05, fxe = pxOut - .05;           // 围栏随平台板宽度走（两端各内缩 50mm）
           if (fs !== 'sides') fence(fxe, -W / 2, fxe, W / 2);
           if (fs !== 'end') { fence(fx, -W / 2, fxe, -W / 2); fence(fx, W / 2, fxe, W / 2); }
+          [-1, 1].forEach(sd => {                              // 扶手带端头与围栏同高，一根水平段接通；仅外端围栏时接到外端
+            const xRail = off + Lr / 2 + nx * dRail, zRail = sd * (W / 2 - .018);
+            const tx = fs === 'end' ? fxe : Math.max(fx, Math.min(fxe, xRail));
+            escRailLink(g, [xRail, fRailY, zRail], [tx, fRailY, sd * W / 2], railMat);
+          });
         }
       }
       archUp.add(g);
@@ -14238,18 +14257,22 @@
       const glass = mat('#c3d2d8', { metalness: .1, roughness: .2, transparent: true, opacity: .3, depthWrite: false });
       const panelMat = ({ glass, steel: mat('#b9c0c8', { metalness: .75, roughness: .3 }), wood: mat('#8a6a48', { roughness: .6 }) })[s.panelMat] || glass;
       const railH = .92, dRail = railH + .038;
+      const r0 = lay.runs[0], slopeCos = r0 ? Math.max(.35, Math.cos(Math.atan2(Math.abs(r0.y1 - r0.y0) / 1000, Math.max(.01, Math.abs(r0.x1 - r0.x0) / 1000)))) : 1;   // 平台扶手与斜段扶手同高的坡度系数
       const aDir = s.dir * Math.PI / 180, caD = Math.cos(aDir), saD = Math.sin(aDir);
       const toW = (lx, lz) => [wx(s.x) + lx * caD - lz * saD, wz(s.y) + lx * saD + lz * caD];   // 局部 → 世界（毫米局部）
-      const arr = lay.lands.map(() => []);                   // 各折返平台上「扶手带真实端头」（z / x / y / 所属跑）：与双跑楼梯同一做法——扶手带端头就落在平台围栏上，接口处补一小段搭接，接成一道路径连续的护栏
+      const inLand = (L, xe, yl) => Math.abs(L.y / 1000 - yl) < .02 && xe >= Math.min(L.x0, L.x1) / 1000 - .001 && xe <= Math.max(L.x0, L.x1) / 1000 + .001;
+      const nearLand = (L, xe, yl) => Math.abs(L.y / 1000 - yl) < .02 && xe >= Math.min(L.x0, L.x1) / 1000 - .25 && xe <= Math.max(L.x0, L.x1) / 1000 + .25;
+      const arr = lay.lands.map(() => []);                   // 各平台上扶手带真实端头（含法向偏移）：平台内边距梯段端头 150mm，按 250mm 容差认作接口，再用搭接段连到平台围栏
       lay.runs.forEach((r, ri) => {
         const xLo = r.x0 / 1000, xHi = r.x1 / 1000, ya0 = r.y0 / 1000, yb0 = r.y1 / 1000;
         const Lr = Math.abs(xHi - xLo), Hy = Math.max(.05, Math.abs(yb0 - ya0)), sgn = (yb0 - ya0) * (xHi - xLo) > 0 ? 1 : -1;   // 坡向：上行跑 +1，折返 / 下行跑 -1
         const ang = Math.atan2(Hy, Lr) * sgn, nx = -Math.sin(ang), ny = Math.cos(ang);
         [[xLo, ya0], [xHi, yb0]].forEach(([xe, yl], ei) => {
-          const li = lay.lands.findIndex(L => Math.abs(L.y / 1000 - yl) < .02 && xe >= Math.min(L.x0, L.x1) / 1000 - .001 && xe <= Math.max(L.x0, L.x1) / 1000 + .001);
-          if (li < 0) return;                                // 该端不在平台上（落地端）
+          const li = lay.lands.findIndex(L => nearLand(L, xe, yl));
+          if (li < 0) return;                                // 该端不靠任何平台（落地端）
+          const cut = lay.lands.some(L => inLand(L, xe, yl)) ? .2 : 0;   // 平台板真正压住梯段端头时才收边 200；现有布局留 150mm 缝，扶手直接伸到接口
           const inward = ei === 0 ? Math.sign(xHi - xLo) || 1 : Math.sign(xLo - xHi) || 1;
-          const xEnd = xe + inward * .2 + nx * dRail, yEnd = yl - Hy * .2 / Lr + ny * dRail;   // 扶手带收边 200 后的真实端头（与斜段几何同一算法）
+          const xEnd = xe + inward * cut + nx * dRail, yEnd = yl - Hy * cut / Lr + ny * dRail;   // 扶手带真实端头（与斜段几何同一算法）
           [-1, 1].forEach(sd => arr[li].push({ z: r.z / 1000 + sd * (W / 2 - .018), x: xEnd, y: yEnd, run: ri }));
         });
       });
@@ -14324,32 +14347,39 @@
         });
         const c0 = toW(L.x0 / 1000, L.z0 / 1000), c1 = toW(L.x1 / 1000, L.z1 / 1000);
         colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), Math.max(0, pyT - .12), pyT]);
-        if (s.railLand !== false) {                           // 平台围栏：外移 300mm / 抬高 180mm（与平台板分开调整）；外露 x 边（远离中心，另一侧接梯段）+ 两侧悬空边，方向可设四周 / 仅外端 / 仅两侧
+        if (s.railLand !== false) {                           // 平台围栏：扶手与斜段扶手同高；外露 x 边 + 两侧悬空边，接入边加横向扶手把各跑扶手连成一圈
           const xa0 = Math.min(L.x0, L.x1) / 1000, xb0 = Math.max(L.x0, L.x1) / 1000, fs = s.fenceSide || 'all';
           const fSh = xa0 + xb0 > 0 ? -.05 : .05;             // 平台板外移 350mm，围栏只外移 300mm（回退 50mm）
           const xa = xa0 + fSh, xb = xb0 + fSh, za = L.z0 / 1000, zb = L.z1 / 1000;
+          let railY = py + slopeCos * dRail;                   // 平台扶手标高 = 斜段扶手在平台端的真实标高
+          const fPanelH = Math.max(.3, railY - pyF - .038);
+          railY = pyF + fPanelH + .038;
           const fence = (x0, z0, x1, z1, th = .035) => {
             const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, len3 = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0);
-            const pn = new THREE.Mesh(new THREE.BoxGeometry(len3, railH, th), panelMat);
-            pn.position.set(cx, pyF + railH / 2, cz); pn.rotation.y = ry; g.add(pn);
+            const pn = new THREE.Mesh(new THREE.BoxGeometry(len3, fPanelH, th), panelMat);
+            pn.position.set(cx, pyF + fPanelH / 2, cz); pn.rotation.y = ry; g.add(pn);
             const rl = new THREE.Mesh(new THREE.BoxGeometry(len3, .075, Math.max(th, .1)), railMat);
-            rl.position.set(cx, pyF + dRail, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
+            rl.position.set(cx, railY, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
             const [w0, w1] = [toW(x0, z0), toW(x1, z1)];
-            addBarrier(w0[0], w0[1], w1[0], w1[1], pyF - .12, pyF + railH, .18);   // 碰撞只覆盖平台板体以上（与楼板碰撞同底），不能从地面立起——近端平台外露边正对一跑入口，栏板下方要留地面通道
+            addBarrier(w0[0], w0[1], w1[0], w1[1], pyF - .12, pyF + fPanelH, .18);   // 碰撞只覆盖平台板体以上（与楼板碰撞同底），不能从地面立起
           };
           const xOut = Math.abs(xa0) > Math.abs(xb0) ? xa : xb;
           if (fs !== 'sides') fence(xOut, za, xOut, zb);
           if (fs !== 'end') { fence(xa, za, xb, za); fence(xa, zb, xb, zb); }
-          const edgeX = Math.abs(xa0) < Math.abs(xb0) ? xa : xb;   // 梯段接入的那条平台边（扶手带端头就在这条边附近）
-          const ends = (arr[li] || []).slice().sort((a, b) => a.z - b.z);   // 扶手带端头按 z 排序：把梯段扶手带与平台围栏接成一道连续护栏
-          const stub = p => {                                               // 搭接小段：从扶手带端头补到平台边围栏，截面与扶手带一致，接口处不再有断头
-            const L2 = Math.abs(p.x - edgeX) + .06;
-            if (L2 < .09) return;
-            const m = new THREE.Mesh(new THREE.BoxGeometry(L2, .075, .1), railMat);
-            m.position.set((p.x + edgeX) / 2, p.y, p.z); m.castShadow = true; g.add(m);
-          };
-          ends.forEach(stub);
-          if (fs !== 'end') {                                               // 平台接入边沿用双跑楼梯的规则补空档：扣掉各跑在平台边占用的宽度带（踏上梯级 / 过路的地方留通），剩余净空 ≥0.12 才补护栏
+          const edgeX = Math.abs(xa0) < Math.abs(xb0) ? xa : xb;   // 梯段接入的那条平台边
+          const ends = (arr[li] || []).slice().sort((a, b) => a.z - b.z);
+          if (fs === 'sides') escRailLink(g, [xOut, railY, za], [xOut, railY, zb], railMat);   // 仅两侧围栏时补外端横向扶手
+          ends.forEach(p => {
+            const sideZ = Math.abs(p.z - za) < Math.abs(p.z - zb) ? za : zb;
+            if (Math.abs(p.z - sideZ) < .3) {                               // 外侧扶手：沿平台侧边接到侧围栏 / 外端围栏，不占中间通道
+              const tx = fs === 'end' ? xOut : Math.max(xa, Math.min(xb, p.x));
+              escRailLink(g, [p.x, p.y, p.z], [tx, railY, sideZ], railMat);
+            } else {                                                        // 内侧扶手：平台中间不设扶手，圆端头收口
+              const cap = new THREE.Mesh(new THREE.SphereGeometry(.052, 10, 8), railMat);
+              cap.position.set(p.x, p.y, p.z); g.add(cap);
+            }
+          });
+          if (fs !== 'end') {                                               // 接入边补空档护栏：扣掉各跑占用宽度带，剩余净空 ≥0.12 才补
             let free = [[za, zb]];
             lay.runs.forEach(r => {
               if (Math.abs(r.x0 / 1000 - edgeX) > .25 && Math.abs(r.x1 / 1000 - edgeX) > .25) return;   // 平台向梯段端头压 200mm，按 0.25 容差匹配梯段端
@@ -16421,13 +16451,13 @@
               post(x0 + (x1 - x0) * t, y0 + (y1 - y0) * t, z0 + (z1 - z0) * t);
             }
           };
-          const side = s.railSide || 'both', usedZ = [];       // 扶手位置：两侧 / 左侧 / 右侧（沿上行方向看）
+          const side = s.railSide || 'both', usedZ = [], runEnds = [];   // 扶手位置：两侧 / 左侧 / 右侧（沿上行方向看）
           lay.runs.forEach(r => {
             const x0 = r.x0 / 1000, x1 = r.x1 / 1000, y0 = r.y0 / 1000, y1 = r.y1 / 1000, z = r.z / 1000;
             const asc = Math.sign(r.x1 - r.x0) || 1, leftSd = asc > 0 ? -1 : 1;   // 上行 +x 时左手边是 -z
             (side === 'both' ? [-1, 1] : side === 'left' ? [leftSd] : [-leftSd]).forEach(sd => {
               const zz = z + sd * (W / 2 - .045);
-              line(x0, zz, x1, zz, y0, y1); usedZ.push(zz);
+              line(x0, zz, x1, zz, y0, y1); usedZ.push(zz); runEnds.push([x0, y0, zz], [x1, y1, zz]);
             });
           });
           if (s.railLand !== false) lay.lands.forEach(L => {   // 平台：四周一圈围栏（平台扶手可单独关），梯段接入的那段断开留口
@@ -16435,6 +16465,20 @@
             const used = z => usedZ.some(v => Math.abs(v - z) < .03);     // 只在梯段扶手接过来的那条边加长边
             if (side === 'both' || used(z0 + .045)) line(x0 + .045, z0 + .045, x1 - .045, z0 + .045, y, y);
             if (side === 'both' || used(z1 - .045)) line(x0 + .045, z1 - .045, x1 - .045, z1 - .045, y, y);
+            runEnds.forEach(([rx, ry, rz]) => {                 // 梯段扶手 → 平台扶手：补齐平台边 45mm 内缩造成的断头，外露侧连成一道
+              if (Math.abs(ry - y) > .02) return;
+              const edge = Math.abs(rx - x0) < Math.abs(rx - x1) ? x0 : x1;
+              if (Math.abs(rx - edge) > .25) return;
+              const sideZ = Math.abs(rz - (z0 + .045)) < Math.abs(rz - (z1 - .045)) ? z0 + .045 : z1 - .045;
+              if (Math.abs(rz - sideZ) < .3 && (side === 'both' || used(sideZ))) {
+                const px = Math.max(x0 + .045, Math.min(x1 - .045, edge + (edge === x0 ? .045 : -.045)));
+                seg([rx, ry + RH, rz], [px, y + RH, sideZ]);
+              } else if (side === 'both') {                     // 双跑梯井内侧：跨过两跑间隙，在平台接入边接上短扶手
+                const zA = z0 + W, zB = z1 - W;
+                const zLink = zB > zA ? Math.max(zA, Math.min(zB, rz)) : (z0 + z1) / 2;
+                seg([rx, ry + RH, rz], [edge, y + RH, zLink]);
+              }
+            });
             [[x0 + .045, x0], [x1 - .045, x1]].forEach(([xe, xa]) => {
               let free = [[z0 + .045, z1 - .045]];                          // 端边：扣掉梯段占的宽（起步 / 收尾的跑都算）
               lay.runs.forEach(r => {
