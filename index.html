@@ -1641,6 +1641,29 @@
       display: block
     }
 
+    /* 漫游卡死提示（准星下方，比门提示低一行；点击 / 按 R 脱离卡死） */
+    #walkStuckTip {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 60;
+      display: none;
+      pointer-events: auto;
+      background: #b5653a;
+      color: #fff;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      transform: translate(-50%, 64px);
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(40, 30, 20, .3)
+    }
+
+    #walkStuckTip.open {
+      display: block
+    }
+
     #roomList small {
       color: var(--muted);
       font-variant-numeric: tabular-nums
@@ -16696,7 +16719,7 @@
     const HINT_ORBIT = () => COARSE ? tr('单指旋转 · 双指缩放 / 平移 · 点选家具后可拖动摆放 · 点门开关', '1 finger orbits · 2 fingers zoom / pan · select furniture to drag it · tap doors to open')
       : tr('左键旋转 · 右键平移 · 滚轮缩放 · 选中家具后拖动可摆放 · 点击门开关', 'Left-drag orbits · right-drag pans · scroll zooms · select furniture to drag it · click doors to open');
     const HINT_TOUCHWALK = () => tr('左下摇杆移动 · 拖动画面转向 · 点门开关', 'Joystick moves · drag to look · tap doors to open');
-    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · Z 切换趴下 · 空格跳跃 · E 开关门 · 点击射击 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · Space jumps · E opens doors · click to shoot · Esc pauses');
+    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · Z 切换趴下 · 空格跳跃 · E 开关门 · R 脱离卡死 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · Space jumps · E opens doors · R unstuck · Esc pauses');
     function syncHint3d() { $('#hint3d').textContent = opt.mode === 'orbit' ? HINT_ORBIT() : touchWalk ? HINT_TOUCHWALK() : HINT_WALK(); }
     let touchWalk = false;
     const joy = { x: 0, y: 0, id: null }, eul = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -16730,18 +16753,13 @@
     function setMode(m) {
       if (anim) return;
       opt.mode = m; syncModeBtns();
+      stuckT = 0; if (stuckTip) stuckTip.classList.remove('open');   // 切换模式时收起卡死提示
       if (m === 'walk') {
         window.select(null);
         proneOn = false;   // 进入漫游时恢复站立姿态
         if (opt.cut < H) { opt.cut = H; syncCutBtns(); sync(); }
         orbit.enabled = false; fly = null;
-        const eg = entryGeom();
-        if (eg) {                                                       // 从入户门外 1.8m 面向屋内出发
-          camera.position.set(wx(eg.cx + eg.out[0] * 1800), 1.6, wz(eg.cy + eg.out[1] * 1800));
-          camera.lookAt(wx(eg.cx), 1.5, wz(eg.cy));
-        } else {
-          camera.position.set(wx(4200), 1.6, wz(8755)); camera.lookAt(wx(7000), 1.5, wz(8755));   // 兜底：原始入户门外
-        }
+        walkRespawn();                                               // 从入户门外 1.8m 面向屋内出发
         $('#walkOverlay').style.display = 'flex';
         $('#tools').style.visibility = 'hidden';                       // 漫游中隐藏左上角模式切换
         $('#sunPad').style.visibility = 'hidden';                      // 漫游中隐藏右上角日照滑杆
@@ -16937,6 +16955,41 @@
       if (t <= 1) { eyeH = EYE_STAND - (EYE_STAND - EYE_CROUCH) * t; headH = EYE_STAND - (EYE_STAND - HEAD_CROUCH) * t; }
       else { eyeH = EYE_CROUCH - (EYE_CROUCH - EYE_PRONE) * (t - 1); headH = HEAD_CROUCH - (HEAD_CROUCH - HEAD_PRONE) * (t - 1); }
     }
+    let stuckT = 0;                                              // 卡死计时：持续有移动输入但两轴试探都被挡的累计秒数（松开移动键即清零）
+    let stuckTip = null;                                         // 准星下方「脱离卡死」提示条（stepWalk 检测到卡死时显示；触屏可直接点它脱离）
+    function walkRespawn() {                                     // 回到入户门出生点：进入漫游与脱离卡死共用同一位置与朝向
+      const eg = entryGeom();
+      if (eg) {
+        camera.position.set(wx(eg.cx + eg.out[0] * 1800), 1.6, wz(eg.cy + eg.out[1] * 1800));
+        camera.lookAt(wx(eg.cx), 1.5, wz(eg.cy));
+      } else {
+        camera.position.set(wx(4200), 1.6, wz(8755)); camera.lookAt(wx(7000), 1.5, wz(8755));   // 兜底：原始入户门外
+      }
+    }
+    function unstickWalk() {                                     // 脱离卡死：先在附近环形找同层空位挪过去（半径逐档放大），找不到回入户门；重置跳跃 / 跌落 / 攀梯 / 趴下状态
+      if (anim || opt.mode !== 'walk') return;
+      const p = camera.position, foot = fallY === null ? 0 : fallY;
+      let spot = null;
+      for (const rad of [.5, .9, 1.4, 2.2, 3.2]) {
+        for (let k = 0; k < 16 && !spot; k++) {
+          const a = k * Math.PI / 8 + rad * .7;                  // 每圈错开起始角，避免同方向重复试探
+          const x = p.x + Math.cos(a) * rad, z = p.z + Math.sin(a) * rad;
+          const gy = stairH(x, z, foot);                         // 只认当前层附近的支撑高度，避免脱困时被拉上 / 拉下楼
+          if (Math.abs(gy - foot) > .6 || blocked(x, z, .22, gy)) continue;
+          spot = [x, z, gy];
+        }
+        if (spot) break;
+      }
+      proneOn = false; ladderOn = null; jumpV = jumpY = 0; fallV = 0;
+      if (spot) {
+        p.x = spot[0]; p.z = spot[1]; fallY = spot[2]; p.y = eyeH + spot[2];
+        toast(tr('已脱离卡死', 'Unstuck'));
+      } else {
+        walkRespawn(); fallY = null;                             // 周围全是碰撞体：回入户门重开，支撑高度交给下一步重算
+        toast(tr('附近没有空位，已回到入户门', 'No free spot nearby — back at the front door'));
+      }
+      stuckT = 0; if (stuckTip) stuckTip.classList.remove('open');
+    }
     function stepWalk(dt) {
       if (!walkCtl.isLocked && !touchWalk) return;
       const p = camera.position, fwd = new THREE.Vector3();
@@ -16988,10 +17041,18 @@
       if (keys.KeyD || keys.ArrowRight) mv.add(right); if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
       if (touchWalk) { mv.addScaledVector(fwd, -joy.y).addScaledVector(right, joy.x); }
       const mag = Math.min(1, mv.length());        // 摇杆推得越远走得越快
-      if (mag < .05) return;
+      if (mag < .05) { stuckT = 0; if (stuckTip) stuckTip.classList.remove('open'); return; }
       mv.normalize().multiplyScalar(sp * mag);
+      const px0 = p.x, pz0 = p.z;
       if (!blocked(p.x + mv.x, p.z, .22, footH)) p.x += mv.x;
       if (!blocked(p.x, p.z + mv.z, .22, footH)) p.z += mv.z;
+      stuckT = Math.hypot(p.x - px0, p.z - pz0) < sp * mag * .2 ? stuckT + dt : 0;   // 有输入但两轴都被挡、位移不到预期的两成：累计卡死时长；贴墙滑行（能挪动）不算
+      if (stuckTip) {
+        if (stuckT > 1.5) {                                        // 卡死超过 1.5 秒：准星下方提示脱离（桌面按 R，触屏点提示条）
+          stuckTip.textContent = touchWalk ? tr('卡住了？点此脱离', 'Stuck? Tap to break free') : tr('卡住了？按 R 脱离', 'Stuck? Press R to break free');
+          stuckTip.classList.add('open');
+        } else stuckTip.classList.remove('open');
+      }
     }
     function escCarry(p, foot, dt) {                           // 自动扶梯传送：脚落在梯面上（高度吻合且非滞空）时，沿上行方向以梯级同速（.35 m/s，与主循环梯级动画一致）被带动；两端梳齿 150mm 内不传送（视作落在端部地板）；带 blocked 碰撞，不会被推穿墙。单跑 / 双跑按各自跑判定
       for (const s of (state.stairs || [])) {
@@ -17108,6 +17169,7 @@
       if (!active || e.target.matches('input,select,textarea')) return;
       if (opt.mode === 'walk' && e.code === 'Space') e.preventDefault();   // 空格用于跳跃，阻止页面滚动
       if (opt.mode === 'walk' && e.code === 'KeyZ') proneOn = !proneOn;    // Z 切换趴下 / 起身
+      if (opt.mode === 'walk' && e.code === 'KeyR') unstickWalk();         // R 脱离卡死：附近找空位，找不到回入户门
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
       if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); }
@@ -17123,7 +17185,7 @@
         tr('点门开关 · 点「退出漫游」回到鸟瞰', 'Tap doors to open · "Exit walk" returns to orbit')]
         : [tr('点击开始，从入户门进入', 'Click to start at the front door'),
         tr('<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> 移动 · 鼠标转向 · <kbd>Shift</kbd> 快走 · <kbd>Ctrl</kbd> 蹲下', '<kbd>W</kbd> <kbd>A</kbd> <kbd>S</kbd> <kbd>D</kbd> move · mouse looks · <kbd>Shift</kbd> runs · <kbd>Ctrl</kbd> crouch'),
-        tr('<kbd>C</kbd> 也可蹲下 · <kbd>Z</kbd> 切换趴下 · <kbd>E</kbd> 交互 · <kbd>空格</kbd> 跳跃 · <kbd>Esc</kbd> 暂停', '<kbd>C</kbd> also crouches · <kbd>Z</kbd> toggles prone · <kbd>E</kbd> interact · <kbd>Space</kbd> jumps · <kbd>Esc</kbd> pauses')];
+        tr('<kbd>C</kbd> 也可蹲下 · <kbd>Z</kbd> 切换趴下 · <kbd>E</kbd> 交互 · <kbd>空格</kbd> 跳跃 · <kbd>R</kbd> 脱离卡死 · <kbd>Esc</kbd> 暂停', '<kbd>C</kbd> also crouches · <kbd>Z</kbd> toggles prone · <kbd>E</kbd> interact · <kbd>Space</kbd> jumps · <kbd>R</kbd> unstuck · <kbd>Esc</kbd> pauses')];
       t.forEach((h, i) => $('#wo' + (i + 1)).innerHTML = h);
       syncHint3d();
     }
@@ -17152,12 +17214,15 @@
     function startLoop() { if (!raf) { clock.getDelta(); raf = requestAnimationFrame(loop); } }
     // 漫游门交互提醒：准星瞄准门（<2.5m）→ 门扇高亮 + 准星下方提示按键 / 点击
     const walkTip = document.createElement('div'); walkTip.id = 'walkDoorTip'; document.body.appendChild(walkTip);
+    stuckTip = document.createElement('div'); stuckTip.id = 'walkStuckTip'; document.body.appendChild(stuckTip);
+    stuckTip.onclick = () => unstickWalk();                     // 触屏无 R 键：直接点提示条脱离卡死
     const toggleDoor = d => {                                     // 电梯门手动开合统一入口：开门时记自动关定时，手动关时清掉
       d.open = !d.open;
       if (d.lift) d.tAuto = d.open ? performance.now() + 6000 : 0;   // 开门 6 秒后自动关（主循环按玩家位置顺延）
     };
     function updateDoorWalkTip() {
       const walking = active && opt.mode === 'walk' && $('#walkOverlay').style.display !== 'flex';   // 未暂停
+      if (!walking && stuckTip) { stuckT = 0; stuckTip.classList.remove('open'); }   // Esc 暂停 / 退出漫游时收起卡死提示
       const h = walking ? pick() : null;
       if (doorHiRef) doorHiRef.position.set(0, 0, 0);                 // 高亮层复位：门 / 旗杆挂到模型用局部坐标，灯具用世界包围盒
       if (h?.door && h.dist < 2.5 && doorHiRef) {

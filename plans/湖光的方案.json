@@ -668,7 +668,7 @@
       "id": "fmwmuecja94",
       "wall": "CWfmwhqg7q7187",
       "c": 2853.3046875,
-      "w": 2000,
+      "w": 1000,
       "kind": "revolve",
       "flip": false,
       "sill": 0,
@@ -778,10 +778,10 @@
     {
       "id": "fmwnncdk2107",
       "wall": "CWfmwnfib2j113",
-      "c": 200.1204159789687,
+      "c": 490.90966796875,
       "w": 1500,
       "kind": "dwin",
-      "flip": true
+      "flip": false
     },
     {
       "id": "fmwnncmfk109",
