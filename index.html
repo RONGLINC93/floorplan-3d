@@ -14175,8 +14175,8 @@
           wx(s.x) + xs * caD + W / 2 * saD, wz(s.y) + xs * saD - W / 2 * caD,
           yp, Math.min(yi, yp + .34), .25, true);
       }
-      if (lay0.lands.length) {                                 // 末端平台：实心楼板整体外移 350mm（组局部 [L/2-W+0.15, L/2+0.8]），顶面抬高 200mm，前后翻转由组旋转承担 + 底部实体碰撞；围栏固定在上档位置（外移 200mm / 抬高 180mm），不跟随平台板
-        const py = Math.max(.12, lay0.lands[0].y / 1000), pyT = py + .2, pyF = py + .18, pw = W + .65;
+      if (lay0.lands.length) {                                 // 末端平台：实心楼板整体外移 350mm（组局部 [L/2-W+0.15, L/2+0.8]），顶面抬高 150mm，前后翻转由组旋转承担 + 底部实体碰撞；围栏外移 350mm / 抬高 180mm（与平台板分开调整）
+        const py = Math.max(.12, lay0.lands[0].y / 1000), pyT = py + .15, pyF = py + .18, pw = W + .65;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(pw, .12, W), metal);
         slab.position.set(L / 2 - W / 2 + .475, pyT - .06, 0); slab.castShadow = slab.receiveShadow = true; g.add(slab);
         const c0 = [wx(s.x) + (L / 2 - W + .15) * caD, wz(s.y) + (L / 2 - W + .15) * saD], c1 = [wx(s.x) + (L / 2 + .8) * caD, wz(s.y) + (L / 2 + .8) * saD];
@@ -14272,15 +14272,15 @@
           addBarrier(q0[0], q0[1], q1[0], q1[1], yp, Math.min(yi, yp + .34), .25, true);
         }
       });
-      lay.lands.forEach((L, li) => {                          // 折返平台：实心楼板 + 楼板式碰撞（只挡板体；平台板顶面抬高 240mm、整体外移 350mm 已在 stairLayout 矩形里；角点经朝向旋转换算，dir 为 90° 倍数时 AABB 仍轴对齐）——近端平台下方是另一跑的起步区，不能做成落地实体
-        const px = (L.x0 + L.x1) / 2, pz = (L.z0 + L.z1) / 2, pw = Math.max(0, (L.x1 - L.x0) / 1000), pd = Math.max(0, (L.z1 - L.z0) / 1000), py = Math.max(.12, L.y / 1000), pyT = py + .24, pyF = py + .18;
+      lay.lands.forEach((L, li) => {                          // 折返平台：实心楼板 + 楼板式碰撞（只挡板体；平台板顶面抬高 150mm、整体外移 350mm 已在 stairLayout 矩形里；角点经朝向旋转换算，dir 为 90° 倍数时 AABB 仍轴对齐）——近端平台下方是另一跑的起步区，不能做成落地实体
+        const px = (L.x0 + L.x1) / 2, pz = (L.z0 + L.z1) / 2, pw = Math.max(0, (L.x1 - L.x0) / 1000), pd = Math.max(0, (L.z1 - L.z0) / 1000), py = Math.max(.12, L.y / 1000), pyT = py + .15, pyF = py + .18;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(pw, .12, pd), metal);
         slab.position.set(px / 1000, pyT - .06, pz / 1000); slab.castShadow = slab.receiveShadow = true; g.add(slab);
         const c0 = toW(L.x0 / 1000, L.z0 / 1000), c1 = toW(L.x1 / 1000, L.z1 / 1000);
         colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), Math.max(0, pyT - .12), pyT]);
-        if (s.railLand !== false) {                           // 平台围栏：位置 / 高度固定在上一档（外移 200mm / 抬高 180mm），不跟随平台板；外露 x 边（远离中心，另一侧接梯段）+ 两侧悬空边，方向可设四周 / 仅外端 / 仅两侧
+        if (s.railLand !== false) {                           // 平台围栏：外移 300mm / 抬高 180mm（与平台板分开调整）；外露 x 边（远离中心，另一侧接梯段）+ 两侧悬空边，方向可设四周 / 仅外端 / 仅两侧
           const xa0 = Math.min(L.x0, L.x1) / 1000, xb0 = Math.max(L.x0, L.x1) / 1000, fs = s.fenceSide || 'all';
-          const fSh = xa0 + xb0 > 0 ? -.15 : .15;             // 平台板又外移 150mm，围栏回退这 150mm 保持原位
+          const fSh = xa0 + xb0 > 0 ? -.05 : .05;             // 平台板外移 350mm，围栏只外移 300mm（回退 50mm）
           const xa = xa0 + fSh, xb = xb0 + fSh, za = L.z0 / 1000, zb = L.z1 / 1000;
           const fence = (x0, z0, x1, z1, th = .035) => {
             const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, len3 = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0);
@@ -16936,7 +16936,7 @@
           cand.push((r.y0 + Math.max(0, Math.min(1, t)) * (r.y1 - r.y0)) / 1000);
         });
         lay.lands.forEach(L => {
-          if (lx >= Math.min(L.x0, L.x1) && lx <= Math.max(L.x0, L.x1) && ly >= L.z0 && ly <= L.z1) cand.push(L.y / 1000 + (s.type === 'esc' ? .2 : 0));   // 自动扶梯平台板顶面抬高 200mm，漫游高度同步
+          if (lx >= Math.min(L.x0, L.x1) && lx <= Math.max(L.x0, L.x1) && ly >= L.z0 && ly <= L.z1) cand.push(L.y / 1000 + (s.type === 'esc' ? .15 : 0));   // 自动扶梯平台板顶面抬高 150mm，漫游高度同步
         });
       });
       sills.forEach(s => {                                    // 电梯门抬高门槛：按门宽范围作为可踩踏台面（斜墙也按沿墙投影判定）
