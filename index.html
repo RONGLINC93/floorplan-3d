@@ -2611,8 +2611,8 @@
               data-en-title="Spiral stair: click to place (⌀1400, rise 2800 by default); steps wind around a centre post; diameter / rise / steps / turn editable in 3D with spiral handrail, walkable"
               data-en="Spiral stair"><i data-lucide="shell"></i>螺旋楼梯</button>
             <button class="btn chip" data-dt="esc"
-              title="点击放置一部自动扶梯（默认 1000×4400 升 2400，约 29°；宽 / 长 / 爬升 / 方向可在右侧改，梯级持续上行，漫游站上梯面会被自动传送上楼）"
-              data-en-title="Click to place an escalator (1000×4400, rise 2400 by default, ~29°; width / length / rise / direction editable, steps keep moving up, standing on it carries you up in roam mode)"
+              title="点击放置一部自动扶梯（默认 1000×4400 升 2400，约 29°；宽 / 长 / 爬升 / 方向可在右侧改，梯级沿闭环连贯循环转动，漫游站上梯面会被自动传送上楼）"
+              data-en-title="Click to place an escalator (1000×4400, rise 2400 by default, ~29°; width / length / rise / direction editable, steps run in a continuous loop, standing on it carries you up in roam mode)"
               data-en="Escalator"><i data-lucide="arrow-up-right"></i>自动扶梯</button>
             <button class="btn chip" data-dt="ladder"
               title="点击放置一架梯子（默认宽 500 · 高 3000，钢制直梯），靠近墙自动吸附贴墙、面朝房间；宽 / 高 / 方向可在右侧改，3D 为两根立柱 + 踏棍 + 顶部扶手弯钩，漫游贴近后按 W / S 攀爬，到顶自动翻越，空格跳离"
@@ -8319,7 +8319,7 @@
       <label>X (mm)<input type="number" id="sX" value="${Math.round(s.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="sY" value="${Math.round(s.y)}" step="10"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带 + 两端金色梳齿板，水平梯级持续上行；漫游站上梯面会被自动传送，也可步行上下。双跑为两段扶梯 + 两块折返平台（平台进深 = 梯宽）；并排双向两跑同坡向、一上一下；交叉双向（剪刀式）两跑坡向相反、3D 呈 X 形，两端都能上下换层。切换时占地不够会自动放长。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials, golden comb plates, steps continuously moving; standing on it in roam mode carries you along automatically. Double-run shows two flights with two landings (landing depth = width); parallel bidirectional shows two same-slope flights, one up one down; crossed bidirectional (scissors) shows two opposite-slope flights forming an X, connecting both levels at both ends. Auto-elongated when switched.`)}</div>
+    <div class="muted" style="margin-top:8px">${tr(`倾角约 ${deg}°。3D 为两侧窄桁架梁 + 可选材质的围挡栏板与扶手带，梯级沿闭环连贯循环转动：骑行段梯面保持水平，两端沿圆弧回转翻转 180° 沉入端部楼板之下，斜面下方倒挂平行回程；漫游站上梯面会被自动传送，也可步行上下。双跑为两段扶梯 + 两块折返平台（平台进深 = 梯宽）；并排双向两跑同坡向、一上一下；交叉双向（剪刀式）两跑坡向相反、3D 呈 X 形，两端都能上下换层。切换时占地不够会自动放长。`, `Incline about ${deg}°. 3D shows slim truss beams, balustrade and handrail in the chosen materials; steps run in a continuous loop — treads stay level on the incline, pivot 180° around the curved ends under the floor, and travel back upside-down beneath the flight; standing on it in roam mode carries you along automatically. Double-run shows two flights with two landings (landing depth = width); parallel bidirectional shows two same-slope flights, one up one down; crossed bidirectional (scissors) shows two opposite-slope flights forming an X, connecting both levels at both ends. Auto-elongated when switched.`)}</div>
     <div class="actions">
       ${(s.runs || 1) === 2 || s.runs === 'B' || s.runs === 'X' ? `<button class="btn" id="aFlipZ" title="${tr('沿上行方向看，折返 / 下行的一跑换到另一侧（旋转做不到）', 'Swap the return / down run to the other side')}">${tr('左右翻转', 'Flip L-R')}</button>` : ''}
       <button class="btn" id="aFlipX" title="${tr('起步端换到另一头，上行方向反过来', 'Start from the opposite end')}">${tr('前后翻转', 'Flip F-B')}</button>
@@ -14101,6 +14101,18 @@
       addBarrier(wx(s.x) + W / 2 * saL, wz(s.y) - W / 2 * caL, wx(s.x) - W / 2 * saL, wz(s.y) + W / 2 * caL, 0, H, .1);
       archUp.add(g);
     }
+    function escLoopPos(e, t) {                                 // 自动扶梯梯级闭环取位：0..Lr 骑行斜面（梯面保持水平）→ 端部圆弧回转翻转 180°（沉入端部楼板之下）→ 骑行面下方 2R 处倒挂平行回程 → 另一端圆弧回转复位，全程切线连续、沿弧长匀速，形成真实连贯的循环转动。r 为绕 z 俯仰角；k 为转弯方向（按行进 x 向取号，保证回程始终在骑行面下方）
+      const Lr = e.Lr, Re = e.Re, arc = Math.PI * Re;
+      const ux = (e.x1 - e.x0) / Lr, uy = (e.y1 - e.y0) / Lr, th = Math.atan2(e.y1 - e.y0, e.x1 - e.x0), k = ux > 0 ? -1 : 1;
+      const nx = -uy * k, ny = ux * k;                        // 回程线相对骑行面的偏移方向（ny 恒 < 0）
+      if (t < Lr) return { x: e.x0 + ux * t, y: e.y0 + uy * t, r: 0 };
+      if (t < Lr + arc) { const f = (t - Lr) / Re, a = th - k * Math.PI / 2 + k * f;
+        return { x: e.x1 + nx * Re + Math.cos(a) * Re, y: e.y1 + ny * Re + Math.sin(a) * Re, r: k * f }; }
+      if (t < 2 * Lr + arc) { const d2 = t - Lr - arc;
+        return { x: e.x1 + nx * 2 * Re - ux * d2, y: e.y1 + ny * 2 * Re - uy * d2, r: k * Math.PI }; }
+      const f = (t - 2 * Lr - arc) / Re, a = th + k * Math.PI / 2 + k * f;
+      return { x: e.x0 + nx * Re + Math.cos(a) * Re, y: e.y0 + ny * Re + Math.sin(a) * Re, r: k * (Math.PI + f) };
+    }
     function buildEsc3D(s) {                                    // 自动扶梯：两侧窄桁架梁（中间镂空露出梯级）+ 半透明玻璃栏板（底边贴梯级斜面）+ 顶部黑色扶手带与两端回转端头 + 循环上行的水平梯级（漫游高度由 stairH 沿斜面插值）
       const lay0 = stairLayout(s);
       if (lay0.runs.length > 1) return buildEscMulti3D(s, lay0);   // 多跑扶梯（双跑折返 / 双向一上一下）：两段扶梯，单独生成
@@ -14136,7 +14148,7 @@
           cap.position.set(x0 + e * .36, y0, sd * (W / 2 - .018)); sub.add(cap);
         });
       });
-      const n = Math.max(6, Math.round(Lr / .4)), pitch = Lr / n;   // 梯级水平间距（真实扶梯约 400mm），梯面保持水平
+      const Re = .3, arc = Math.PI * Re, S = 2 * Lr + 2 * arc, n = Math.max(6, Math.round(S / .4)), pitch = S / n;   // 梯级沿闭环均布（骑行段密度仍约 400mm）：闭环 = 骑行斜面 + 两端回转圆弧（半径 300mm）+ 斜面下方倒挂回程
       for (let i = 0; i < n; i++) {
         const st = new THREE.Group();
         const t1 = new THREE.Mesh(new THREE.BoxGeometry(.38, .035, W * .84), tread);   // 踏面
@@ -14146,7 +14158,7 @@
         const t2 = new THREE.Mesh(new THREE.BoxGeometry(.025, .19, W * .84), metal);    // 立面（朝下行方向）
         t2.position.set(-.19, -.1, 0);
         st.add(t1, t2, edge);
-        st.userData.esc = { i, pitch, L: Lr, H, clipX0: hasLand ? Lr / 2 - .2 : null };
+        st.userData.esc = { i, pitch, S, Lr, Re, x0: -Lr / 2, y0: 0, x1: Lr / 2, y1: H };   // 闭环路径：骑行面两端即两端梳齿板位置，回转圆弧沉入端部平台 / 楼板之下，主循环按弧长匀速取位并连续俯仰
         sub.add(st); escSteps.push(st);
       }
       const aDir = s.dir * Math.PI / 180, caD = Math.cos(aDir), saD = Math.sin(aDir), fD = s.flipX ? -1 : 1;
@@ -14243,15 +14255,15 @@
           const [b0, b1] = [toW(r.x0 / 1000, r.z / 1000 + sd * (W / 2 - .02)), toW(r.x1 / 1000, r.z / 1000 + sd * (W / 2 - .02))];   // 栏板碰撞（米坐标）：拦住横穿扶梯侧身
           addBarrier(b0[0], b0[1], b1[0], b1[1], ya, yb + railH, .18);
         });
-        const n = Math.max(6, Math.round(Lr / .4)), pitch = Lr / n;   // 循环梯级（水平梯面，沿段从低端向高端移动）
+        const Re = .3, arc = Math.PI * Re, S = 2 * Lr + 2 * arc, n = Math.max(6, Math.round(S / .4)), pitch = S / n;   // 梯级沿闭环均布（骑行段密度仍约 400mm）：闭环 = 骑行斜面 + 两端回转圆弧（半径 300mm）+ 斜面下方倒挂回程
         for (let i = 0; i < n; i++) {
           const st = new THREE.Group();
           const t1 = new THREE.Mesh(new THREE.BoxGeometry(.38, .035, W * .84), tread); t1.castShadow = t1.receiveShadow = true;
           const edge = new THREE.Mesh(new THREE.BoxGeometry(.035, .038, W * .84), comb); edge.position.x = -.17;
           const t2 = new THREE.Mesh(new THREE.BoxGeometry(.025, .19, W * .84), metal); t2.position.set(-.19, -.1, 0);
           st.add(t1, t2, edge);
-          if ((yb - ya) * (xHi - xLo) < 0) st.rotation.y = Math.PI;   // 坡向朝 +x 下行（双向的下行跑 / 折返跑）：梯级转 180°，立面 / 前缘仍贴 downhill 一侧
-          st.userData.esc = { i, n, pitch, L: Lr, x0: xLo, x1: xHi, y0: ya, y1: yb, z, lands: lay.lands };
+          if ((yb - ya) * (xHi - xLo) < 0) st.scale.x = -1;   // 沿行进方向下行（双向的下行跑 / 折返跑反向段）：镜像梯级，立面 / 前缘仍贴下坡一侧（俯仰由主循环按闭环统一驱动）
+          st.userData.esc = { i, pitch, S, Lr, Re, x0: xLo, y0: ya, x1: xHi, y1: yb, z };   // 闭环路径：骑行面两端即两端梳齿位置，回转圆弧沉入端部楼板之下
           g.add(st); escSteps.push(st);
         }
         for (let i = 1; i <= n; i++) {                        // 底部实体碰撞：每级一条横向线（y 区间 = 该级踢面段，超出 .34 收缩）——不能从扶梯下方水平穿入；梯面上单级升 ≤ 可跨步高不受影响
@@ -17054,7 +17066,7 @@
         } else stuckTip.classList.remove('open');
       }
     }
-    function escCarry(p, foot, dt) {                           // 自动扶梯传送：脚落在梯面上（高度吻合且非滞空）时，沿上行方向以梯级同速（.35 m/s，与主循环梯级动画一致）被带动；两端梳齿 150mm 内不传送（视作落在端部地板）；带 blocked 碰撞，不会被推穿墙。单跑 / 双跑按各自跑判定
+    function escCarry(p, foot, dt) {                           // 自动扶梯传送：脚落在梯面上（高度吻合且非滞空）时，沿行进方向以梯级同速（.35 m/s，与主循环梯级动画一致）被带动；两端 150mm 内不传送（视作落在端部地板）；带 blocked 碰撞，不会被推穿墙。单跑 / 双跑按各自跑判定
       for (const s of (state.stairs || [])) {
         if (s.type !== 'esc') continue;
         const lay = stairLayout(s);
@@ -17064,7 +17076,7 @@
         for (const r of lay.runs) {
           if (Math.abs(ly - r.z) > s.w / 2) continue;
           const xa = Math.min(r.x0, r.x1), xb = Math.max(r.x0, r.x1);
-          if (lx < xa + 150 || lx > xb - 150) continue;
+          if (lx < xa + 150 || lx > xb - 150) continue;      // 两端 150mm 内不传送（视作落在端部地板上，避免站在回转区被带下楼板）
           const t = r.dir > 0 ? (lx - r.x0) / (r.x1 - r.x0) : (r.x0 - lx) / (r.x0 - r.x1);   // 沿跑的爬升比例（与 stairH 插值一致）
           if (Math.abs(foot - (r.y0 + Math.max(0, Math.min(1, t)) * (r.y1 - r.y0)) / 1000) > .25) continue;   // 脚不在该跑梯面上（空中 / 梯下 / 另一跑 / 隔层）不传送
           const ux = ca * r.dir, uz = sa * r.dir, step = .35 * dt;
@@ -17307,19 +17319,11 @@
       }
       doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起
       revolveSpins.forEach(g => { g.rotation.y += dt * .7; });   // 旋转门三翼持续匀速转动（约 9 秒一圈），鸟瞰 / 漫游均生效
-      escSteps.forEach(st => {                                  // 自动扶梯梯级循环上行（约 0.35 m/s）：沿斜坡平移，越过顶端即回卷到底端，梯面始终水平；双跑扶梯每跑按各自 x0/x1 / y0/y1 参数化
-        const e = st.userData.esc, t = ((e.i + .5) * e.pitch + (now * .00035) % e.pitch) % e.L;
-        if (e.x0 !== undefined) {
-          let x = e.x0 + (e.x1 - e.x0) * t / e.L, y = e.y0 + (e.y1 - e.y0) * t / e.L;
-          for (const L of (e.lands || [])) {                    // 平台压住梯段端头 200mm：梯级进入平台范围且高度与平台面一致时下沉到板下（梳齿后回卷），不穿出平台
-            if (Math.abs(L.y / 1000 - y) < .05 && x > L.x0 / 1000 && x < L.x1 / 1000) { y -= .25; break; }
-          }
-          st.position.x = x; st.position.y = y; st.position.z = e.z;
-        }
-        else {
-          let x = -e.L / 2 + t, y = (x + e.L / 2) * (e.H / e.L); if (e.clipX0 !== null && x > e.clipX0) y -= .25;   // 高端被末端平台压住 200mm：梯级进入压住区下沉到板下
-          st.position.x = x; st.position.y = y;
-        }
+      escSteps.forEach(st => {                                  // 自动扶梯梯级闭环循环（沿路径约 0.35 m/s 匀速）：骑行斜面梯面保持水平，两端沿圆弧回转翻转 180°沉入端部平台下方，斜面下方倒挂平行回程，形成真实连贯的循环转动；单跑 / 多跑每跑按各自闭环参数取位
+        const e = st.userData.esc, t = ((e.i + .5) * e.pitch + (now * .00035) % e.pitch) % e.S;
+        const q = escLoopPos(e, t);
+        st.position.x = q.x; st.position.y = q.y; if (e.z !== undefined) st.position.z = e.z;
+        st.rotation.z = q.r;
       });
       // 家禽随机漫步：在放置点半径内选无障碍目标慢行、停歇；带平滑转向与步态，避开墙 / 门扇 / 家具 / 栏杆，旋转门翼扫到会被推走（与人一致，鸟瞰 / 漫游均生效）
       furnG.children.forEach(g => {
