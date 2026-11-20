@@ -4549,7 +4549,7 @@
           const zc = i => -(2 * w + gap) / 2 + w / 2 + i * (w + gap);
           const xs = -s.len / 2 + land, xe = xs + run;
           const runs = [{ x0: xs, x1: xe, dir: 1, z: zc(0) }, { x0: xe, x1: xs, dir: -1, z: zc(1) }];
-          const lands = [{ x0: xe - 200, x1: s.len / 2, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 }, { x0: -s.len / 2, x1: xs + 200, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 }];   // 平台向梯段端头压 200mm，盖住梯段末端不留缝
+          const lands = [{ x0: xe + 150, x1: s.len / 2 + 800, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 0 }, { x0: -s.len / 2 - 800, x1: xs - 150, z0: zc(0) - w / 2, z1: zc(1) + w / 2, after: 1 }];   // 平台板整体外移 350mm（比梯级端头再远 150mm）；围栏保持原外移 200mm 位置不跟随
           const n1 = Math.max(6, Math.round(run / 400));
           runs[0].n = n1; runs[0].y0 = 0; runs[0].y1 = H / 2;
           runs[1].n = n1; runs[1].y0 = H / 2; runs[1].y1 = H;
@@ -4559,7 +4559,7 @@
           return { N: 2, w, Wtot: 2 * w + gap, runs, lands, H, esc: true, ramp: true, total: n1 * 2, unit: H / 2 / n1 };
         }
         const f = s.flipX ? -1 : 1, hasLand = s.land !== false, xm = Math.max(-s.len / 2 + 600, s.len / 2 - (hasLand ? s.w : 0));   // 单跑：几何同坡道，末端平台仿单跑楼梯（进深 = 梯宽），向梯段端头压 200mm
-        return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: xm * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 2400 }], lands: hasLand ? [{ x0: Math.min((xm - 200) * f, s.len / 2 * f), x1: Math.max((xm - 200) * f, s.len / 2 * f), z0: -s.w / 2, z1: s.w / 2, y: s.rise ?? 2400, after: 0 }] : [], total: 0, unit: 0, esc: true, ramp: true };
+        return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: xm * f, dir: f, z: 0, n: 0, y0: 0, y1: s.rise ?? 2400 }], lands: hasLand ? [{ x0: Math.min((xm + 150) * f, (s.len / 2 + 800) * f), x1: Math.max((xm + 150) * f, (s.len / 2 + 800) * f), z0: -s.w / 2, z1: s.w / 2, y: s.rise ?? 2400, after: 0 }] : [], total: 0, unit: 0, esc: true, ramp: true };   // 末端平台板整体外移 350mm；围栏保持原外移 200mm 位置不跟随
       }
       if (s.type === 'steps') { const f = s.flipX ? -1 : 1; return { N: 1, w: s.w, runs: [{ x0: -s.len / 2 * f, x1: s.len / 2 * f, dir: f, z: 0, n: Math.max(1, s.steps || 3), y0: 0, y1: s.rise ?? 450 }], lands: [], total: 0, unit: 0, steps: true }; }
       if (s.type === 'ladder') { const d = s.len ?? 600; return { N: 1, w: s.w, runs: [{ x0: -d / 2, x1: d / 2, dir: 1, z: 0, n: 0, y0: 0, y1: 0 }], lands: [], total: 0, unit: 0, ladder: true }; }   // 梯子：垂直攀爬，俯视只占窄条进深；y1 = 0 不产生支撑高度（攀爬由 ladderClimb 处理）
@@ -14175,25 +14175,25 @@
           wx(s.x) + xs * caD + W / 2 * saD, wz(s.y) + xs * saD - W / 2 * caD,
           yp, Math.min(yi, yp + .34), .25, true);
       }
-      if (lay0.lands.length) {                                 // 末端平台：实心楼板压住梯段端头（组局部 [L/2-W-0.2, L/2]，前后翻转由组旋转承担）+ 底部实体碰撞
-        const py = Math.max(.12, lay0.lands[0].y / 1000), pw = W + .2;
+      if (lay0.lands.length) {                                 // 末端平台：实心楼板压住梯段端头（组局部 [L/2-W-0.2, L/2+0.45]，向外挑 450mm），顶面抬高 120mm 盖住梯级端头，前后翻转由组旋转承担 + 底部实体碰撞
+        const py = Math.max(.12, lay0.lands[0].y / 1000), pyT = py + .12, pw = W + .65;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(pw, .12, W), metal);
-        slab.position.set(L / 2 - W / 2 - .1, py - .06, 0); slab.castShadow = slab.receiveShadow = true; g.add(slab);
-        const c0 = [wx(s.x) + (L / 2 - W - .2) * caD, wz(s.y) + (L / 2 - W - .2) * saD], c1 = [wx(s.x) + L / 2 * caD, wz(s.y) + L / 2 * saD];
-        colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), 0, py]);
-        if (s.railLand !== false) {                            // 平台围栏：外端 + 两侧悬空边（接梯段的一边不围），围挡栏板 + 扶手带 + 碰撞
+        slab.position.set(L / 2 - W / 2 + .125, pyT - .06, 0); slab.castShadow = slab.receiveShadow = true; g.add(slab);
+        const c0 = [wx(s.x) + (L / 2 - W - .2) * caD, wz(s.y) + (L / 2 - W - .2) * saD], c1 = [wx(s.x) + (L / 2 + .45) * caD, wz(s.y) + (L / 2 + .45) * saD];
+        colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), 0, pyT]);
+        if (s.railLand !== false) {                            // 平台围栏：外端 + 两侧悬空边（接梯段的一边不围），围挡栏板 + 扶手带 + 碰撞（随平台顶面抬高）
           const fence = (x0, z0, x1, z1) => {
             const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, len3 = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0);
             const pn = new THREE.Mesh(new THREE.BoxGeometry(len3, railH, .035), panelMat);
-            pn.position.set(cx, py + railH / 2, cz); pn.rotation.y = ry; g.add(pn);
+            pn.position.set(cx, pyT + railH / 2, cz); pn.rotation.y = ry; g.add(pn);
             const rl = new THREE.Mesh(new THREE.BoxGeometry(len3, .075, .1), railMat);
-            rl.position.set(cx, py + dRail, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
+            rl.position.set(cx, pyT + dRail, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
             const w0 = [wx(s.x) + x0 * caD - z0 * saD, wz(s.y) + x0 * saD + z0 * caD], w1 = [wx(s.x) + x1 * caD - z1 * saD, wz(s.y) + x1 * saD + z1 * caD];
-            addBarrier(w0[0], w0[1], w1[0], w1[1], 0, py + railH, .18);
+            addBarrier(w0[0], w0[1], w1[0], w1[1], 0, pyT + railH, .18);
           };
           const fs = s.fenceSide || 'all';
-          if (fs !== 'sides') fence(L / 2, -W / 2, L / 2, W / 2);
-          if (fs !== 'end') { fence(L / 2 - W - .2, -W / 2, L / 2, -W / 2); fence(L / 2 - W - .2, W / 2, L / 2, W / 2); }
+          if (fs !== 'sides') fence(L / 2 + .65, -W / 2, L / 2 + .65, W / 2);
+          if (fs !== 'end') { fence(L / 2 - W, -W / 2, L / 2 + .65, -W / 2); fence(L / 2 - W, W / 2, L / 2 + .65, W / 2); }
         }
       }
       archUp.add(g);
@@ -14272,22 +14272,22 @@
           addBarrier(q0[0], q0[1], q1[0], q1[1], yp, Math.min(yi, yp + .34), .25, true);
         }
       });
-      lay.lands.forEach((L, li) => {                          // 折返平台：实心楼板 + 楼板式碰撞（只挡板体 y∈[py-.12, py]；角点经朝向旋转换算，dir 为 90° 倍数时 AABB 仍轴对齐）——近端平台下方是另一跑的起步区，不能做成落地实体
-        const px = (L.x0 + L.x1) / 2, pz = (L.z0 + L.z1) / 2, pw = Math.max(0, (L.x1 - L.x0) / 1000), pd = Math.max(0, (L.z1 - L.z0) / 1000), py = Math.max(.12, L.y / 1000);
+      lay.lands.forEach((L, li) => {                          // 折返平台：实心楼板 + 楼板式碰撞（只挡板体；顶面抬高 120mm 盖住梯级端头，外挑 450mm 已在 stairLayout 平台矩形里；角点经朝向旋转换算，dir 为 90° 倍数时 AABB 仍轴对齐）——近端平台下方是另一跑的起步区，不能做成落地实体
+        const px = (L.x0 + L.x1) / 2, pz = (L.z0 + L.z1) / 2, pw = Math.max(0, (L.x1 - L.x0) / 1000), pd = Math.max(0, (L.z1 - L.z0) / 1000), py = Math.max(.12, L.y / 1000), pyT = py + .12;
         const slab = new THREE.Mesh(new THREE.BoxGeometry(pw, .12, pd), metal);
-        slab.position.set(px / 1000, py - .06, pz / 1000); slab.castShadow = slab.receiveShadow = true; g.add(slab);
+        slab.position.set(px / 1000, pyT - .06, pz / 1000); slab.castShadow = slab.receiveShadow = true; g.add(slab);
         const c0 = toW(L.x0 / 1000, L.z0 / 1000), c1 = toW(L.x1 / 1000, L.z1 / 1000);
-        colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), Math.max(0, py - .12), py]);
+        colliders.push([Math.min(c0[0], c1[0]), Math.min(c0[1], c1[1]), Math.max(c0[0], c1[0]), Math.max(c0[1], c1[1]), Math.max(0, pyT - .12), pyT]);
         if (s.railLand !== false) {                           // 平台围栏：外露 x 边（远离中心，另一侧接梯段）+ 两侧悬空边，围挡栏板 + 扶手带 + 碰撞；方向可设四周 / 仅外端 / 仅两侧
           const xa = Math.min(L.x0, L.x1) / 1000, xb = Math.max(L.x0, L.x1) / 1000, za = L.z0 / 1000, zb = L.z1 / 1000, fs = s.fenceSide || 'all';
           const fence = (x0, z0, x1, z1, th = .035) => {
             const cx = (x0 + x1) / 2, cz = (z0 + z1) / 2, len3 = Math.hypot(x1 - x0, z1 - z0), ry = -Math.atan2(z1 - z0, x1 - x0);
             const pn = new THREE.Mesh(new THREE.BoxGeometry(len3, railH, th), panelMat);
-            pn.position.set(cx, py + railH / 2, cz); pn.rotation.y = ry; g.add(pn);
+            pn.position.set(cx, pyT + railH / 2, cz); pn.rotation.y = ry; g.add(pn);
             const rl = new THREE.Mesh(new THREE.BoxGeometry(len3, .075, Math.max(th, .1)), railMat);
-            rl.position.set(cx, py + dRail, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
+            rl.position.set(cx, pyT + dRail, cz); rl.rotation.y = ry; rl.castShadow = true; g.add(rl);
             const [w0, w1] = [toW(x0, z0), toW(x1, z1)];
-            addBarrier(w0[0], w0[1], w1[0], w1[1], py - .12, py + railH, .18);   // 碰撞只覆盖平台板体以上（与楼板碰撞同底），不能从地面立起——近端平台外露边正对一跑入口，栏板下方要留地面通道
+            addBarrier(w0[0], w0[1], w1[0], w1[1], pyT - .12, pyT + railH, .18);   // 碰撞只覆盖平台板体以上（与楼板碰撞同底），不能从地面立起——近端平台外露边正对一跑入口，栏板下方要留地面通道
           };
           const xOut = Math.abs(L.x0) > Math.abs(L.x1) ? xa : xb;
           if (fs !== 'sides') fence(xOut, za, xOut, zb);
@@ -16934,7 +16934,7 @@
           cand.push((r.y0 + Math.max(0, Math.min(1, t)) * (r.y1 - r.y0)) / 1000);
         });
         lay.lands.forEach(L => {
-          if (lx >= Math.min(L.x0, L.x1) && lx <= Math.max(L.x0, L.x1) && ly >= L.z0 && ly <= L.z1) cand.push(L.y / 1000);
+          if (lx >= Math.min(L.x0, L.x1) && lx <= Math.max(L.x0, L.x1) && ly >= L.z0 && ly <= L.z1) cand.push(L.y / 1000 + (s.type === 'esc' ? .18 : 0));   // 自动扶梯平台顶面抬高 180mm，漫游高度同步
         });
       });
       sills.forEach(s => {                                    // 电梯门抬高门槛：按门宽范围作为可踩踏台面（斜墙也按沿墙投影判定）

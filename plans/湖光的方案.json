@@ -1132,12 +1132,13 @@
       "w": 1000,
       "len": 12000,
       "dir": 0,
-      "rise": 4200,
+      "rise": 6000,
       "type": "esc",
-      "flipX": true,
+      "flipX": false,
       "handMat": "black",
       "panelMat": "glass",
-      "runs": 2
+      "runs": 2,
+      "flipZ": true
     },
     {
       "id": "fmwnhpwze99",
@@ -1158,8 +1159,8 @@
       "dir": 0,
       "rise": 2400,
       "type": "esc",
-      "railLand": false,
-      "land": false
+      "railLand": true,
+      "land": true
     }
   ],
   "wallH": {
