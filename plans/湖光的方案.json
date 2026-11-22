@@ -1168,11 +1168,41 @@
         "CWfmwkvt9s9283": 3200,
         "CWfmwkvnffb262": 3200
       },
-      "entryDoor": "Ofmwhuwjk895"
+      "entryDoor": "Ofmwhuwjk895",
+      "roomLayoutInitDone": true
     },
     "fmws2abuc246": {
       "furniture": [],
-      "rooms": {},
+      "rooms": {
+        "__t2": {
+          "name": "tmp2",
+          "mat": "tile800"
+        },
+        "fmws3s7qw149": {
+          "name": "电梯井",
+          "mat": "tile800"
+        },
+        "fmws3s7qw150": {
+          "name": "楼梯间",
+          "mat": "tile800"
+        },
+        "fmws3s7qw151": {
+          "name": "大厅",
+          "mat": "tile800"
+        },
+        "fmws3s7qw152": {
+          "name": "厕所",
+          "mat": "antislip"
+        },
+        "fmws3s7qw153": {
+          "name": "过道",
+          "mat": "tile600"
+        },
+        "fmws3s7qw154": {
+          "name": "厨房",
+          "mat": "terrazzo"
+        }
+      },
       "demolished": [],
       "measures": [],
       "walls": [
@@ -1475,7 +1505,162 @@
         "s1"
       ],
       "bover": {},
-      "roomsExtra": [],
+      "roomsExtra": [
+        {
+          "id": "fmws3s7qw148",
+          "poly": [
+            [
+              1460,
+              8770
+            ],
+            [
+              3260,
+              8770
+            ],
+            [
+              3260,
+              10570
+            ],
+            [
+              1460,
+              10570
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws3s7qw149",
+          "poly": [
+            [
+              7220,
+              2260
+            ],
+            [
+              8600,
+              2260
+            ],
+            [
+              8600,
+              4230
+            ],
+            [
+              7220,
+              4230
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws3s7qw150",
+          "poly": [
+            [
+              8850,
+              2260
+            ],
+            [
+              13090,
+              2260
+            ],
+            [
+              13100,
+              4230
+            ],
+            [
+              8860,
+              4230
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws3s7qw151",
+          "poly": [
+            [
+              -160,
+              2260
+            ],
+            [
+              7010,
+              2260
+            ],
+            [
+              6970,
+              6720
+            ],
+            [
+              -160,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws3s7qw152",
+          "poly": [
+            [
+              10710,
+              5680
+            ],
+            [
+              13100,
+              5680
+            ],
+            [
+              13090,
+              6720
+            ],
+            [
+              10730,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws3s7qw153",
+          "poly": [
+            [
+              10450,
+              4440
+            ],
+            [
+              13100,
+              4440
+            ],
+            [
+              13100,
+              5450
+            ],
+            [
+              10480,
+              5450
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws3s7qw154",
+          "poly": [
+            [
+              6990,
+              4460
+            ],
+            [
+              10440,
+              4470
+            ],
+            [
+              10500,
+              6720
+            ],
+            [
+              6980,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        }
+      ],
       "notes": [],
       "dims": [],
       "rails": [],
@@ -1518,7 +1703,9 @@
       ],
       "pillars": [],
       "wallH": {},
-      "entryDoor": null
+      "entryDoor": null,
+      "roomLayoutInitDone": true,
+      "roomLayoutFrom": "f1"
     }
   },
   "layers": {
