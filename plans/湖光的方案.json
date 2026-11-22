@@ -5,10 +5,6 @@
       "name": "tmp2",
       "mat": "tile800"
     },
-    "Xfmwhw4py093": {
-      "name": "大厅",
-      "mat": "tile800"
-    },
     "Xfmwhw5jrc94": {
       "name": "厕所",
       "mat": "antislip"
@@ -20,6 +16,10 @@
     "Xfmwhwa57596": {
       "name": "厨房",
       "mat": "terrazzo"
+    },
+    "Xfmws5xd5z427": {
+      "name": "大厅",
+      "mat": "tile800"
     }
   },
   "demolished": [],
@@ -353,28 +353,6 @@
       "mat": "tile800"
     },
     {
-      "id": "Xfmwhw4py093",
-      "poly": [
-        [
-          -160,
-          2260
-        ],
-        [
-          7010,
-          2260
-        ],
-        [
-          6970,
-          6720
-        ],
-        [
-          -160,
-          6720
-        ]
-      ],
-      "mat": "tile800"
-    },
-    {
       "id": "Xfmwhw5jrc94",
       "poly": [
         [
@@ -439,6 +417,28 @@
         ]
       ],
       "mat": "tile800"
+    },
+    {
+      "id": "Xfmws5xd5z427",
+      "poly": [
+        [
+          -250,
+          2260
+        ],
+        [
+          7110,
+          2260
+        ],
+        [
+          7110,
+          6720
+        ],
+        [
+          -250,
+          6820
+        ]
+      ],
+      "mat": "tile800"
     }
   ],
   "entryDoor": "Ofmwhuwjk895",
@@ -465,15 +465,15 @@
     }
   ],
   "wallH": {
-    "CWfmwhqg1hn185": 4200,
-    "CWfmwhqg4po186": 4200,
-    "CWfmwhqj7n7192": 4200,
-    "CWfmwhqizs2191": 4200,
-    "CWfmwhqtknh93": 4200,
-    "CWfmwhqkgdw95": 4200,
-    "CWfmwhqknzq97": 4200,
-    "CWfmwhqg7q7187": 4200,
-    "CWfmwhqg9wc188": 4200,
+    "CWfmwhqg1hn185": 4100,
+    "CWfmwhqg4po186": 4100,
+    "CWfmwhqj7n7192": 4100,
+    "CWfmwhqizs2191": 4100,
+    "CWfmwhqtknh93": 4100,
+    "CWfmwhqkgdw95": 4100,
+    "CWfmwhqknzq97": 4100,
+    "CWfmwhqg7q7187": 4100,
+    "CWfmwhqg9wc188": 4100,
     "CWfmwkvqy7g280": 3200,
     "CWfmwkvnffb264": 3200,
     "CWfmwkvvsh1284": 3200,
@@ -490,7 +490,48 @@
   "rails": [],
   "beams": [],
   "levels": [],
-  "slabs": [],
+  "slabs": [
+    {
+      "id": "fmws6onbq148",
+      "x": 6480,
+      "y": 4445,
+      "w": 13730,
+      "d": 4920,
+      "thick": 100,
+      "z": 0,
+      "farea": true
+    },
+    {
+      "id": "fmws8i7ny148",
+      "x": 6475,
+      "y": 4470,
+      "w": 13750,
+      "d": 5010,
+      "thick": 100,
+      "z": 0,
+      "top": true
+    },
+    {
+      "id": "fmwsal52p148",
+      "x": 7920,
+      "y": 3240,
+      "w": 1370,
+      "d": 1990,
+      "thick": 120,
+      "z": 0,
+      "well": "lift"
+    },
+    {
+      "id": "fmwsalqlh149",
+      "x": 10980,
+      "y": 3250,
+      "w": 4240,
+      "d": 1970,
+      "thick": 120,
+      "z": 0,
+      "well": "stair"
+    }
+  ],
   "parapets": [],
   "canopies": [],
   "north": {
@@ -557,10 +598,6 @@
           "name": "tmp2",
           "mat": "tile800"
         },
-        "Xfmwhw4py093": {
-          "name": "大厅",
-          "mat": "tile800"
-        },
         "Xfmwhw5jrc94": {
           "name": "厕所",
           "mat": "antislip"
@@ -572,6 +609,10 @@
         "Xfmwhwa57596": {
           "name": "厨房",
           "mat": "terrazzo"
+        },
+        "Xfmws5xd5z427": {
+          "name": "大厅",
+          "mat": "tile800"
         }
       },
       "demolished": [],
@@ -905,28 +946,6 @@
           "mat": "tile800"
         },
         {
-          "id": "Xfmwhw4py093",
-          "poly": [
-            [
-              -160,
-              2260
-            ],
-            [
-              7010,
-              2260
-            ],
-            [
-              6970,
-              6720
-            ],
-            [
-              -160,
-              6720
-            ]
-          ],
-          "mat": "tile800"
-        },
-        {
           "id": "Xfmwhw5jrc94",
           "poly": [
             [
@@ -991,6 +1010,28 @@
             ]
           ],
           "mat": "tile800"
+        },
+        {
+          "id": "Xfmws5xd5z427",
+          "poly": [
+            [
+              -250,
+              2260
+            ],
+            [
+              7110,
+              2260
+            ],
+            [
+              7110,
+              6720
+            ],
+            [
+              -250,
+              6820
+            ]
+          ],
+          "mat": "tile800"
         }
       ],
       "notes": [],
@@ -998,7 +1039,48 @@
       "rails": [],
       "beams": [],
       "levels": [],
-      "slabs": [],
+      "slabs": [
+        {
+          "id": "fmws6onbq148",
+          "x": 6480,
+          "y": 4445,
+          "w": 13730,
+          "d": 4920,
+          "thick": 100,
+          "z": 0,
+          "farea": true
+        },
+        {
+          "id": "fmws8i7ny148",
+          "x": 6475,
+          "y": 4470,
+          "w": 13750,
+          "d": 5010,
+          "thick": 100,
+          "z": 0,
+          "top": true
+        },
+        {
+          "id": "fmwsal52p148",
+          "x": 7920,
+          "y": 3240,
+          "w": 1370,
+          "d": 1990,
+          "thick": 120,
+          "z": 0,
+          "well": "lift"
+        },
+        {
+          "id": "fmwsalqlh149",
+          "x": 10980,
+          "y": 3250,
+          "w": 4240,
+          "d": 1970,
+          "thick": 120,
+          "z": 0,
+          "well": "stair"
+        }
+      ],
       "parapets": [],
       "canopies": [],
       "north": {
@@ -1044,15 +1126,15 @@
       ],
       "pillars": [],
       "wallH": {
-        "CWfmwhqg1hn185": 4200,
-        "CWfmwhqg4po186": 4200,
-        "CWfmwhqj7n7192": 4200,
-        "CWfmwhqizs2191": 4200,
-        "CWfmwhqtknh93": 4200,
-        "CWfmwhqkgdw95": 4200,
-        "CWfmwhqknzq97": 4200,
-        "CWfmwhqg7q7187": 4200,
-        "CWfmwhqg9wc188": 4200,
+        "CWfmwhqg1hn185": 4100,
+        "CWfmwhqg4po186": 4100,
+        "CWfmwhqj7n7192": 4100,
+        "CWfmwhqizs2191": 4100,
+        "CWfmwhqtknh93": 4100,
+        "CWfmwhqkgdw95": 4100,
+        "CWfmwhqknzq97": 4100,
+        "CWfmwhqg7q7187": 4100,
+        "CWfmwhqg9wc188": 4100,
         "CWfmwkvqy7g280": 3200,
         "CWfmwkvnffb264": 3200,
         "CWfmwkvvsh1284": 3200,
@@ -1074,14 +1156,6 @@
           "name": "tmp2",
           "mat": "tile800"
         },
-        "Xfmws4x433148": {
-          "name": "大厅",
-          "mat": "tile800"
-        },
-        "Xfmws4xbwq149": {
-          "name": "进门厅",
-          "mat": "tile800"
-        },
         "Xfmws4xsaq150": {
           "name": "厨房",
           "mat": "tile800"
@@ -1098,8 +1172,17 @@
           "name": "卫生间",
           "mat": "tile800"
         },
-        "Xfmws4yknx154": {
+        "Xfmws6c30c393": {
           "name": "房间",
+          "mat": "tile800"
+        },
+        "Xfmws6c9zl394": {
+          "name": "大厅",
+          "mat": "tile800",
+          "ceil": false
+        },
+        "Xfmws6cgf6395": {
+          "name": "进门厅",
           "mat": "tile800"
         }
       },
@@ -1148,17 +1231,6 @@
           "b": [
             -1730,
             2000
-          ]
-        },
-        {
-          "id": "fmwkvnffb271",
-          "a": [
-            8714,
-            2250
-          ],
-          "b": [
-            8714,
-            4310
           ]
         },
         {
@@ -1226,6 +1298,28 @@
             1566.000160264909,
             6600
           ]
+        },
+        {
+          "id": "fmws5vzwk348",
+          "a": [
+            8714,
+            2260
+          ],
+          "b": [
+            8714,
+            4320
+          ]
+        },
+        {
+          "id": "fmws5vzwk352",
+          "a": [
+            7110,
+            4230
+          ],
+          "b": [
+            7106,
+            2260
+          ]
         }
       ],
       "openings": [
@@ -1242,11 +1336,11 @@
         {
           "id": "fmwkvnffb261",
           "wall": "CWfmwkvnffb257",
-          "c": 8872.728682523035,
+          "c": 10350,
           "w": 900,
           "kind": "window",
           "flip": true,
-          "sill": 1800,
+          "sill": 1200,
           "wh": 1200
         },
         {
@@ -1278,19 +1372,6 @@
           "flip": true,
           "grille": true,
           "wh": 1800
-        },
-        {
-          "id": "fmwkvnffb272",
-          "wall": "CWfmwkvnffb271",
-          "c": 499.061279296875,
-          "w": 900,
-          "kind": "elev",
-          "flip": false,
-          "dh": 2400,
-          "sill": 0,
-          "btn": "l",
-          "liftId": "fmwjjjlg394",
-          "liftFloor": 1
         },
         {
           "id": "fmwkvnffb274",
@@ -1330,6 +1411,38 @@
           "grille": true,
           "wh": 1800,
           "panes": 4
+        },
+        {
+          "id": "fmws5vzwk357",
+          "wall": "CWfmws5vzwk348",
+          "c": 519.10400390625,
+          "w": 900,
+          "kind": "elev",
+          "flip": false,
+          "dh": 2400,
+          "sill": 0,
+          "btn": "l",
+          "liftId": "fmwjjjlg394",
+          "liftFloor": 1
+        },
+        {
+          "id": "fmws9wp08148",
+          "wall": "CWfmwkvnffb257",
+          "c": 15071.419423622738,
+          "w": 610,
+          "kind": "hwin",
+          "flip": false,
+          "sill": 2100
+        },
+        {
+          "id": "fmwsa73bi149",
+          "wall": "CWfmwkvqy7g280",
+          "c": 114.21805176183625,
+          "w": 2140,
+          "kind": "window",
+          "flip": false,
+          "grille": true,
+          "wh": 1800
         }
       ],
       "deletedWalls": [
@@ -1580,50 +1693,6 @@
           "mat": "tile800"
         },
         {
-          "id": "Xfmws4x433148",
-          "poly": [
-            [
-              1570,
-              2100
-            ],
-            [
-              6970,
-              2100
-            ],
-            [
-              6970,
-              6810
-            ],
-            [
-              1570,
-              6810
-            ]
-          ],
-          "mat": "tile800"
-        },
-        {
-          "id": "Xfmws4xbwq149",
-          "poly": [
-            [
-              6940,
-              4310
-            ],
-            [
-              10590,
-              4310
-            ],
-            [
-              10590,
-              6710
-            ],
-            [
-              6930,
-              6710
-            ]
-          ],
-          "mat": "tile800"
-        },
-        {
           "id": "Xfmws4xsaq150",
           "poly": [
             [
@@ -1653,16 +1722,16 @@
               4310
             ],
             [
-              13250,
+              13100,
               4310
             ],
             [
-              13250,
-              5620
+              13100,
+              5450
             ],
             [
               10590,
-              5620
+              5470
             ]
           ],
           "mat": "tile800"
@@ -1671,8 +1740,8 @@
           "id": "Xfmws4y6kg152",
           "poly": [
             [
-              13250,
-              4310
+              13340,
+              4320
             ],
             [
               14410,
@@ -1683,7 +1752,7 @@
               6710
             ],
             [
-              13250,
+              13360,
               6710
             ]
           ],
@@ -1712,7 +1781,95 @@
           "mat": "tile800"
         },
         {
-          "id": "Xfmws4yknx154",
+          "id": "fmws5vzwk368",
+          "poly": [
+            [
+              -160,
+              2260
+            ],
+            [
+              7010,
+              2260
+            ],
+            [
+              6970,
+              6720
+            ],
+            [
+              -160,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws5vzwk369",
+          "poly": [
+            [
+              10710,
+              5680
+            ],
+            [
+              13100,
+              5680
+            ],
+            [
+              13090,
+              6720
+            ],
+            [
+              10730,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws5vzwk370",
+          "poly": [
+            [
+              10450,
+              4440
+            ],
+            [
+              13100,
+              4440
+            ],
+            [
+              13100,
+              5450
+            ],
+            [
+              10480,
+              5450
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "fmws5vzwk371",
+          "poly": [
+            [
+              6990,
+              4460
+            ],
+            [
+              10440,
+              4470
+            ],
+            [
+              10500,
+              6720
+            ],
+            [
+              6980,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmws6c30c393",
           "poly": [
             [
               -1730,
@@ -1724,11 +1881,55 @@
             ],
             [
               1570,
-              6710
+              6600
             ],
             [
               -1730,
-              6710
+              6600
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmws6c9zl394",
+          "poly": [
+            [
+              1570,
+              2250
+            ],
+            [
+              7050,
+              2250
+            ],
+            [
+              7050,
+              6820
+            ],
+            [
+              1570,
+              6820
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmws6cgf6395",
+          "poly": [
+            [
+              7110,
+              4320
+            ],
+            [
+              10600,
+              4320
+            ],
+            [
+              10600,
+              6720
+            ],
+            [
+              7110,
+              6720
             ]
           ],
           "mat": "tile800"
@@ -1739,7 +1940,48 @@
       "rails": [],
       "beams": [],
       "levels": [],
-      "slabs": [],
+      "slabs": [
+        {
+          "id": "fmws6oxr1149",
+          "x": 6350,
+          "y": 4480,
+          "w": 16410,
+          "d": 4960,
+          "thick": 100,
+          "z": 0,
+          "farea": true
+        },
+        {
+          "id": "fmws8io7r149",
+          "x": 6355,
+          "y": 4460,
+          "w": 16440,
+          "d": 4960,
+          "thick": 100,
+          "z": 0,
+          "top": true
+        },
+        {
+          "id": "fmwsamkpp150",
+          "x": 10970,
+          "y": 3240,
+          "w": 4210,
+          "d": 1970,
+          "thick": 120,
+          "z": 0,
+          "well": "stair"
+        },
+        {
+          "id": "fmwsamosp151",
+          "x": 7900,
+          "y": 3195,
+          "w": 1310,
+          "d": 1940,
+          "thick": 120,
+          "z": 0,
+          "well": "lift"
+        }
+      ],
       "parapets": [],
       "canopies": [],
       "north": null,
@@ -1761,7 +2003,7 @@
         {
           "id": "fmwkw35uw139",
           "x": 10970,
-          "y": 3210,
+          "y": 3220,
           "w": 950,
           "len": 4250,
           "dir": 0,
@@ -1775,7 +2017,23 @@
         }
       ],
       "pillars": [],
-      "wallH": {},
+      "wallH": {
+        "CWfmwkvnffb273": 3100,
+        "CWfmwkvt9s9283": 3100,
+        "CWfmwkvnffb262": 3100,
+        "CWfmws5vzwk350": 3100,
+        "CWfmwkvnffb277": 3100,
+        "CWfmwkvnffb264": 3100,
+        "CWfmwkvvsh1284": 3100,
+        "CWfmwkvnffb269": 3100,
+        "CWfmwkvnffb257": 3100,
+        "CWfmwkvnffb278": 3100,
+        "CWfmwkvnffb271": 3100,
+        "CWfmws5vzwk351": 3100,
+        "CWfmwkvqy7g280": 3100,
+        "CWfmws5vzwk348": 3100,
+        "CWfmws5vzwk352": 3100
+      },
       "entryDoor": null,
       "roomLayoutInitDone": true,
       "roomLayoutFrom": "f1"
@@ -1791,6 +2049,7 @@
     "axis": true,
     "bearing": false,
     "wallSnap": true,
-    "ghost": true
+    "ghost": false,
+    "slab": true
   }
 }

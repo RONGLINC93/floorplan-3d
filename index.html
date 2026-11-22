@@ -2978,6 +2978,8 @@
       <div class="grp only3d" id="toggles3d">
         <button class="btn chip on" data-t="furn" data-en="Furniture">家具</button>
         <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
+        <button class="btn chip on" data-t="slabs" data-en="Slabs" title="显示 / 隐藏 3D 里的地板 / 楼板与房间地面（便于俯视层间、查看楼梯洞口）"
+          data-en-title="Show / hide floors, slabs and room grounds in 3D (handy to look down between storeys and check stair openings)">楼板</button>
       </div>
       </div>
       <div class="spacer"></div>
@@ -3060,6 +3062,21 @@
             <button class="btn chip" data-dt="paint" title="材质刷：先用「选择」点一个房间作为样板（或在右侧选好材料），再点其他房间逐个刷地面材料"
               data-en-title="Material brush: pick a sample room with Select (or choose the material on the right), then click other rooms to apply the flooring one by one"
               data-en="Paint"><i data-lucide="paint-bucket"></i>材质刷</button>
+            <button class="btn chip" data-dt="farea" title="地板：两次点击对角点定义一块板；底标高 0 即整层实体楼面（3D 齐平地面、可站立、楼梯 / 电梯井自动开洞），调高底标高可当挑板 / 雨棚 / 空调板；板厚、底标高、宽深在右侧改"
+              data-en-title="Floor: click two opposite corners to define a slab; bottom level 0 makes the storey floor (flush solid deck in 3D, walkable, auto-opened for stairs / lift shafts), raise it for a cantilever / canopy / AC platform. Edit thickness, bottom level and size in the panel"
+              data-en="Floor"><i data-lucide="layout-panel-top"></i>地板</button>
+            <button class="btn chip" data-dt="topslab" title="楼板：跟地板一样两次点击对角点，但画在本层最顶端、顶面与楼层高齐平；3D 生成实体板，楼梯 / 电梯井 / 板洞同样自动镂空；板厚、宽深在右侧改"
+              data-en-title="Top slab: like Floor but placed at the very top of the storey, flush with the floor height; a solid slab in 3D, also auto-opened for stairs / lift shafts / slab holes. Edit thickness and size in the panel"
+              data-en="Top slab"><i data-lucide="box"></i>楼板</button>
+            <button class="btn chip" data-dt="stairwell" title="楼梯间：两次点击对角点画在楼梯上方；穿过地板处自动镂空，井内由楼梯踏步支撑"
+              data-en-title="Stairwell: click two opposite corners over the stairs; the floor slab opens where it crosses, supported by the stair treads"
+              data-en="Stairwell"><i data-lucide="arrow-up-square"></i>楼梯间</button>
+            <button class="btn chip" data-dt="liftwell" title="电梯井：两次点击对角点画在电梯上方；穿过地板处自动镂空，井内由电梯轿厢支撑"
+              data-en-title="Lift shaft: click two opposite corners over the lift; the floor slab opens where it crosses, supported by the lift car"
+              data-en="Lift shaft"><i data-lucide="box-select"></i>电梯井</button>
+            <button class="btn chip" data-dt="slabhole" title="楼板洞口：两次点击对角点；2D 虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边，穿过地板处真实镂空"
+              data-en-title="Slab opening: click two opposite corners; dashed outline with diagonal cross in 2D, hole with upstand cut into the slab in 3D"
+              data-en="Slab hole"><i data-lucide="square-dashed"></i>楼板洞口</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Doors">门</div>
@@ -3192,12 +3209,6 @@
             <button class="btn chip" data-dt="beam" title="梁：第一次点起点，第二次点终点；默认 200 宽 × 300 高、底标高 2400，可在右侧调"
               data-en-title="Beam: click start then end; 200 wide × 300 high, underside at 2400 by default, editable"
               data-en="Beam"><i data-lucide="rectangle-horizontal"></i>梁</button>
-            <button class="btn chip" data-dt="slab" title="楼板 / 挑板：两次点击对角点生成矩形板；板厚、底标高可改（底标高改 0 即落地楼板）"
-              data-en-title="Slab / cantilever: click two opposite corners; thickness and underside editable (set underside to 0 for a floor slab)"
-              data-en="Slab"><i data-lucide="box"></i>楼板</button>
-            <button class="btn chip" data-dt="slabhole" title="楼板洞口：两次点击对角点；2D 虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边"
-              data-en-title="Slab opening: click two opposite corners; dashed outline with diagonal cross in 2D, hole with upstand cut into the slab in 3D"
-              data-en="Slab hole"><i data-lucide="square-dashed"></i>楼板洞口</button>
             <button class="btn chip" data-dt="ceil" title="吊顶 / 局部下沉顶：两次点击对角点；默认板厚 150、底标高 2500，2D 虚线轮廓，3D 生成顶板"
               data-en-title="Ceiling / dropped soffit: click two opposite corners; 150 thick, underside at 2500 by default; dashed outline in 2D, ceiling slab in 3D"
               data-en="Ceiling"><i data-lucide="panel-top"></i>吊顶</button>
@@ -3459,6 +3470,8 @@
       <svg id="plan" class="tool-select" font-family="-apple-system,'PingFang SC','Microsoft YaHei',sans-serif">
         <defs id="defs"></defs>
         <g id="gGrid"></g>
+        <g id="gFarea"></g>
+        <g id="gWells"></g>
         <g id="gRooms"></g>
         <g id="gGhost" pointer-events="none"></g>
         <g id="gFurn"></g>
@@ -3956,7 +3969,12 @@
     function newFloor(id, name, h) { return { id: id || uid(), name: name || '', z: 0, h: Math.max(1200, Math.min(12000, Math.round(+h || 2800))) }; }
     function recalcFloors(s) { let z = 0; (s.floors || []).forEach(f => { f.z = z; z += f.h; }); return z; }
     function currentFloor(s = state) { return (s.floors || []).find(f => f.id === s.activeFloor) || (s.floors || [])[0] || null; }
-    function currentFloorH(s = state) { const f = currentFloor(s); return f ? f.h : 2800; }
+    /* 3D 整栋模式构建「其它楼层」时，state.activeFloor 仍是当前编辑层，所有「跟随层高」的取值（墙高 / 天花 / 吊灯杆 / 门洞上限 / 无高度弧形墙）必须改按正在构建的那一层自己的 h。
+       构建期间由 3D 模块写入 window.__buildFloorH（mm），构建完还原；传了自定义 s 的调用（撤销快照 / 楼层副本）不受影响。 */
+    function currentFloorH(s = state) {
+      if (s === state && window.__buildFloorH > 0) return window.__buildFloorH;
+      const f = currentFloor(s); return f ? f.h : 2800;
+    }
     function blankFloorData() { const b = blankState(), d = {}; FLOOR_KEYS.forEach(k => d[k] = b[k]); return d; }
     function packActiveFloor() {
       if (!state.byFloor || typeof state.byFloor !== 'object' || Array.isArray(state.byFloor)) state.byFloor = {};
@@ -4175,11 +4193,20 @@
       toast(tr(`已删除 ${cur.name}`, `Deleted ${cur.name}`));
     }
     // 全部房间 = 原始户型房间（含调整大小后的顶点覆盖 bover['R'+id]）+ 自己画的房间
-    const allRooms = () => ROOMS.map(r => {
+    let _builtGone = false, _builtGoneKey = null;
+    const builtGone = () => {                                     // 内置户型的墙是否全部被删 / 拆：整套户型都移除时，原始房间不再参与（否则只剩画布上看不见的隐形房间——整栋模式会为它们生成重叠地板、点选还会凭空创建隐形样式）
+      const key = (state.deletedWalls || []).join(',') + '|' + (state.demolished || []).join(',');
+      if (key !== _builtGoneKey) {
+        _builtGoneKey = key;
+        _builtGone = WALLS.every((w, i) => (state.deletedWalls || []).includes('w' + i) || (state.demolished || []).includes('w' + i));
+      }
+      return _builtGone;
+    };
+    const allRooms = () => (builtGone() ? [] : ROOMS.map(r => {
       const over = state.bover['R' + r.id];
       if (!over) return r;
       const b = bbox(over); return { ...r, poly: over, at: [(b[0] + b[2]) / 2, (b[1] + b[3]) / 2] };   // 覆盖后标签 / 吊灯跟随新中心
-    }).concat(state.roomsExtra);
+    })).concat(state.roomsExtra);
 
     const PX_MM = 25.4 / 96;                       // 1 CSS px = 0.2646 mm
     const COARSE = matchMedia('(pointer:coarse)').matches;   // iPad / 手机等触屏为主的设备
@@ -4195,7 +4222,7 @@
     const ui = {
       tool: 'select', drawTool: 'select', wallFree: false, sel: null, multi: [], mq: null, mA: null, mCur: null, dimA: null, dimCur: null, railA: null, railCur: null, beamA: null, beamCur: null, slabA: null, slabCur: null, parapetA: null, parapetCur: null, canopyA: null, canopyCur: null, rectA: null, rectCur: null, rectKind: null,
       rotBase: null, rotSnap: null, rotBefore: null, rotCur: null, rotAngle: 0, rotTyping: false, rotPick: false,
-      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, ghost: true }
+      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, ghost: true, slab: true }
     };
     /* 图层开关随方案保存：存到服务器（挂在方案 JSON 的 layers 字段），打开方案时还原 */
     function applyLayers(s) {
@@ -4204,6 +4231,7 @@
       if (!ly) return;
       Object.assign(ui.layers, ly);
       document.querySelectorAll('#layers .btn').forEach(b => b.classList.toggle('on', !!ui.layers[b.dataset.layer]));
+      window.View3D?.setSlabVis?.(ui.layers.slab !== false);     // 楼板开关随图层设置同步到 3D
       renderAll();                                               // gDims 显隐在 renderDims 里同步
     }
     let view = { x0: 0, y0: 0, s: .06, rot: 0 };
@@ -5782,12 +5810,13 @@
       if (ui.beamA && ui.beamCur) s += one(ui.beamA, ui.beamCur, '#a86b44');
       if (ui.parapetA && ui.parapetCur) s += one(ui.parapetA, ui.parapetCur, '#8a7f6d');
       if (ui.exA && ui.exCur) s += one(ui.exA, ui.exCur, '#7a6a4f');
-      if (ui.slabA && ui.slabCur) {                               // 楼板拖对角点预览
+      if (ui.slabA && ui.slabCur) {                               // 地板 / 层顶楼板 / 吊顶拖对角点预览
         const mx = Math.min(ui.slabA.x, ui.slabCur.x), my = Math.min(ui.slabA.y, ui.slabCur.y);
         const w = Math.abs(ui.slabCur.x - ui.slabA.x), h = Math.abs(ui.slabCur.y - ui.slabA.y);
-        s += `<rect x="${mx}" y="${my}" width="${w}" height="${h}" fill="#5b6656" fill-opacity=".06" stroke="#5b6656"
+        const pc = ui.drawTool === 'topslab' ? '#8a6d3b' : (ui.drawTool === 'farea' || ui.drawTool === 'slab') ? '#4a7a8c' : '#5b6656';
+        s += `<rect x="${mx}" y="${my}" width="${w}" height="${h}" fill="${pc}" fill-opacity=".06" stroke="${pc}"
           stroke-width="1.4" stroke-dasharray="90 60" vector-effect="non-scaling-stroke" pointer-events="none"/>
-          <text x="${mx + w / 2}" y="${my - 80}" font-size="200" text-anchor="middle" fill="#5b6656"
+          <text x="${mx + w / 2}" y="${my - 80}" font-size="200" text-anchor="middle" fill="${pc}"
           stroke="#fbf9f4" stroke-width="45" paint-order="stroke" pointer-events="none">${Math.round(w)} × ${Math.round(h)}</text>`;
       }
       if (ui.gateA && ui.gateCur) {                               // 院门：起终点预览
@@ -5815,20 +5844,72 @@
       }
       return s;
     }
-    function renderSlabs2() {                                   // 楼板 / 挑板：虚线矩形 + 板厚
-      return (state.slabs || []).map(s => {
+    function renderFAreas2() {                                  // 地板 / 层顶楼板：整块（填充 / 边框 / 对角线 / 标注）画在最底层 gFarea，作为层底 / 层顶基础；画布上其它对象全部排在它上面
+      return (state.slabs || []).filter(s => s.farea || s.top).map(s => {
+        const on = ui.sel?.kind === 'slab' && ui.sel.id === s.id, isTop = !!s.top;
+        const w = Math.max(100, s.w || 100), d = Math.max(100, s.d || 100);
+        const col = on ? '#b5653a' : isTop ? '#8a6d3b' : '#4a7a8c';
+        const x0 = s.x - w / 2, y0 = s.y - d / 2, x1 = s.x + w / 2, y1 = s.y + d / 2;
+        const box = `x="${x0}" y="${y0}" width="${w}" height="${d}"`;
+        return `<g data-slab="${s.id}" style="cursor:move">
+          <rect ${box} fill="${col}" fill-opacity="${on ? .16 : .10}" pointer-events="none"/>
+          <g pointer-events="none">
+            <rect ${box} fill="none" stroke="${col}" stroke-width="${on ? 1.8 : 1.1}" vector-effect="non-scaling-stroke"/>
+            <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
+            <line x1="${x0}" y1="${y1}" x2="${x1}" y2="${y0}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
+            <text x="${s.x}" y="${s.y}" font-size="200" text-anchor="middle" dominant-baseline="central" fill="${col}" font-weight="600"
+              stroke="#fbf9f4" stroke-width="45" paint-order="stroke">${isTop ? tr('楼板', 'Top slab') : tr('地板', 'Floor')} ${Math.round(s.thick ?? 120)}</text>
+          </g>
+          <rect ${box} fill="none" stroke="transparent" stroke-width="260" pointer-events="stroke"/>
+        </g>`;
+      }).join('');
+    }
+    function renderSlabs2() {                                   // 旧普通楼板 / 吊顶：虚线矩形 + 板厚（地板 / 层顶楼板在 gFarea，楼梯间 / 电梯井 / 楼板洞口在 gWells）
+      return (state.slabs || []).filter(s => !s.farea && !s.top && !s.well).map(s => {
         const on = ui.sel?.kind === 'slab' && ui.sel.id === s.id;
         const w = Math.max(100, s.w || 100), d = Math.max(100, s.d || 100);
-        const col = on ? '#b5653a' : '#5b6656', isCeil = !!s.ceil;
+        const isWellStair = s.well === 'stair', isWell = !!s.well;
+        const col = on ? '#b5653a' : isWellStair ? '#a06a3f' : s.well === 'lift' ? '#4f7482' : '#5b6656', isCeil = !!s.ceil;
+        const label = isWell ? (isWellStair ? tr('楼梯间', 'Stairwell') : tr('电梯井', 'Lift shaft')) : isCeil ? tr('吊顶', 'Ceiling') : tr('楼板', 'Slab');
         return `<g data-slab="${s.id}" style="cursor:move">
-          <rect x="${s.x - w / 2}" y="${s.y - d / 2}" width="${w}" height="${d}" fill="#5b6656" fill-opacity=".06"
+          <rect x="${s.x - w / 2}" y="${s.y - d / 2}" width="${w}" height="${d}" fill="#5b6656" fill-opacity="${isWell ? .04 : .06}"
             stroke="${col}" stroke-width="${on ? 1.8 : 1.1}" stroke-dasharray="90 60" vector-effect="non-scaling-stroke"/>
           ${isCeil ? '' : `<line x1="${s.x - w / 2}" y1="${s.y - d / 2}" x2="${s.x + w / 2}" y2="${s.y + d / 2}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
           <line x1="${s.x - w / 2}" y1="${s.y + d / 2}" x2="${s.x + w / 2}" y2="${s.y - d / 2}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>`}
           <text x="${s.x}" y="${s.y}" font-size="200" text-anchor="middle" dominant-baseline="central" fill="${col}" font-weight="600"
-            stroke="#fbf9f4" stroke-width="45" paint-order="stroke" pointer-events="none">${isCeil ? tr('吊顶', 'Ceiling') : tr('楼板', 'Slab')} ${Math.round(s.thick ?? 120)}</text>
+            stroke="#fbf9f4" stroke-width="45" paint-order="stroke" pointer-events="none">${label}${isWell ? '' : ' ' + Math.round(s.thick ?? 120)}</text>
         </g>`;
       }).join('');
+    }
+    function renderWells2() {                                   // 洞口层：电梯井 / 楼梯间 / 楼板洞口沉到底层区域，但排在地板 / 层顶楼板之上、其它所有对象之下
+      const T = (x, y, txt, col, fs = 180) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="central" fill="${col}" stroke="#fbf9f4" stroke-width="${Math.round(fs * .22)}" paint-order="stroke" pointer-events="none">${txt}</text>`;
+      let s = '';
+      (state.slabs || []).forEach(o => {
+        if (!o.well) return;
+        const on = ui.sel?.kind === 'slab' && ui.sel.id === o.id;
+        const w = Math.max(100, o.w || 100), d = Math.max(100, o.d || 100);
+        const col = on ? '#b5653a' : o.well === 'stair' ? '#a06a3f' : '#4f7482';
+        const x0 = o.x - w / 2, y0 = o.y - d / 2;
+        const label = o.well === 'stair' ? tr('楼梯间', 'Stairwell') : tr('电梯井', 'Lift shaft');
+        s += `<g data-slab="${o.id}" style="cursor:move">
+          <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="#5b6656" fill-opacity=".04"
+            stroke="${col}" stroke-width="${on ? 1.8 : 1.1}" stroke-dasharray="90 60" vector-effect="non-scaling-stroke"/>
+          <line x1="${x0}" y1="${y0}" x2="${x0 + w}" y2="${y0 + d}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
+          <line x1="${x0}" y1="${y0 + d}" x2="${x0 + w}" y2="${y0}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
+          ${T(o.x, o.y, label, col, 200)}</g>`;
+      });
+      (state.extras || []).forEach(e => {
+        if (e.type !== 'slabhole') return;
+        const on = ui.sel?.kind === 'extra' && ui.sel.id === e.id, col = on ? '#b5653a' : '#7a6a4f';
+        const x0 = e.x - e.w / 2, y0 = e.y - e.d / 2, { w, d } = e;
+        s += `<g data-extra="${e.id}" style="cursor:move">
+          <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${col}" fill-opacity=".07" stroke="${col}"
+            stroke-width="${on ? 2 : 1.1}" stroke-dasharray="90 60" vector-effect="non-scaling-stroke"/>
+          <line x1="${x0}" y1="${y0}" x2="${x0 + w}" y2="${y0 + d}" stroke="${col}" stroke-width="1" stroke-dasharray="90 60" vector-effect="non-scaling-stroke"/>
+          <line x1="${x0 + w}" y1="${y0}" x2="${x0}" y2="${y0 + d}" stroke="${col}" stroke-width="1" stroke-dasharray="90 60" vector-effect="non-scaling-stroke"/>
+          ${T(e.x, e.y, extraName(e), col)}</g>`;
+      });
+      return s;
     }
     function renderParapets2() {                                  // 女儿墙：双线 + 端封头
       return (state.parapets || []).map(p => {
@@ -6109,6 +6190,7 @@
     function renderExtras2() {
       const out = [], T = (x, y, txt, col, fs = 180) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="central" fill="${col}" stroke="#fbf9f4" stroke-width="${Math.round(fs * .22)}" paint-order="stroke" pointer-events="none">${txt}</text>`;
       (state.extras || []).forEach(e => {
+        if (e.type === 'slabhole') return;                       // 楼板洞口已移到洞口层 gWells（地板 / 楼板之上、其它对象之下）
         const on = ui.sel?.kind === 'extra' && ui.sel.id === e.id, col = on ? '#b5653a' : '#7a6a4f';
         if (isExtraLin(e.type)) {
           const L = Math.hypot(e.b[0] - e.a[0], e.b[1] - e.a[1]) || 1;
@@ -6321,6 +6403,10 @@
     }
     function renderNotes() {
       const g = $('#gNotes'); if (!g) return;
+      const gfa = $('#gFarea');
+      if (gfa) gfa.innerHTML = renderFAreas2();                 // 地板 / 层顶楼板在最底层当基础
+      const gw = $('#gWells');
+      if (gw) gw.innerHTML = renderWells2();                    // 电梯井 / 楼梯间 / 楼板洞口：贴在基础之上、房间 / 墙 / 门窗 / 家具等全部对象之下
       g.innerHTML = (state.notes || []).map(n => {
         const fs = Math.max(100, +n.size || 300), b = noteBBox(n);
         return `<g data-note="${n.id}" style="cursor:move">
@@ -7195,6 +7281,8 @@
     }
 
     function renderPanel() {
+      const __p = $('#panel'), __ae = document.activeElement;
+      if (__ae && __p && __p.contains(__ae)) { try { __ae.blur(); } catch (e) { } }   // 面板输入框还带焦点（如点画布切换选中）：先移走焦点——blur / change 处理器可能同步改 DOM，若留着焦点直接替换 innerHTML，节点在移除途中被移走会抛 NotFoundError
       renderFab();
       const p = $('#panel');
       if (ui.multi.length > 1) { p.innerHTML = multiPanel(); bindMultiPanel(); return; }   // 框选多选：整组操作面板
@@ -7449,18 +7537,26 @@
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
     function slabPanel(s) {
-      const isCeil = !!s.ceil;
-      return `<section><h3>${isCeil ? tr('吊顶 / 局部下沉顶', 'Ceiling') : tr('楼板 / 挑板', 'Slab')}</h3>
+      const isCeil = !!s.ceil, isFA = !!s.farea, isTop = !!s.top, isWell = !!s.well;
+      const title = isFA ? tr('地板', 'Floor') : isTop ? tr('楼板（层顶）', 'Top slab') : isWell ? (s.well === 'stair' ? tr('楼梯间', 'Stairwell') : tr('电梯井', 'Lift shaft')) : isCeil ? tr('吊顶 / 局部下沉顶', 'Ceiling') : tr('楼板 / 挑板', 'Slab');
+      const nameTitle = isFA ? tr('地板', 'Floor') : isTop ? tr('楼板', 'Top slab') : isWell ? (s.well === 'stair' ? tr('楼梯间', 'Stairwell') : tr('电梯井', 'Lift shaft')) : isCeil ? tr('吊顶', 'Ceiling') : tr('楼板', 'Slab');
+      return `<section><h3>${title}</h3>
     <div class="form">
-      ${nameField(s, (isCeil ? tr('吊顶', 'Ceiling') : tr('楼板', 'Slab')) + ' ' + objNo(state.slabs, s, 'ceil'))}
+      ${nameField(s, nameTitle + ' ' + objNo(state.slabs.filter(x => !!x.farea === isFA && !!x.top === isTop && !!x.ceil === isCeil && !!x.well === isWell), s, 'ceil'))}
       <label>${tr('宽', 'Width')} (mm)<input type="number" id="slW" value="${Math.round(s.w || 0)}" min="100" max="30000" step="10"></label>
       <label>${tr('进深', 'Depth')} (mm)<input type="number" id="slD" value="${Math.round(s.d || 0)}" min="100" max="30000" step="10"></label>
-      <label>${tr('板厚', 'Thickness')} (mm)<input type="number" id="slT" value="${Math.round(s.thick ?? (isCeil ? 150 : 120))}" min="40" max="1000" step="10"></label>
-      <label>${tr(isCeil ? '吊顶底标高' : '底标高', isCeil ? 'Bottom (ceiling)' : 'Bottom')} (mm)<input type="number" id="slZ" value="${Math.round(s.z ?? (isCeil ? 2500 : 0))}" min="-5000" max="20000" step="50"></label>
+      ${isWell ? '' : `<label>${tr('板厚', 'Thickness')} (mm)<input type="number" id="slT" value="${Math.round(s.thick ?? (isCeil ? 150 : 120))}" min="40" max="1000" step="10"></label>`}
+      ${isWell || isTop ? '' : `<label>${tr(isCeil ? '吊顶底标高' : '底标高', isCeil ? 'Bottom (ceiling)' : 'Bottom')} (mm)<input type="number" id="slZ" value="${Math.round(s.z ?? (isCeil ? 2500 : 0))}" min="-5000" max="20000" step="50"></label>`}
       <label>X (mm)<input type="number" id="slX" value="${Math.round(s.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="slY" value="${Math.round(s.y)}" step="10"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${isCeil
+    <div class="muted" style="margin-top:8px">${isFA
+          ? tr('地板定义一块板：底标高 0 时是整层实体楼面（3D 顶面与楼层地面齐平），整栋漫游时区域内可站立行走、走出区域会坠落，楼梯 / 电梯井 / 板洞会自动镂空；调高底标高可当挑板 / 雨棚 / 空调板。板厚、底标高、宽深在右侧改，每层分别绘制。', 'A floor defines one slab: with bottom level 0 it is the storey floor (solid deck flush with the floor in 3D, walkable in whole-building roam, auto-opened for stairs / lift shafts / slab holes); raise the bottom level for a cantilever / canopy / AC platform. Edit thickness, bottom level and size in the panel; draw per floor.')
+          : isTop
+          ? tr('楼板画在本层最顶端：顶面与楼层高齐平，3D 生成实体板并跟随各层层高；楼梯 / 电梯井 / 板洞同样自动镂空。板厚、宽深在右侧改，每层分别绘制。', 'A top slab sits at the very top of the storey, flush with that floor height; a solid slab in 3D that follows each storey height, also auto-opened for stairs / lift shafts / slab holes. Edit thickness and size in the panel; draw per floor.')
+          : isWell
+          ? tr('楼梯间 / 电梯井定义竖向洞口：穿过本层地板处自动镂空，井内由楼梯踏步 / 电梯轿厢支撑；2D 虚线加对角叉，每层分别绘制。', 'A stairwell / lift-shaft zone: the main floor slab is opened where they cross; stairs / the lift car support inside. Dashed outline with cross in 2D, drawn per floor.')
+          : isCeil
           ? tr('吊顶是悬在空中的顶板：底标高默认 2500（板底高），板厚 150；2D 虚线轮廓，3D 生成顶板，可用来做回字形吊顶、过道吊顶、局部下沉顶。', 'A suspended ceiling: bottom level 2500 by default, thickness 150. Dashed outline in 2D, a ceiling board in 3D — handy for perimeter / corridor / dropped ceilings.')
           : tr('底标高 = 板底高度：改成 0 即落地楼板，改 2400 可当挑板 / 雨棚 / 空调板；在图上拖动可整体移动。', 'Bottom = underside elevation. 0 makes a ground slab; 2400 works as a cantilever / canopy / AC platform. Drag on the plan to move.')}</div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
@@ -8504,7 +8600,7 @@
         ? `<span class="name">${esc(nm(f.name))}</span><button class="btn" data-a="rotL">↺</button><button class="btn" data-a="rotR">↻ ${tr('旋转', 'Rotate')}</button>
        <button class="btn" data-a="dup">${tr('复制', 'Duplicate')}</button><button class="btn danger" data-a="del">${tr('删除', 'Delete')}</button><span class="sep"></span>
        <button class="btn narrow-only" data-a="prop">${tr('属性', 'Properties')}</button><button class="btn" data-a="done">${tr('完成', 'Done')}</button>`
-        : `<span class="name">${esc(nm(state.rooms[r.id].name))}</span><button class="btn narrow-only" data-a="prop">${tr('地面 / 属性', 'Floor / Properties')}</button><button class="btn" data-a="done">${tr('完成', 'Done')}</button>`;
+        : `<span class="name">${esc(nm((state.rooms[r.id] || { name: tr('未命名房间', 'Room') }).name))}</span><button class="btn narrow-only" data-a="prop">${tr('地面 / 属性', 'Floor / Properties')}</button><button class="btn" data-a="done">${tr('完成', 'Done')}</button>`;
       fab.classList.add('show');
       fab.querySelectorAll('[data-a]').forEach(b => b.onclick = () => ({
         rotL: () => rotateSel(-90), rotR: () => rotateSel(90), dup: duplicateSel, del: deleteSel,
@@ -8552,7 +8648,8 @@
     function closeDrawers() { if (narrow()) drawer(null); }
 
     function roomPanel(r) {
-      const st = state.rooms[r.id], a = area(r.poly), [x0, y0, x1, y1] = bbox(r.poly), inside = state.furniture.filter(f => f.cx > x0 && f.cx < x1 && f.cy > y0 && f.cy < y1);
+      const st = state.rooms[r.id] || { mat: 'tile800', name: '' };   // 无样式房间只读默认值渲染，不点开面板就写数据（点击产生的隐形样式曾游离于撤销栈之外）
+      const a = area(r.poly), [x0, y0, x1, y1] = bbox(r.poly), inside = state.furniture.filter(f => f.cx > x0 && f.cx < x1 && f.cy > y0 && f.cy < y1);
       const mats = Object.entries(MATS).map(([k, m]) => `<button class="mat ${k === st.mat ? 'on' : ''}" data-mat="${k}"><i style="background:${m.sw}"></i><span>${nm(m.name)}<small>¥${m.price}/m²</small></span></button>`).join('');
       return `<section><h3>${tr('房间', 'Room')}</h3>
     <div class="form"><label class="full">${tr('名称', 'Name')}<input id="rName" value="${esc(nm(st.name))}"></label>
@@ -8572,18 +8669,20 @@
     }
     function bindRoomPanel() {
       const id = ui.sel.id;
-      $('#rName').onchange = e => mutate(() => state.rooms[id].name = e.target.value.trim() || state.rooms[id].name);
+      const ensure = () => { if (!state.rooms[id]) state.rooms[id] = { mat: 'tile800', name: '' }; };   // 真正编辑时才创建样式，且走 mutate 进撤销栈
+      $('#rName').onchange = e => mutate(() => { ensure(); state.rooms[id].name = e.target.value.trim() || state.rooms[id].name; });
       const rc = $('#rCeil');                                        // 天花高度：留空 = 自动跟随该房间四周的墙高
       if (rc) rc.onchange = e => {
         const v = parseFloat(e.target.value);
         mutate(() => {
+          ensure();
           if (!Number.isFinite(v) || v <= 0) delete state.rooms[id].ch;
           else state.rooms[id].ch = Math.max(2000, Math.min(8000, Math.round(v / 10) * 10));
         });
       };
       const rn = $('#rNoCeil');                                      // 无天花（楼梯间 / 挑空）：勾选后 3D 里不生成天花
-      if (rn) rn.onchange = e => mutate(() => { state.rooms[id].ceil = !e.target.checked; });
-      document.querySelectorAll('#panel [data-mat]').forEach(b => b.onclick = () => mutate(() => state.rooms[id].mat = b.dataset.mat));
+      if (rn) rn.onchange = e => mutate(() => { ensure(); state.rooms[id].ceil = !e.target.checked; });
+      document.querySelectorAll('#panel [data-mat]').forEach(b => b.onclick = () => mutate(() => { ensure(); state.rooms[id].mat = b.dataset.mat; }));
       document.querySelectorAll('#panel tr[data-fid]').forEach(tr => tr.onclick = () => select({ kind: 'furn', id: tr.dataset.fid }));
       if ($('#rDel')) $('#rDel').onclick = () => {
         mutate(() => {                                   // 自画房间：连同其配置一并移除（可撤销）
@@ -9819,7 +9918,7 @@
       else if (ui.sel?.kind === 'slab') {
         const id = ui.sel.id, o = (state.slabs || []).find(n => n.id === id);
         ui.sel = null; mutate(() => state.slabs = (state.slabs || []).filter(n => n.id !== id));
-        toast(o?.ceil ? tr('已删除吊顶 · Ctrl+Z 可撤销', 'Ceiling deleted · Ctrl+Z to undo') : tr('已删除楼板 · Ctrl+Z 可撤销', 'Slab deleted · Ctrl+Z to undo'));
+        toast(o?.farea ? tr('已删除地板 · Ctrl+Z 可撤销', 'Floor deleted · Ctrl+Z to undo') : o?.top ? tr('已删除楼板 · Ctrl+Z 可撤销', 'Top slab deleted · Ctrl+Z to undo') : o?.well ? tr('已删除井区 · Ctrl+Z 可撤销', 'Shaft deleted · Ctrl+Z to undo') : o?.ceil ? tr('已删除吊顶 · Ctrl+Z 可撤销', 'Ceiling deleted · Ctrl+Z to undo') : tr('已删除楼板 · Ctrl+Z 可撤销', 'Slab deleted · Ctrl+Z to undo'));
       }
       else if (ui.sel?.kind === 'parapet') {
         const id = ui.sel.id, o = (state.parapets || []).find(n => n.id === id);
@@ -10187,7 +10286,7 @@
     }
 
     /* ======================= 视图 ======================= */
-    const ROT_GROUPS = ['gGrid', 'gRooms', 'gFurn', 'gWalls', 'gOpen', 'gPillars', 'gStairs', 'gAxis', 'gLabels', 'gDims', 'gMeasure', 'gNotes', 'gDraw', 'gSel'];
+    const ROT_GROUPS = ['gGrid', 'gFarea', 'gWells', 'gRooms', 'gFurn', 'gWalls', 'gOpen', 'gPillars', 'gStairs', 'gAxis', 'gLabels', 'gDims', 'gMeasure', 'gNotes', 'gDraw', 'gSel'];
     function applyView() {
       const W = svg.clientWidth, H = svg.clientHeight, vw = W / view.s, vh = H / view.s;
       svg.setAttribute('viewBox', `${view.x0} ${view.y0} ${vw} ${vh}`);
@@ -11249,7 +11348,7 @@
         }
         return;
       }
-      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
+      if (ui.tool === 'draw' && ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool)) {   // 选择子工具不创建，落到下面的编辑链
         if (ui.drawTool === 'entry') {                                   // 入户工具：点门洞（原始门洞或自画的门）→ 设为全局唯一的入户门
           const og = t.closest('[data-bopen]'), oc = t.closest('[data-open]');
           let id = null;
@@ -11649,12 +11748,15 @@
                 : tr('已放灯具 · 夜景模式自动照亮，3D 点灯体可开 / 关；照亮半径 / 安装高度在右侧改', 'Lamp placed · lights up in night mode, click it in 3D to toggle; radius / height in the panel'));
           renderPillars(); return;
         }
-        if (ui.drawTool === 'slab' || ui.drawTool === 'ceil') {             // 楼板 / 挑板 / 吊顶：两次点击定对角点
-          const isCeil = ui.drawTool === 'ceil';
+        if (ui.drawTool === 'slab' || ui.drawTool === 'ceil' || ui.drawTool === 'farea' || ui.drawTool === 'topslab' || ui.drawTool === 'stairwell' || ui.drawTool === 'liftwell') {   // 吊顶 / 地板 / 层顶楼板 / 楼梯间 / 电梯井：两次点击定对角点
+          const isCeil = ui.drawTool === 'ceil', isFA = ui.drawTool === 'farea' || ui.drawTool === 'slab', isTop = ui.drawTool === 'topslab', isWell = ui.drawTool === 'stairwell' || ui.drawTool === 'liftwell', wellKind = ui.drawTool === 'stairwell' ? 'stair' : 'lift';
           const q = snapPoint(p, e.shiftKey);
           if (!ui.slabA) {
             ui.slabA = q; ui.slabCur = q; renderNotes();
             toast(isCeil ? tr('已定吊顶一角，再点对角点', 'Ceiling corner set — click the opposite corner')
+              : isTop ? tr('已定楼板一角，再点对角点', 'Top slab corner set — click the opposite corner')
+              : isFA ? tr('已定地板一角，再点对角点', 'Floor corner set — click the opposite corner')
+              : isWell ? tr('已定一角，再点对角点', 'Corner set — click the opposite corner')
               : tr('已定楼板一角，再点对角点', 'Slab corner set — click the opposite corner'));
           } else {
             const a = ui.slabA; ui.slabA = null; ui.slabCur = null;
@@ -11663,10 +11765,14 @@
             mutate(() => (state.slabs = state.slabs || []).push({
               id, x: Math.round((a.x + q.x) / 2 / 10) * 10, y: Math.round((a.y + q.y) / 2 / 10) * 10,
               w: Math.round(Math.abs(q.x - a.x) / 10) * 10, d: Math.round(Math.abs(q.y - a.y) / 10) * 10,
-              thick: isCeil ? 150 : 120, z: isCeil ? 2500 : 2400, ...(isCeil ? { ceil: true } : {})
+              thick: isCeil ? 150 : isFA || isTop ? 100 : isWell ? 120 : 120, z: isCeil ? 2500 : 0,
+              ...(isCeil ? { ceil: true } : {}), ...(isFA ? { farea: true } : {}), ...(isTop ? { top: true } : {}), ...(isWell ? { well: wellKind } : {})
             }));
             select({ kind: 'slab', id });
             toast(isCeil ? tr('已加吊顶 · 板厚 / 底标高在右侧改', 'Ceiling added · edit thickness / bottom level in the panel')
+              : isTop ? tr('已加楼板 · 画在本层最顶端，顶面与层高齐平，3D 实体板并自动镂空；板厚 / 宽深在右侧改', 'Top slab added · sits flush with the storey height, solid in 3D and auto-opened; edit thickness / size in the panel')
+              : isFA ? tr('已加地板 · 3D 生成实体板，底标高 0 时整栋漫游可站立；板厚 / 底标高 / 宽深在右侧改', 'Floor added · solid slab in 3D, walkable when bottom level is 0; edit thickness / bottom level / size in the panel')
+              : isWell ? tr('已加井区 · 穿过地板处自动镂空，井内由楼梯 / 电梯支撑；宽 / 深在右侧改', 'Shaft added · the floor slab is opened where it crosses; stairs / lift support inside; width / depth editable')
               : tr('已加楼板 · 板厚 / 底标高在右侧改（底标高 0 = 落地板）', 'Slab added · edit thickness / bottom elevation in the panel'));
           }
           renderNotes(); return;
@@ -13015,7 +13121,7 @@
       if (dt !== 'dim') { ui.dimA = null; ui.dimCur = null; }   // 离开尺寸标注：放弃打到一半的点
       if (dt !== 'rail' && dt !== 'part' && dt !== 'drain') { ui.railA = null; ui.railCur = null; }
       if (dt !== 'beam') { ui.beamA = null; ui.beamCur = null; }
-      if (dt !== 'slab' && dt !== 'ceil') { ui.slabA = null; ui.slabCur = null; }
+      if (!['slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell'].includes(dt)) { ui.slabA = null; ui.slabCur = null; }
       if (dt !== 'parapet' && dt !== 'halfwall') { ui.parapetA = null; ui.parapetCur = null; }
       if (dt !== 'canopy') { ui.canopyA = null; ui.canopyCur = null; }
       if (dt !== 'arcwall') { ui.arcA = null; ui.arcCur = null; }
@@ -13044,7 +13150,10 @@
       if (dt === 'well') toast(tr('采光井：点第一个角，再点对角点；壁厚 / 井高在右侧改', 'Light well: click one corner, then the opposite. Edit wall thickness / height'));
       if (dt === 'beam') toast(tr('梁：点起点，再点终点；宽 / 高 / 底标高在右侧改', 'Beam: click start, then end. Edit width / height / level in the panel'));
       if (dt === 'level') toast(tr('标高：点击放置标高符号，可改标高值与文字', 'Level: click to place a level marker; edit value / text in the panel'));
-      if (dt === 'slab') toast(tr('楼板：点第一个角，再点对角点；板厚 / 底标高在右侧改', 'Slab: click one corner, then the opposite. Edit thickness / elevation in the panel'));
+      if (dt === 'farea' || dt === 'slab') toast(tr('地板：点第一个角，再点对角点；底标高 0 是整层实体楼面，调高可当挑板 / 雨棚 / 空调板', 'Floor: click one corner, then the opposite; bottom level 0 makes the storey floor, raise it for a cantilever / canopy / AC platform'));
+      if (dt === 'topslab') toast(tr('楼板：点第一个角，再点对角点；画在本层最顶端、顶面与层高齐平，3D 实体板并自动镂空', 'Top slab: click one corner, then the opposite; sits at the very top of the storey, flush with the floor height, solid in 3D and auto-opened'));
+      if (dt === 'stairwell' || dt === 'liftwell') toast(tr((dt === 'stairwell' ? '楼梯间' : '电梯井') + '：点第一个角，再点对角点；画在楼梯 / 电梯上方，穿过地板处自动镂空', (dt === 'stairwell' ? 'Stairwell' : 'Lift shaft') + ': click one corner, then the opposite; draw it over the stairs / lift — the floor slab opens there automatically'));
+      // 原「楼板 / 挑板」工具已合并进「地板」；dt === 'slab' 时统一走上面的地板提示并创建地板对象
       if (dt === 'parapet') toast(tr('女儿墙：点起点，再点终点；厚 / 高 / 底标高在右侧改', 'Parapet: click start, then end. Edit thickness / height / elevation in the panel'));
       if (dt === 'canopy') toast(tr('雨棚：点击墙上的位置放置，朝点击的一侧挑出；长度 / 挑出 / 板厚 / 底标高在右侧改', 'Canopy: click a position on a wall; it projects to the clicked side. Edit length / projection / thickness / elevation in the panel'));
       if (dt === 'north') toast(tr('指北针：点击放置 / 移动，朝向角度在右侧改', 'North arrow: click to place / move; set the angle in the panel'));
@@ -13073,7 +13182,7 @@
       if (dt === 'seal') toast(tr('封洞：点击已有的门窗洞口即可封上（Ctrl+Z 可撤销）', 'Seal: click an existing opening to close it (Ctrl+Z to undo)'));
       if (dt === 'leader') toast(tr('引线标注：先点锚点（圆点），再点文字位置；文字 / 两端位置在右侧改', 'Leader note: click the anchor dot, then the text position'));
       if (dt === 'section') toast(tr('剖切符号：先点剖切起点，再点终点；编号 / 两端位置在右侧改', 'Section mark: click the start then the end of the cut line'));
-      if (dt === 'slabhole') toast(tr('楼板洞口：两次点击对角点；2D 虚线加对角叉，3D 挖洞带翻边，宽 / 深在右侧改', 'Slab hole: click two opposite corners; dashed outline with cross in 2D, cored hole in 3D'));
+      if (dt === 'slabhole') toast(tr('楼板洞口：两次点击对角点；2D 虚线加对角叉，3D 挖洞带翻边，穿过地板处真实镂空，宽 / 深在右侧改', 'Slab hole: click two opposite corners; dashed outline with cross in 2D, cored hole in 3D — it also opens the floor slab where they cross'));
       if (dt === 'ac') toast(tr('设备平台：两次点击对角点；板厚 / 安装标高 / 宽深在右侧改，3D 带百叶围板', 'AC platform: click two opposite corners; edit slab / level / size in the panel (louver panels in 3D)'));
       if (dt === 'park') toast(tr('停车位：两次点击对角点；车位编号 / 宽深 / 车头朝向在右侧改，3D 为地面标线', 'Parking stall: click two opposite corners; edit stall no. / size / head direction in the panel'));
       if (dt === 'pavilion') toast(tr('凉亭：两次点击对角点；宽深 / 檐高 / 柱径在右侧改，3D 生成立柱与顶盖', 'Pavilion: click two opposite corners; edit size / eave height / column in the panel'));
@@ -13162,7 +13271,7 @@
       const build = [
         ...(state.pillars || []).map(c => ({ kind: 'pillar', id: c.id, name: c.name || tr('柱子', 'Column') + ' ' + objNo(state.pillars, c), sub: Math.round(c.w) + ' mm' })),
         ...(state.stairs || []).map(s => ({ kind: 'stair', id: s.id, name: s.name || stairName(s.type) + ' ' + objNo(state.stairs, s, 'type'), sub: s.type === 'spiral' ? '⌀' + Math.round(s.w || 1400) : Math.round(s.w || 0) + '×' + Math.round(s.len || 0) })),
-        ...(state.slabs || []).map(s => ({ kind: 'slab', id: s.id, name: s.name || (s.ceil ? tr('吊顶', 'Ceiling') : tr('楼板 / 挑板', 'Slab')) + ' ' + objNo(state.slabs, s, 'ceil'), sub: rectSub(s) })),
+        ...(state.slabs || []).map(s => ({ kind: 'slab', id: s.id, name: s.name || (s.farea ? tr('地板', 'Floor') : s.top ? tr('楼板', 'Top slab') : s.well === 'stair' ? tr('楼梯间', 'Stairwell') : s.well === 'lift' ? tr('电梯井', 'Lift shaft') : s.ceil ? tr('吊顶', 'Ceiling') : tr('楼板 / 挑板', 'Slab')) + ' ' + objNo(state.slabs, s, 'ceil'), sub: rectSub(s) })),
         ...(state.parapets || []).map(p => ({ kind: 'parapet', id: p.id, name: p.name || (p.fence ? tr('围墙', 'Fence wall') : p.half ? tr('矮墙 / 半墙', 'Half wall') : tr('女儿墙', 'Parapet')) + ' ' + objNo(state.parapets, p, q => q.fence ? 'f' : q.half ? 'h' : 'p'), sub: segLen(p) })),
         ...(state.canopies || []).map(c => ({ kind: 'canopy', id: c.id, name: c.name || tr('雨棚', 'Canopy') + ' ' + objNo(state.canopies, c), sub: segLen(c) })),
         ...(state.rails || []).map(r => ({ kind: 'rail', id: r.id, name: r.name || (r.style === 'drain' ? tr('排水沟 / 地漏', 'Drain') : r.style === 'part' ? tr('玻璃隔断', 'Glass partition') : tr('栏杆', 'Railing')) + ' ' + objNo(state.rails, r, q => q.style || 'bar'), sub: segLen(r) })),
@@ -13656,7 +13765,7 @@
     const BAY_DRIP = .06;                                // 飘窗顶板 / 窗台板外挑（挡雨滴水檐，上下同尺寸才齐平）
     const wx = x => (x - OX) / 1000, wz = y => (y - OY) / 1000, M = v => v / 1000;
     const SW = () => stage.clientWidth, SH = () => stage.clientHeight;
-    const opt = { cut: 2.8, full: true, furn: true, labels: true, allFloors: false, night: false, hour: 10, mode: 'orbit' };
+    const opt = { cut: 2.8, full: true, furn: true, labels: true, slabs: true, allFloors: false, night: false, hour: 10, mode: 'orbit' };
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
@@ -13668,6 +13777,51 @@
     let activeDoors = [], activeLampGlowMats = [], activeEscSteps = [], activeRevolveSpins = [];   // 当前层的门 / 灯 / 动画对象（不含其它楼层合并进来的对象）
     const normColsY = (arr, top) => (arr || []).map(c => c.length >= 6 ? c.slice() : [c[0], c[1], c[2], c[3], 0, top]);   // 4 元素旧式碰撞（墙等）补 y 区间 0~top（本层局部高度），防止跨层串挡
     let primaryCols = null;                                       // 整栋模式下当前层碰撞的 0~层高规范化副本；null = 单层模式直接用 colliders
+    let primaryFP = null;                                         // 当前层足迹缓存：{ rooms:[多边形], rects:[地板 / 阳台 AABB] }（世界米）
+    let stackDefaultFloors = false;                               // 整栋模式构建其它楼层时置真：无样式房间也按默认材质生成楼板 / 天花，上层仰视不再是空的
+    const pointInPoly = (x, z, poly) => {                         // 射线法：点是否在多边形内（世界米）
+      let ins = false;
+      for (let i = 0, j = poly.length - 1; i < poly.length; j = i++) {
+        const xi = poly[i][0], zi = poly[i][1], xj = poly[j][0], zj = poly[j][1];
+        if (((zi > z) !== (zj > z)) && x < (xj - xi) * (z - zi) / (zj - zi) + xi) ins = !ins;
+      }
+      return ins;
+    };
+    function fpRooms() { return allRooms().filter(r => r.poly && r.poly.length >= 3).map(r => r.poly.map(p => [wx(p[0]), wz(p[1])])); }   // 全部房间多边形（含 bover 覆盖与自画房间）→ 世界米
+    function fpRects() {                                          // 地板区域（世界米 AABB）：底标高 0 的整层楼面；抬高 >200mm 的板是挑板 / 雨棚，不算可站立楼面
+      const out = [];
+      (state.slabs || []).forEach(s => { if (!s.farea || Math.abs(+s.z || 0) > 200) return; const w = Math.max(.1, (s.w || 0) / 1000) / 2, d = Math.max(.1, (s.d || 0) / 1000) / 2; out.push([wx(s.x) - w, wz(s.y) - d, wx(s.x) + w, wz(s.y) + d]); });
+      return out;
+    }
+    function fpTopRects() {                                       // 层顶楼板区域（世界米 AABB）：顶面与本层层高齐平，整栋漫游踩在层顶时由它提供支撑
+      const out = [];
+      (state.slabs || []).forEach(s => { if (!s.top) return; const w = Math.max(.1, (s.w || 0) / 1000) / 2, d = Math.max(.1, (s.d || 0) / 1000) / 2; out.push([wx(s.x) - w, wz(s.y) - d, wx(s.x) + w, wz(s.y) + d]); });
+      return out;
+    }
+    function fpBalconies() {                                      // 阳台挑板占地区域（世界米 AABB）：阳台本身也是楼面的一部分
+      const out = [];
+      (state.balconies || []).forEach(b => { const w = Math.max(.3, (b.w || 0) / 1000) / 2, d = Math.max(.3, (b.d || 0) / 1000) / 2; out.push([wx(b.x) - w, wz(b.y) - d, wx(b.x) + w, wz(b.y) + d]); });
+      return out;
+    }
+    function fpHoles() {                                          // 板面开洞区域（世界米 AABB）：手画「楼梯间 / 电梯井」与「楼板洞口」穿过地板 / 层顶楼板处都镂空
+      const out = [];
+      (state.slabs || []).forEach(s => {
+        if (!s.well) return;
+        const w = Math.max(.1, (s.w || 0) / 1000) / 2, d = Math.max(.1, (s.d || 0) / 1000) / 2;
+        out.push([wx(s.x) - w, wz(s.y) - d, wx(s.x) + w, wz(s.y) + d]);
+      });
+      (state.extras || []).forEach(e => {
+        if (e.type !== 'slabhole') return;
+        const w = Math.max(.1, (e.w || 0) / 1000) / 2, d = Math.max(.1, (e.d || 0) / 1000) / 2;
+        out.push([wx(e.x) - w, wz(e.y) - d, wx(e.x) + w, wz(e.y) + d]);
+      });
+      return out;
+    }
+    function fpOf() { return { rooms: fpRooms(), rects: fpRects(), topRects: fpTopRects(), balc: fpBalconies(), holes: fpHoles() }; }
+    function isGroundFloor(id) {                                  // 是否底层（z 最小的楼层）：底层地面整片可走（户外草地），上层只在建筑足迹内可走
+      const fs = state.floors || [], f = fs.find(x => x.id === id);
+      return !f || (f.z || 0) <= Math.min(...fs.map(x => x.z || 0)) + 1e-6;
+    }
     const doors = [], keys = {};
 
     /* ======================= 初始化 ======================= */
@@ -15680,12 +15834,33 @@
       m.castShadow = m.receiveShadow = true; tagPick(m, 'beam', b.id);
       archUp.add(m);
     }
-    function buildSlab3D(s) {                                   // 楼板 / 挑板：矩形厚板
+    function buildSlab3D(s) {                                   // 地板 / 层顶楼板 / 旧普通楼板：矩形厚板；well 不生成几何，只定义洞口
+      if (s.well) return;
       const W = Math.max(.1, (s.w || 0) / 1000), D = Math.max(.1, (s.d || 0) / 1000);
       const T = Math.max(.04, (s.thick ?? 120) / 1000), Y = (s.z ?? 0) / 1000;
-      const m = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), mat('#d8d2c6', { roughness: .85 }));
-      m.position.set(wx(s.x), Y + T / 2, wz(s.y));
+      const fa = !!s.farea, top = !!s.top;                       // 地板：层底实体楼面；楼板：层顶实体板，顶面与本层层高齐平（略低 5mm 防与天花共面闪烁）
+      const plateY = top ? H : Y;                               // 层顶楼板按本层层高就位；整栋模式下 H 已切为该层高
+      let geo;
+      if (fa || top) {
+        const mx0 = s.x - (s.w || 200) / 2, mx1 = s.x + (s.w || 200) / 2, my0 = s.y - (s.d || 200) / 2, my1 = s.y + (s.d || 200) / 2;
+        const shape = new THREE.Shape();
+        shape.moveTo(wx(mx0), wz(my0)); shape.lineTo(wx(mx1), wz(my0)); shape.lineTo(wx(mx1), wz(my1)); shape.lineTo(wx(mx0), wz(my1));
+        const clip = [];                                         // 楼梯间 / 电梯井 / 板洞穿过板面的矩形自动开洞（地板与层顶楼板同样响应镂空）
+        fpHoles().forEach(h => {
+          const ix0 = Math.max(h[0], wx(mx0)), ix1 = Math.min(h[2], wx(mx1)), iy0 = Math.max(h[1], wz(my0)), iy1 = Math.min(h[3], wz(my1));
+          if (ix1 > ix0 + .05 && iy1 > iy0 + .05) clip.push([ix0, iy0, ix1, iy1]);
+        });
+        shape.holes = clip.map(h => { const p = new THREE.Path(); p.moveTo(h[0], h[1]); p.lineTo(h[2], h[1]); p.lineTo(h[2], h[3]); p.lineTo(h[0], h[3]); return p; });
+        geo = new THREE.ExtrudeGeometry(shape, { depth: T, bevelEnabled: false });
+        geo.rotateX(Math.PI / 2);                                // (x,y,z)→(x,−z,y)：拉伸方向转为 −y（向下），平面 y 映射到世界 z
+      } else {
+        geo = new THREE.BoxGeometry(W, T, D);
+      }
+      const m = new THREE.Mesh(geo, fa || top ? mat('#e6e0d4', { roughness: .92 }) : mat('#d8d2c6', { roughness: .85 }));
+      m.position.set(fa || top ? 0 : wx(s.x), fa || top ? plateY - .005 : Y + T / 2, fa || top ? 0 : wz(s.y));
       m.castShadow = m.receiveShadow = true; tagPick(m, 'slab', s.id);
+      if (s.ceil) m.userData.ceilMesh = true;                    // 吊顶不属于楼板开关的管理范围
+      else m.visible = opt.slabs !== false;                      // 楼板开关：关闭时隐藏地板 / 楼板（房间地面在 buildArch 里同步隐藏）
       archUp.add(m);
     }
     function buildParapet3D(p) {                                // 女儿墙：墙身 + 压顶
@@ -16802,7 +16977,7 @@
         const L = M(o.w), rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const dx = (wx(P1[0]) - wx(P0[0])) / L, dz = (wz(P1[1]) - wz(P0[1])) / L;   // 沿墙单位方向（世界系）
         const pm = mat('#c6ccd1', { roughness: .4, metalness: .5 });
-        const edoor = { slide: true, lift: true, liftId: o.liftId ?? null, liftSource: 'hall', oid: o.id, open: false, cur: 0, pivots: [], gx: mx, gz: mz, y0: dB, y1: dT, ex: dx, ez: dz, nx: -dz, nz: dx, half: L / 2, base: dB, top: dT };   // 层门对象：不挂点击标记，联动到站时由面板统一开合；ex/ez、nx/nz、half 供自动关门的光幕判定
+        const edoor = { slide: true, lift: true, liftId: o.liftId ?? null, liftSource: 'hall', oid: o.id, liftFloor: o.liftFloor ?? 0, open: false, cur: 0, pivots: [], gx: mx, gz: mz, y0: dB, y1: dT, ex: dx, ez: dz, nx: -dz, nz: dx, half: L / 2, base: dB, top: dT };   // 层门对象：不挂点击标记，联动到站时按所在楼层索引开合；ex/ez、nx/nz、half 供自动关门的光幕判定
         [-1, 1].forEach(sd => {                              // 两扇：闭合时从中缝到各自洞口端，开启时滑向墙内
           const pw = L / 2 - .003, thk = Math.max(.04, TT - .02), pg = new THREE.Group();   // 门扇宽顶到门套立梃内缘（留 3mm 缝），厚取墙厚 - 20mm 与门套齐平
           pg.position.set(mx + dx * sd * L / 4, 0, mz + dz * sd * L / 4); pg.rotation.y = rot;
@@ -17111,12 +17286,30 @@
       clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();
       const top = opt.cut;
       allRooms().forEach(r => {
-        const st = state.rooms[r.id]; if (!st) return;               // 空方案：3D 里也不生成房间地面
+        const st = state.rooms[r.id] || (stackDefaultFloors ? { mat: 'tile800' } : null);   // 整栋模式构建其它楼层：无样式房间按默认材质生成楼板 / 天花，上层仰视不再是空的
+        if (!st) return;                                           // 空方案：3D 里也不生成房间地面
         const m = floorMat(st.mat), bay = r.counted === false;
-        const geo = bay ? new THREE.ExtrudeGeometry(shapeOf(r.poly), { depth: .45, bevelEnabled: false }) : new THREE.ShapeGeometry(shapeOf(r.poly));
+        let geo;
+        if (bay) geo = new THREE.ExtrudeGeometry(shapeOf(r.poly), { depth: .45, bevelEnabled: false });
+        else {                                                     // 房间地板：多边形内完整包含的楼梯间 / 电梯井 / 楼板洞口矩形挖穿，否则洞被房间地面盖住
+          const sh = shapeOf(r.poly);
+          let bx0 = Infinity, bz0 = Infinity, bx1 = -Infinity, bz1 = -Infinity;
+          r.poly.forEach(([xx, yy]) => { const X = wx(xx), Z = wz(yy); bx0 = Math.min(bx0, X); bz0 = Math.min(bz0, Z); bx1 = Math.max(bx1, X); bz1 = Math.max(bz1, Z); });
+          fpHoles().forEach(h => {
+            const ix0 = Math.max(h[0], bx0), ix1 = Math.min(h[2], bx1), iz0 = Math.max(h[1], bz0), iz1 = Math.min(h[3], bz1);
+            if (ix1 - ix0 < .05 || iz1 - iz0 < .05) return;
+            const corners = [[ix0, iz0], [ix1, iz0], [ix1, iz1], [ix0, iz1]].map(([X, Z]) => [X * 1000 + 6000, Z * 1000 + 5300]);
+            if (!corners.every(([px, pz]) => pointInPoly(px, pz, r.poly))) return;   // 洞口跨房间边界时不开，避免破面
+            const p = new THREE.Path();
+            p.moveTo(ix0, -iz0); p.lineTo(ix1, -iz0); p.lineTo(ix1, -iz1); p.lineTo(ix0, -iz1);
+            sh.holes.push(p);
+          });
+          geo = new THREE.ShapeGeometry(sh);
+        }
         geo.rotateX(-Math.PI / 2);
         const fl = new THREE.Mesh(geo, bay ? [m, mat('#e9e4da')] : m);
         fl.receiveShadow = true; fl.userData.room = r.id;
+        fl.visible = opt.slabs !== false;                          // 楼板开关：房间地面跟随隐藏（洞口 / 俯视层间）
         if (bay) { fl.castShadow = true; archUp.add(fl); } else archFloor.add(fl);
         // 天花：法线朝下，只在室内仰视时可见；高度跟着该房间的墙高（面板里可单独设）
         // 楼梯间 / 勾了「无天花」的房间不做天花，也不挂吊灯（保留通高）
@@ -17901,13 +18094,20 @@
       if (!inited || (!active && !force)) return;
       H = currentFloorH() / 1000;                                  // 当前层高（米）：墙体 / 天花 / 剖切都跟着层高
       if (opt.full && Math.abs(opt.cut - H) > 1e-6) { opt.cut = H; syncCutBtns(); }   // 全高墙模式：剖切高度始终贴当前楼层高度
-      const a = JSON.stringify([state.rooms, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut, H, ui.layers.ghost]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut, H]), sf = JSON.stringify([opt.allFloors, state.activeFloor, state.floors, state.byFloor, floorY()]);
+      const a = JSON.stringify([state.rooms, state.roomsExtra, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut, H, ui.layers.ghost, opt.slabs, opt.allFloors]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut, H]), sf = JSON.stringify([opt.allFloors, state.activeFloor, state.floors, state.byFloor, floorY()]);
       const rebuildArch = force || a !== sigArch, rebuildStack = force || sf !== sigStack;
       if (rebuildStack) { sigStack = sf; buildAllFloors(); }         // 先生成其它楼层，避免其 buildArch 清掉当前层的全局状态
       if (rebuildArch) { sigArch = a; buildFloorPlates(); buildArch(); }
       if (rebuildArch || rebuildStack) {
         mergeExtraWorldData();
         primaryCols = opt.allFloors ? normColsY(colliders, H) : null;   // 整栋模式下当前层碰撞也规范到本层 0~层高：站在其它层时当前层在 ±0.6m 窗口内仍会被检查，全高碰撞会在楼上挡人
+        primaryFP = fpOf();                                        // 当前层足迹缓存（地板 / 房间区域 / 阳台），供足迹支撑判定
+        if (ground) {                                              // 场地地面降到可见堆叠的最低处：否则不透明地面停在当前层楼板下 15mm，整栋模式会把下面整层埋住、下层参照也会被遮住
+          const fs = state.floors || [], gi = fs.findIndex(f => f.id === state.activeFloor);
+          const below = !opt.allFloors && ui.layers.ghost ? fs[gi - 1] : null;
+          const lowZ = opt.allFloors && fs.length > 1 ? Math.min(...fs.map(f => f.z || 0)) : below ? (below.z || 0) : null;
+          ground.position.y = lowZ === null ? -0.015 : lowZ / 1000 - floorY() - 0.015;
+        }
       }
       if (force || f !== sigFurn) { sigFurn = f; buildFurn(); }
       if (force || l !== sigLabels) { sigLabels = l; buildLabels(); }
@@ -17917,7 +18117,7 @@
     const GHOST_FLOOR_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'wallH', 'rooms', 'roomsExtra', 'bover', 'pillars'];
     function buildFloorPlates() {
       if (!scene) return;
-      if (!ui.layers.ghost) {                                       // 开关关闭：清掉已生成的下层参照，直接返回
+      if (!ui.layers.ghost || opt.allFloors) {                      // 开关关闭，或整栋模式：整栋模式下其它楼层已经是完整真实几何，再做半透明幽灵墙只会重复叠加，下层比上层宽处露出一堆碎片
         if (plateGroup) { plateGroup.children.slice().forEach(o => { o.geometry?.dispose?.(); o.material?.dispose?.(); plateGroup.remove(o); }); scene.remove(plateGroup); plateGroup = null; }
         return;
       }
@@ -17940,7 +18140,7 @@
         o.position.set(mx, ht / 2, mz); o.rotation.y = wallAngle(P0, P1);
         plateGroup.add(o);
       };
-      const ht = Math.min(2.8, Math.max(.6, (below.h || 2800) / 1000));
+      const ht = Math.max(.6, (below.h || 2800) / 1000);        // 幽灵墙按下层层高（不设 2.8 上限）：墙顶正好接到当前层楼板底，对位参照才准确
       try {
         WALLS.forEach((w, i) => {                                    // 内置墙
           const id = 'w' + i; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
@@ -17986,11 +18186,13 @@
       const sg = { archFloor, archUp, furnG, labelG, lampG };
       const ss = {}; FLOOR_KEYS.forEach(k => ss[k] = state[k]);
       const sH = H, sCut = opt.cut, sGrow = grow, sFGrow = furnGrow, sSkip = skipLift3D;
+      const sBuildFH = window.__buildFloorH || 0;                 // 构建其它楼层期间「跟随层高」的取值基准，finally 还原为 0（当前层按 state.activeFloor）
       const sDoors = activeDoors, sLampGlowMats = activeLampGlowMats, sEscSteps = activeEscSteps, sRevolveSpins = activeRevolveSpins;
       const sCols = colliders, sFurnCols = furnCols, sBarriers = barriers, sSills = sills, sRevHit = revolveHit;   // buildArch / buildFurn 会重置这些全局碰撞数组，构建其它层后必须还原，否则当前层碰撞被其它层墙体覆盖（1F 被 2F 宽度挡住的根因）
       const sRides = new Map(liftRides), sDisp = new Map(liftDisp);   // buildArch 里 liftRides.clear() 会清掉电梯运行态，一并保住
       try {
         skipLift3D = true; grow = 1; furnGrow = 1;                 // 其它楼层按完整高度生成，不走过场动画缩放
+        const minZ = Math.min(...fs.map(f => f.z || 0));
         fs.forEach(f => {
           if (f.id === state.activeFloor) return;                  // 当前层由 sync() 里的 buildArch 生成，保持可编辑
           const data = state.byFloor?.[f.id]; if (!data) return;
@@ -18001,11 +18203,16 @@
           archFloor = ag.archFloor; archUp = ag.archUp; furnG = ag.furnG; labelG = ag.labelG; lampG = ag.lampG;
           FLOOR_KEYS.forEach(k => { state[k] = data[k] === undefined ? ss[k] : data[k]; });
           H = fh; opt.cut = fh;                                    // 其它层按整层高度生成真实墙体 / 天花
+          window.__buildFloorH = f.h || 2800;                      // 该层「跟随层高」的取值基准（mm）：天花 / 吊灯杆 / 门洞墙高 / 无高度弧形墙都按本层定义，不再串用当前编辑层的层高
+          stackDefaultFloors = true;                               // 无样式房间也按默认材质生成楼板 / 天花：上层仰视不再是空的
           buildArch(); buildFurn();
+          stackDefaultFloors = false;
+          doors.forEach(d => { d.yOff = y0; });                    // 其它楼层门的 y0/y1/base/top 都是本层局部值，联动 / 光幕 / 感应按世界高度判定时统一加上该层偏移
           floorWorlds.push({
-            id: f.id, y0, h: fh, primary: false,
+            id: f.id, y0, h: fh, primary: false, baseSupport: (f.z || 0) <= minZ + 1e-6,   // 底层整片可走，上层只在建筑足迹内
             stairs: (state.stairs || []).slice(), colliders: normColsY(colliders, fh), furnCols: furnCols.slice(),
             barriers: barriers.slice(), sills: sills.slice(), revolveHit: revolveHit.slice(),
+            rooms: fpRooms(), areaRects: fpRects(), topRects: fpTopRects(), balc: fpBalconies(), holes: fpHoles(),   // 该层足迹（地板 / 层顶楼板 / 房间多边形 / 阳台 / 楼梯电梯井洞口），此时 state 已换成该层
             doors: doors.slice(), lampGlowMats: lampGlowMats.slice(),
             escSteps: escSteps.slice(), revolveSpins: revolveSpins.slice(), groups: ag
           });
@@ -18021,16 +18228,19 @@
         archFloor = sg.archFloor; archUp = sg.archUp; furnG = sg.furnG; labelG = sg.labelG; lampG = sg.lampG;
         FLOOR_KEYS.forEach(k => { state[k] = ss[k]; });
         H = sH; opt.cut = sCut; grow = sGrow; furnGrow = sFGrow;
+        window.__buildFloorH = sBuildFH;                            // 还原：当前层几何与 2D 面板仍按 state.activeFloor 的层高
         colliders = sCols; furnCols = sFurnCols; barriers = sBarriers; sills = sSills; revolveHit = sRevHit;   // 还原当前层碰撞数组：worldDatasets() 主数据集直接引用它们
         liftRides.clear(); sRides.forEach((v, k) => liftRides.set(k, v));
         liftDisp.clear(); sDisp.forEach((v, k) => liftDisp.set(k, v));
         activeDoors = sDoors; activeLampGlowMats = sLampGlowMats;
         activeEscSteps = sEscSteps; activeRevolveSpins = sRevolveSpins;   // buildArch 生成其它层会覆盖这些记录；退出整栋模式必须还原当前层
+        stackDefaultFloors = false;
       }
     }
     function worldDatasets() {
-      const list = [{ id: state.activeFloor, y0: 0, h: H, primary: true,
+      const list = [{ id: state.activeFloor, y0: 0, h: H, primary: true, baseSupport: !opt.allFloors || isGroundFloor(state.activeFloor),
         stairs: state.stairs || [], colliders: primaryCols || colliders, furnCols, barriers, sills, revolveHit,
+        rooms: primaryFP ? primaryFP.rooms : undefined, areaRects: primaryFP ? primaryFP.rects : undefined, topRects: primaryFP ? primaryFP.topRects : undefined, balc: primaryFP ? primaryFP.balc : undefined, holes: primaryFP ? primaryFP.holes : undefined,
         doors: activeDoors, groups: { furnG } }];
       if (opt.allFloors) list.push(...floorWorlds);
       return list;
@@ -18137,6 +18347,8 @@
     /* ======================= 进入 / 退出 3D ======================= */
     async function enter() {
       init(); active = true;
+      opt.slabs = ui.layers.slab !== false;                      // 进 3D：楼板开关从图层设置还原
+      { const b = document.querySelector('#toggles3d [data-t="slabs"]'); if (b) b.classList.toggle('on', opt.slabs); }
       renderer.setSize(SW(), SH()); labelRenderer.setSize(SW(), SH()); camera.aspect = SW() / SH(); camera.updateProjectionMatrix();
       sync(true);
       opt.mode = 'orbit'; orbit.enabled = false; showLabels(false);
@@ -18445,7 +18657,31 @@
       a.push(panel);
     };
     function stairHOne(x, z, ref, W, withLift) {
-      const px = x * 1000 + 6000, py = z * 1000 + 5300, cand = [0];
+      const px = x * 1000 + 6000, py = z * 1000 + 5300;
+      let cand;
+      const hitRects = list => list.some(rc => x > rc[0] && x < rc[2] && z > rc[1] && z < rc[3]);
+      if (W.baseSupport === false) {                            // 整栋漫游的非底层：楼面按足迹定义
+        const fa = W.areaRects, balc = W.balc, rms = W.rooms;
+        if (fa === undefined || rms === undefined) cand = [0];  // 足迹数据未就绪：退回旧行为，避免误坠
+        else if (fa.length) {                                   // 画了地板：楼面 = 地板 ∪ 阳台（楼梯 / 电梯井洞口除外），没画到的位置就是悬空
+          const inHole = (W.holes || []).some(h => x > h[0] && x < h[2] && z > h[1] && z < h[3]);
+          cand = (inHole ? [] : (hitRects(fa) || (balc.length && hitRects(balc))) ? [0] : []);   // 洞口处不提供楼面支撑，由楼梯 / 电梯自身支撑
+        }
+        else if (rms.length || balc.length) {                   // 没画地板：退回房间区域 ∪ 阳台 ∪ 墙体等碰撞体（楼梯间 / 电梯井 / 板洞同样不支撑）
+          const inHole = (W.holes || []).some(h => x > h[0] && x < h[2] && z > h[1] && z < h[3]);
+          cand = (!inHole && (rms.some(p => pointInPoly(x, z, p)) || (balc.length && hitRects(balc)) || (W.colliders || []).some(c => c[6] !== 'water' && x > c[0] && x < c[2] && z > c[1] && z < c[3]))) ? [0] : [];
+        } else cand = [0];                                      // 什么足迹都没有：整片可走
+      } else cand = [0];                                        // 底层 / 单层模式整片可走
+      if ((W.topRects || []).length) {                          // 层顶楼板：踩在本层层高上时可站立
+        const inTopHole = (W.holes || []).some(h => x > h[0] && x < h[2] && z > h[1] && z < h[3]);
+        if (!inTopHole) {                                       // 实体屋面：维持原逻辑，靠下方 near 过滤（≤ 脚高 + .55m）避免站在本层地面时被误拉上楼
+          if (hitRects(W.topRects)) cand.push(W.h ?? H);
+        } else if (hitRects(W.topRects) && (ref ?? 0) >= (W.h ?? H) - .55) {
+          // 楼梯间 / 电梯井 / 板洞：3D 几何仍是镂空的，但漫游碰撞层保留一层「过渡落脚面」——人正是从这些竖井里的楼梯 / 电梯上到楼顶，
+          // 出口一迈步若没有支撑就会被拉回地面、再被墙体挡住，永远走不进屋面。只在脚已抬到层顶附近时登记，站在本层地面时不会被凭空拉上来。
+          cand.push(W.h ?? H);
+        }
+      }
       (W.stairs || []).forEach(s => {
         const a = s.dir * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
         const dx = px - s.x, dy = py - s.y, lx = dx * ca + dy * sa, ly = -dx * sa + dy * ca;
@@ -18494,20 +18730,23 @@
         if (Math.abs(lx) <= hw && Math.abs(ly) <= hd) cand.push(B);
       });
       const base = ref ?? 0, near = cand.filter(v => v <= base + .55);
-      return near.length ? Math.max(...near) : Math.min(...cand);
+      if (!near.length) return cand.length ? Math.min(...cand) : null;   // null = 此处无任何支撑（足迹外），由 stairH 合并时跳过
+      return Math.max(...near);
     }
     function stairH(x, z, ref) {                                 // 支撑高度：整栋模式下合并各层楼梯 / 门槛，按世界标高就近取
       const worlds = worldDatasets();
-      if (worlds.length === 1) return stairHOne(x, z, ref, worlds[0], true);
+      if (worlds.length === 1) { const h0 = stairHOne(x, z, ref, worlds[0], true); return h0 === null ? 0 : h0; }
       let best = 0, bd = Infinity;
       worlds.forEach((W, i) => {
         const localRef = ref == null ? null : ref - W.y0;
         if (localRef != null && (localRef < -W.h - .5 || localRef > W.h + .5)) return;
-        const wy = stairHOne(x, z, localRef, W, i === 0) + W.y0;
+        const h0 = stairHOne(x, z, localRef, W, i === 0);
+        if (h0 === null) return;                                 // 该数据集此处无支撑（足迹外）→ 走出楼外会自然坠落
+        const wy = h0 + W.y0;
         const d = ref == null ? Math.abs(wy) : Math.abs(wy - ref);
         if (d < bd) { bd = d; best = wy; }
       });
-      return best;
+      return bd === Infinity ? 0 : best;                         // 全部数据集都无支撑 → 落回场地地面
     }
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
     let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
@@ -18781,6 +19020,7 @@
         const k = b.dataset.t; opt[k] = !opt[k]; b.classList.toggle('on', opt[k]);
         if (k === 'furn') { furnG.visible = opt.furn; if (!opt.furn && ui.sel?.kind === 'furn') window.select(null); }
         if (k === 'labels') showLabels(opt.labels && opt.mode === 'orbit' && !anim);
+        if (k === 'slabs') { setSlabVis(opt.slabs); typeof scheduleAutoSave === 'function' && scheduleAutoSave(); }   // 楼板开关：同步回图层设置持久化
         if (k === 'night') applyLight();
       });
       $('#sun').oninput = e => { opt.hour = +e.target.value; applyLight(); };
@@ -18800,13 +19040,19 @@
     };
     const liftDoorOf = (id, source) => doors.find(d => d.lift && d.liftId === id && (!source || d.liftSource === source));   // 按电梯 id / 来源找门（car=轿厢门，hall=建筑工具层门）
     const liftDoorsOf = id => doors.filter(d => d.lift && d.liftId === id);   // 同一部电梯的轿厢门 + 所有联动层门
-    const liftDoorsHere = (id, base) => doors.filter(d => d.lift && d.liftId === id && (d.liftSource === 'car' || Math.abs((d.y0 ?? -9) - base) < .3));   // 轿厢门 + 该层联动门洞的层门：开关门 / 等门都按这一组联动
-    function openLiftDoors(id, base, doorId) {                    // 到站开门：轿厢门必开；层站呼叫开被点的那扇（按 id 重新取，避免用重建前的旧指针），面板呼叫则开目标层附近的层门
+    const liftHallDoors = id => doors.filter(d => d.lift && d.liftId === id && d.liftSource === 'hall');
+    const doorWorldY0 = d => (d.y0 ?? -9) + (d.yOff || 0);        // 其它楼层门存的是本层局部 y0，联动判定统一换算到「相对当前层」的世界高度
+    const liftDoorsHere = (id, base, k = null) => doors.filter(d => d.lift && d.liftId === id && (d.liftSource === 'car' || (k != null && d.liftFloor === k) || Math.abs(doorWorldY0(d) - base) < .3));   // 轿厢门 + 该层联动层门：优先按楼层索引（手设停靠标高时对得上），再按世界标高兜底
+    function openLiftDoors(id, base, doorId, k = null) {           // 到站开门：轿厢门必开；层站呼叫开被点的那扇（按 id 重新取，避免用重建前的旧指针），轿厢内选层开目标层的全部层门
       const open = d => { if (d) { d.open = true; d.tAuto = performance.now() + 6000; } };
       open(liftDoorOf(id, 'car'));
-      const specific = doorId ? doors.find(d => d.lift && d.liftSource === 'hall' && d.oid === doorId && d.liftId === id) : null;
-      if (specific) open(specific);
-      else doors.filter(d => d.lift && d.liftId === id && d.liftSource === 'hall' && Math.abs(d.y0 - base) < .3).forEach(open);
+      const halls = liftHallDoors(id);
+      const specific = doorId ? halls.find(d => d.oid === doorId) : null;
+      if (specific) { open(specific); return; }
+      const kk = k ?? liftCurIdx(id);                             // 调用方没带楼层索引时按电梯当前层反推（到站时 l.cur 已更新）
+      const byFloor = halls.filter(d => d.liftFloor === kk);      // 整栋模式 2F 门洞的 y0 是 2F 局部 0，不能拿它和 1F 基准的 4.2m 停靠高度比；按门洞所在楼层索引匹配才可靠
+      if (byFloor.length) { byFloor.forEach(open); return; }
+      halls.filter(d => Math.abs(doorWorldY0(d) - base) < .3).forEach(open);   // 兜底：老数据没有楼层索引时按世界标高匹配
     }
     const liftBaseOf = l => liftRides.has(l.id) ? liftRides.get(l.id).base : Math.max(0, (l.stop ?? 0) / 1000 - floorY());
     const liftFloors = l => Array.isArray(l?.floors) && l.floors.length ? l.floors : [l?.stop ?? 0];
@@ -18886,7 +19132,7 @@
         const l = (state.lifts || []).find(x => x.id === id);
         if (!l) { liftGo.delete(id); liftLit.delete(id); liftDoorReq.delete(id); liftDir.delete(id); continue; }
         const from = liftBaseOf(l), fs = liftFloors(l), lit = liftLit.get(id);
-        if (liftDoorsHere(id, from).some(d => d.open || d.cur > .06)) continue;   // 轿厢门 / 本层层门还开着或正在关：等两扇门都关到位（光幕挡门顺延期间不出发）
+        if (liftDoorsHere(id, from, liftCurIdx(id)).some(d => d.open || d.cur > .06)) continue;   // 轿厢门 / 本层层门还开着或正在关：等两扇门都关到位（光幕挡门顺延期间不出发）
         liftGo.delete(id);
         if (lit) for (const k of [...lit]) if (Math.abs(liftFloorY(l, k) - from) < .01) lit.delete(k);   // 已在脚下的目标层直接消灯
         const next = liftNextStop(id, from);
@@ -18906,7 +19152,8 @@
     function liftDoorBlocked(d, k = 1) {                          // 光幕防夹：门洞前后一条窄带内是否有人 / 动物（k 用于关门前略放宽）
       if (!d || d.gx == null || d.ex == null) return false;
       const sh = (d.half ?? .6) + .12 * k, sn = .34 * k;           // 沿门面半宽 / 垂直门面余量（真实光幕只在门平面附近）
-      const y0 = (d.base ?? d.y0 ?? 0) - .05, y1 = (d.top ?? d.y1 ?? 9) + .25;
+      const off = d.yOff || 0;                                    // 其它楼层门的局部高度 → 世界高度：光幕按玩家世界脚高判定
+      const y0 = (d.base ?? d.y0 ?? 0) + off - .05, y1 = (d.top ?? d.y1 ?? 9) + off + .25;
       const hit = (x, y, z) => {
         if (y < y0 || y > y1) return false;
         const px = x - d.gx, pz = z - d.gz;
@@ -18947,7 +19194,7 @@
           const dq = liftDoorReq.get(id), dreq = dq ? dq.get(k) : null; if (dq) dq.delete(k);   // 该层呼叫已服务
           mutate(() => { l.cur = k; l.stop = fs[k]; });           // 到站才写方案，2D 标注 / 3D 显示屏 / 属性面板同步更新
           sync(true);                                             // 重建后指针、碰撞、门扇都回到新楼层的静态位置（新面板按已消灯的队列绘制）
-          openLiftDoors(id, r.to, dreq);                          // 轿厢门 + 本次呼叫的层门同时到站开门（按 id 取重建后的新门对象）
+          openLiftDoors(id, r.to, dreq, k);                       // 轿厢门 + 目标层联动层门同时到站开门（按楼层索引取重建后的新门对象）
           liftRefreshDisp(id);
           liftGo.set(id, { tAt: now });                           // 门开后由队列步进等门关到位，再继续下一个已登记楼层
         }
@@ -18989,7 +19236,7 @@
         const from = liftBaseOf(l), to = liftFloorY(l, k);
         if (!running && Math.abs(to - from) < .01) {               // 就在本层：直接开门，不登记亮灯
           liftQueueOf(l.id).delete(k);
-          openLiftDoors(l.id, from, b.doorId);
+          openLiftDoors(l.id, from, b.doorId, k);
           liftRefreshDisp(l.id);
           toast(tr(`电梯已在 ${fl} 层，门已打开`, `Lift is already at ${fl} — doors opened`));
           return;
@@ -19025,7 +19272,7 @@
         return;
       }
       const base = liftBaseOf(l);
-      const ds = liftDoorsHere(l.id, base);                        // 轿厢内开 / 关门按钮：轿厢门 + 本层联动门洞的层门一起动（真实电梯两扇门同步）
+      const ds = liftDoorsHere(l.id, base, liftCurIdx(l.id));       // 轿厢内开 / 关门按钮：轿厢门 + 本层联动门洞的层门一起动（真实电梯两扇门同步）
       if (!ds.length) return;
       const now = performance.now();
       if (b.act === 'open') {
@@ -19121,14 +19368,15 @@
       else if (!liftCarrying()) stepWalk(dt);                  // 乘梯运行中玩家随轿厢移动，暂不响应自由行走
       doors.forEach(d => {                                   // 自动感应门：玩家 / 动物靠近自动滑开、离开关上（漫游态检测玩家，两种模式均检测漫步中的动物）
         if (!d.auto) return;
+        const doff = d.yOff || 0;                               // 其它楼层自动门存局部高度，感应判定统一换算到世界高度
         let near = false;
         if (opt.mode === 'walk') {
           const dist = Math.hypot(camera.position.x - d.mx, camera.position.z - d.mz);      // 玩家到门中心的水平距离
-          near = dist < Math.max(1.8, d.half + 1.6) && camera.position.y > d.base - .3 && camera.position.y < d.top + .5;   // 接近门宽+余量，且玩家高度落在门洞附近（避免隔层触发）
+          near = dist < Math.max(1.8, d.half + 1.6) && camera.position.y > d.base + doff - .3 && camera.position.y < d.top + doff + .5;   // 接近门宽+余量，且玩家高度落在门洞附近（避免隔层触发）
         }
         if (!near) for (const g of furnG.children) {          // 动物感应：漫步靠近门也会触发开门，高度不在门洞附近（隔层）不触发
           if (!g.userData.poultry) continue;
-          if (g.position.y < d.base - .3 || g.position.y > d.top + .5) continue;
+          if (g.position.y < d.base + doff - .3 || g.position.y > d.top + doff + .5) continue;
           if (Math.hypot(g.position.x - d.mx, g.position.z - d.mz) < Math.max(1.5, d.half + 1)) { near = true; break; }
         }
         d.open = near;
@@ -19244,8 +19492,22 @@
         ? tr('已显示整栋楼：可沿楼梯 / 电梯走到其它楼层', 'Whole building shown: walk between floors via stairs / lifts')
         : tr('已恢复当前楼层视图', 'Back to current-floor view'));
     }
+    function setSlabVis(on) {                                   // 楼板开关：即时翻转所有楼层的楼板网格可见性，不重建场景
+      opt.slabs = on !== false;
+      const v = opt.slabs;
+      const roots = [archUp, archFloor];
+      if (opt.allFloors && stackGroup) roots.push(stackGroup);   // 整栋模式：其它楼层的楼板挂在 stackGroup 的各层子组里，必须与当前层一起翻转，否则开关只管一层
+      roots.forEach(root => root && root.traverse(o => {
+        if (!o.isMesh || (o.userData && o.userData.ceilMesh)) return;
+        const ud = o.userData || {};
+        if (ud.room || (ud.pick3d && ud.pick3d.kind === 'slab')) o.visible = v;
+      }));
+      const b = document.querySelector('#toggles3d [data-t="slabs"]');
+      if (b) b.classList.toggle('on', v);
+      ui.layers.slab = v;                                       // 与图层设置保持一致（随方案保存）
+    }
 
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, ladderAt, toggleLamp, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, ladderAt, toggleLamp, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
   </script>
 </body>
 
