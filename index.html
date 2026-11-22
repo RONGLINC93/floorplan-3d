@@ -17279,6 +17279,47 @@
       post.position.set(wx(X[0]), sill + wh / 2, wz(X[1])); post.castShadow = true; archUp.add(post);
     }
     function shapeOf(poly, flip) { const s = new THREE.Shape(); poly.forEach(([x, y], i) => s[i ? 'lineTo' : 'moveTo'](wx(x), flip ? wz(y) : -wz(y))); return s; }
+    function clipPolyToRect(poly, x0, z0, x1, z1) {               // 世界米 [x,z] 多边形按矩形裁剪（Sutherland–Hodgman；矩形是凸的，对凹房间多边形同样适用）
+      const cut = (pts, inside, inter) => {
+        if (!pts.length) return pts;
+        const out = [];
+        for (let i = 0; i < pts.length; i++) {
+          const a = pts[i], b = pts[(i + 1) % pts.length], ia = inside(a), ib = inside(b);
+          if (ia) out.push(a);
+          if (ia !== ib) out.push(inter(a, b));
+        }
+        return out;
+      };
+      const ix = (a, b, X) => { const t = (X - a[0]) / ((b[0] - a[0]) || 1e-9); return [X, a[1] + (b[1] - a[1]) * t]; };
+      const iz = (a, b, Z) => { const t = (Z - a[1]) / ((b[1] - a[1]) || 1e-9); return [a[0] + (b[0] - a[0]) * t, Z]; };
+      let p = poly;
+      p = cut(p, q => q[0] >= x0, (a, b) => ix(a, b, x0));
+      p = cut(p, q => q[0] <= x1, (a, b) => ix(a, b, x1));
+      p = cut(p, q => q[1] >= z0, (a, b) => iz(a, b, z0));
+      p = cut(p, q => q[1] <= z1, (a, b) => iz(a, b, z1));
+      return p;
+    }
+    function holePathsFor(polyMM) {                               // 平面 mm 房间多边形 → 与本层每个洞口矩形求交（世界米点列），供房间地面 / 天花挖洞
+      const pw = polyMM.map(([x, y]) => [wx(x), wz(y)]);
+      let roomArea = 0;
+      for (let i = 0; i < pw.length; i++) { const a = pw[i], b = pw[(i + 1) % pw.length]; roomArea += a[0] * b[1] - b[0] * a[1]; }
+      roomArea = Math.abs(roomArea) / 2;
+      const out = [], inset = .012;                               // 洞边内缩 12mm：避免 hole 与房间外轮廓共边，Earcut 三角化更稳
+      fpHoles().forEach(h => {
+        const raw = clipPolyToRect(pw, h[0] + inset, h[1] + inset, h[2] - inset, h[3] - inset);
+        const pts = [];
+        raw.forEach(q => { const l = pts[pts.length - 1]; if (!l || Math.hypot(q[0] - l[0], q[1] - l[1]) > 1e-4) pts.push(q); });
+        if (pts.length > 1) { const f = pts[0], l = pts[pts.length - 1]; if (Math.hypot(f[0] - l[0], f[1] - l[1]) < 1e-4) pts.pop(); }
+        if (pts.length < 3) return;
+        let area = 0;
+        for (let i = 0; i < pts.length; i++) { const a = pts[i], b = pts[(i + 1) % pts.length]; area += a[0] * b[1] - b[0] * a[1]; }
+        area = Math.abs(area) / 2;
+        if (area < .01) return;                                   // 小于 0.01m² 的碎片忽略
+        if (roomArea > .02 && area >= roomArea * .98) return;     // 洞口几乎盖满整个房间：不挖，避免 hole 与外轮廓重合破面
+        out.push(pts);
+      });
+      return out;
+    }
 
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
@@ -17291,17 +17332,11 @@
         const m = floorMat(st.mat), bay = r.counted === false;
         let geo;
         if (bay) geo = new THREE.ExtrudeGeometry(shapeOf(r.poly), { depth: .45, bevelEnabled: false });
-        else {                                                     // 房间地板：多边形内完整包含的楼梯间 / 电梯井 / 楼板洞口矩形挖穿，否则洞被房间地面盖住
+        else {                                                     // 房间地板：楼梯间 / 电梯井 / 楼板洞口挖穿；洞口跨房间边界时按房间轮廓裁剪，各房间合起来开穿
           const sh = shapeOf(r.poly);
-          let bx0 = Infinity, bz0 = Infinity, bx1 = -Infinity, bz1 = -Infinity;
-          r.poly.forEach(([xx, yy]) => { const X = wx(xx), Z = wz(yy); bx0 = Math.min(bx0, X); bz0 = Math.min(bz0, Z); bx1 = Math.max(bx1, X); bz1 = Math.max(bz1, Z); });
-          fpHoles().forEach(h => {
-            const ix0 = Math.max(h[0], bx0), ix1 = Math.min(h[2], bx1), iz0 = Math.max(h[1], bz0), iz1 = Math.min(h[3], bz1);
-            if (ix1 - ix0 < .05 || iz1 - iz0 < .05) return;
-            const corners = [[ix0, iz0], [ix1, iz0], [ix1, iz1], [ix0, iz1]].map(([X, Z]) => [X * 1000 + 6000, Z * 1000 + 5300]);
-            if (!corners.every(([px, pz]) => pointInPoly(px, pz, r.poly))) return;   // 洞口跨房间边界时不开，避免破面
+          holePathsFor(r.poly).forEach(pts => {
             const p = new THREE.Path();
-            p.moveTo(ix0, -iz0); p.lineTo(ix1, -iz0); p.lineTo(ix1, -iz1); p.lineTo(ix0, -iz1);
+            pts.forEach(([X, Z], i) => p[i ? 'lineTo' : 'moveTo'](X, -Z));
             sh.holes.push(p);
           });
           geo = new THREE.ShapeGeometry(sh);
@@ -17315,7 +17350,13 @@
         // 楼梯间 / 勾了「无天花」的房间不做天花，也不挂吊灯（保留通高）
         const noCeil = roomNoCeil(r), ch = roomCeilMM(r) / 1000;
         if (!noCeil) {
-          const cg = new THREE.ShapeGeometry(shapeOf(r.poly, true)); cg.rotateX(Math.PI / 2);
+          const csh = shapeOf(r.poly, true);
+          holePathsFor(r.poly).forEach(pts => {                  // 天花同样跟随洞口挖穿：否则楼梯间 / 电梯井 / 板洞被实心天花盖平，从上往下看像楼板没镂空
+            const p = new THREE.Path();
+            pts.forEach(([X, Z], i) => p[i ? 'lineTo' : 'moveTo'](X, Z));
+            csh.holes.push(p);
+          });
+          const cg = new THREE.ShapeGeometry(csh); cg.rotateX(Math.PI / 2);
           const ceil = new THREE.Mesh(cg, mat('#fbfaf7', { roughness: 1 })); ceil.position.y = ch; ceil.visible = top >= H;
           ceil.userData.ceil = true; archUp.add(ceil);
         }
