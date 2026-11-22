@@ -784,7 +784,7 @@
       "mat": "tile800"
     }
   ],
-  "entryDoor": null,
+  "entryDoor": "Ofmwkvnffb274",
   "pillars": [],
   "stairs": [
     {
@@ -2364,7 +2364,7 @@
         "CWfmws5vzwk348": 3100,
         "CWfmws5vzwk352": 3100
       },
-      "entryDoor": null,
+      "entryDoor": "Ofmwkvnffb274",
       "roomLayoutInitDone": true,
       "roomLayoutFrom": "f1"
     }
