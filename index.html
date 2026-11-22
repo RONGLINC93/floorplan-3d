@@ -13666,6 +13666,8 @@
     let sigArch = '', sigFurn = '', sigLabels = '', sigStack = '', grow = 1, furnGrow = 1;
     let floorWorlds = [], extraGroups = [], skipLift3D = false;   // 全楼层漫游：其它楼层的完整几何 / 碰撞数据，以及是否跳过重复轿厢
     let activeDoors = [], activeLampGlowMats = [], activeEscSteps = [], activeRevolveSpins = [];   // 当前层的门 / 灯 / 动画对象（不含其它楼层合并进来的对象）
+    const normColsY = (arr, top) => (arr || []).map(c => c.length >= 6 ? c.slice() : [c[0], c[1], c[2], c[3], 0, top]);   // 4 元素旧式碰撞（墙等）补 y 区间 0~top（本层局部高度），防止跨层串挡
+    let primaryCols = null;                                       // 整栋模式下当前层碰撞的 0~层高规范化副本；null = 单层模式直接用 colliders
     const doors = [], keys = {};
 
     /* ======================= 初始化 ======================= */
@@ -14028,7 +14030,7 @@
       const t = new THREE.CanvasTexture(cv);
       t.wrapS = t.wrapT = THREE.RepeatWrapping; t.repeat.set(1 / s.sx, 1 / s.sy);
       t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = renderer.capabilities.getMaxAnisotropy();
-      return floorMats[kind] = new THREE.MeshStandardMaterial({ map: t, roughness: s.rough });
+      return floorMats[kind] = new THREE.MeshStandardMaterial({ map: t, roughness: s.rough, side: THREE.DoubleSide });   // 楼板双面：整栋模式下从下层仰望也能看到上层楼板底面，不会"看起来是空的"
     }
     // 开关 / 插座面板材质：白色塑料 / 木纹 / 不锈钢 / 玻璃
     const panelMats = {};
@@ -17315,7 +17317,7 @@
         };
         curb(w, cp, wx(p.x), z0 + cp / 2); curb(w, cp, wx(p.x), z0 + d - cp / 2);
         curb(cp, d - cp * 2, x0 + cp / 2, wz(p.y)); curb(cp, d - cp * 2, x0 + w - cp / 2, wz(p.y));
-        colliders.push([x0 + cp, z0 + cp, x0 + w - cp, z0 + d - cp]);   // 泳池水体占碰撞：不能走进水里（池沿可绕行）
+        colliders.push([x0 + cp, z0 + cp, x0 + w - cp, z0 + d - cp, 0, 1e9, 'water']);   // 泳池水体占碰撞：不能走进水里（池沿可绕行）；带 water 标记：全高挡人但不作墙顶类支撑面
         markNew(s0, 'pool', p.id);
       });
       (state.gates || []).forEach(g => {                     // 院门：两端门柱 + 双扇外开门扇（按开启角度，3D 可点击开关）
@@ -17856,6 +17858,7 @@
       });
       applyLight(); applyGrow();
       syncCeilSide(opt.mode);                                        // 重建后按当前模式设置天花单 / 双面
+      doors.forEach(d => { if (!d.win && d.y0 === undefined) { d.y0 = 0; d.y1 = H; } });   // 门扇缺 y 区间时补成本层 0~层高：整栋漫游下配合数据集 ±0.6m 窗口，防止门扇全高串层挡人
       activeDoors = doors.slice(); activeLampGlowMats = lampGlowMats.slice();
       activeEscSteps = escSteps.slice(); activeRevolveSpins = revolveSpins.slice();   // 供整栋视图重建时还原当前层，再合并其它层
     }
@@ -17902,7 +17905,10 @@
       const rebuildArch = force || a !== sigArch, rebuildStack = force || sf !== sigStack;
       if (rebuildStack) { sigStack = sf; buildAllFloors(); }         // 先生成其它楼层，避免其 buildArch 清掉当前层的全局状态
       if (rebuildArch) { sigArch = a; buildFloorPlates(); buildArch(); }
-      if (rebuildArch || rebuildStack) mergeExtraWorldData();
+      if (rebuildArch || rebuildStack) {
+        mergeExtraWorldData();
+        primaryCols = opt.allFloors ? normColsY(colliders, H) : null;   // 整栋模式下当前层碰撞也规范到本层 0~层高：站在其它层时当前层在 ±0.6m 窗口内仍会被检查，全高碰撞会在楼上挡人
+      }
       if (force || f !== sigFurn) { sigFurn = f; buildFurn(); }
       if (force || l !== sigLabels) { sigLabels = l; buildLabels(); }
     }
@@ -17972,7 +17978,7 @@
       return [Math.min(...xs) - 300, Math.min(...ys) - 300, Math.max(...xs) + 300, Math.max(...ys) + 300];
     }
     function buildAllFloors() {
-      clearStackGroup(); floorWorlds = []; extraGroups = [];
+      clearStackGroup(); floorWorlds = []; extraGroups = []; primaryCols = null;
       if (!scene || !opt.allFloors) return;
       const fs = state.floors || []; if (fs.length < 2) return;    // 单层无需堆叠，当前层已有完整几何
       stackGroup = new THREE.Group(); scene.add(stackGroup);
@@ -17981,6 +17987,8 @@
       const ss = {}; FLOOR_KEYS.forEach(k => ss[k] = state[k]);
       const sH = H, sCut = opt.cut, sGrow = grow, sFGrow = furnGrow, sSkip = skipLift3D;
       const sDoors = activeDoors, sLampGlowMats = activeLampGlowMats, sEscSteps = activeEscSteps, sRevolveSpins = activeRevolveSpins;
+      const sCols = colliders, sFurnCols = furnCols, sBarriers = barriers, sSills = sills, sRevHit = revolveHit;   // buildArch / buildFurn 会重置这些全局碰撞数组，构建其它层后必须还原，否则当前层碰撞被其它层墙体覆盖（1F 被 2F 宽度挡住的根因）
+      const sRides = new Map(liftRides), sDisp = new Map(liftDisp);   // buildArch 里 liftRides.clear() 会清掉电梯运行态，一并保住
       try {
         skipLift3D = true; grow = 1; furnGrow = 1;                 // 其它楼层按完整高度生成，不走过场动画缩放
         fs.forEach(f => {
@@ -17994,10 +18002,9 @@
           FLOOR_KEYS.forEach(k => { state[k] = data[k] === undefined ? ss[k] : data[k]; });
           H = fh; opt.cut = fh;                                    // 其它层按整层高度生成真实墙体 / 天花
           buildArch(); buildFurn();
-          const normCols = (arr) => (arr || []).map(c => c.length >= 6 ? c.slice() : [c[0], c[1], c[2], c[3], 0, fh]);   // 墙等旧式碰撞没带 y 区间，默认本层 0~层高，避免串层挡人
           floorWorlds.push({
             id: f.id, y0, h: fh, primary: false,
-            stairs: (state.stairs || []).slice(), colliders: normCols(colliders), furnCols: furnCols.slice(),
+            stairs: (state.stairs || []).slice(), colliders: normColsY(colliders, fh), furnCols: furnCols.slice(),
             barriers: barriers.slice(), sills: sills.slice(), revolveHit: revolveHit.slice(),
             doors: doors.slice(), lampGlowMats: lampGlowMats.slice(),
             escSteps: escSteps.slice(), revolveSpins: revolveSpins.slice(), groups: ag
@@ -18014,13 +18021,16 @@
         archFloor = sg.archFloor; archUp = sg.archUp; furnG = sg.furnG; labelG = sg.labelG; lampG = sg.lampG;
         FLOOR_KEYS.forEach(k => { state[k] = ss[k]; });
         H = sH; opt.cut = sCut; grow = sGrow; furnGrow = sFGrow;
+        colliders = sCols; furnCols = sFurnCols; barriers = sBarriers; sills = sSills; revolveHit = sRevHit;   // 还原当前层碰撞数组：worldDatasets() 主数据集直接引用它们
+        liftRides.clear(); sRides.forEach((v, k) => liftRides.set(k, v));
+        liftDisp.clear(); sDisp.forEach((v, k) => liftDisp.set(k, v));
         activeDoors = sDoors; activeLampGlowMats = sLampGlowMats;
         activeEscSteps = sEscSteps; activeRevolveSpins = sRevolveSpins;   // buildArch 生成其它层会覆盖这些记录；退出整栋模式必须还原当前层
       }
     }
     function worldDatasets() {
       const list = [{ id: state.activeFloor, y0: 0, h: H, primary: true,
-        stairs: state.stairs || [], colliders, furnCols, barriers, sills, revolveHit,
+        stairs: state.stairs || [], colliders: primaryCols || colliders, furnCols, barriers, sills, revolveHit,
         doors: activeDoors, groups: { furnG } }];
       if (opt.allFloors) list.push(...floorWorlds);
       return list;
@@ -18467,6 +18477,12 @@
         const t = ((px - s.x0) * ax + (py - s.z0) * az) / L2;
         if (t < 0 || t > 1) return;
         if (Math.abs((px - s.x0) * az - (py - s.z0) * ax) / Math.sqrt(L2) <= s.T / 2 + 120) cand.push(s.y);
+      });
+      (W.colliders || []).forEach(c => {                   // 墙顶 / 矮墙顶 / 窗台 / 台面可站立：碰撞体矩形内有支撑面，脚够得着（≤ 脚底 + .55m）就能踩上去——可从楼梯踏上墙顶、跳上矮墙 / 池沿
+        if (c[6] === 'water') return;                      // 水体只挡人，不作支撑面
+        const top = c.length >= 6 ? c[5] : (W.h ?? H);     // 4 元素旧式碰撞（墙等）没带高度，顶面 = 本层层高
+        if (top <= .01) return;
+        if (x > c[0] && x < c[2] && z > c[1] && z < c[3]) cand.push(top);
       });
       if (withLift) (state.lifts || []).forEach(l => {          // 电梯支撑面共用一套绝对停靠高度，换算到当前层基准
         const B = liftRides.has(l.id) ? liftRides.get(l.id).base : Math.max(0, (l.stop ?? 0) / 1000 - floorY());
