@@ -1,369 +1,5 @@
 {
-  "furniture": [
-    {
-      "id": "fmwn38nkm99",
-      "type": "duck",
-      "name": "鸭子",
-      "cx": 6370,
-      "cy": 5170,
-      "w": 480,
-      "d": 430,
-      "rot": 0,
-      "color": "#f2f0e6"
-    },
-    {
-      "id": "fmwn38seu100",
-      "type": "duck",
-      "name": "鸭子",
-      "cx": 15590,
-      "cy": 5160,
-      "w": 480,
-      "d": 430,
-      "rot": 0,
-      "color": "#f2f0e6"
-    },
-    {
-      "id": "fmwn390rq101",
-      "type": "goose",
-      "name": "白鹅",
-      "cx": 3890,
-      "cy": 4510,
-      "w": 560,
-      "d": 500,
-      "rot": 0,
-      "color": "#fafaf6"
-    },
-    {
-      "id": "fmwn391gm102",
-      "type": "chicken",
-      "name": "母鸡",
-      "cx": 4895,
-      "cy": 4495,
-      "w": 370,
-      "d": 350,
-      "rot": 0,
-      "color": "#e8d5b0"
-    },
-    {
-      "id": "fmwn392cu103",
-      "type": "goose",
-      "name": "白鹅",
-      "cx": 5600,
-      "cy": 3780,
-      "w": 560,
-      "d": 500,
-      "rot": 0,
-      "color": "#fafaf6"
-    },
-    {
-      "id": "fmwndhhx299",
-      "type": "rabbit",
-      "name": "野兔",
-      "cx": 1220,
-      "cy": 3910,
-      "w": 360,
-      "d": 280,
-      "rot": 0,
-      "color": "#c9beb0"
-    },
-    {
-      "id": "fmwndhj63100",
-      "type": "squirrel",
-      "name": "松鼠",
-      "cx": 2060,
-      "cy": 3980,
-      "w": 320,
-      "d": 240,
-      "rot": 0,
-      "color": "#a8744f"
-    },
-    {
-      "id": "fmwndhk89101",
-      "type": "fox",
-      "name": "赤狐",
-      "cx": 890,
-      "cy": 4690,
-      "w": 700,
-      "d": 350,
-      "rot": 0,
-      "color": "#d98e4a"
-    },
-    {
-      "id": "fmwndhlak102",
-      "type": "hedgehog",
-      "name": "刺猬",
-      "cx": 1850,
-      "cy": 5030,
-      "w": 300,
-      "d": 240,
-      "rot": 0,
-      "color": "#9c8b76"
-    },
-    {
-      "id": "fmwndhmcm103",
-      "type": "tortoise",
-      "name": "陆龟",
-      "cx": 1070,
-      "cy": 5890,
-      "w": 320,
-      "d": 260,
-      "rot": 0,
-      "color": "#7c8a52"
-    },
-    {
-      "id": "fmwndhnbn104",
-      "type": "deer",
-      "name": "梅花鹿",
-      "cx": 2160,
-      "cy": 5730,
-      "w": 1100,
-      "d": 450,
-      "rot": 0,
-      "color": "#c8a06a"
-    },
-    {
-      "id": "fmwnebsi499",
-      "type": "cat",
-      "name": "猫",
-      "cx": 3150,
-      "cy": 3480,
-      "w": 500,
-      "d": 300,
-      "rot": 0,
-      "color": "#9b958c"
-    },
-    {
-      "id": "fmwnebtpp100",
-      "type": "dog",
-      "name": "狗",
-      "cx": 4030,
-      "cy": 3620,
-      "w": 650,
-      "d": 350,
-      "rot": 0,
-      "color": "#c19a6b"
-    },
-    {
-      "id": "fmwnebuvc101",
-      "type": "dog",
-      "name": "狗",
-      "cx": 3700,
-      "cy": 5530,
-      "w": 650,
-      "d": 350,
-      "rot": 0,
-      "color": "#c19a6b"
-    },
-    {
-      "id": "fmwnebw08102",
-      "type": "dog",
-      "name": "狗",
-      "cx": 4650,
-      "cy": 3160,
-      "w": 650,
-      "d": 350,
-      "rot": 0,
-      "color": "#c19a6b"
-    },
-    {
-      "id": "fmwnebwy6103",
-      "type": "dog",
-      "name": "狗",
-      "cx": 950,
-      "cy": 3110,
-      "w": 650,
-      "d": 350,
-      "rot": 0,
-      "color": "#c19a6b"
-    },
-    {
-      "id": "fmwnebxz7104",
-      "type": "dog",
-      "name": "狗",
-      "cx": 1680,
-      "cy": 3080,
-      "w": 650,
-      "d": 350,
-      "rot": 0,
-      "color": "#c19a6b"
-    },
-    {
-      "id": "fmwnebyxn105",
-      "type": "cat",
-      "name": "猫",
-      "cx": 730,
-      "cy": 3870,
-      "w": 500,
-      "d": 300,
-      "rot": 0,
-      "color": "#9b958c"
-    },
-    {
-      "id": "fmwnebzwc106",
-      "type": "cat",
-      "name": "猫",
-      "cx": 1500,
-      "cy": 4370,
-      "w": 500,
-      "d": 300,
-      "rot": 0,
-      "color": "#9b958c"
-    },
-    {
-      "id": "fmwnf37zh99",
-      "type": "raccoon",
-      "name": "浣熊",
-      "cx": 5390,
-      "cy": 5310,
-      "w": 560,
-      "d": 300,
-      "rot": 0,
-      "color": "#9a948e"
-    },
-    {
-      "id": "fmwnf3in8100",
-      "type": "wolf",
-      "name": "狼",
-      "cx": 2830,
-      "cy": 50,
-      "w": 820,
-      "d": 400,
-      "rot": 0,
-      "color": "#8f8d8a"
-    },
-    {
-      "id": "fmwnf3n8m101",
-      "type": "penguin",
-      "name": "企鹅",
-      "cx": 4240,
-      "cy": 210,
-      "w": 320,
-      "d": 280,
-      "rot": 0,
-      "color": "#3a3f46"
-    },
-    {
-      "id": "fmwnf3op4102",
-      "type": "snake",
-      "name": "蛇",
-      "cx": 5230,
-      "cy": -70,
-      "w": 620,
-      "d": 160,
-      "rot": 0,
-      "color": "#7a9a4a"
-    },
-    {
-      "id": "fmwnf3qal103",
-      "type": "deer",
-      "name": "梅花鹿",
-      "cx": 3900,
-      "cy": -880,
-      "w": 1100,
-      "d": 450,
-      "rot": 0,
-      "color": "#c8a06a"
-    },
-    {
-      "id": "fmwnf3rsh104",
-      "type": "ostrich",
-      "name": "鸵鸟",
-      "cx": 2430,
-      "cy": -420,
-      "w": 480,
-      "d": 300,
-      "rot": 0,
-      "color": "#c0a882"
-    },
-    {
-      "id": "fmwnf3sl1105",
-      "type": "kangaroo",
-      "name": "袋鼠",
-      "cx": 1130,
-      "cy": -100,
-      "w": 750,
-      "d": 480,
-      "rot": 0,
-      "color": "#c98a5a"
-    },
-    {
-      "id": "fmwnf3tko106",
-      "type": "frog",
-      "name": "青蛙",
-      "cx": -160,
-      "cy": -220,
-      "w": 220,
-      "d": 180,
-      "rot": 0,
-      "color": "#6a9a4a"
-    },
-    {
-      "id": "fmwnf3voi107",
-      "type": "cow",
-      "name": "奶牛",
-      "cx": 6500,
-      "cy": 70,
-      "w": 1500,
-      "d": 650,
-      "rot": 0,
-      "color": "#f5f2ec"
-    },
-    {
-      "id": "fmwnf42rd108",
-      "type": "pig",
-      "name": "猪",
-      "cx": 8160,
-      "cy": 250,
-      "w": 950,
-      "d": 520,
-      "rot": 0,
-      "color": "#eab8b2"
-    },
-    {
-      "id": "fmwnf43wd109",
-      "type": "horse",
-      "name": "矮马",
-      "cx": 9980,
-      "cy": 150,
-      "w": 1250,
-      "d": 500,
-      "rot": 0,
-      "color": "#a97444"
-    },
-    {
-      "id": "fmwnf44rm110",
-      "type": "donkey",
-      "name": "毛驴",
-      "cx": 7200,
-      "cy": -890,
-      "w": 1050,
-      "d": 460,
-      "rot": 0,
-      "color": "#9a948c"
-    },
-    {
-      "id": "fmwnf45wi111",
-      "type": "sheep",
-      "name": "绵羊",
-      "cx": 8250,
-      "cy": -930,
-      "w": 850,
-      "d": 460,
-      "rot": 0,
-      "color": "#eceae2"
-    },
-    {
-      "id": "fmwnf46t2112",
-      "type": "goat",
-      "name": "山羊",
-      "cx": 5850,
-      "cy": -990,
-      "w": 780,
-      "d": 420,
-      "rot": 0,
-      "color": "#b6ada2"
-    }
-  ],
+  "furniture": [],
   "rooms": {
     "__t2": {
       "name": "tmp2",
@@ -379,8 +15,7 @@
     },
     "Xfmwhw4py093": {
       "name": "大厅",
-      "mat": "tile800",
-      "ceil": true
+      "mat": "tile800"
     },
     "Xfmwhw5jrc94": {
       "name": "厕所",
@@ -413,21 +48,21 @@
       "id": "fmwhqg4po186",
       "a": [
         13250,
-        2010
+        2070
       ],
       "b": [
         13250,
-        6880
+        6890
       ]
     },
     {
       "id": "fmwhqg7q7187",
       "a": [
-        13120,
+        13100,
         6820
       ],
       "b": [
-        -60,
+        -50,
         6820
       ]
     },
@@ -435,7 +70,7 @@
       "id": "fmwhqg9wc188",
       "a": [
         -250,
-        6880
+        6890
       ],
       "b": [
         -250,
@@ -460,18 +95,18 @@
         4320
       ],
       "b": [
-        13250,
+        13100,
         4320
       ]
     },
     {
       "id": "fmwhqkgdw95",
       "a": [
-        13050,
+        13100,
         5577
       ],
       "b": [
-        10570,
+        10600,
         5577
       ]
     },
@@ -483,7 +118,7 @@
       ],
       "b": [
         10600,
-        6640
+        6720
       ]
     },
     {
@@ -496,93 +131,84 @@
         7106,
         2260
       ]
-    },
-    {
-      "id": "fmwnfib2j113",
-      "a": [
-        -250,
-        -10200
-      ],
-      "b": [
-        15440,
-        -10200
-      ]
-    },
-    {
-      "id": "fmwnfibnc114",
-      "a": [
-        15440,
-        -10200
-      ],
-      "b": [
-        15440,
-        -3400
-      ]
-    },
-    {
-      "id": "fmwnfic89115",
-      "a": [
-        15440,
-        -3400
-      ],
-      "b": [
-        -250,
-        -3400
-      ]
-    },
-    {
-      "id": "fmwnfieyn116",
-      "a": [
-        -250,
-        -3400
-      ],
-      "b": [
-        -250,
-        -10200
-      ]
     }
   ],
   "openings": [
     {
       "id": "fmwhug5fj93",
       "wall": "CWfmwhqg1hn185",
-      "c": 3797.09814453125,
+      "c": 3176.578857421875,
       "w": 1200,
       "kind": "window",
       "flip": true,
-      "grille": true
+      "grille": true,
+      "wh": 1800
     },
     {
       "id": "fmwhuh0jy93",
       "wall": "CWfmwhqg1hn185",
-      "c": 5723.533203125,
+      "c": 5717.18798828125,
       "w": 900,
       "kind": "door",
       "flip": false,
-      "mat": "steel"
+      "mat": "steel",
+      "hflip": true
     },
     {
       "id": "fmwhui0o493",
       "wall": "CWfmwhqg1hn185",
-      "c": 601.218017578125,
+      "c": 273.24237060546886,
       "w": 1200,
       "kind": "window",
       "flip": false,
-      "grille": true
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwhuigxc93",
+      "wall": "CWfmwhqg7q7187",
+      "c": 424.2587890625,
+      "w": 1000,
+      "kind": "hwin",
+      "flip": true,
+      "sill": 2000,
+      "wh": 800
+    },
+    {
+      "id": "fmwhuwbzv93",
+      "wall": "CWfmwhqizs2191",
+      "c": 499.061279296875,
+      "w": 900,
+      "kind": "elev",
+      "flip": false,
+      "dh": 2400,
+      "sill": 1200,
+      "btn": "l",
+      "liftId": "fmwjjjlg394",
+      "liftFloor": 0
     },
     {
       "id": "fmwhuwh9z94",
       "wall": "CWfmwhqj7n7192",
-      "c": 5137.6376953125,
-      "w": 780,
+      "c": 4985.55078125,
+      "w": 900,
       "kind": "door",
       "flip": false,
       "hflip": true
     },
     {
+      "id": "fmwhuwjk895",
+      "wall": "CWfmwhqg4po186",
+      "c": 253.628662109375,
+      "w": 1100,
+      "kind": "door",
+      "flip": false,
+      "mat": "wood"
+    },
+    {
       "id": "fmwhuwl6x96",
       "wall": "CWfmwhqkgdw95",
-      "c": 1270,
+      "c": 1405.017578125,
       "w": 900,
       "kind": "door",
       "flip": true,
@@ -591,289 +217,51 @@
     {
       "id": "fmwhuwujj98",
       "wall": "CWfmwhqg9wc188",
-      "c": 290.31396484375,
-      "w": 4240,
+      "c": 577.76904296875,
+      "w": 3800,
       "kind": "roller",
       "flip": false,
       "dh": 3500
     },
     {
-      "id": "fmwj9kqu194",
-      "kind": "lbay",
-      "wall": "CWfmwhqg4po186",
-      "c": 3700,
-      "w": 1110,
-      "flip": true,
-      "sill": 900,
-      "wh": 1450,
-      "bayDepth": 600,
-      "legs": [
-        {
-          "wall": "CWfmwhqg4po186",
-          "c": 4255,
-          "w": 1110,
-          "flip": true,
-          "lc": 1,
-          "panes": 2
-        },
-        {
-          "wall": "CWfmwhqg7q7187",
-          "c": 1200,
-          "w": 2400,
-          "flip": true,
-          "lc": -1,
-          "panes": 3
-        }
-      ],
-      "panes": 2
-    },
-    {
-      "id": "fmwjcswgy93",
-      "wall": "CWfmwhqg4po186",
-      "c": 349.271728515625,
-      "w": 900,
-      "kind": "door",
-      "flip": false,
-      "hflip": false
-    },
-    {
-      "id": "fmwjgbe9593",
+      "id": "fmwhw7ghu93",
       "wall": "CWfmwhqg7q7187",
-      "c": 11513.83349609375,
-      "w": 920,
-      "kind": "niche",
-      "flip": true,
-      "sill": 900,
-      "wh": 700,
-      "nd": 250
-    },
-    {
-      "id": "fmwkpyc2z93",
-      "wall": "CWfmwhqg7q7187",
-      "c": 10500,
-      "w": 900,
-      "kind": "door",
-      "flip": false
-    },
-    {
-      "id": "fmwmue63z93",
-      "wall": "CWfmwhqg7q7187",
-      "c": 5028.185546875,
-      "w": 900,
-      "kind": "sd",
-      "flip": true,
-      "dir": -1
-    },
-    {
-      "id": "fmwmuecja94",
-      "wall": "CWfmwhqg7q7187",
-      "c": 2853.3046875,
-      "w": 1000,
-      "kind": "revolve",
-      "flip": false,
-      "sill": 0,
-      "dh": 2400
-    },
-    {
-      "id": "fmwmzd6yi94",
-      "wall": "CWfmwhqizs2191",
-      "c": 477.428466796875,
-      "w": 900,
-      "kind": "elev",
-      "flip": false,
-      "sill": 1200,
-      "btn": "l",
-      "liftId": "fmwiw6lnm93",
-      "liftFloor": 0
-    },
-    {
-      "id": "fmwnfjnwo119",
-      "wall": "CWfmwnfic89115",
-      "c": 11210,
-      "w": 2400,
-      "kind": "auto",
-      "flip": false,
-      "sill": 0,
-      "dh": 2400
-    },
-    {
-      "id": "fmwnfjq7k120",
-      "wall": "CWfmwnfic89115",
-      "c": 3030,
-      "w": 2400,
-      "kind": "slid",
-      "flip": true
-    },
-    {
-      "id": "fmwnnbcjx99",
-      "wall": "CWfmwnfibnc114",
-      "c": 2930,
-      "w": 1500,
-      "kind": "bay",
-      "flip": false,
-      "sill": 500,
-      "wh": 1200,
-      "bayDepth": 600,
-      "panes": 3,
-      "bayFlip": true
-    },
-    {
-      "id": "fmwnnbrzx100",
-      "wall": "CWfmwnfib2j113",
-      "c": 2747.3803550237567,
-      "w": 900,
-      "kind": "niche",
-      "flip": true,
-      "sill": 900,
-      "wh": 700,
-      "nd": 250
-    },
-    {
-      "id": "fmwnnc2hw101",
-      "wall": "CWfmwnfib2j113",
-      "c": 5418.038021656005,
-      "w": 1200,
-      "kind": "louver",
-      "flip": true,
-      "sill": 900,
-      "wh": 1200
-    },
-    {
-      "id": "fmwnnc4a8102",
-      "wall": "CWfmwnfib2j113",
-      "c": 6944.222505493894,
-      "w": 3000,
-      "kind": "strip",
-      "flip": false,
-      "sill": 600,
-      "wh": 1500
-    },
-    {
-      "id": "fmwnnc6zz103",
-      "wall": "CWfmwnfib2j113",
-      "c": 10696.84703220456,
-      "w": 900,
-      "kind": "cwin",
-      "flip": true,
-      "sill": 900
-    },
-    {
-      "id": "fmwnnc9pc105",
-      "kind": "fwin",
-      "wall": "CWfmwnfibnc114",
-      "c": 0,
-      "w": 1200,
-      "sill": 0,
-      "dh": 2400,
-      "cg": "fmwnnc9pc104"
-    },
-    {
-      "id": "fmwnnc9pc106",
-      "kind": "fwin",
-      "wall": "CWfmwnfib2j113",
-      "c": 14490,
-      "w": 1200,
-      "sill": 0,
-      "dh": 2400,
-      "cg": "fmwnnc9pc104"
-    },
-    {
-      "id": "fmwnncdk2107",
-      "wall": "CWfmwnfib2j113",
-      "c": 490.90966796875,
-      "w": 1500,
-      "kind": "dwin",
-      "flip": false
-    },
-    {
-      "id": "fmwnncmfk109",
-      "wall": "CWfmwnfieyn116",
-      "c": 589.4772370303672,
-      "w": 1800,
-      "kind": "fwin",
-      "flip": true
-    },
-    {
-      "id": "fmwnncqnj111",
-      "wall": "CWfmwnfic89115",
-      "c": 5960,
+      "c": 8726.12744140625,
       "w": 1200,
       "kind": "window",
-      "flip": false
-    },
-    {
-      "id": "fmwnnd8ps112",
-      "wall": "CWfmwnfic89115",
-      "c": 8096.966537333206,
-      "w": 1800,
-      "kind": "fold",
-      "flip": true
-    },
-    {
-      "id": "fmwnndfjn113",
-      "wall": "CWfmwnfic89115",
-      "c": 14256.960678752586,
-      "w": 1200,
-      "kind": "arch",
       "flip": false,
-      "sh": 2100,
-      "rise": 600
+      "grille": true,
+      "wh": 1800
     },
     {
-      "id": "fmwnndheu114",
-      "wall": "CWfmwnfic89115",
-      "c": 10269.345632878907,
-      "w": 900,
-      "kind": "hole",
-      "flip": true,
-      "sill": 900,
-      "wh": 900
-    },
-    {
-      "id": "fmwnndk38115",
-      "wall": "CWfmwnfic89115",
-      "c": 1310.3892326034165,
+      "id": "fmwhw7jdp94",
+      "wall": "CWfmwhqg7q7187",
+      "c": 4073.8720703125,
       "w": 1200,
-      "kind": "yak",
-      "flip": false
-    },
-    {
-      "id": "fmwnndm1q116",
-      "wall": "CWfmwnfibnc114",
-      "c": 1480,
-      "w": 1200,
-      "kind": "zimu",
-      "flip": false
-    },
-    {
-      "id": "fmwnndod4117",
-      "wall": "CWfmwnfib2j113",
-      "c": 12137.341617090793,
-      "w": 1500,
-      "kind": "dble",
-      "flip": false
-    },
-    {
-      "id": "fmwo97ipz99",
-      "wall": "CWfmwnfieyn116",
-      "c": 4483.2490234375,
-      "w": 1500,
-      "kind": "swin",
-      "flip": false,
-      "sill": 900,
-      "wh": 1200,
-      "panes": 2
-    },
-    {
-      "id": "fmwryzq0999",
-      "wall": "CWfmwnfibnc114",
-      "c": 5210.34119944219,
-      "w": 900,
-      "kind": "elev",
+      "kind": "window",
       "flip": true,
-      "liftId": "fmwiw6lnm93",
-      "liftFloor": 1,
-      "btn": "l"
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwjjix4q93",
+      "wall": "CWfmwhqg7q7187",
+      "c": 11672.06396484375,
+      "w": 1200,
+      "kind": "window",
+      "flip": true,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwkvidhr231",
+      "wall": "CWfmwhqg1hn185",
+      "c": 8872.728682523035,
+      "w": 900,
+      "kind": "window",
+      "flip": true,
+      "sill": 1800,
+      "wh": 1200
     }
   ],
   "deletedWalls": [
@@ -1024,7 +412,7 @@
           2260
         ],
         [
-          6960,
+          7010,
           2260
         ],
         [
@@ -1046,11 +434,11 @@
           5680
         ],
         [
-          13120,
+          13100,
           5680
         ],
         [
-          13120,
+          13090,
           6720
         ],
         [
@@ -1068,12 +456,12 @@
           4440
         ],
         [
-          13120,
+          13100,
           4440
         ],
         [
-          13120,
-          5460
+          13100,
+          5450
         ],
         [
           10480,
@@ -1086,12 +474,12 @@
       "id": "Xfmwhwa57596",
       "poly": [
         [
-          6960,
+          6990,
           4460
         ],
         [
-          10460,
-          4440
+          10440,
+          4470
         ],
         [
           10500,
@@ -1105,7 +493,7 @@
       "mat": "tile800"
     }
   ],
-  "entryDoor": "Ofmwjcswgy93",
+  "entryDoor": "Ofmwhuwjk895",
   "pillars": [],
   "stairs": [
     {
@@ -1124,62 +512,8 @@
         9,
         9
       ],
-      "railLand": false,
       "railSide": "left",
-      "railMat": "steel"
-    },
-    {
-      "id": "fmwkbjpr297",
-      "x": 15950,
-      "y": 7590,
-      "w": 2000,
-      "dir": 0,
-      "rise": 4200,
-      "type": "spiral",
-      "flipX": false,
-      "runs": 1
-    },
-    {
-      "id": "fmwnfl3ir99",
-      "x": 25620,
-      "y": 950,
-      "w": 1000,
-      "len": 12000,
-      "dir": 0,
-      "rise": 6000,
-      "type": "esc",
-      "flipX": false,
-      "handMat": "black",
-      "panelMat": "glass",
-      "runs": "X",
-      "flipZ": true,
-      "landOut": 1500,
-      "land": true,
-      "fenceSide": "sides"
-    },
-    {
-      "id": "fmwnhpwze99",
-      "x": 5910,
-      "y": 7240,
-      "w": 500,
-      "len": 600,
-      "h": 3000,
-      "dir": 90,
-      "type": "ladder",
-      "runs": 1
-    },
-    {
-      "id": "fmwnj6w1v99",
-      "x": 24100,
-      "y": -9780,
-      "w": 1000,
-      "len": 4400,
-      "dir": 0,
-      "rise": 2400,
-      "type": "esc",
-      "railLand": true,
-      "land": true,
-      "runs": 1
+      "railLand": false
     }
   ],
   "wallH": {
@@ -1191,7 +525,17 @@
     "CWfmwhqkgdw95": 4200,
     "CWfmwhqknzq97": 4200,
     "CWfmwhqg7q7187": 4200,
-    "CWfmwhqg9wc188": 4200
+    "CWfmwhqg9wc188": 4200,
+    "CWfmwkvqy7g280": 3200,
+    "CWfmwkvnffb264": 3200,
+    "CWfmwkvvsh1284": 3200,
+    "CWfmwkvnffb269": 3200,
+    "CWfmwkvnffb257": 3200,
+    "CWfmwkvnffb278": 3200,
+    "CWfmwkvnffb271": 3200,
+    "CWfmwkvnffb273": 3200,
+    "CWfmwkvt9s9283": 3200,
+    "CWfmwkvnffb262": 3200
   },
   "notes": [],
   "dims": [],
@@ -1202,52 +546,27 @@
   "parapets": [],
   "canopies": [],
   "north": {
-    "x": 13700,
-    "y": 10730,
+    "x": 14210,
+    "y": 10290,
     "angle": 0,
     "r": 380
   },
   "lifts": [
     {
-      "id": "fmwiw6lnm93",
-      "x": 7900,
-      "y": 3200,
+      "id": "fmwjjjlg394",
+      "x": 7910,
+      "y": 3270,
       "w": 1230,
-      "d": 1950,
-      "h": 2400,
-      "dw": 900,
-      "dir": 0,
-      "stop": 13200,
-      "dpos": -10,
-      "floors": [
-        1200,
-        4200,
-        7200,
-        10200,
-        13200,
-        16200,
-        19200,
-        22200,
-        25200,
-        28200
-      ],
-      "cur": 4
-    },
-    {
-      "id": "fmwru5fwy99",
-      "x": 12370,
-      "y": -560,
-      "w": 2000,
-      "d": 2000,
+      "d": 1590,
       "h": 2400,
       "dw": 900,
       "dh": 2100,
-      "dpos": 0,
-      "stop": 0,
+      "dpos": -50,
+      "stop": 1200,
       "dir": 0,
       "floors": [
-        0,
-        3000
+        1200,
+        4200
       ],
       "cur": 0
     }
@@ -1262,656 +581,946 @@
   "decks": [],
   "pergolas": [],
   "gates": [],
-  "extras": [
+  "extras": [],
+  "leaders": [],
+  "powerBoxes": [],
+  "weakBoxes": [],
+  "lamps": [],
+  "floors": [
     {
-      "type": "park",
-      "w": 1900,
-      "d": 4950,
-      "no": 1,
-      "id": "fmwk1rono93",
-      "x": 5765,
-      "y": 16255,
-      "dir": 0,
-      "wheelDir": 180,
-      "rot": 0
-    },
-    {
-      "type": "pavilion",
-      "w": 1590,
-      "d": 960,
-      "h": 2600,
-      "col": 150,
-      "id": "fmwk1rwai94",
-      "x": 3515,
-      "y": 8760
-    },
-    {
-      "type": "retain",
-      "w": 300,
-      "h": 1800,
-      "id": "fmwk1rz0l95",
-      "a": [
-        5600,
-        9010
-      ],
-      "b": [
-        7240,
-        9010
-      ]
-    },
-    {
-      "type": "spout",
-      "w": 120,
-      "h": 2800,
-      "id": "fmwk1s11296",
-      "x": 9410,
-      "y": 9370
-    },
-    {
-      "type": "gutter",
-      "w": 300,
-      "h": 120,
-      "id": "fmwk1s47697",
-      "a": [
-        10010,
-        9160
-      ],
-      "b": [
-        11120,
-        9160
-      ]
-    },
-    {
-      "type": "spout",
-      "w": 100,
-      "h": 2800,
-      "id": "fmwk1yqfv93",
-      "x": 8690,
-      "y": 9630
-    },
-    {
-      "type": "shaft",
-      "w": 940,
-      "d": 1170,
-      "h": 2800,
-      "t": 120,
+      "id": "f1",
+      "name": "1F",
       "z": 0,
-      "id": "fmwk2ts7m93",
-      "x": -2120,
-      "y": 8780
+      "h": 4200
     },
     {
-      "type": "eave",
-      "w": 600,
-      "h": 120,
-      "z": 2800,
-      "id": "fmwk2tuub94",
-      "a": [
-        790,
-        9190
-      ],
-      "b": [
-        1970,
-        9190
-      ]
-    },
-    {
-      "type": "tiecol",
-      "w": 240,
-      "h": 2800,
-      "id": "fmwk2tyoa95",
-      "x": -2070,
-      "y": 10170
-    },
-    {
-      "type": "lintel",
-      "w": 240,
-      "h": 200,
-      "z": 2100,
-      "id": "fmwk2u0wb96",
-      "a": [
-        -1060,
-        10310
-      ],
-      "b": [
-        1360,
-        10310
-      ]
-    },
-    {
-      "type": "path",
-      "w": 1200,
-      "h": 40,
-      "id": "fmwk2u40p97",
-      "a": [
-        2900,
-        10730
-      ],
-      "b": [
-        7700,
-        10730
-      ]
-    },
-    {
-      "type": "well2",
-      "w": 1050,
-      "d": 850,
-      "h": 900,
-      "z": 0,
-      "id": "fmwk2u78j98",
-      "x": 10600,
-      "y": 11010
-    },
-    {
-      "type": "tree",
-      "w": 900,
-      "h": 3000,
-      "id": "fmwk2ua0a99",
-      "x": 12650,
-      "y": 9380
-    },
-    {
-      "type": "lawn",
-      "w": 1470,
-      "d": 830,
-      "h": 60,
-      "id": "fmwk2ucwh100",
-      "x": 14250,
-      "y": 9450
-    },
-    {
-      "type": "dormer",
-      "w": 1560,
-      "d": 880,
-      "h": 900,
-      "z": 2800,
-      "id": "fmwk2ufzt101",
-      "x": -490,
-      "y": 11830
-    },
-    {
-      "type": "chimney",
-      "w": 400,
-      "h": 1200,
-      "z": 2800,
-      "id": "fmwk2uhkf102",
-      "x": 2010,
-      "y": 12110
-    },
-    {
-      "type": "hatch",
-      "w": 1050,
-      "d": 560,
-      "h": 250,
-      "z": 2800,
-      "id": "fmwk2unoa104",
-      "x": 3670,
-      "y": 12310
-    },
-    {
-      "type": "solar",
-      "w": 810,
-      "d": 730,
-      "h": 300,
-      "z": 2800,
-      "id": "fmwk2upi3105",
-      "x": 6420,
-      "y": 12310
-    },
-    {
-      "type": "equip",
-      "w": 1050,
-      "d": 940,
-      "h": 800,
-      "thick": 150,
-      "z": 0,
-      "id": "fmwk2urnn106",
-      "x": 8660,
-      "y": 12750
-    },
-    {
-      "type": "carport",
-      "w": 4160,
-      "d": 1910,
-      "h": 2500,
-      "col": 100,
-      "id": "fmwkb9r8993",
-      "x": 885,
-      "y": 14640
-    },
-    {
-      "type": "flag",
-      "w": 120,
-      "h": 6000,
-      "id": "fmwkbesmf93",
-      "x": 18750,
-      "y": 9040,
-      "flagY": 5500
-    },
-    {
-      "type": "signbd",
-      "w": 120,
-      "h": 800,
-      "z": 2800,
-      "id": "fmwkbh8zk94",
-      "a": [
-        15840,
-        10580
-      ],
-      "b": [
-        17070,
-        10580
-      ]
+      "id": "fmws2abuc246",
+      "name": "2F",
+      "z": 4200,
+      "h": 3200
     }
   ],
-  "leaders": [
-    {
-      "id": "fmwk68kv193",
-      "sym": "leader",
-      "a": [
-        11420,
-        14760
+  "activeFloor": "f1",
+  "byFloor": {
+    "f1": {
+      "furniture": [],
+      "rooms": {
+        "__t2": {
+          "name": "tmp2",
+          "mat": "tile800"
+        },
+        "Xfmwhw1vn293": {
+          "name": "电梯井",
+          "mat": "tile800"
+        },
+        "Xfmwhw2q5o94": {
+          "name": "楼梯间",
+          "mat": "tile800"
+        },
+        "Xfmwhw4py093": {
+          "name": "大厅",
+          "mat": "tile800"
+        },
+        "Xfmwhw5jrc94": {
+          "name": "厕所",
+          "mat": "antislip"
+        },
+        "Xfmwhw9gqy95": {
+          "name": "过道",
+          "mat": "tile600"
+        },
+        "Xfmwhwa57596": {
+          "name": "厨房",
+          "mat": "terrazzo"
+        }
+      },
+      "demolished": [],
+      "measures": [],
+      "walls": [
+        {
+          "id": "fmwhqg1hn185",
+          "a": [
+            -60,
+            2110
+          ],
+          "b": [
+            13090,
+            2110
+          ]
+        },
+        {
+          "id": "fmwhqg4po186",
+          "a": [
+            13250,
+            2070
+          ],
+          "b": [
+            13250,
+            6890
+          ]
+        },
+        {
+          "id": "fmwhqg7q7187",
+          "a": [
+            13100,
+            6820
+          ],
+          "b": [
+            -50,
+            6820
+          ]
+        },
+        {
+          "id": "fmwhqg9wc188",
+          "a": [
+            -250,
+            6890
+          ],
+          "b": [
+            -250,
+            2010
+          ]
+        },
+        {
+          "id": "fmwhqizs2191",
+          "a": [
+            8714,
+            2260
+          ],
+          "b": [
+            8714,
+            4320
+          ]
+        },
+        {
+          "id": "fmwhqj7n7192",
+          "a": [
+            7110,
+            4320
+          ],
+          "b": [
+            13100,
+            4320
+          ]
+        },
+        {
+          "id": "fmwhqkgdw95",
+          "a": [
+            13100,
+            5577
+          ],
+          "b": [
+            10600,
+            5577
+          ]
+        },
+        {
+          "id": "fmwhqknzq97",
+          "a": [
+            10600,
+            5780
+          ],
+          "b": [
+            10600,
+            6720
+          ]
+        },
+        {
+          "id": "fmwhqtknh93",
+          "a": [
+            7110,
+            4230
+          ],
+          "b": [
+            7106,
+            2260
+          ]
+        }
       ],
-      "t": [
-        12990,
-        13660
+      "openings": [
+        {
+          "id": "fmwhug5fj93",
+          "wall": "CWfmwhqg1hn185",
+          "c": 3176.578857421875,
+          "w": 1200,
+          "kind": "window",
+          "flip": true,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwhuh0jy93",
+          "wall": "CWfmwhqg1hn185",
+          "c": 5717.18798828125,
+          "w": 900,
+          "kind": "door",
+          "flip": false,
+          "mat": "steel",
+          "hflip": true
+        },
+        {
+          "id": "fmwhui0o493",
+          "wall": "CWfmwhqg1hn185",
+          "c": 273.24237060546886,
+          "w": 1200,
+          "kind": "window",
+          "flip": false,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwhuigxc93",
+          "wall": "CWfmwhqg7q7187",
+          "c": 424.2587890625,
+          "w": 1000,
+          "kind": "hwin",
+          "flip": true,
+          "sill": 2000,
+          "wh": 800
+        },
+        {
+          "id": "fmwhuwbzv93",
+          "wall": "CWfmwhqizs2191",
+          "c": 499.061279296875,
+          "w": 900,
+          "kind": "elev",
+          "flip": false,
+          "dh": 2400,
+          "sill": 1200,
+          "btn": "l",
+          "liftId": "fmwjjjlg394",
+          "liftFloor": 0
+        },
+        {
+          "id": "fmwhuwh9z94",
+          "wall": "CWfmwhqj7n7192",
+          "c": 4985.55078125,
+          "w": 900,
+          "kind": "door",
+          "flip": false,
+          "hflip": true
+        },
+        {
+          "id": "fmwhuwjk895",
+          "wall": "CWfmwhqg4po186",
+          "c": 253.628662109375,
+          "w": 1100,
+          "kind": "door",
+          "flip": false,
+          "mat": "wood"
+        },
+        {
+          "id": "fmwhuwl6x96",
+          "wall": "CWfmwhqkgdw95",
+          "c": 1405.017578125,
+          "w": 900,
+          "kind": "door",
+          "flip": true,
+          "hflip": true
+        },
+        {
+          "id": "fmwhuwujj98",
+          "wall": "CWfmwhqg9wc188",
+          "c": 577.76904296875,
+          "w": 3800,
+          "kind": "roller",
+          "flip": false,
+          "dh": 3500
+        },
+        {
+          "id": "fmwhw7ghu93",
+          "wall": "CWfmwhqg7q7187",
+          "c": 8726.12744140625,
+          "w": 1200,
+          "kind": "window",
+          "flip": false,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwhw7jdp94",
+          "wall": "CWfmwhqg7q7187",
+          "c": 4073.8720703125,
+          "w": 1200,
+          "kind": "window",
+          "flip": true,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwjjix4q93",
+          "wall": "CWfmwhqg7q7187",
+          "c": 11672.06396484375,
+          "w": 1200,
+          "kind": "window",
+          "flip": true,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwkvidhr231",
+          "wall": "CWfmwhqg1hn185",
+          "c": 8872.728682523035,
+          "w": 900,
+          "kind": "window",
+          "flip": true,
+          "sill": 1800,
+          "wh": 1200
+        }
       ],
-      "text": "标注",
-      "no": 0
+      "deletedWalls": [
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8",
+        "w9",
+        "w10",
+        "w11",
+        "w12",
+        "w13",
+        "w14",
+        "w15",
+        "w16",
+        "w17",
+        "w18",
+        "w19",
+        "w20",
+        "w21",
+        "w22",
+        "w23",
+        "w24",
+        "w25",
+        "w26",
+        "w27",
+        "w28",
+        "w29",
+        "w30",
+        "w31",
+        "w32",
+        "w33",
+        "w34",
+        "w35",
+        "w36",
+        "w37",
+        "w38",
+        "w39",
+        "w40",
+        "w41",
+        "w42",
+        "w43",
+        "w44",
+        "w45",
+        "w46",
+        "w47",
+        "w0"
+      ],
+      "removedB": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "w0",
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8",
+        "w9",
+        "w10",
+        "w11",
+        "s0",
+        "s1"
+      ],
+      "bover": {},
+      "roomsExtra": [
+        {
+          "id": "__t",
+          "poly": [
+            [
+              1460,
+              8770
+            ],
+            [
+              3260,
+              8770
+            ],
+            [
+              3260,
+              10570
+            ],
+            [
+              1460,
+              10570
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmwhw1vn293",
+          "poly": [
+            [
+              7220,
+              2260
+            ],
+            [
+              8600,
+              2260
+            ],
+            [
+              8600,
+              4230
+            ],
+            [
+              7220,
+              4230
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmwhw2q5o94",
+          "poly": [
+            [
+              8850,
+              2260
+            ],
+            [
+              13090,
+              2260
+            ],
+            [
+              13100,
+              4230
+            ],
+            [
+              8860,
+              4230
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmwhw4py093",
+          "poly": [
+            [
+              -160,
+              2260
+            ],
+            [
+              7010,
+              2260
+            ],
+            [
+              6970,
+              6720
+            ],
+            [
+              -160,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmwhw5jrc94",
+          "poly": [
+            [
+              10710,
+              5680
+            ],
+            [
+              13100,
+              5680
+            ],
+            [
+              13090,
+              6720
+            ],
+            [
+              10730,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmwhw9gqy95",
+          "poly": [
+            [
+              10450,
+              4440
+            ],
+            [
+              13100,
+              4440
+            ],
+            [
+              13100,
+              5450
+            ],
+            [
+              10480,
+              5450
+            ]
+          ],
+          "mat": "tile800"
+        },
+        {
+          "id": "Xfmwhwa57596",
+          "poly": [
+            [
+              6990,
+              4460
+            ],
+            [
+              10440,
+              4470
+            ],
+            [
+              10500,
+              6720
+            ],
+            [
+              6980,
+              6720
+            ]
+          ],
+          "mat": "tile800"
+        }
+      ],
+      "notes": [],
+      "dims": [],
+      "rails": [],
+      "beams": [],
+      "levels": [],
+      "slabs": [],
+      "parapets": [],
+      "canopies": [],
+      "north": {
+        "x": 14210,
+        "y": 10290,
+        "angle": 0,
+        "r": 380
+      },
+      "balconies": [],
+      "planters": [],
+      "flues": [],
+      "arcWalls": [],
+      "roofs": [],
+      "pools": [],
+      "decks": [],
+      "pergolas": [],
+      "gates": [],
+      "extras": [],
+      "leaders": [],
+      "lamps": [],
+      "powerBoxes": [],
+      "weakBoxes": [],
+      "stairs": [
+        {
+          "id": "fmwhu2zzr93",
+          "x": 10980,
+          "y": 3210,
+          "w": 900,
+          "len": 4250,
+          "dir": 0,
+          "rise": 4200,
+          "runs": 3,
+          "stack": true,
+          "flipX": true,
+          "steps": [
+            7,
+            9,
+            9
+          ],
+          "railSide": "left",
+          "railLand": false
+        }
+      ],
+      "pillars": [],
+      "wallH": {
+        "CWfmwhqg1hn185": 4200,
+        "CWfmwhqg4po186": 4200,
+        "CWfmwhqj7n7192": 4200,
+        "CWfmwhqizs2191": 4200,
+        "CWfmwhqtknh93": 4200,
+        "CWfmwhqkgdw95": 4200,
+        "CWfmwhqknzq97": 4200,
+        "CWfmwhqg7q7187": 4200,
+        "CWfmwhqg9wc188": 4200,
+        "CWfmwkvqy7g280": 3200,
+        "CWfmwkvnffb264": 3200,
+        "CWfmwkvvsh1284": 3200,
+        "CWfmwkvnffb269": 3200,
+        "CWfmwkvnffb257": 3200,
+        "CWfmwkvnffb278": 3200,
+        "CWfmwkvnffb271": 3200,
+        "CWfmwkvnffb273": 3200,
+        "CWfmwkvt9s9283": 3200,
+        "CWfmwkvnffb262": 3200
+      },
+      "entryDoor": "Ofmwhuwjk895"
+    },
+    "fmws2abuc246": {
+      "furniture": [],
+      "rooms": {},
+      "demolished": [],
+      "measures": [],
+      "walls": [
+        {
+          "id": "fmwkvnffb257",
+          "a": [
+            -1540,
+            2100
+          ],
+          "b": [
+            14410,
+            2091.2255859375
+          ]
+        },
+        {
+          "id": "fmwkvnffb262",
+          "a": [
+            13250,
+            5567
+          ],
+          "b": [
+            13250,
+            6880
+          ]
+        },
+        {
+          "id": "fmwkvnffb264",
+          "a": [
+            14410,
+            6810
+          ],
+          "b": [
+            -1540,
+            6810
+          ]
+        },
+        {
+          "id": "fmwkvnffb269",
+          "a": [
+            -1730,
+            6880
+          ],
+          "b": [
+            -1730,
+            2000
+          ]
+        },
+        {
+          "id": "fmwkvnffb271",
+          "a": [
+            8714,
+            2250
+          ],
+          "b": [
+            8714,
+            4310
+          ]
+        },
+        {
+          "id": "fmwkvnffb273",
+          "a": [
+            7110,
+            4310
+          ],
+          "b": [
+            14250,
+            4310
+          ]
+        },
+        {
+          "id": "fmwkvnffb277",
+          "a": [
+            10590,
+            6000
+          ],
+          "b": [
+            10590,
+            6600
+          ]
+        },
+        {
+          "id": "fmwkvnffb278",
+          "a": [
+            7110,
+            4220
+          ],
+          "b": [
+            7106,
+            2250
+          ]
+        },
+        {
+          "id": "fmwkvqy7g280",
+          "a": [
+            14410,
+            6710
+          ],
+          "b": [
+            14410,
+            2250
+          ]
+        },
+        {
+          "id": "fmwkvt9s9283",
+          "a": [
+            13230,
+            2250
+          ],
+          "b": [
+            13230,
+            4310
+          ]
+        },
+        {
+          "id": "fmwkvvsh1284",
+          "a": [
+            1566.000160264909,
+            2098.291327179664
+          ],
+          "b": [
+            1566.000160264909,
+            6600
+          ]
+        }
+      ],
+      "openings": [
+        {
+          "id": "fmwkvnffb258",
+          "wall": "CWfmwkvnffb257",
+          "c": 4103.339133377649,
+          "w": 1200,
+          "kind": "window",
+          "flip": true,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwkvnffb261",
+          "wall": "CWfmwkvnffb257",
+          "c": 8872.728682523035,
+          "w": 900,
+          "kind": "window",
+          "flip": true,
+          "sill": 1800,
+          "wh": 1200
+        },
+        {
+          "id": "fmwkvnffb266",
+          "wall": "CWfmwkvnffb264",
+          "c": 7970.72607421875,
+          "w": 1200,
+          "kind": "window",
+          "flip": false,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwkvnffb267",
+          "wall": "CWfmwkvnffb264",
+          "c": 2420.0791015625,
+          "w": 1200,
+          "kind": "window",
+          "flip": true,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwkvnffb268",
+          "wall": "CWfmwkvnffb264",
+          "c": 10699.92626953125,
+          "w": 1200,
+          "kind": "window",
+          "flip": true,
+          "grille": true,
+          "wh": 1800
+        },
+        {
+          "id": "fmwkvnffb272",
+          "wall": "CWfmwkvnffb271",
+          "c": 499.061279296875,
+          "w": 900,
+          "kind": "elev",
+          "flip": false,
+          "dh": 2400,
+          "sill": 0,
+          "btn": "l",
+          "liftId": "fmwjjjlg394",
+          "liftFloor": 1
+        },
+        {
+          "id": "fmwkvnffb274",
+          "wall": "CWfmwkvnffb273",
+          "c": 1798.8408203125,
+          "w": 900,
+          "kind": "door",
+          "flip": false,
+          "hflip": true,
+          "mat": "steel"
+        },
+        {
+          "id": "fmwkvxlec286",
+          "wall": "CWfmwkvvsh1284",
+          "c": 3596.323418914086,
+          "w": 900,
+          "kind": "door",
+          "flip": false,
+          "hflip": true
+        },
+        {
+          "id": "fmwkwauwc93",
+          "wall": "CWfmwkvnffb273",
+          "c": 6323.0830078125,
+          "w": 700,
+          "kind": "door",
+          "flip": true,
+          "mat": "glass"
+        },
+        {
+          "id": "fmwkwdkjh94",
+          "wall": "CWfmwkvnffb269",
+          "c": 670.87451171875,
+          "w": 3630,
+          "kind": "window",
+          "flip": false,
+          "grille": true,
+          "wh": 1800,
+          "panes": 4
+        }
+      ],
+      "deletedWalls": [
+        "w0",
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8",
+        "w9",
+        "w10",
+        "w11",
+        "w12",
+        "w13",
+        "w14",
+        "w15",
+        "w16",
+        "w17",
+        "w18",
+        "w19",
+        "w20",
+        "w21",
+        "w22",
+        "w23",
+        "w24",
+        "w25",
+        "w26",
+        "w27",
+        "w28",
+        "w29",
+        "w30",
+        "w31",
+        "w32",
+        "w33",
+        "w34",
+        "w35",
+        "w36",
+        "w37",
+        "w38",
+        "w39",
+        "w40",
+        "w41",
+        "w42",
+        "w43",
+        "w44",
+        "w45",
+        "w46",
+        "w47"
+      ],
+      "removedB": [
+        "d0",
+        "d1",
+        "d2",
+        "d3",
+        "d4",
+        "d5",
+        "w0",
+        "w1",
+        "w2",
+        "w3",
+        "w4",
+        "w5",
+        "w6",
+        "w7",
+        "w8",
+        "w9",
+        "w10",
+        "w11",
+        "s0",
+        "s1"
+      ],
+      "bover": {},
+      "roomsExtra": [],
+      "notes": [],
+      "dims": [],
+      "rails": [],
+      "beams": [],
+      "levels": [],
+      "slabs": [],
+      "parapets": [],
+      "canopies": [],
+      "north": null,
+      "balconies": [],
+      "planters": [],
+      "flues": [],
+      "arcWalls": [],
+      "roofs": [],
+      "pools": [],
+      "decks": [],
+      "pergolas": [],
+      "gates": [],
+      "extras": [],
+      "leaders": [],
+      "lamps": [],
+      "powerBoxes": [],
+      "weakBoxes": [],
+      "stairs": [
+        {
+          "id": "fmwkw35uw139",
+          "x": 10970,
+          "y": 3190,
+          "w": 950,
+          "len": 4250,
+          "dir": 0,
+          "rise": 3200,
+          "runs": 2,
+          "railLand": false,
+          "railSide": "left",
+          "railMat": "wood",
+          "flipX": false,
+          "flipZ": true
+        }
+      ],
+      "pillars": [],
+      "wallH": {},
+      "entryDoor": null
     }
-  ],
-  "lamps": [
-    {
-      "id": "fmwlosjq893",
-      "type": "chandelier",
-      "x": 2280,
-      "y": 4460,
-      "r": 6000,
-      "z": 3600,
-      "on": true,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlozibl93",
-      "type": "ceil",
-      "x": 12280,
-      "y": 6170,
-      "r": 4200,
-      "z": 3600,
-      "on": false,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlug3xb93",
-      "type": "socket",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 12810,
-      "z": 300,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 310,
-      "y": 6700,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlug4xc94",
-      "type": "socket",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 9930,
-      "z": 800,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 3190,
-      "y": 6700,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlugsx195",
-      "type": "socket",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 9830,
-      "z": 800,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 3290,
-      "y": 6700,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwluh0wd96",
-      "type": "socket",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 10030,
-      "z": 800,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 3090,
-      "y": 6700,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlui74t98",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 6310,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 6810,
-      "y": 6700,
-      "ctlMode": "list",
-      "ctl": [],
-      "links": [
-        "fmwm0tjnl99"
-      ],
-      "style": "s1w2",
-      "ctlByGang": [],
-      "panelMat": "steel"
-    },
-    {
-      "id": "fmwlukckx93",
-      "type": "socket",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 2380,
-      "z": 300,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 2320,
-      "y": 2230,
-      "panelMat": "steel",
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlumbql94",
-      "type": "floor",
-      "x": 3910,
-      "y": 3110,
-      "r": 2200,
-      "z": 1500,
-      "on": false,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlumda595",
-      "type": "floor",
-      "x": 2240,
-      "y": 3250,
-      "r": 2200,
-      "z": 1500,
-      "on": false,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlyd5e293",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 3360,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 3300,
-      "y": 2230,
-      "ctlMode": "list",
-      "ctl": [
-        "fmwlozibl93"
-      ],
-      "panelMat": "steel",
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlyen0m95",
-      "type": "bulb",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 3600,
-      "z": 3300,
-      "r": 1800,
-      "on": false,
-      "x": 3540,
-      "y": 2230,
-      "name": "",
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwlyfaf396",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 2390,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 2330,
-      "y": 2230,
-      "ctlMode": "list",
-      "ctl": [],
-      "panelMat": "steel",
-      "links": [],
-      "style": "s2w1",
-      "ctlByGang": [
-        [
-          "fmwlumbql94"
-        ],
-        [
-          "fmwlumda595"
-        ]
-      ]
-    },
-    {
-      "id": "fmwlzjhi793",
-      "type": "network",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 5320,
-      "z": 300,
-      "r": 3000,
-      "on": true,
-      "style": "rj45",
-      "x": 5260,
-      "y": 2230,
-      "panelMat": "steel",
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwm0inzd93",
-      "type": "socket",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 280,
-      "z": 300,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 220,
-      "y": 2230,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwm0qs4e93",
-      "type": "tube",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 1280,
-      "z": 3300,
-      "r": 2600,
-      "on": false,
-      "x": 1220,
-      "y": 2230,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwm0tjnl99",
-      "type": "wallSwitch",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 550,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "x": 490,
-      "y": 2230,
-      "ctlMode": "list",
-      "ctl": [
-        "fmwlosjq893"
-      ],
-      "panelMat": "steel",
-      "style": "s1w2",
-      "links": [
-        "fmwlui74t98"
-      ],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwm0w6qe95",
-      "type": "down",
-      "x": 3390,
-      "y": 4330,
-      "r": 1800,
-      "z": 3600,
-      "on": false,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwm0wmz696",
-      "type": "socket",
-      "wall": "CWfmwhqg1hn185",
-      "side": 1,
-      "c": 1960,
-      "z": 300,
-      "r": 3000,
-      "on": true,
-      "style": "dual",
-      "x": 1900,
-      "y": 2230,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwm5nzxa96",
-      "type": "tube",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 7850,
-      "z": 1900,
-      "r": 2600,
-      "on": false,
-      "x": 5270,
-      "y": 6700,
-      "links": [],
-      "ctlByGang": []
-    },
-    {
-      "id": "fmwn2pabc93",
-      "type": "trackSocket",
-      "wall": "CWfmwhqg7q7187",
-      "side": 1,
-      "c": 8820,
-      "z": 1100,
-      "r": 6000,
-      "on": true,
-      "style": "track2",
-      "x": 4300,
-      "y": 6700,
-      "links": [],
-      "ctlByGang": []
-    }
-  ],
-  "powerBoxes": [
-    {
-      "id": "fmwm5ot2w93",
-      "wall": "CWfmwhqj7n7192",
-      "c": 3000,
-      "side": 1,
-      "dir": 0,
-      "front": 1,
-      "w": 600,
-      "d": 150,
-      "h": 320,
-      "z": 1500,
-      "x": 10110,
-      "y": 4365,
-      "rcd": [
-        "rcd2p64",
-        "rcd1p16"
-      ],
-      "mcb": [
-        "mcb1p16",
-        "mcb1p16",
-        "mcb1p16",
-        "mcb1p16",
-        "mcb1p16",
-        "mcb1p16",
-        "mcb1p16",
-        "mcb1p16"
-      ],
-      "devices": [],
-      "doorOpen": true,
-      "ang": 120,
-      "devOrder": [
-        "rcd:rcd2p64",
-        "mcb:mcb1p16",
-        "mcb:mcb1p16",
-        "mcb:mcb1p16",
-        "mcb:mcb1p16",
-        "mcb:mcb1p16",
-        "mcb:mcb1p16",
-        "rcd:rcd1p16",
-        "mcb:mcb1p16",
-        "mcb:mcb1p16"
-      ]
-    }
-  ],
-  "weakBoxes": [
-    {
-      "id": "fmwm5ovp994",
-      "wall": "CWfmwhqj7n7192",
-      "c": 3620,
-      "side": 1,
-      "dir": 0,
-      "front": 1,
-      "w": 450,
-      "d": 150,
-      "h": 260,
-      "z": 1500,
-      "x": 10730,
-      "y": 4365,
-      "rcd": [],
-      "mcb": [],
-      "devices": [
-        "modem",
-        "wifi"
-      ],
-      "doorOpen": true,
-      "ang": 120
-    }
-  ],
+  },
   "layers": {
     "dims": true,
     "labels": true,
@@ -1921,6 +1530,7 @@
     "grid": true,
     "axis": true,
     "bearing": false,
-    "wallSnap": true
+    "wallSnap": true,
+    "ghost": true
   }
 }

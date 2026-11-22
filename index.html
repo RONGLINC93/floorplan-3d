@@ -356,6 +356,71 @@
       display: none !important
     }
 
+    /* 楼层切换条：画板顶部居中，切层 / 复制 / 删除 / 层高设置 */
+    #floorBar {
+      position: absolute;
+      left: 50%;
+      top: 10px;
+      transform: translateX(-50%);
+      z-index: 6;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 8px;
+      background: rgba(255, 255, 255, .94);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(40, 30, 20, .14);
+      max-width: calc(100% - 40px);
+      overflow-x: auto
+    }
+
+    #floorBar .flbtn {
+      border: 1px solid var(--line);
+      background: #fff;
+      color: #4a443c;
+      border-radius: 7px;
+      padding: 3px 9px;
+      font-size: 12px;
+      cursor: pointer;
+      white-space: nowrap
+    }
+
+    #floorBar .flbtn:hover {
+      border-color: #b5653a
+    }
+
+    #floorBar .flbtn.on {
+      background: #b5653a;
+      color: #fff;
+      border-color: #b5653a
+    }
+
+    #floorBar .flsep {
+      width: 1px;
+      height: 18px;
+      background: var(--line);
+      margin: 0 2px
+    }
+
+    #floorBar .fllabel {
+      font-size: 12px;
+      color: #6b6459;
+      white-space: nowrap
+    }
+
+    #floorBar input.fheight {
+      width: 62px;
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: 3px 5px;
+      font-size: 12px
+    }
+
+    #stage.loading #floorBar {
+      visibility: hidden
+    }
+
     /* 预览态：家具库 / 动物库置灰，仅作展示 */
     #lib.preview-off,
     #libAnimal.preview-off {
@@ -597,12 +662,11 @@
       }
     }
 
-    /* 画板上方中间：直角 / 自由 绘制方向模式 */
+    /* 直角 / 自由 绘制方向模式：画板左上角，「预览 / 测量 / 设计」下一行 */
     #dirPad {
       position: absolute;
-      left: 50%;
-      top: 10px;
-      transform: translateX(-50%);
+      left: 14px;
+      top: 48px;
       z-index: 5;
       display: flex;
       align-items: center;
@@ -651,7 +715,7 @@
 
     @media (pointer:coarse) {
       #dirPad {
-        top: 10px;
+        top: 50px;
         padding: 4px
       }
 
@@ -2638,14 +2702,22 @@
 
       #dirPad {
         top: 54px;
-        left: 50%;
-        transform: translateX(-50%);
+        left: 8px;
+        transform: none;
         padding: 2px
       }
 
       #dirPad .btn {
         min-height: 34px;
         padding: 5px 8px
+      }
+
+      /* 楼层条在窄屏放到工具行下面，避免横条占满顶部与左上角工具重叠 */
+      #floorBar {
+        top: 98px;
+        left: 8px;
+        transform: none;
+        max-width: calc(100% - 16px)
       }
 
       #hint3d {
@@ -3387,6 +3459,7 @@
         <defs id="defs"></defs>
         <g id="gGrid"></g>
         <g id="gRooms"></g>
+        <g id="gGhost" pointer-events="none"></g>
         <g id="gFurn"></g>
         <g id="gWalls"></g>
         <g id="gOpen"></g>
@@ -3413,6 +3486,7 @@
         <button class="btn" data-tool="draw" title="设计：选择 / 画墙 / 房门 / 窗户 (W)"
           data-en-title="Design: select / draw walls, doors / windows (W)" data-en="Design">设计</button>
       </div>
+      <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
       <div class="grp only3d" id="sunPad"><label class="range"><span data-en="Sun">日照</span> <input type="range"
             id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span
             id="sunT">10:00</span></label><button class="btn chip" data-t="night" data-en="Night">夜景</button></div>
@@ -3875,9 +3949,32 @@
     });
     const LAMP_TYPES = Object.keys(LAMP_NAMES);
 
+    /* 多层楼：每个楼层独立保存的字段（轴网 / 电梯为整栋共享，不在此列） */
+    const FLOOR_KEYS = ['furniture', 'rooms', 'demolished', 'measures', 'walls', 'openings', 'deletedWalls', 'removedB', 'bover', 'roomsExtra', 'notes', 'dims', 'rails', 'beams', 'levels', 'slabs', 'parapets', 'canopies', 'north', 'balconies', 'planters', 'flues', 'arcWalls', 'roofs', 'pools', 'decks', 'pergolas', 'gates', 'extras', 'leaders', 'lamps', 'powerBoxes', 'weakBoxes', 'stairs', 'pillars', 'wallH', 'entryDoor'];
+    const deepCopy = v => JSON.parse(JSON.stringify(v));
+    function newFloor(id, name, h) { return { id: id || uid(), name: name || '', z: 0, h: Math.max(1200, Math.min(12000, Math.round(+h || 2800))) }; }
+    function recalcFloors(s) { let z = 0; (s.floors || []).forEach(f => { f.z = z; z += f.h; }); return z; }
+    function currentFloor(s = state) { return (s.floors || []).find(f => f.id === s.activeFloor) || (s.floors || [])[0] || null; }
+    function currentFloorH(s = state) { const f = currentFloor(s); return f ? f.h : 2800; }
+    function blankFloorData() { const b = blankState(), d = {}; FLOOR_KEYS.forEach(k => d[k] = b[k]); return d; }
+    function packActiveFloor() {
+      if (!state.byFloor || typeof state.byFloor !== 'object' || Array.isArray(state.byFloor)) state.byFloor = {};
+      const d = state.byFloor[state.activeFloor] || (state.byFloor[state.activeFloor] = {});
+      FLOOR_KEYS.forEach(k => d[k] = state[k]);
+    }
+    function syncLiftsToFloors() {
+      const fs = state.floors || []; if (!fs.length) return;
+      const cur = Math.max(0, fs.findIndex(f => f.id === state.activeFloor));   // 电梯停靠层跟随当前楼层，不再保留旧层索引
+      (state.lifts || []).forEach(l => {
+        l.floors = fs.map(f => f.z);
+        l.cur = cur; l.stop = l.floors[cur];
+      });
+      (state.openings || []).forEach(o => { if (o.kind === 'elev') o.liftFloor = Math.max(0, Math.min(fs.length - 1, Math.round(+(o.liftFloor || 0) || 0))); });
+    }
+
     function defaultState() {
       const rooms = {}; ROOMS.forEach(r => rooms[r.id] = { name: r.name, mat: r.mat });
-      return { furniture: defaultFurniture(), rooms, demolished: [], measures: [], walls: [], openings: [], deletedWalls: [], removedB: [], bover: {}, roomsExtra: [], notes: [], dims: [], rails: [], beams: [], levels: [], slabs: [], parapets: [], canopies: [], north: null, lifts: [], balconies: [], planters: [], flues: [], axes: [], arcWalls: [], roofs: [], pools: [], decks: [], pergolas: [], gates: [], extras: [], leaders: [], lamps: [], powerBoxes: [], weakBoxes: [] };
+      return { furniture: defaultFurniture(), rooms, demolished: [], measures: [], walls: [], openings: [], deletedWalls: [], removedB: [], bover: {}, roomsExtra: [], notes: [], dims: [], rails: [], beams: [], levels: [], slabs: [], parapets: [], canopies: [], north: null, lifts: [], balconies: [], planters: [], flues: [], axes: [], arcWalls: [], roofs: [], pools: [], decks: [], pergolas: [], gates: [], extras: [], leaders: [], lamps: [], powerBoxes: [], weakBoxes: [], stairs: [], pillars: [], wallH: {}, entryDoor: null, floors: [newFloor('f1', '1F', 2800)], activeFloor: 'f1', byFloor: {} };
     }
 
     /* 完全空白方案：隐藏全部内置房间 / 墙体 / 门窗，家具清零（启动默认与「新建空方案」共用） */
@@ -3975,7 +4072,75 @@
           .map(id => id.startsWith('cw') ? 'CW' + (s.walls[+id.slice(2)]?.id || '') : id)
           .filter(id => id !== 'CW');
       }
+      // 多层楼迁移：老方案没有 floors / byFloor → 当前所有对象归入 1F，层高 2800
+      if (!Array.isArray(s.floors) || !s.floors.length) s.floors = [newFloor('f1', '1F', 2800)];
+      s.floors.forEach((f, i) => {
+        f.id = String(f.id || ('f' + (i + 1)));
+        f.name = String(f.name || ((i + 1) + 'F'));
+        f.h = Math.max(1200, Math.min(12000, Math.round(+f.h || 2800)));
+      });
+      recalcFloors(s);
+      if (!s.floors.some(f => f.id === s.activeFloor)) s.activeFloor = s.floors[0].id;
+      if (!s.byFloor || typeof s.byFloor !== 'object' || Array.isArray(s.byFloor)) s.byFloor = {};
+      // 若当前层还没归档，把顶层这些数组存一份为当前层数据（旧方案 / 导入方案）
+      if (!s.byFloor[s.activeFloor]) {
+        const d = {}; FLOOR_KEYS.forEach(k => d[k] = s[k]); s.byFloor[s.activeFloor] = d;
+      }
+      syncLiftsToFloors();                                        // 电梯楼层表 / 当前停靠高度跟楼层注册表对齐
       return s;
+    }
+    /* 切换当前楼层：把当前顶层数据归档回旧层，再把目标层数据展开到顶层（顶层始终是"当前层视图"） */
+    function switchFloor(id, silent) {
+      if (!state.floors || !state.floors.some(f => f.id === id) || id === state.activeFloor) return;
+      packActiveFloor();
+      const d = state.byFloor[id]; if (!d) return;
+      const b = snap();
+      FLOOR_KEYS.forEach(k => { state[k] = d[k]; });
+      state.activeFloor = id;
+      syncLiftsToFloors();                                        // 切层后电梯停靠到该层标高
+      commit(b); markDirty(); ui.sel = null; ui.multi = []; renderAll(); window.View3D?.onFloorChanged();
+      if (!silent) toast(tr(`已切换到 ${currentFloor()?.name || id}`, `Switched to ${currentFloor()?.name || id}`));
+    }
+    /* 复制当前层为新层（对象 id 全部重生成，避免跨层引用冲突；电梯 / 楼梯按新层高缩放） */
+    function duplicateFloor() {
+      const cur = currentFloor(); if (!cur) return;
+      const b = snap();
+      packActiveFloor();
+      const src = deepCopy(state.byFloor[cur.id] || {});
+      const srcArrs = ['furniture', 'walls', 'openings', 'roomsExtra', 'notes', 'dims', 'rails', 'beams', 'levels', 'slabs', 'parapets', 'canopies', 'balconies', 'planters', 'flues', 'arcWalls', 'roofs', 'pools', 'decks', 'pergolas', 'gates', 'extras', 'leaders', 'lamps', 'powerBoxes', 'weakBoxes', 'stairs', 'pillars', 'axes'];
+      srcArrs.forEach(k => { if (Array.isArray(src[k])) src[k].forEach(o => { if (o && typeof o === 'object') o.id = uid(); }); });
+      if (src.rooms && typeof src.rooms === 'object') { const m = {}; Object.keys(src.rooms).forEach(k => m[k] = deepCopy(src.rooms[k])); src.rooms = m; }
+      const idx = state.floors.findIndex(f => f.id === cur.id);
+      const nf = newFloor(uid(), (cur.name || '') + tr(' 副本', ' copy'), cur.h);
+      state.floors.splice(idx + 1, 0, nf);
+      recalcFloors(state);
+      const oldH = cur.h || 2800, scale = nf.h / oldH;
+      ['walls', 'lamps', 'powerBoxes', 'weakBoxes'].forEach(k => { if (Array.isArray(src[k])) src[k].forEach(o => { if (o && o.h != null) o.h = Math.max(300, Math.round(+o.h * scale)); if (o && o.z != null) o.z = Math.round(+o.z * scale); }); });
+      if (src.wallH && typeof src.wallH === 'object') Object.keys(src.wallH).forEach(k => src.wallH[k] = Math.round((+src.wallH[k] || 2800) * scale));
+      state.byFloor[nf.id] = src;
+      state.activeFloor = nf.id;
+      FLOOR_KEYS.forEach(k => { state[k] = src[k]; });
+      syncLiftsToFloors();
+      commit(b); markDirty(); ui.sel = null; ui.multi = []; renderAll(); window.View3D?.onFloorChanged();
+      toast(tr(`已复制为 ${nf.name}`, `Duplicated as ${nf.name}`));
+    }
+    /* 删除当前层（至少保留一层） */
+    function deleteFloor() {
+      const cur = currentFloor(); if (!cur || state.floors.length <= 1) return toast(tr('至少需要保留一个楼层', 'At least one floor is required'));
+      const b = snap();
+      packActiveFloor();
+      const idx = state.floors.findIndex(f => f.id === cur.id);
+      state.floors.splice(idx, 1);
+      delete state.byFloor[cur.id];
+      recalcFloors(state);
+      const next = state.floors[Math.max(0, idx - 1)] || state.floors[0];
+      const d = state.byFloor[next.id] || blankFloorData();
+      state.byFloor[next.id] = state.byFloor[next.id] || d;
+      FLOOR_KEYS.forEach(k => { state[k] = d[k]; });
+      state.activeFloor = next.id;
+      syncLiftsToFloors();
+      commit(b); markDirty(); ui.sel = null; ui.multi = []; renderAll(); window.View3D?.onFloorChanged();
+      toast(tr(`已删除 ${cur.name}`, `Deleted ${cur.name}`));
     }
     // 全部房间 = 原始户型房间（含调整大小后的顶点覆盖 bover['R'+id]）+ 自己画的房间
     const allRooms = () => ROOMS.map(r => {
@@ -3994,11 +4159,11 @@
 
 
     /* ======================= 状态 / 历史 ======================= */
-    let state = blankState();                      // 启动即空白方案；持久化走「文件 ▾ → 保存方案」
+    let state = fixState(blankState());            // 启动即空白方案；持久化走「文件 ▾ → 保存方案」
     const ui = {
       tool: 'select', drawTool: 'select', wallFree: false, sel: null, multi: [], mq: null, mA: null, mCur: null, dimA: null, dimCur: null, railA: null, railCur: null, beamA: null, beamCur: null, slabA: null, slabCur: null, parapetA: null, parapetCur: null, canopyA: null, canopyCur: null, rectA: null, rectCur: null, rectKind: null,
       rotBase: null, rotSnap: null, rotBefore: null, rotCur: null, rotAngle: 0, rotTyping: false, rotPick: false,
-      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true }
+      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, ghost: true }
     };
     /* 图层开关随方案保存：存到服务器（挂在方案 JSON 的 layers 字段），打开方案时还原 */
     function applyLayers(s) {
@@ -4012,12 +4177,13 @@
     let view = { x0: 0, y0: 0, s: .06, rot: 0 };
     const undoStack = [], redoStack = [];
 
-    const snap = () => JSON.stringify(state);
+    const snap = () => { packActiveFloor(); return JSON.stringify(state); };   // 快照前归档当前层，保证顶层视图与 byFloor 一致（撤销 / 重做反序列化后引用会断开，靠这一步重新对齐）
+    const serializePlan = (pretty) => { packActiveFloor(); return JSON.stringify({ ...state, layers: ui.layers }, null, pretty ? 2 : undefined); };   // 保存 / 导出前统一归档当前层
     function commit(before) { undoStack.push(before); if (undoStack.length > 150) undoStack.shift(); redoStack.length = 0; scheduleAutoSave(); }
     const keepOneUndo = () => { if (undoStack.length > 1) undoStack.splice(0, undoStack.length - 1); };   // 打开 / 导入 / 新建方案时：只保留最近一步撤销（本方案 → 新方案），清掉上一个方案的旧历史
     function mutate(fn) { const b = snap(); fn(); commit(b); markDirty(); renderAll(); }
-    function undo() { if (!undoStack.length) return toast(tr('没有可撤销的操作', 'Nothing to undo')); redoStack.push(snap()); state = JSON.parse(undoStack.pop()); validateSel(); markDirty(); renderAll(); scheduleAutoSave(); }
-    function redo() { if (!redoStack.length) return; undoStack.push(snap()); state = JSON.parse(redoStack.pop()); validateSel(); markDirty(); renderAll(); scheduleAutoSave(); }
+    function undo() { if (!undoStack.length) return toast(tr('没有可撤销的操作', 'Nothing to undo')); redoStack.push(snap()); state = JSON.parse(undoStack.pop()); validateSel(); markDirty(); renderAll(); window.View3D?.onFloorChanged(); scheduleAutoSave(); }
+    function redo() { if (!redoStack.length) return; undoStack.push(snap()); state = JSON.parse(redoStack.pop()); validateSel(); markDirty(); renderAll(); window.View3D?.onFloorChanged(); scheduleAutoSave(); }
     function validateSel() {
       if (ui.sel?.kind === 'furn' && !getF(ui.sel.id)) ui.sel = null;
       else if (ui.sel?.kind === 'wall') {
@@ -4358,6 +4524,60 @@
         }).join('');
       }).join('');
       $('#gWalls').innerHTML = builtIn + drawn + renderArcWalls2();
+    }
+
+    /* 2D 下层幽灵墙：半透明显示紧邻下方一层的墙体，作为当前层对位参照；只画不参与拾取 / 编辑 */
+    const GHOST_2D_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'bover', 'wallH'];
+    function renderGhostWalls2() {
+      const g = $('#gGhost'); if (!g) return;
+      if (!ui.layers.ghost) { g.innerHTML = ''; g.removeAttribute('data-ghost-of'); return; }
+      const fs = state.floors || [], idx = fs.findIndex(f => f.id === state.activeFloor);
+      const below = idx > 0 ? fs[idx - 1] : null;
+      const data = below ? state.byFloor?.[below.id] : null;
+      if (!data) { g.innerHTML = ''; g.removeAttribute('data-ghost-of'); return; }
+
+      const saved = {}; GHOST_2D_KEYS.forEach(k => saved[k] = state[k]);
+      const fill = '#8a97a8', opacity = '.28';
+      const outline = 'stroke="#6f7b8c" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"';
+      let s = '';
+      try {
+        // 临时换入下层数据，复用当前层墙体几何 helper（builtinSeg / wallSegs / cwGeom 都读全局 state）
+        GHOST_2D_KEYS.forEach(k => { state[k] = data[k] === undefined ? saved[k] : data[k]; });
+        const deleted = state.deletedWalls || [], demolished = state.demolished || [];
+
+        WALLS.forEach((w, i) => {                                    // 内置墙
+          const id = 'w' + i;
+          if (deleted.includes(id) || demolished.includes(id)) return;
+          const seg = builtinSeg(i);
+          wallSegs(id, seg.L).forEach(([c0, c1]) => {
+            if (seg.hz) s += `<rect x="${seg.rect[0] + c0}" y="${seg.rect[1]}" width="${c1 - c0}" height="${seg.rect[3] - seg.rect[1]}" fill="${fill}" fill-opacity="${opacity}" ${outline}/>`;
+            else s += `<rect x="${seg.rect[0]}" y="${seg.rect[1] + c0}" width="${seg.rect[2] - seg.rect[0]}" height="${c1 - c0}" fill="${fill}" fill-opacity="${opacity}" ${outline}/>`;
+          });
+        });
+
+        (state.walls || []).forEach(w => {                          // 自画墙（含斜墙 + 墙角外扩）
+          const id = 'CW' + w.id;
+          if (deleted.includes(id) || demolished.includes(id)) return;
+          const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]); if (L < 1) return;
+          const e0 = wallEndExt(w, 0), e1 = wallEndExt(w, 1);
+          const T = cwT(w);
+          wallSegs(id, L).forEach(([c0, c1]) => {
+            const [P0, P1] = segPts(w.a, w.b, c0 > 0 ? c0 : -e0, c1 < L ? c1 : L + e1);
+            const g2 = cwGeom([P0[0], P0[1], P1[0], P1[1]], T);
+            if (g2.rot) s += `<g transform="translate(${g2.cx} ${g2.cy}) rotate(${g2.rot})"><rect x="${-g2.len / 2}" y="${-T / 2}" width="${g2.len}" height="${T}" fill="${fill}" fill-opacity="${opacity}" ${outline}/></g>`;
+            else if (g2.w && g2.h) s += `<rect x="${g2.x}" y="${g2.y}" width="${g2.w}" height="${g2.h}" fill="${fill}" fill-opacity="${opacity}" ${outline}/>`;
+          });
+        });
+
+        (state.arcWalls || []).forEach(w => {                       // 弧形墙
+          const id = 'AW' + w.id;
+          if (deleted.includes(id) || demolished.includes(id)) return;
+          const t = Math.max(60, +w.t || 240), d = arcPathD(arcSamples(w.a, w.b, +w.bulge || 0));
+          s += `<path d="${d}" fill="none" stroke="${fill}" stroke-opacity="${opacity}" stroke-width="${t}" stroke-linecap="butt" ${outline}/>`;
+        });
+      } finally { GHOST_2D_KEYS.forEach(k => { state[k] = saved[k]; }); }
+      g.innerHTML = s;
+      g.setAttribute('data-ghost-of', below.id);
     }
 
     /* 弧形墙：a / b 为两端点，bulge 为弦中点向法线方向的拱起量（mm，可正可负） */
@@ -6661,16 +6881,78 @@
     }
 
     function renderAll() {
-      renderGrid(); renderRooms(); renderFurn(); renderWalls(); renderOpenings(); renderPillars(); renderStairs(); renderAxes(); renderLabels(); renderDims(); renderNotes(); renderMeasure(); renderSel(); renderPanel(); updateHeader();
+      renderGrid(); renderRooms(); renderGhostWalls2(); renderFurn(); renderWalls(); renderOpenings(); renderPillars(); renderStairs(); renderAxes(); renderLabels(); renderDims(); renderNotes(); renderMeasure(); renderSel(); renderPanel(); updateHeader();
       renderObjList();   // 对象列表开着时跟随方案刷新（未开则内部直接返回）
       window.View3D?.sync();
     }
 
     function updateHeader() {
       const tot = allRooms().filter(r => r.counted !== false && state.rooms[r.id]).reduce((a, r) => a + area(r.poly), 0);
-      $('#subtitle').textContent = tr(`套内使用面积约 ${fmt(tot)} m² · 尺寸单位 mm · 原图比例 1:60`, `Net floor area ≈ ${fmt(tot)} m² · Units: mm · Original scale 1:60`);
+      const fl = currentFloor();
+      const floorTxt = fl ? ` · ${esc(fl.name)} ${fmt((fl.z + fl.h) / 1000)}m` : '';
+      $('#subtitle').textContent = tr(`套内使用面积约 ${fmt(tot)} m² · 尺寸单位 mm · 原图比例 1:60`, `Net floor area ≈ ${fmt(tot)} m² · Units: mm · Original scale 1:60`) + floorTxt;
       $('#undo').disabled = !undoStack.length; $('#redo').disabled = !redoStack.length;
       $('#undo').style.opacity = undoStack.length ? 1 : .4; $('#redo').style.opacity = redoStack.length ? 1 : .4;
+      renderFloorBar();
+    }
+    /* 楼层条：切换 / 重命名 / 复制 / 删除 / 设置当前层层高 */
+    function renderFloorBar() {
+      const bar = $('#floorBar'); if (!bar) return;
+      const fs = state.floors || [], cur = currentFloor();
+      if (!fs.length || !cur) { bar.innerHTML = ''; return; }
+      const chips = fs.map((f, i) => `<button class="flbtn ${f.id === cur.id ? 'on' : ''}" data-fl="${esc(f.id)}" title="${tr('层高', 'Height')} ${f.h} mm · ${tr('标高', 'Elevation')} ${f.z} mm">${esc(f.name)}</button>`).join('');
+      bar.innerHTML = `<span class="fllabel">${tr('楼层', 'Floors')}</span>${chips}
+        <button class="flbtn" id="flAdd" title="${tr('在当前层上方新增楼层', 'Add a floor above current')}">＋</button>
+        <button class="flbtn" id="flCopy" title="${tr('复制当前层（含全部对象）', 'Duplicate current floor with all objects')}">${tr('复制', 'Copy')}</button>
+        <button class="flbtn" id="flDel" title="${tr('删除当前楼层', 'Delete current floor')}">${tr('删除', 'Delete')}</button>
+        <button class="flbtn ${ui.layers.ghost ? 'on' : ''}" id="flGhost" title="${tr('显示 / 隐藏紧邻下层墙体的半透明参照（2D 与 3D 同时生效）', 'Show / hide the translucent walls of the floor directly below (2D and 3D)')}">${tr('下层参照', 'Below reference')}</button>
+        <span class="flsep"></span>
+        <label class="fllabel" title="${tr('当前层的楼层高度，影响层高与 3D 堆叠', 'Current floor height, affects ceiling and 3D stacking')}">${tr('层高', 'Height')} <input class="fheight" id="flHeight" type="number" min="1200" max="12000" step="100" value="${cur.h}"> mm</label>`;
+      bar.querySelectorAll('[data-fl]').forEach(b => b.onclick = () => switchFloor(b.dataset.fl));
+      $('#flAdd').onclick = () => addFloor();
+      $('#flCopy').onclick = async () => {
+        const f = currentFloor(); if (!f) return;
+        if (!await uiConfirm(tr(`复制楼层「${f.name}」为新层？该层全部对象会一并复制，可 Ctrl+Z 撤销。`, `Duplicate floor "${f.name}" as a new floor? All objects on it will be copied (Ctrl+Z to undo).`), tr('复制', 'Copy'))) return;
+        duplicateFloor();
+      };
+      $('#flDel').onclick = async () => {
+        const f = currentFloor(); if (!f) return;
+        if (!await uiConfirm(tr(`删除楼层「${f.name}」？该层全部对象会一并删除，可 Ctrl+Z 撤销。`, `Delete floor "${f.name}"? All objects on it will be removed (Ctrl+Z to undo).`), tr('删除', 'Delete'))) return;
+        deleteFloor();
+      };
+      $('#flGhost').onclick = () => {
+        ui.layers.ghost = !ui.layers.ghost;
+        scheduleAutoSave();
+        renderAll();
+        toast(tr(ui.layers.ghost ? '下层参照：开' : '下层参照：关', ui.layers.ghost ? 'Below reference: on' : 'Below reference: off'));
+      };
+      const hIn = $('#flHeight');
+      hIn.onchange = () => {
+        const v = Math.max(1200, Math.min(12000, Math.round(+hIn.value || 2800)));
+        const f = currentFloor(); if (!f || f.h === v) { hIn.value = f ? f.h : v; return; }
+        const b = snap();
+        f.h = v; recalcFloors(state); syncLiftsToFloors();
+        commit(b); markDirty(); renderAll();
+        window.View3D?.sync(true);
+        toast(tr(`${f.name} 层高已设为 ${v} mm`, `${f.name} height set to ${v} mm`));
+      };
+      hIn.onkeydown = e => { if (e.key === 'Enter') { hIn.blur(); } };
+    }
+    /* 新增楼层（在当前层上方），继承当前层层高，默认空白对象 */
+    function addFloor() {
+      const cur = currentFloor(); if (!cur) return;
+      const b = snap();
+      packActiveFloor();
+      const idx = state.floors.findIndex(f => f.id === cur.id);
+      const nf = newFloor(uid(), ((idx + 2) + 'F'), cur.h);
+      state.floors.splice(idx + 1, 0, nf);
+      recalcFloors(state);
+      state.byFloor[nf.id] = blankFloorData();
+      state.activeFloor = nf.id;
+      FLOOR_KEYS.forEach(k => { state[k] = state.byFloor[nf.id][k]; });
+      syncLiftsToFloors();
+      commit(b); markDirty(); ui.sel = null; ui.multi = []; renderAll(); window.View3D?.onFloorChanged();
+      toast(tr(`已新增 ${nf.name}`, `Added ${nf.name}`));
     }
 
     /* ======================= 右侧面板 ======================= */
@@ -7538,9 +7820,9 @@
       ${nameField(w, tr('弧形墙', 'Curved wall') + ' ' + objNo(state.arcWalls, w))}
       <label>${tr('弧高', 'Arc rise')} (mm)<input type="number" id="awB" value="${Math.round(w.bulge ?? 600)}" min="-5000" max="5000" step="50"></label>
       <label>${tr('厚度', 'Thickness')} (mm)<input type="number" id="awT" value="${Math.round(w.t ?? 240)}" min="60" max="600" step="10"></label>
-      <label>${tr('高度', 'Height')} (mm)<input type="number" id="awH" value="${Math.round(w.h ?? 2800)}" min="600" max="4000" step="50"></label>
+      <label>${tr('高度', 'Height')} (mm)<input type="number" id="awH" value="${+w.h > 0 ? Math.round(+w.h) : ''}" min="600" max="12000" step="50" placeholder="${tr(`跟随楼层 ${currentFloorH()}`, `Follow floor ${currentFloorH()}`)}"></label>
     </div>
-    <div class="muted" style="margin-top:4px">${tr('弦长', 'Chord')} ${L} mm · ${tr('正负值决定拱向哪一侧', 'Positive / negative decides which side the curve bulges to')}</div>
+    <div class="muted" style="margin-top:4px">${tr('弦长', 'Chord')} ${L} mm · ${tr('正负值决定拱向哪一侧', 'Positive / negative decides which side the curve bulges to')} · ${tr('高度留空 = 跟随本层层高', 'Leave height empty to follow the current floor height')}</div>
     <div class="form">
       <label>${tr('起点', 'Start')} X (mm)<input type="number" id="awAx" value="${Math.round(w.a[0])}" step="10"></label>
       <label>${tr('起点', 'Start')} Y (mm)<input type="number" id="awAy" value="${Math.round(w.a[1])}" step="10"></label>
@@ -7560,7 +7842,15 @@
       };
       num('awB', -5000, 5000, 50, (w, v) => w.bulge = v);
       num('awT', 60, 600, 10, (w, v) => w.t = v);
-      num('awH', 600, 4000, 50, (w, v) => w.h = v);
+      const awH = $('#awH');                                     // 弧形墙高度：留空 / 0 = 跟随当前楼层高度
+      if (awH) awH.onchange = e => {
+        const raw = String(e.target.value || '').trim(), v = parseFloat(raw);
+        mutate(() => {
+          const w = (state.arcWalls || []).find(x => x.id === id); if (!w) return;
+          if (!raw || !Number.isFinite(v) || v <= 0) delete w.h;
+          else w.h = Math.max(600, Math.min(12000, Math.round(v / 50) * 50));
+        });
+      };
       num('awAx', -1e6, 1e6, 10, (w, v) => w.a[0] = v);
       num('awAy', -1e6, 1e6, 10, (w, v) => w.a[1] = v);
       num('awBx', -1e6, 1e6, 10, (w, v) => w.b[0] = v);
@@ -7966,16 +8256,34 @@
         }
         return `<tr><td>${esc(nm(label))}</td><td class="r muted">${kind}</td></tr>`;
       }).join('');
+      const others = (state.floors || []).filter(f => f.id !== state.activeFloor);
+      const flOpts = others.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('');
+      const noFloor = others.length ? '' : 'disabled';
       return `<section><h3>${tr('已框选', 'Marquee selection')} ${ui.multi.length} ${tr('项', 'items')}</h3>
   <table>${rows}</table>
   <div class="muted" style="font-size:11px;margin-top:6px">${tr('在橙色范围里按住拖动 = 整体移动（Shift / Alt 拖动可重新框选）；Ctrl+D 复制，Delete 删除，Esc 取消选择', 'Drag inside the orange area to move them together (Shift / Alt + drag to re-marquee); Ctrl+D duplicates, Delete removes, Esc deselects')}</div>
   <div class="actions"><button class="btn" id="multiCopy">${tr('复制', 'Duplicate')} (Ctrl+D)</button>
-    <button class="btn danger" id="multiDel">${tr('删除', 'Delete')}</button></div></section>`;
+    <button class="btn danger" id="multiDel">${tr('删除', 'Delete')}</button></div>
+  <div class="actions" style="margin-top:8px;align-items:center">
+    <label style="display:flex;align-items:center;gap:6px">${tr('目标楼层', 'Target floor')}
+      <select id="multiFloor" ${noFloor}>${flOpts || `<option>${tr('无其它楼层', 'No other floor')}</option>`}</select></label>
+    <button class="btn" id="multiCopyFloor" ${noFloor} title="${tr('复制选中对象到指定楼层，当前层保留原件', 'Copy selected objects to the target floor, keeping originals')}">${tr('复制到指定楼层', 'Copy to floor')}</button>
+    <button class="btn danger" id="multiMoveFloor" ${noFloor} title="${tr('移动选中对象到指定楼层，当前层删除原件', 'Move selected objects to the target floor, removing originals')}">${tr('移动到指定楼层', 'Move to floor')}</button>
+  </div>
+  <div class="muted" style="font-size:11px;margin-top:6px">${tr('墙上的门窗会随墙一起转移；电梯与轴网为整栋共享，不参与跨层转移。', 'Openings on a wall move with it. Lifts and axis grids are shared by the whole building and are not transferred.')}</div></section>`;
     }
     function bindMultiPanel() {
-      const c = $('#multiCopy'), d = $('#multiDel');
+      const c = $('#multiCopy'), d = $('#multiDel'), fl = $('#multiFloor');
       if (c) c.onclick = () => duplicateSel();
       if (d) d.onclick = () => deleteSel();
+      const cf = $('#multiCopyFloor'), mf = $('#multiMoveFloor');
+      if (cf) cf.onclick = () => { if (fl?.value) transferMultiToFloor('copy', fl.value); };
+      if (mf) mf.onclick = async () => {
+        if (!fl?.value) return;
+        const f = (state.floors || []).find(x => x.id === fl.value);
+        if (!await uiConfirm(tr(`把已框选对象移动到「${f?.name || fl.value}」？当前层的这些对象将被移除，可 Ctrl+Z 撤销。`, `Move selected objects to "${f?.name || fl.value}"? They will be removed from the current floor (Ctrl+Z to undo).`), tr('移动', 'Move'))) return;
+        transferMultiToFloor('move', fl.value);
+      };
     }
 
     function overviewPanel() {
@@ -8230,28 +8538,30 @@
       if (id.startsWith('CW')) {
         const w = state.walls.find(x => 'CW' + x.id === id); if (!w) return '';
         const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+        const wh = +((state.wallH || {})['CW' + w.id]);
         return `<section><h3>${tr('墙体属性', 'Wall')}</h3>
       <div class="form">
         <label>${tr('长度', 'Length')} (mm)<input type="number" id="wLen" value="${Math.round(L)}" min="300" step="10"></label>
         <label>${tr('厚度', 'Thickness')} (mm)<input type="number" id="wT" value="${cwT(w)}" min="60" max="600" step="10"></label>
         <label>${tr('类型', 'Type')}<select id="wType">${[['n', tr('非承重墙', 'Non-bearing')], ['b', tr('承重墙', 'Load-bearing')], ['e', tr('外墙', 'Exterior')], ['low', tr('矮墙', 'Low wall')], ['g', tr('玻璃隔断（通顶）', 'Glass partition')], ['lg', tr('玻璃矮隔断', 'Low glass')]].map(([v, t]) => `<option value="${v}" ${cwType(w) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-        <label>${tr('墙高', 'Height')} (mm)<input type="number" id="wH" value="${Math.round(cwHOf('CW' + w.id, cwType(w)))}" min="100" max="6000" step="10" placeholder="${tr('通顶', 'Full height')}"></label>
+        <label>${tr('墙高', 'Height')} (mm)<input type="number" id="wH" value="${wh > 0 ? Math.round(wh) : ''}" min="100" max="12000" step="10" placeholder="${tr(`跟随楼层 ${currentFloorH()}`, `Follow floor ${currentFloorH()}`)}"></label>
         <label class="full muted">${tr('起点', 'Start')} (${Math.round(w.a[0])}, ${Math.round(w.a[1])})</label>
       </div>
-      <div class="muted" style="margin-top:8px">${tr('在 2D 里拖动墙整体移动；拖动两端圆点改长度 / 方向。', 'Drag the wall to move it; drag either end dot to resize or re-angle.')}</div>
-      <div class="actions"><button class="btn danger" id="aDel">${tr('删除墙体', 'Delete wall')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
+      <div class="muted" style="margin-top:8px">${tr('在 2D 里拖动墙整体移动；拖动两端圆点改长度 / 方向。墙高留空 = 跟随本层层高（通顶）。', 'Drag the wall to move it; drag either end dot to resize or re-angle. Leave height empty to follow the current floor height (full height).')}</div>
+      <div class="actions"><button class="btn danger" id="aDel">${tr('删除墙体', 'Delete wall')}</button><button class="btn" id="wHFloor">${tr('墙高同楼层', 'Match floor height')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
       }
       const wi = +id.slice(1), w0 = wallRectOf(wi); if (!w0 || state.deletedWalls.includes(id)) return '';
       const L = Math.hypot(w0[2] - w0[0], w0[3] - w0[1]), T = Math.min(w0[2] - w0[0], w0[3] - w0[1]);
+      const wh = +((state.wallH || {})[id]);
       return `<section><h3>${tr('墙体属性', 'Wall')}</h3>
     <div class="form">
       <label>${tr('长度', 'Length')} (mm)<input type="number" id="bwLen" value="${Math.round(L)}" step="10" min="300"></label>
       <label>${tr('厚度', 'Thickness')} (mm)<input type="number" id="bwT" value="${Math.round(T)}" min="60" max="600" step="10"></label>
       <label class="full">${tr('类型', 'Type')}<select id="bwType">${[['b', tr('承重墙', 'Load-bearing')], ['e', tr('外墙', 'Exterior')], ['n', tr('非承重墙', 'Non-bearing')], ['low', tr('矮墙', 'Low wall')]].map(([v, t]) => `<option value="${v}" ${wallTypeOf(wi) === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-      <label>${tr('墙高', 'Height')} (mm)<input type="number" id="bwH" value="${Math.round(cwHOf(id, wallTypeOf(wi)))}" min="100" max="6000" step="10" placeholder="${tr('通顶', 'Full height')}"></label>
+      <label>${tr('墙高', 'Height')} (mm)<input type="number" id="bwH" value="${wh > 0 ? Math.round(wh) : ''}" min="100" max="12000" step="10" placeholder="${tr(`跟随楼层 ${currentFloorH()}`, `Follow floor ${currentFloorH()}`)}"></label>
     </div>
-    <div class="muted" style="margin-top:8px">${tr('可改长度（起点固定、终点沿墙轴伸缩，2D 拖端点同样生效）、整段删除（Ctrl+Z 可撤销）或「标记拆除」保留施工标注。墙上的原始门窗会自动钳回墙内。', 'Length is editable (start fixed, end extends along the wall axis; drag endpoints in 2D too), or remove it entirely (Ctrl+Z to undo) or mark for removal as a construction note. Original openings on the wall are clamped back inside.')}</div>
-    <div class="actions"><button class="btn danger" id="aDel">${tr('删除墙体', 'Delete wall')}</button><button class="btn" id="aDem">${tr('标记拆除', 'Mark for removal')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
+    <div class="muted" style="margin-top:8px">${tr('可改长度（起点固定、终点沿墙轴伸缩，2D 拖端点同样生效）、整段删除（Ctrl+Z 可撤销）或「标记拆除」保留施工标注。墙上的原始门窗会自动钳回墙内；墙高留空 = 跟随本层层高。', 'Length is editable (start fixed, end extends along the wall axis; drag endpoints in 2D too), or remove it entirely (Ctrl+Z to undo) or mark for removal as a construction note. Original openings on the wall are clamped back inside. Leave height empty to follow the current floor height.')}</div>
+    <div class="actions"><button class="btn danger" id="aDel">${tr('删除墙体', 'Delete wall')}</button><button class="btn" id="aDem">${tr('标记拆除', 'Mark for removal')}</button><button class="btn" id="wHFloor">${tr('墙高同楼层', 'Match floor height')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
     }
     function bindWallPanel(id) {
       const w = id.startsWith('CW') ? state.walls.find(x => 'CW' + x.id === id) : null;
@@ -8313,11 +8623,13 @@
           mutate(() => {
             state.wallH = state.wallH || {};
             if (!raw || !Number.isFinite(v) || v <= 0) delete state.wallH[wallId];
-            else state.wallH[wallId] = Math.max(100, Math.min(6000, Math.round(v / 10) * 10));
+            else state.wallH[wallId] = Math.max(100, Math.min(12000, Math.round(v / 10) * 10));
           });
         };
       };
       bindH('#wH', id); bindH('#bwH', id);
+      const wf = $('#wHFloor');                                    // 一键改为跟随本层层高（清掉单独设定值）
+      if (wf) wf.onclick = () => { mutate(() => { if (state.wallH) delete state.wallH[id]; }); toast(tr('墙高已跟随本层层高', 'Wall height now follows the floor height')); };
       $('#aDel').onclick = () => { ui.sel = null; deleteWall(id); };               // 彻底删除（含内置墙）
       const dm = $('#aDem'); if (dm) dm.onclick = () => { ui.sel = null; toggleWall(id); };   // 仅施工标注
       $('#back').onclick = () => select(null);
@@ -9500,6 +9812,123 @@
       });
       return true;
     }
+    /* 跨楼层搬运多选对象：复制到 / 移动到指定楼层；电梯 / 轴网为整栋共享，不参与搬运 */
+    const XFLOOR_KEYS = {
+      furn: 'furniture', stair: 'stairs', pillar: 'pillars', wall: 'walls', open: 'openings',
+      note: 'notes', dim: 'dims', rail: 'rails', beam: 'beams', level: 'levels', slab: 'slabs',
+      parapet: 'parapets', canopy: 'canopies', balcony: 'balconies', planter: 'planters',
+      flue: 'flues', gate: 'gates', arcwall: 'arcWalls', lamp: 'lamps', pbox: 'powerBoxes',
+      wbox: 'weakBoxes', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks',
+      pool: 'pools', leader: 'leaders'
+    };
+    function xfloorBucket(id) {
+      if (!state.byFloor || typeof state.byFloor !== 'object' || Array.isArray(state.byFloor)) state.byFloor = {};
+      if (!state.byFloor[id]) state.byFloor[id] = blankFloorData();
+      const d = state.byFloor[id], blank = blankFloorData();
+      FLOOR_KEYS.forEach(k => { if (d[k] === undefined) d[k] = blank[k]; });
+      return d;
+    }
+    function xfloorRemap(v, map) {
+      if (Array.isArray(v)) return v.map(x => xfloorRemap(x, map));
+      if (v && typeof v === 'object') { const o = {}; Object.keys(v).forEach(k => o[k] = xfloorRemap(v[k], map)); return o; }
+      if (typeof v === 'string' && map[v] !== undefined) return map[v];
+      return v;
+    }
+    function xfloorHasWall(d, ref) {
+      if (!ref) return false;
+      const r = String(ref);
+      if (r.startsWith('CW')) return (d.walls || []).some(w => 'CW' + w.id === r);
+      return !(d.deletedWalls || []).includes(r) && !(d.demolished || []).includes(r);
+    }
+    function xfloorNewId(d, key, id, copy) {
+      const s = String(id), arr = d[key];
+      const exists = Array.isArray(arr) ? arr.some(o => String(o.id) === s) : !!(arr && typeof arr === 'object' && arr[s] !== undefined);
+      if (!copy && !exists) return s;
+      return String(uid());
+    }
+    function transferMultiToFloor(mode, targetId) {
+      const tf = (state.floors || []).find(f => f.id === targetId);
+      if (!tf || targetId === state.activeFloor) return toast(tr('请选择其它楼层', 'Please choose another floor'));
+      const alive = s => {
+        if (s.kind === 'wall') return !!getW(s.id);
+        if (s.kind === 'open') return (state.openings || []).some(o => String(o.id) === String(s.id));
+        if (s.kind === 'room') return !!state.rooms[s.id];
+        const key = XFLOOR_KEYS[s.kind];
+        return !!(key && (state[key] || []).some(o => String(o.id) === String(s.id)));
+      };
+      const items = ui.multi.filter(alive);
+      const sharedSkip = ui.multi.filter(s => s.kind === 'lift' || s.kind === 'axgrid').length;
+      if (!items.length) return toast(tr('所选对象不能跨楼层转移（电梯 / 轴网为整栋共享）', 'Selected objects cannot move between floors (lifts / axes are shared)'));
+
+      const b = snap();
+      const d = xfloorBucket(targetId);
+      const copy = mode === 'copy';
+      const wallSel = items.filter(s => s.kind === 'wall').map(s => getW(s.id)).filter(Boolean);
+      const openSel = items.filter(s => s.kind === 'open').map(s => (state.openings || []).find(o => String(o.id) === String(s.id))).filter(Boolean);
+      const wallRefs = new Set(wallSel.map(w => 'CW' + w.id));
+      const openAll = openSel.slice();
+      (state.openings || []).forEach(o => { if (wallRefs.has(String(o.wall)) && !openAll.some(x => x.id === o.id)) openAll.push(o); });
+      const otherItems = items.filter(s => !['wall', 'open', 'room'].includes(s.kind));
+      const roomItems = items.filter(s => s.kind === 'room');
+
+      const map = {};
+      const reg = (a, c) => { if (a != null && c != null && String(a) !== String(c)) map[String(a)] = String(c); };
+      wallSel.forEach(w => { const n = xfloorNewId(d, 'walls', w.id, copy); reg(w.id, n); reg('CW' + w.id, 'CW' + n); });
+      openAll.forEach(o => reg(o.id, xfloorNewId(d, 'openings', o.id, copy)));
+      otherItems.forEach(s => { const key = XFLOOR_KEYS[s.kind]; if (key) reg(s.id, xfloorNewId(d, key, s.id, copy)); });
+      roomItems.forEach(s => { if (String(s.id).startsWith('X')) reg(s.id, xfloorNewId(d, 'rooms', s.id, copy)); });
+
+      let added = 0, skipped = sharedSkip;
+      const transferredOpenIds = new Set();
+      const push = (key, o) => { if (!Array.isArray(d[key])) d[key] = []; d[key].push(xfloorRemap(o, map)); added++; };
+
+      wallSel.forEach(w => push('walls', w));                        // 墙先落位，门窗再按新墙 id 改引用
+      if (wallSel.length) {                                          // 单墙高度一起搬运，按新墙 id 重挂
+        d.wallH = d.wallH || {};
+        wallSel.forEach(w => { const v = (state.wallH || {})[w.id]; if (v != null) d.wallH[map[w.id] || String(w.id)] = v; });
+      }
+      openAll.forEach(o => {                                         // 门窗：跟随被搬运的墙，或单独搬到目标层已有墙上
+        const n = xfloorRemap(o, map);
+        const legsOk = !(o.kind === 'lbay' && o.legs) || o.legs.every(l => xfloorHasWall(d, xfloorRemap(l.wall, map)));
+        if (!xfloorHasWall(d, n.wall) || !legsOk) { skipped++; return; }
+        push('openings', o); transferredOpenIds.add(String(o.id));
+      });
+      otherItems.forEach(s => {
+        const key = XFLOOR_KEYS[s.kind]; if (!key) { skipped++; return; }
+        const o = (state[key] || []).find(x => String(x.id) === String(s.id));
+        if (!o) { skipped++; return; }
+        push(key, o);
+      });
+      roomItems.forEach(s => {
+        const id = s.id, nid = map[String(id)] || String(id), st = state.rooms[id];
+        const e = String(id).startsWith('X') ? (state.roomsExtra || []).find(x => String(x.id) === String(id)) : null;
+        if (!st && !e) { skipped++; return; }
+        if (st) { d.rooms = d.rooms || {}; d.rooms[nid] = xfloorRemap(st, map); }
+        const bo = state.bover && state.bover['R' + id];
+        if (bo) { d.bover = d.bover || {}; d.bover['R' + nid] = xfloorRemap(bo, map); }
+        if (e) { if (!Array.isArray(d.roomsExtra)) d.roomsExtra = []; const n = xfloorRemap(e, map); n.id = nid; d.roomsExtra.push(n); }
+        added++;
+      });
+
+      if (!copy) {                                                   // 移动：从当前层删除原件（墙上的门窗一并删除）
+        const wallIds = new Set(wallSel.map(w => String(w.id)));
+        state.walls = (state.walls || []).filter(w => !wallIds.has(String(w.id)));
+        wallSel.forEach(w => { const ref = 'CW' + w.id; state.deletedWalls = (state.deletedWalls || []).filter(x => x !== ref); state.demolished = (state.demolished || []).filter(x => x !== ref); if (state.wallH) delete state.wallH[w.id]; });
+        state.openings = (state.openings || []).filter(o => !transferredOpenIds.has(String(o.id)));
+        const byKey = {};
+        otherItems.forEach(s => { const key = XFLOOR_KEYS[s.kind]; if (key) (byKey[key] || (byKey[key] = new Set())).add(String(s.id)); });
+        Object.keys(byKey).forEach(key => { state[key] = (state[key] || []).filter(o => !byKey[key].has(String(o.id))); });
+        roomItems.forEach(s => {
+          delete state.rooms[s.id]; if (state.bover) delete state.bover['R' + s.id];
+          if (String(s.id).startsWith('X')) state.roomsExtra = (state.roomsExtra || []).filter(r => String(r.id) !== String(s.id));
+        });
+      }
+
+      commit(b); markDirty(); ui.sel = null; ui.multi = []; renderAll(); window.View3D?.onFloorChanged();
+      const verb = copy ? tr('已复制到', 'Copied to') : tr('已移动到', 'Moved to');
+      toast(tr(`${verb} ${tf.name}：${added} 个对象${skipped ? `，${skipped} 个已跳过` : ''} · Ctrl+Z 可撤销`,
+        `${verb} ${tf.name}: ${added} object(s)${skipped ? `, ${skipped} skipped` : ''} · Ctrl+Z to undo`));
+    }
     function duplicateSel() {
       if (ui.multi.length > 1) {                                    // 多选：整组复制，偏移 200mm 后选中新副本
         const added = [];
@@ -9642,8 +10071,8 @@
           : tr('预览模式：拖动平移 / 滚轮缩放 · 点击房间查看面积与地面 · 切到「设计」(W) 才能选中修改', 'Preview: pan / wheel zoom · tap a room for area & flooring · switch to "Design" (W) to edit anything'),
         measure: COARSE ? tr('按住拖出测量线，或依次点两点 · 靠近墙面自动吸附 · 点「预览」或右击退出', 'Hold and drag a line, or tap two points · snaps to walls · tap "Preview" or right-click to exit')
           : tr('点击两点（或按住拖动）测量距离 · 靠近墙面自动吸附 · Shift 锁定水平/垂直 · Esc 取消 · 右击回到预览', 'Click two points (or drag) to measure · snaps to walls · Shift locks horizontal/vertical · Esc cancels · right-click back to preview'),
-        draw: COARSE ? tr('子工具「选择」= 点选编辑：选中后 Delete 或底部按钮删除（内置墙=标记拆除）· 空白处拖动可框选（双指缩放 / 平移）· 画墙（点两点）/ 房门 / 窗户（点墙上的位置）', '"Select" edits: Delete or the bottom bar removes (original walls are marked for removal) · drag on empty space to marquee-select (two fingers to pan / zoom) · draw walls, add doors / windows')
-          : tr('子工具「选择」= 点选墙 / 门 / 窗 / 家具编辑，在空白处 / 房间内拖出矩形可框选家具 / 楼梯 / 柱子 / 自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手），Delete 删除（内置墙 = 标记拆除，点拆除残留可恢复，黑色承重墙不可拆）· 画墙 = 点两点（画板下方「直角 / 自由」控制方向：直角只走水平 / 垂直，自由任意角度，Shift 临时锁轴；右键 / Esc 取消，靠近旧墙自动吸上融合；也可点起点后直接输入长度回车）· 栏杆 / 梁 / 女儿墙 / 雨棚 / 尺寸标注同样受「直角 / 自由」约束· 房门 / 垭口 / 双开门 / 子母门 / 卷帘门 / 电梯门 / 落地窗 / 落地推拉门 / 单扇推拉门 / 折叠门 / 窗户 / 高窗 / 门连窗 / 飘窗 = 点墙上的位置 · 文字标注 = 点位置放文字（右侧改内容/字号，可拖动）· 台阶 = 点位置放一组台阶（级数可改）· 栏杆 = 点起点再点终点（高度 / 直杆或玻璃可改）· 梁 = 点起点再点终点（宽 / 高 / 底标高可改）· 标高 = 点位置放标高符号 · 尺寸标注 = 点起点再点终点 · 材质刷 = 点房间刷地面材料（先用「选择」点一个样板房间换材料）· 入户 = 点一个门洞设为唯一入户门 · 柱子 / 楼梯（直跑 · 双跑 · 三跑 · 正三跑）= 点任意位置放置（可拖动）· 楼板 = 点两个对角点（板厚 / 底标高可改）· 女儿墙 = 点起点再点终点（厚 / 高 / 底标高可改）· 雨棚 = 点起点再点终点（挑出 / 板厚 / 底标高可改）· 指北针 = 点位置放置（全局唯一，角度可改）· 电梯 = 点位置放置（宽 / 深 / 停靠高度 / 门宽 / 开门方向可改）· 阳台 / 花坛 = 点两个对角点 · 烟道 = 点位置放置 · 灯具（吊灯 / 吸顶灯 / 筒灯 / 射灯 / 落地灯）与灯开关 = 点位置放置，壁灯 / 壁装灯管 / 壁装灯泡 / 插座 / 墙面开关 = 点墙上的位置（吸附墙体，沿墙拖动可滑动、右侧可换面），夜景模式自动照亮（照亮半径可拖亮圈手柄改），3D 点灯体 / 开关可开灯关灯', '"Select" = click walls / doors / windows / furniture to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Alt+drag starts anywhere); Delete removes (original walls = mark for removal, click the dashed remains to restore, black load-bearing walls protected) · Draw = two points (the 直角 / 自由 toggle under the canvas sets the direction — orthogonal or any angle, Shift locks axis, right-click / Esc cancels, snaps onto existing walls to fuse; or click the start point and type a length, Enter to confirm) · Railing / beam / parapet / canopy / dimension follow the same toggle · Door / Roller / Elevator / Window = click a wall · Entry = click a door opening to set the unique entry · Railing / beam / parapet / canopy = click two points · Slab = two opposite corners · North arrow / elevator / flue = click to place · Balcony / planter = two opposite corners · Level / dimension = click to place · Lamps (chandelier / ceiling / downlight / spotlight / floor) and light switch = click to place; wall lamp / wall tube / wall bulb / socket / wall switch = click a position on a wall (snaps to walls, drag to slide along it, flip side in the panel); they light up in night mode, click a lamp or the switch in 3D to toggle')
+        draw: COARSE ? tr('「选择」点选 / 拖动框选，Delete 删除 · 画墙点两点 · 门窗点墙 · 直角/自由切换方向', 'Select: tap to pick / drag to marquee, Delete removes · walls: two points · doors/windows: tap a wall · ortho/free toggle')
+          : tr('「选择」点选或框选（Ctrl+D 复制 · Delete 删除）· 画墙点两点 · 门窗点墙 · 直角/自由切换方向 · Esc 取消', 'Select: click or marquee (Ctrl+D duplicate · Delete remove) · walls: two points · doors/windows: tap a wall · ortho/free toggle · Esc cancels')
       };
       const rotHint = ui.rotPick
         ? tr('旋转：点选要旋转的对象（可连续点选多个）· 点空白处或回车 / 右键结束选择并定基点 · Esc 退出', 'Rotate: click the objects to rotate (multiple OK) · click empty space or press Enter / right-click to finish · Esc exits')
@@ -10138,7 +10567,7 @@
     // 墙高（mm）：单独设过就用设定值，否则按类型给的默认值（矮墙 1m、玻璃矮隔断 1.2m、其余通顶）
     const cwHOf = (id, k) => {
       const v = +((state.wallH || {})[id]);
-      return Number.isFinite(v) && v > 0 ? v : (k === 'lg' ? 1200 : k === 'low' ? 1000 : 2800);
+      return Number.isFinite(v) && v > 0 ? v : (k === 'lg' ? 1200 : k === 'low' ? 1000 : currentFloorH());
     };
     // 洞口所在墙的墙高（mm）：内置墙 'w3' / 自画墙 'CWxx' 都走同一套（单独设过用设定值）
     function wallHMM(ref) {
@@ -10161,7 +10590,7 @@
         const t = cwT(w) / 2;
         test(Math.min(w.a[0], w.b[0]) - t, Math.min(w.a[1], w.b[1]) - t, Math.max(w.a[0], w.b[0]) + t, Math.max(w.a[1], w.b[1]) + t, cwHOf('CW' + w.id, cwType(w)));
       });
-      return h > 0 ? h : 2800;
+      return h > 0 ? h : currentFloorH();
     }
     // 无天花（通高）：面板勾选后为 true；未设过时楼梯间默认不做天花
     function roomNoCeil(r) {
@@ -11255,7 +11684,7 @@
             const id = uid();
             mutate(() => (state.arcWalls = state.arcWalls || []).push({
               id, a: [Math.round(a.x), Math.round(a.y)], b: [Math.round(q.x), Math.round(q.y)],
-              bulge: 600, t: 240, h: 2800
+              bulge: 600, t: 240, h: currentFloorH()
             }));
             select({ kind: 'arcwall', id });
             toast(tr('已加弧形墙 · 弧高 / 反向 / 厚 / 高在右侧改', 'Curved wall added · edit rise / flip / thickness / height in the panel'));
@@ -12236,7 +12665,14 @@
       if (mod && k === 'y') { e.preventDefault(); redo(); return; }
       if (mod && k === 'd') { e.preventDefault(); duplicateSel(); return; }
       if (mod && k === 'a') { e.preventDefault(); selectAllObjects(); return; }
+      if (mod && /^[1-9]$/.test(k)) {                                // Ctrl/⌘+数字：直接切到第 N 层
+        e.preventDefault(); const f = (state.floors || [])[+k - 1]; if (f) switchFloor(f.id); return;
+      }
       if (mod) return;
+      if (k === 'pageup' || k === 'pagedown') {                        // PageUp / PageDown：上 / 下一层
+        e.preventDefault(); const fs = state.floors || [], i = fs.findIndex(f => f.id === state.activeFloor);
+        const t = fs[Math.max(0, Math.min(fs.length - 1, i + (k === 'pageup' ? 1 : -1)))]; if (t) switchFloor(t.id); return;
+      }
       if (k === 'escape' && narrow() && document.querySelector('.app').classList.contains('drawer-open')) { closeDrawers(); return; }
       if (k === 'escape' && ui.tool === 'draw' && ui.drawTool === 'rotate') {   // Esc 退出旋转（拖动中先还原）
         e.preventDefault(); rotCancel(); setSubTool('select'); return;
@@ -12768,7 +13204,7 @@
     drawer(null);                                  // 恢复上次的面板收起状态
     $('#exportPng').onclick = exportPNG;
     $('#exportJson').onclick = () => download((planName && planName !== AUTO_NAME ? planName : tr('户型装修方案', 'floor-plan-design')) + '.json',
-      new Blob([JSON.stringify({ ...state, layers: ui.layers }, null, 2)], { type: 'application/json' }));   // 与服务器保存一致带上图层开关，导入时可还原；文件名带方案名
+      new Blob([serializePlan(true)], { type: 'application/json' }));   // 与服务器保存一致带上图层开关，导入时可还原；文件名带方案名
     $('#importJson').onclick = () => $('#fileIn').click();
     $('#fileIn').onchange = e => {
       const file = e.target.files[0]; if (!file) return;
@@ -12778,19 +13214,19 @@
       });
       e.target.value = '';
     };
-    $('#reset').onclick = async () => { if (await uiConfirm(tr('恢复为默认设计方案？（可撤销）', 'Reset to the default design? (undoable)'))) { const b = snap(); state = defaultState(); ui.sel = null; commit(b); keepOneUndo(); renderAll(); syncPlanName(''); } };
+    $('#reset').onclick = async () => { if (await uiConfirm(tr('恢复为默认设计方案？（可撤销）', 'Reset to the default design? (undoable)'))) { const b = snap(); state = fixState(defaultState()); ui.sel = null; commit(b); keepOneUndo(); renderAll(); syncPlanName(''); } };
 
     $('#newPlan').onclick = async () => {
       if (!await uiConfirm(tr('新建完全空白的方案？（清空房间、墙体、门窗与家具，从零开始；当前布置可 Ctrl+Z 恢复）', 'Create a truly blank plan? (rooms, walls, doors / windows and furniture all cleared; Ctrl+Z restores the current layout)'))) return;
       const b = snap();
-      state = blankState();
+      state = fixState(blankState());
       ui.sel = null; commit(b); keepOneUndo(); markDirty(false); renderAll(); syncPlanName('');
       toast(tr('已新建空白方案，可用「设计 → 画墙」从零搭建', 'Blank plan created — draw walls in "Design" mode'));
     };
 
     /* ======================= 服务器方案（Python 后端 /api/plans） ======================= */
     const planURL = n => '/api/plans/' + encodeURIComponent(n);
-    const cloudLoad = (s, name) => { applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); syncPlanName(name || ''); autoSaved = JSON.stringify({ ...state, layers: ui.layers }); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };   // 清空撤销栈：否则 Ctrl+Z 会退回上一个方案，而自动保存会把那份内容写进刚打开的文件
+    const cloudLoad = (s, name) => { applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); syncPlanName(name || ''); autoSaved = serializePlan(); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };   // 清空撤销栈：否则 Ctrl+Z 会退回上一个方案，而自动保存会把那份内容写进刚打开的文件
     const cloudFail = () => toast(tr('操作失败：请确认程序已启动', 'Failed — make sure the app is running'));
 
     /* 自动保存：改动后 2 秒写入当前方案——已命名的方案直接回写自身，未命名 / 草稿仍写「自动保存」槽位（静默进行，失败不打扰，下次改动再试） */
@@ -12800,13 +13236,13 @@
     function scheduleAutoSave() { clearTimeout(autoSaveT); autoSaveT = setTimeout(autoSave, 2000); }
     async function autoSave() {
       const name = autoTarget();
-      const cur = JSON.stringify({ ...state, layers: ui.layers });
+      const cur = serializePlan();
       if (cur === autoSaved && name === autoSavedName) return;
       try {
         const r = await fetch(planURL(name), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: cur, keepalive: true });
         if (r.ok) {
           autoSaved = cur; autoSavedName = name;
-          if (name !== AUTO_NAME && JSON.stringify({ ...state, layers: ui.layers }) === cur) markDirty(false);   // 已回写到方案里，去掉未保存高亮
+          if (name !== AUTO_NAME && serializePlan() === cur) markDirty(false);   // 已回写到方案里，去掉未保存高亮
           if (document.visibilityState !== 'hidden') toast(tr('已自动保存', 'Autosaved'));   // 自动保存也给出提示
         }
       } catch (e) { }
@@ -12929,7 +13365,7 @@
 
     /* 直接写入指定名称的方案（JSON + 缩略图），返回缩略图是否保存成功 */
     async function savePlanTo(name) {
-      const body = JSON.stringify({ ...state, layers: ui.layers });
+      const body = serializePlan();
       let thumb = null;
       try { thumb = await svgToPngBlob(480); } catch (e) { }
       const r = await fetch(planURL(name), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body });
@@ -12963,7 +13399,7 @@
     $('#closePlan').onclick = async () => {
       if ((planName || state.furniture.length || state.walls.length || Object.keys(state.rooms).length) &&
         !await uiConfirm(tr('关闭当前方案并回到空白画板？\n服务器上已保存的方案不受影响；尚未保存的修改会丢失。', 'Close the current plan and return to a blank canvas?\nSaved plans on the server are not affected; unsaved changes will be lost.'))) return;
-      state = blankState();
+      state = fixState(blankState());
       ui.sel = null;
       undoStack.length = 0; redoStack.length = 0;   // 关闭后无可撤销内容，撤销栈清空
       autoSaved = '';
@@ -13115,15 +13551,18 @@
     import { CSS2DRenderer, CSS2DObject } from 'three/addons/renderers/CSS2DRenderer.js';
 
     const stage = $('#stage'), host = $('#view3d');
-    const OX = 6000, OY = 5300, H = 2.8, FOV = 45;       // 户型中心放在世界原点，层高 2.8 m
+    const OX = 6000, OY = 5300, FOV = 45, FULL_CUT = 2.8; // 户型中心放在世界原点
+    let H = 2.8;                                          // 当前楼层高度（米）：按楼层设置，buildArch 前更新
     const BAY_DRIP = .06;                                // 飘窗顶板 / 窗台板外挑（挡雨滴水檐，上下同尺寸才齐平）
     const wx = x => (x - OX) / 1000, wz = y => (y - OY) / 1000, M = v => v / 1000;
     const SW = () => stage.clientWidth, SH = () => stage.clientHeight;
-    const opt = { cut: 2.8, furn: true, labels: true, night: false, hour: 10, mode: 'orbit' };
+    const opt = { cut: 2.8, full: true, furn: true, labels: true, night: false, hour: 10, mode: 'orbit' };
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
     let archFloor, archUp, furnG, labelG, lampG, colliders = [], barriers = [], sills = [], revolveSpins = [], revolveHit = [], escSteps = [], furnCols = [], selKey = null, selHelpers = [], lampGlowMats = [];   // sills：电梯门抬高门槛的可踩踏台面（不挡人）；barriers：扶手/围栏的带高度线段碰撞（漫游挡人）；revolveSpins：旋转门旋翼组（主循环持续转动）；revolveHit：旋转门三翼的随动线段碰撞数据；escSteps：自动扶梯梯级组（主循环沿斜坡循环平移）；furnCols：家具外接盒碰撞（buildFurn 独立重建，与 colliders 清空时机解耦）；lampGlowMats：自建灯具的发光材质（applyLight 按夜景与开关状态统一点亮）
+    let floorGroup = null;                                // 当前（激活）楼层组容器：整栋按层堆叠，漫游 / 拾取只针对激活层
+    const floorY = () => { const f = (state.floors || []).find(x => x.id === state.activeFloor); return f ? f.z / 1000 : 0; };   // 当前层基准标高（米）
     let sigArch = '', sigFurn = '', sigLabels = '', grow = 1, furnGrow = 1;
     const doors = [], keys = {};
 
@@ -13167,8 +13606,9 @@
       steelMat = mat('#c9ced3', { metalness: .92, roughness: .22 });   // 不锈钢门扇 / 门套
       entryCasingMat = mat('#6b4f3a', { roughness: .5 });              // 入户门套：与入户门扇同色
 
+      floorGroup = new THREE.Group(); scene.add(floorGroup);   // 当前层的全部建筑 / 家具 / 标签都在该组内，随层标高整体上移
       archFloor = new THREE.Group(); archUp = new THREE.Group(); furnG = new THREE.Group(); labelG = new THREE.Group(); lampG = new THREE.Group();
-      scene.add(archFloor, archUp, furnG, labelG, lampG);
+      floorGroup.add(archFloor, archUp, furnG, labelG, lampG);
 
       const cv = renderer.domElement; let downAt = null, look = null;
       cv.addEventListener('pointerdown', e => {
@@ -16664,7 +17104,7 @@
         pickWallId = id; pickWallKind = 'arcwall';
         if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
         const pts = arcSamples(w.a, w.b, +w.bulge || 0, 24), th = Math.max(60, +w.t || 240);
-        const ht = Math.min(top, Math.max(.6, (+w.h || 2800) / 1000));
+        const ht = Math.min(top, Math.max(.6, (+w.h || currentFloorH()) / 1000));
         for (let i = 0; i < pts.length - 1; i++) {
           wallSeg3D(pts[i], pts[i + 1], th, 0, ht);
           pushWallCollider(pts[i], pts[i + 1], th);
@@ -17352,11 +17792,59 @@
     // 只重建变化的部分
     function sync(force) {
       if (!inited || (!active && !force)) return;
-      const a = JSON.stringify([state.rooms, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut]);
-      if (force || a !== sigArch) { sigArch = a; buildArch(); }
+      H = currentFloorH() / 1000;                                  // 当前层高（米）：墙体 / 天花 / 剖切都跟着层高
+      if (opt.full && Math.abs(opt.cut - H) > 1e-6) { opt.cut = H; syncCutBtns(); }   // 全高墙模式：剖切高度始终贴当前楼层高度
+      const a = JSON.stringify([state.rooms, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut, H, ui.layers.ghost]), f = JSON.stringify(state.furniture), l = JSON.stringify([state.rooms, opt.cut, H]);
+      if (force || a !== sigArch) { sigArch = a; buildFloorPlates(); buildArch(); }
       if (force || f !== sigFurn) { sigFurn = f; buildFurn(); }
       if (force || l !== sigLabels) { sigLabels = l; buildLabels(); }
     }
+    /* 下层幽灵：半透明显示紧邻下方的那一层墙体，作为当前层对位参照（漫游 / 碰撞 / 拾取都只针对当前层，不受影响） */
+    let plateGroup = null;
+    const GHOST_FLOOR_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'wallH', 'rooms', 'roomsExtra', 'bover', 'pillars'];
+    function buildFloorPlates() {
+      if (!scene) return;
+      if (!ui.layers.ghost) {                                       // 开关关闭：清掉已生成的下层参照，直接返回
+        if (plateGroup) { plateGroup.children.slice().forEach(o => { o.geometry?.dispose?.(); o.material?.dispose?.(); plateGroup.remove(o); }); scene.remove(plateGroup); plateGroup = null; }
+        return;
+      }
+      if (plateGroup) { plateGroup.children.slice().forEach(o => { o.geometry?.dispose?.(); o.material?.dispose?.(); plateGroup.remove(o); }); scene.remove(plateGroup); }
+      plateGroup = new THREE.Group(); scene.add(plateGroup);
+      const base = floorY();
+      const fs = state.floors || [], idx = fs.findIndex(f => f.id === state.activeFloor);
+      const below = fs[idx - 1];                                    // 紧邻下方一层：切 2F 显示 1F，切 3F 显示 2F……
+      if (!below) return;
+      const data = state.byFloor[below.id]; if (!data) return;
+      const dy = below.z / 1000 - base;                             // 下层相对当前层的标高差（负，米）：below.z 是 mm，base=floorY() 已是米
+      // 临时把下层数据换入全局 state，复用墙体几何 helper（builtinSeg / wallSegs / cwGeom 都读 state）
+      const saved = {}; GHOST_FLOOR_KEYS.forEach(k => saved[k] = state[k]);
+      GHOST_FLOOR_KEYS.forEach(k => { state[k] = data[k] === undefined ? saved[k] : data[k]; });
+      const ghostMat = new THREE.MeshStandardMaterial({ color: 0x8a97a8, transparent: true, opacity: .3, roughness: 1, depthWrite: false });
+      const addGhost = (P0, P1, T, ht) => {                          // 半透明墙段（与 wallSeg3D 相同的中线与旋转算法）
+        const L = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]); if (L < 1 || ht <= .001) return;
+        const o = new THREE.Mesh(new THREE.BoxGeometry(M(L), ht, M(T)), ghostMat);
+        const [mx, mz] = wallMid(P0, P1);
+        o.position.set(mx, ht / 2, mz); o.rotation.y = wallAngle(P0, P1);
+        plateGroup.add(o);
+      };
+      const ht = Math.min(2.8, Math.max(.6, (below.h || 2800) / 1000));
+      try {
+        WALLS.forEach((w, i) => {                                    // 内置墙
+          const id = 'w' + i; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
+          const s = builtinSeg(i);
+          wallSegs(id, s.L).forEach(([c0, c1]) => { const [P0, P1] = segPts(s.A, s.B, c0, c1); addGhost(P0, P1, s.T, ht); });
+        });
+        (state.walls || []).forEach(w => {                          // 自画墙（含斜墙）
+          const id = 'CW' + w.id; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
+          const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
+          wallSegs(id, L).forEach(([c0, c1]) => { const [P0, P1] = segPts(w.a, w.b, c0, c1); addGhost(P0, P1, cwT(w), ht); });
+        });
+      } finally { GHOST_FLOOR_KEYS.forEach(k => { state[k] = saved[k]; }); }
+      plateGroup.position.y = dy;                                   // 整组下移到下层标高
+      plateGroup.userData.ghostOf = below.id;
+    }
+    /* 楼层切换后由 2D 侧调用：重置签名强制 3D 重建（新层的构件 / 层高不同） */
+    function onFloorChanged() { if (inited && active) { H = currentFloorH() / 1000; sigArch = sigFurn = sigLabels = ''; sync(true); } }
 
     // CSS2DRenderer 只看标签自身的 visible，不继承父级，所以逐个设置
     function showLabels(v) { labelG.visible = v; labelG.children.forEach(o => o.visible = v); }
@@ -17583,7 +18071,7 @@
       if (m === 'walk') {
         window.select(null);
         proneOn = false;   // 进入漫游时恢复站立姿态
-        if (opt.cut < H) { opt.cut = H; syncCutBtns(); sync(); }
+        if (opt.full && Math.abs(opt.cut - H) > 1e-6) { opt.cut = H; syncCutBtns(); sync(); }
         orbit.enabled = false; fly = null;
         walkRespawn();                                               // 从入户门外 1.8m 面向屋内出发
         $('#walkOverlay').style.display = 'flex';
@@ -18015,7 +18503,12 @@
 
     /* ======================= 工具栏 ======================= */
     function syncModeBtns() { document.querySelectorAll('#modes3d .btn').forEach(b => b.classList.toggle('on', b.dataset.mode === opt.mode)); }
-    function syncCutBtns() { document.querySelectorAll('[data-cut]').forEach(b => b.classList.toggle('on', +b.dataset.cut === opt.cut)); }
+    function syncCutBtns() {
+      document.querySelectorAll('[data-cut]').forEach(b => {
+        const v = +b.dataset.cut, isFull = v >= FULL_CUT - 1e-6;
+        b.classList.toggle('on', isFull ? !!opt.full : !opt.full && Math.abs(opt.cut - v) < 1e-6);
+      });
+    }
     function syncWalkTexts() {
       const t = COARSE
         ? [tr('点击开始，从入户门进入', 'Tap to start at the front door'), tr('左下摇杆移动 · 在画面上拖动转向', 'Joystick moves · drag on screen to look'),
@@ -18036,7 +18529,13 @@
       syncWalkTexts();
       $('#vIso').onclick = () => { if (opt.mode === 'walk') setMode('orbit'); else flyTo(isoWhole()); };
       $('#vTop').onclick = () => { if (opt.mode === 'walk') setMode('orbit'); flyTo(topWhole()); };
-      document.querySelectorAll('[data-cut]').forEach(b => b.onclick = () => { if (opt.mode === 'walk') return; opt.cut = +b.dataset.cut; syncCutBtns(); sync(); });
+      document.querySelectorAll('[data-cut]').forEach(b => b.onclick = () => {
+        if (opt.mode === 'walk') return;
+        const v = +b.dataset.cut;
+        opt.full = v >= FULL_CUT - 1e-6;                            // 「全高墙」= 跟随当前楼层高度，不是写死 2.8m
+        opt.cut = opt.full ? H : v;
+        syncCutBtns(); sync();
+      });
       document.querySelectorAll('#toggles3d .btn, #sunPad .btn').forEach(b => b.onclick = () => {
         const k = b.dataset.t; opt[k] = !opt[k]; b.classList.toggle('on', opt[k]);
         if (k === 'furn') { furnG.visible = opt.furn; if (!opt.furn && ui.sel?.kind === 'furn') window.select(null); }
@@ -18491,7 +18990,7 @@
 
     function relang() { syncWalkTexts(); if (inited) buildLabels(); }
 
-    window.View3D = { enter, exit, relang, sync: force => sync(force), shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, ladderAt, toggleLamp, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
+    window.View3D = { enter, exit, relang, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, ladderAt, toggleLamp, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
   </script>
 </body>
 
