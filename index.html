@@ -3860,6 +3860,7 @@
       const g = key ? (arr || []).filter(x => (typeof key === 'function' ? key(x) : x[key]) === (typeof key === 'function' ? key(o) : o[key])) : (arr || []);
       return Math.max(1, g.indexOf(o) + 1);
     };
+    const liftName = l => (l && String(l.name || '').trim()) || tr('电梯', 'Lift') + ' ' + objNo(state.lifts, l);   // 电梯显示名：自定义名称优先，没起名时用「电梯 N」，界面里不再露内部 id
     const nameField = (o, ph) => `<label class="full">${tr('名称', 'Name')}<input id="oName" maxlength="30" value="${esc(o.name || '')}" placeholder="${esc(ph || '')}"></label>`;
     let oNameUndo = null;                                              // 「名称」边输入边预览的撤销快照
     document.addEventListener('input', e => {                          // 所有属性面板的「名称」输入统一在这里处理（面板里只放 nameField，无需各自绑定）
@@ -7613,7 +7614,7 @@
       const flRows = floors.map((v, i) => `<div class="flrow" data-i="${i}"><span class="flno">${tr('第', 'F')}${i + 1}${tr('层', '')}</span><input type="number" class="flh" value="${Math.round(v)}" min="0" max="20000" step="50"><span class="muted">mm</span></div>`).join('');
       return `<section><h3>${tr('电梯', 'Elevator')}</h3>
     <div class="form">
-      ${nameField(l, tr('电梯', 'Elevator') + ' ' + objNo(state.lifts, l))}
+      ${nameField(l, liftName(l))}
       <label>${tr('梯宽', 'Width')} (mm)<input type="number" id="lfW" value="${Math.round(l.w ?? 2000)}" min="800" max="6000" step="50"></label>
       <label>${tr('进深', 'Depth')} (mm)<input type="number" id="lfD" value="${Math.round(l.d ?? 2000)}" min="800" max="6000" step="50"></label>
       <label>${tr('轿厢高', 'Height')} (mm)<input type="number" id="lfH" value="${Math.round(l.h ?? 2400)}" min="1800" max="4000" step="50"></label>
@@ -8407,7 +8408,7 @@
     ${['window', 'hwin', 'dwin'].includes(o.kind) && openGrille(o) ? `<div class="form"><label title="${tr('窗花高度不能超过窗户高度', 'Transom height cannot exceed the window height')}">${tr('窗花高度', 'Transom height')} (mm · ≤ ${Math.round(o.wh ?? Math.max(300, 2400 - Math.round(o.sill ?? (o.kind === 'hwin' ? 1400 : 900))))})<input type="number" id="oTh" value="${Math.round(o.th ?? 500)}" min="150" max="${Math.round(o.wh ?? Math.max(300, 2400 - Math.round(o.sill ?? (o.kind === 'hwin' ? 1400 : 900))))}" step="50"></label></div>` : ''}
     ${['door', 'dble', 'zimu', 'yak', 'dwin', 'slid', 'sd', 'fold', 'elev', 'roller', 'auto', 'revolve'].includes(o.kind) ? `<div class="form"><label title="${tr(`墙高 ${wallH} − 门槛 ${sillMM} = 最大 ${maxDh} mm`, `Wall ${wallH} − threshold ${sillMM} = max ${maxDh} mm`)}">${tr('门高', 'Door height')} (mm · ≤ ${maxDh})<input type="number" id="oDh" value="${dhMM}" min="300" max="${maxDh}" step="50"></label><label>${tr('门槛高（门洞下沿离地）', 'Threshold height')} (mm)<input type="number" id="oBase" value="${sillMM}" min="0" max="${Math.max(0, wallH - dhMM)}" step="10"></label></div>` : ''}
     <div class="muted" style="margin-top:8px">${tr('在 2D 里拖动门窗可沿墙滑动。', 'Drag the opening in 2D to slide it along its wall.')}${(o.kind === 'window' || o.kind === 'hwin') ? tr(' 窗扇数在右侧设置（1–4 扇，相邻扇交错滑轨）；3D 里点哪扇开哪扇。', ' Sash count is editable on the right (1–4 sashes on offset tracks); click any sash in 3D to slide it open.') : o.kind === 'auto' ? tr(' 自动感应门为双扇平移玻璃门，3D 带门机箱与感应器，漫游走近两扇自动滑开、离开关上；平时可直接穿行。', ' Automatic sliding glass door with header and sensor; in 3D walk mode the leaves slide open as you approach and close after you leave; always walk-through.') : o.kind === 'revolve' ? tr(' 旋转门为圆筒玻璃加三翼旋翼，3D 中旋翼持续匀速旋转、可直接穿行。', ' Revolving door: cylindrical glass with three wings that rotate continuously in 3D; walk-through.') : o.kind === 'strip' ? tr(' 带形窗通长连续采光，3D 按约 1200mm 分格加竖梃。', ' Strip window with mullions every ~1200mm in 3D.') : o.kind === 'louver' ? tr(' 百叶窗为固定叶片，3D 中不可开启。', ' Louver blades are fixed (not openable in 3D).') : o.kind === 'cwin' ? tr(' 圆窗直径跟随宽度，高度不可单独设置。', ' The circle diameter follows the width.') : o.kind === 'bay' ? tr(' 飘窗向外凸出，进深与朝向可改；3D 中为固定窗不可开启。', ' The bay protrudes outward; depth and side are editable. Fixed glass (not openable) in 3D.') : o.kind === 'lbay' ? tr(' 转角飘窗跨两面墙，点任一段都选中同一个对象；窗台 / 窗高 / 进深两段共用。', ' The Corner bay spans two walls and stays one object.') : o.kind === 'sd' ? tr(' 3D 里点门扇可沿墙推开；右侧可设置换到墙另一侧、滑动方向。', ' Click the door in 3D to slide it open; flip side and slide direction are editable on the right.') : o.kind === 'fold' ? tr(' 3D 里点门扇可折起 / 展开；折起后中间可直接通行。', ' Click the door in 3D to fold / unfold it.') : ''}</div>
-    ${o.kind === 'elev' ? `<div class="form"><label>${tr('呼叫按钮位置', 'Call button side')}<select id="oBtn"><option value="r" ${(o.btn || 'r') === 'r' ? 'selected' : ''}>${tr('门右侧', 'Right of door')}</option><option value="l" ${o.btn === 'l' ? 'selected' : ''}>${tr('门左侧', 'Left of door')}</option></select></label><label>${tr('联动电梯', 'Linked elevator')}<select id="oLift"><option value="" ${!o.liftId ? 'selected' : ''}>${tr('未联动', 'Not linked')}</option>${(state.lifts || []).map(x => `<option value="${x.id}" ${String(o.liftId) === String(x.id) ? 'selected' : ''}>${tr('电梯', 'Lift')} ${x.id} · ${x.floors?.length || 1} ${tr('层', 'floors')}</option>`).join('')}</select></label>${linkLift ? `<label title="${tr('本电梯门位于第几层，呼叫按钮会把电梯送到这一层', 'Which floor this door is on; the call button sends the lift here')}">${tr('所在楼层', 'Floor of this door')}<select id="oLiftFloor">${linkFloors.map((v, i) => `<option value="${i}" ${i === doorFloor ? 'selected' : ''}>${tr('第', 'F')}${i + 1}${tr('层', '')} · ${Math.round(v)} mm</option>`).join('')}</select></label>` : ''}</div>` : ''}
+    ${o.kind === 'elev' ? `<div class="form"><label>${tr('呼叫按钮位置', 'Call button side')}<select id="oBtn"><option value="r" ${(o.btn || 'r') === 'r' ? 'selected' : ''}>${tr('门右侧', 'Right of door')}</option><option value="l" ${o.btn === 'l' ? 'selected' : ''}>${tr('门左侧', 'Left of door')}</option></select></label><label>${tr('联动电梯', 'Linked elevator')}<select id="oLift"><option value="" ${!o.liftId ? 'selected' : ''}>${tr('未联动', 'Not linked')}</option>${(state.lifts || []).map(x => `<option value="${x.id}" ${String(o.liftId) === String(x.id) ? 'selected' : ''}>${esc(liftName(x))} · ${x.floors?.length || 1} ${tr('层', 'floors')}</option>`).join('')}</select></label>${linkLift ? `<label title="${tr('本电梯门位于第几层，呼叫按钮会把电梯送到这一层', 'Which floor this door is on; the call button sends the lift here')}">${tr('所在楼层', 'Floor of this door')}<select id="oLiftFloor">${linkFloors.map((v, i) => `<option value="${i}" ${i === doorFloor ? 'selected' : ''}>${tr('第', 'F')}${i + 1}${tr('层', '')} · ${Math.round(v)} mm</option>`).join('')}</select></label>` : ''}</div>` : ''}
     ${(o.kind === 'door' || o.kind === 'dwin') ? `<div class="form"><label>${tr('门扇材质', 'Leaf material')}<select id="oMat"><option value="wood" ${(o.mat || 'wood') === 'wood' ? 'selected' : ''}>${tr('木制', 'Wood')}</option><option value="steel" ${o.mat === 'steel' ? 'selected' : ''}>${tr('不锈钢', 'Stainless steel')}</option><option value="glass" ${o.mat === 'glass' ? 'selected' : ''}>${tr('玻璃', 'Glass')}</option></select></label></div>` : ''}
     ${o.kind === 'door' ? `<div class="actions"><button class="btn" id="oDir" title="点击循环切换开启方式：左开 → 右开 → 左开反向 → 右开反向">${tr('改变开门方向', 'Change swing')}</button></div>` : ''}
     ${(o.kind === 'dble' || o.kind === 'zimu' || o.kind === 'dwin') ? `<div class="actions"><button class="btn" id="oFlip2" title="${o.kind === 'dwin' ? tr('门扇和窗扇一起翻到墙的另一侧', 'Flip the door and window to the other side of the wall') : tr('两扇一起翻到墙的另一侧开启', 'Flip both leaves to the other side')}">${tr('换到墙另一侧开', 'Flip to other side')}</button></div>` : ''}
@@ -12630,7 +12631,7 @@
         ...(state.canopies || []).map(c => ({ kind: 'canopy', id: c.id, name: c.name || tr('雨棚', 'Canopy') + ' ' + objNo(state.canopies, c), sub: segLen(c) })),
         ...(state.rails || []).map(r => ({ kind: 'rail', id: r.id, name: r.name || (r.style === 'drain' ? tr('排水沟 / 地漏', 'Drain') : r.style === 'part' ? tr('玻璃隔断', 'Glass partition') : tr('栏杆', 'Railing')) + ' ' + objNo(state.rails, r, q => q.style || 'bar'), sub: segLen(r) })),
         ...(state.beams || []).map(b => ({ kind: 'beam', id: b.id, name: b.name || tr('梁', 'Beam') + ' ' + objNo(state.beams, b), sub: segLen(b) })),
-        ...(state.lifts || []).map(l => ({ kind: 'lift', id: l.id, name: l.name || tr('电梯', 'Lift') + ' ' + objNo(state.lifts, l), sub: rectSub(l) })),
+        ...(state.lifts || []).map(l => ({ kind: 'lift', id: l.id, name: liftName(l), sub: rectSub(l) })),
         ...(state.powerBoxes || []).map(b => ({ kind: 'pbox', id: b.id, name: b.name || tr('强电箱', 'Power box') + ' ' + objNo(state.powerBoxes, b), sub: rectSub(b) })),
         ...(state.weakBoxes || []).map(b => ({ kind: 'wbox', id: b.id, name: b.name || tr('弱电箱', 'Weak-current box') + ' ' + objNo(state.weakBoxes, b), sub: rectSub(b) })),
         ...(state.balconies || []).map(b => ({ kind: 'balcony', id: b.id, name: b.name || tr('阳台', 'Balcony') + ' ' + objNo(state.balconies, b), sub: rectSub(b) })),
@@ -15653,7 +15654,7 @@
         g.strokeStyle = '#3a4a48'; g.lineWidth = 1; g.strokeRect(8.5, dy + .5, S - 17, dispH - 1);
         g.fillStyle = '#6ff0d0'; g.shadowColor = '#39d8b4'; g.shadowBlur = 12;
         g.font = 'bold 40px ui-monospace, Menlo, Consolas, monospace'; g.textAlign = 'center'; g.textBaseline = 'middle';
-        g.fillText(cur === 0 ? 'G' : String(cur + 1).padStart(2, '0'), S / 2, dy + dispH / 2 + 2);
+        g.fillText(String(cur + 1).padStart(2, '0'), S / 2, dy + dispH / 2 + 2);   // 楼层号与楼层设置一致：第 1 层显示 01（不再用 G）
         g.shadowBlur = 0;
         rows.forEach(r => {
           if (r.act === 'floor') {                                // 自顶向下 = 最高层 → 最低层
@@ -15697,7 +15698,7 @@
       const cy = pad + dispH + 8 + btnH / 2, cx = S / 2;
       const paint = (c, lights) => {                              // 整张重绘：显示屏跟随联动电梯当前层（运行跳层时由主循环调用）
         const cur = l ? Math.max(0, Math.min(fs.length - 1, Math.round(c ?? 0))) : -1;
-        const label = cur < 0 ? '--' : cur === 0 ? 'G' : String(cur + 1).padStart(2, '0');
+        const label = cur < 0 ? '--' : String(cur + 1).padStart(2, '0');   // 未联动显示 --；联动时显示联动电梯当前层（第 1 层 = 01）
         g.fillStyle = '#1c2128'; g.fillRect(0, 0, S, Hpx);
         g.fillStyle = '#2b323c'; g.fillRect(2, 2, S - 4, Hpx - 4);
         g.fillStyle = '#07100f'; g.fillRect(8, pad, S - 16, dispH);
@@ -18208,10 +18209,10 @@
         }
       }
     }
-    function liftFloorLabel(l, k) {                               // 楼层按钮可读标签：G / 02 / 03…，与面板显示屏一致
+    function liftFloorLabel(l, k) {                               // 楼层按钮可读标签：01 / 02 / 03…，与面板显示屏和楼层设置一致
       const fs = l && Array.isArray(l.floors) && l.floors.length ? l.floors : [l?.stop ?? 0];
       const i = Math.max(0, Math.min(fs.length - 1, Math.round(+k || 0)));
-      return i === 0 ? 'G' : String(i + 1).padStart(2, '0');
+      return String(i + 1).padStart(2, '0');
     }
     function liftBtnTip(b, touch) {                               // 电梯按钮悬停提示：按动作与目标层生成，鸟瞰 / 漫游共用
       const l = (state.lifts || []).find(x => x.id === b.id);
@@ -18219,6 +18220,12 @@
       if (b.act === 'open') return touch ? tr('点开电梯门（层门同步）', 'Tap to open both doors') : tr('点 / E 开电梯门（层门同步）', 'Click / E to open both doors');
       if (b.act === 'close') return touch ? tr('点关电梯门（层门同步）', 'Tap to close both doors') : tr('点 / E 关电梯门（层门同步）', 'Click / E to close both doors');
       const lit = liftLit.get(b.id);
+      const rr0 = liftRides.get(b.id);                              // 运行中：已过掉的楼层按下也不会停（亮一下即灭），先提示清楚
+      if (rr0) {
+        const fsx = l ? liftFloors(l) : [0], yx = Math.max(0, (fsx[b.floor | 0] ?? 0) / 1000);
+        const dx = rr0.to > (rr0.p0 ?? rr0.from) + .005 ? 1 : rr0.to < (rr0.p0 ?? rr0.from) - .005 ? -1 : 0;
+        if (dx && (yx - rr0.base) * dx <= .005) return tr(`${fl} 层已过，按了不停`, `${fl} already passed — tapping won't stop`);
+      }
       if (lit && lit.has(b.floor | 0)) return tr(`${fl} 层已亮灯，到站开门`, `${fl} registered — stops on arrival`);   // 已登记：提示会依次停靠
       if (b.act === 'hall') return touch ? tr(`点呼叫电梯到 ${fl} 层`, `Tap to call the lift to ${fl}`) : tr(`点 / E 呼叫电梯到 ${fl} 层`, `Click / E to call the lift to ${fl}`);
       return touch ? tr(`点去 ${fl} 层（可多选）`, `Tap for ${fl} (multi-select)`) : tr(`点 / E 去 ${fl} 层（可多选）`, `Click / E for ${fl} (multi-select)`);
@@ -18253,6 +18260,14 @@
         if (!liftDir.has(l.id)) liftDir.set(l.id, to >= from ? 1 : -1);   // 第一次按下决定初始方向（顺向优先调度用）
         liftRefreshDisp(l.id);
         if (running) {                                             // 运行中：顺路且更近就先停这一层，否则排进队列
+          const rr = liftRides.get(l.id);
+          const dir = rr ? (rr.to > (rr.p0 ?? rr.from) + .005 ? 1 : rr.to < (rr.p0 ?? rr.from) - .005 ? -1 : 0) : 0;
+          if (rr && dir && (to - rr.base) * dir <= .005) {         // 已经过掉的楼层：按钮亮一下（上面已刷新）随即熄灭，不排队（电梯不回头）
+            const gone = () => { q.delete(k); const dq0 = liftDoorReq.get(l.id); if (dq0) dq0.delete(k); liftRefreshDisp(l.id); };
+            setTimeout(gone, 260);
+            toast(tr(`${fl} 层已过，不再停靠`, `${fl} already passed — no stop`));
+            return;
+          }
           if (liftTryInsert(l.id, k)) { toast(tr(`前方先停 ${fl} 层`, `Stopping at ${fl} first`)); return; }
           toast(tr(`已登记 ${fl} 层，将依次停靠`, `${fl} registered — stops in turn`)); return;   // 运行中只排队，不打断当前段
         }

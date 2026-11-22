@@ -707,7 +707,7 @@
     {
       "id": "fmwnnbcjx99",
       "wall": "CWfmwnfibnc114",
-      "c": 4329.863980044046,
+      "c": 2930,
       "w": 1500,
       "kind": "bay",
       "flip": false,
@@ -840,7 +840,7 @@
     {
       "id": "fmwnndm1q116",
       "wall": "CWfmwnfibnc114",
-      "c": 2859.462686437895,
+      "c": 1480,
       "w": 1200,
       "kind": "zimu",
       "flip": false
@@ -863,6 +863,17 @@
       "sill": 900,
       "wh": 1200,
       "panes": 2
+    },
+    {
+      "id": "fmwryzq0999",
+      "wall": "CWfmwnfibnc114",
+      "c": 5210.34119944219,
+      "w": 900,
+      "kind": "elev",
+      "flip": true,
+      "liftId": "fmwiw6lnm93",
+      "liftFloor": 1,
+      "btn": "l"
     }
   ],
   "deletedWalls": [
@@ -1206,7 +1217,7 @@
       "h": 2400,
       "dw": 900,
       "dir": 0,
-      "stop": 1200,
+      "stop": 13200,
       "dpos": -10,
       "floors": [
         1200,
@@ -1220,7 +1231,7 @@
         25200,
         28200
       ],
-      "cur": 0
+      "cur": 4
     },
     {
       "id": "fmwru5fwy99",
@@ -1232,13 +1243,13 @@
       "dw": 900,
       "dh": 2100,
       "dpos": 0,
-      "stop": 3000,
+      "stop": 0,
       "dir": 0,
       "floors": [
         0,
         3000
       ],
-      "cur": 1
+      "cur": 0
     }
   ],
   "balconies": [],
