@@ -682,7 +682,9 @@
       "kind": "elev",
       "flip": false,
       "sill": 1200,
-      "btn": "l"
+      "btn": "l",
+      "liftId": "fmwiw6lnm93",
+      "liftFloor": 0
     },
     {
       "id": "fmwnfjnwo119",
@@ -1123,7 +1125,8 @@
       "dir": 0,
       "rise": 4200,
       "type": "spiral",
-      "flipX": false
+      "flipX": false,
+      "runs": 1
     },
     {
       "id": "fmwnfl3ir99",
@@ -1139,7 +1142,9 @@
       "panelMat": "glass",
       "runs": "X",
       "flipZ": true,
-      "landOut": 1500
+      "landOut": 1500,
+      "land": true,
+      "fenceSide": "sides"
     },
     {
       "id": "fmwnhpwze99",
@@ -1149,7 +1154,8 @@
       "len": 600,
       "h": 3000,
       "dir": 90,
-      "type": "ladder"
+      "type": "ladder",
+      "runs": 1
     },
     {
       "id": "fmwnj6w1v99",
@@ -1161,7 +1167,8 @@
       "rise": 2400,
       "type": "esc",
       "railLand": true,
-      "land": true
+      "land": true,
+      "runs": 1
     }
   ],
   "wallH": {
@@ -1193,14 +1200,45 @@
     {
       "id": "fmwiw6lnm93",
       "x": 7900,
-      "y": 3180,
+      "y": 3200,
       "w": 1230,
-      "d": 1340,
+      "d": 1950,
       "h": 2400,
       "dw": 900,
       "dir": 0,
       "stop": 1200,
-      "dpos": 0
+      "dpos": -10,
+      "floors": [
+        1200,
+        4200,
+        7200,
+        10200,
+        13200,
+        16200,
+        19200,
+        22200,
+        25200,
+        28200
+      ],
+      "cur": 0
+    },
+    {
+      "id": "fmwru5fwy99",
+      "x": 12370,
+      "y": -560,
+      "w": 2000,
+      "d": 2000,
+      "h": 2400,
+      "dw": 900,
+      "dh": 2100,
+      "dpos": 0,
+      "stop": 3000,
+      "dir": 0,
+      "floors": [
+        0,
+        3000
+      ],
+      "cur": 1
     }
   ],
   "balconies": [],

@@ -118,7 +118,8 @@
       "runs": "X",
       "skirtH": 950,
       "platSkirtH": 1550,
-      "fenceH": 1200
+      "fenceH": 1200,
+      "fenceSide": "end"
     },
     {
       "id": "fmwol19vs296",
@@ -131,7 +132,8 @@
       "type": "esc",
       "land": true,
       "runs": "B",
-      "skirtH": 900
+      "skirtH": 900,
+      "fenceSide": "sides"
     },
     {
       "id": "fmwol1bey297",
@@ -144,7 +146,8 @@
       "type": "esc",
       "land": true,
       "runs": 2,
-      "platSkirtH": 1250
+      "platSkirtH": 1250,
+      "fenceSide": "sides"
     },
     {
       "id": "fmwol1c0s298",
@@ -155,7 +158,11 @@
       "dir": 0,
       "rise": 2400,
       "type": "esc",
-      "platSkirtH": 1100
+      "platSkirtH": 1100,
+      "runs": 1,
+      "fenceSide": "all",
+      "land": true,
+      "railLand": true
     }
   ],
   "pillars": [],
