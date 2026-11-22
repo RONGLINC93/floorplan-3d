@@ -18656,7 +18656,7 @@
       let a = liftDisp.get(id); if (!a) liftDisp.set(id, a = []);
       a.push(panel);
     };
-    function stairHOne(x, z, ref, W, withLift) {
+    function stairHOne(x, z, ref, W, withLift, topFallback = true) {   // topFallback：是否登记「洞口内虚拟层顶落脚面」，整栋合并第一轮关掉它（见 stairH）
       const px = x * 1000 + 6000, py = z * 1000 + 5300;
       let cand;
       const hitRects = list => list.some(rc => x > rc[0] && x < rc[2] && z > rc[1] && z < rc[3]);
@@ -18676,9 +18676,10 @@
         const inTopHole = (W.holes || []).some(h => x > h[0] && x < h[2] && z > h[1] && z < h[3]);
         if (!inTopHole) {                                       // 实体屋面：维持原逻辑，靠下方 near 过滤（≤ 脚高 + .55m）避免站在本层地面时被误拉上楼
           if (hitRects(W.topRects)) cand.push(W.h ?? H);
-        } else if (hitRects(W.topRects) && (ref ?? 0) >= (W.h ?? H) - .55) {
+        } else if (topFallback && hitRects(W.topRects) && (ref ?? 0) >= (W.h ?? H) - .55) {
           // 楼梯间 / 电梯井 / 板洞：3D 几何仍是镂空的，但漫游碰撞层保留一层「过渡落脚面」——人正是从这些竖井里的楼梯 / 电梯上到楼顶，
           // 出口一迈步若没有支撑就会被拉回地面、再被墙体挡住，永远走不进屋面。只在脚已抬到层顶附近时登记，站在本层地面时不会被凭空拉上来。
+          // 整栋模式第一轮不登记：它与脚等高（d=0），会永远压过正在上升 / 下降的楼梯踏步，导致下层竖井把上层楼梯「钉」在本层楼面高度。
           cand.push(W.h ?? H);
         }
       }
@@ -18736,17 +18737,26 @@
     function stairH(x, z, ref) {                                 // 支撑高度：整栋模式下合并各层楼梯 / 门槛，按世界标高就近取
       const worlds = worldDatasets();
       if (worlds.length === 1) { const h0 = stairHOne(x, z, ref, worlds[0], true); return h0 === null ? 0 : h0; }
-      let best = 0, bd = Infinity;
-      worlds.forEach((W, i) => {
-        const localRef = ref == null ? null : ref - W.y0;
-        if (localRef != null && (localRef < -W.h - .5 || localRef > W.h + .5)) return;
-        const h0 = stairHOne(x, z, localRef, W, i === 0);
-        if (h0 === null) return;                                 // 该数据集此处无支撑（足迹外）→ 走出楼外会自然坠落
-        const wy = h0 + W.y0;
-        const d = ref == null ? Math.abs(wy) : Math.abs(wy - ref);
-        if (d < bd) { bd = d; best = wy; }
-      });
-      return bd === Infinity ? 0 : best;                         // 全部数据集都无支撑 → 落回场地地面
+      // 两轮采样：第一轮只认「真实支撑」（楼梯踏步 / 平台 / 楼面 / 墙顶 / 电梯轿厢），关掉洞口内的虚拟层顶落脚面。
+      // 该过渡面与脚等高（d = 0），在整栋合并里会永远压过只高出几厘米的楼梯踏步：下层楼梯间洞正好在下层楼面标高
+      // 铺了一层过渡面，于是上到 2F 后再走楼梯（无论上行还是下行）脚都被钉在 2F 楼面高度，表现为「上不去也下不来」。
+      // 只有第一轮拿不到近处真实支撑时（从楼梯 / 电梯竖井顶端迈出、脚下是镂空洞口），才在第二轮把过渡面补回来，
+      // 保住「上到楼顶能走出洞口」的原有行为；单层模式仍走 stairHOne 默认开启的路径，行为不变。
+      for (let pass = 0; pass < 2; pass++) {
+        let best = 0, bd = Infinity;
+        worlds.forEach((W, i) => {
+          const localRef = ref == null ? null : ref - W.y0;
+          if (localRef != null && (localRef < -W.h - .5 || localRef > W.h + .5)) return;
+          const h0 = stairHOne(x, z, localRef, W, i === 0, pass === 1);
+          if (h0 === null) return;                               // 该数据集此处无支撑（足迹外）→ 走出楼外会自然坠落
+          const wy = h0 + W.y0;
+          const d = ref == null ? Math.abs(wy) : Math.abs(wy - ref);
+          if (d < bd) { bd = d; best = wy; }
+        });
+        if (bd < .6) return best;                               // 有够得着的真实支撑：贴着它上下楼梯，不用虚拟过渡面
+        if (pass === 1) return best;                            // 第二轮仍只有远处候选：沿用旧行为（原逻辑同样会取最近的一个）
+      }
+      return 0;                                                  // 两轮都无支撑 → 落回场地地面
     }
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
     let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
@@ -19507,7 +19517,7 @@
       ui.layers.slab = v;                                       // 与图层设置保持一致（随方案保存）
     }
 
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, escCarry, blocked, ladderAt, toggleLamp, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
   </script>
 </body>
 
