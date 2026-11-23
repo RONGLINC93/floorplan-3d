@@ -3388,6 +3388,30 @@
               data-en="Bike shed"><i data-lucide="warehouse"></i>电动车棚</button>
           </div>
           <div class="dtg">
+            <div class="dth" data-en="Traffic">交通设施</div>
+            <button class="btn chip" data-dt="traflight" title="交通信号灯：点击放置；3D 点灯杆切换红 / 绿 / 黄，默认每 4 秒自动轮播（面板可关）；2D 俯视画灯箱与三灯状态点，右侧可改杆径 / 杆高 / 朝向 / 当前信号"
+              data-en-title="Traffic light: click to place; click the pole in 3D to cycle red / green / yellow; auto-cycles every 4s (toggle in panel); 2D shows the head and status dots; edit pole / height / angle / signal"
+              data-en="Traffic light"><i data-lucide="circle-dot"></i>交通信号灯</button>
+            <button class="btn chip" data-dt="signdirect" title="交通指示牌：点击放置；蓝底图形牌面，右侧可切直行 / 左转 / 右转 / 掉头箭头，改杆高 / 板宽 / 朝向"
+              data-en-title="Traffic sign: click to place; blue graphic plate, switch straight / left / right / U-turn arrows and edit height / width / angle in the panel"
+              data-en="Traffic sign"><i data-lucide="arrow-up"></i>交通指示牌</button>
+            <button class="btn chip" data-dt="signspeed" title="限速标志：点击放置；红圈白底牌面显示限速值（默认 60），右侧可改限速值 / 杆高 / 板径 / 朝向"
+              data-en-title="Speed limit sign: click to place; red-ring face with the limit value (60 by default); edit limit / height / diameter / angle in the panel"
+              data-en="Speed limit"><i data-lucide="gauge"></i>限速标志</button>
+            <button class="btn chip" data-dt="signstop" title="停车让行标志：点击放置；红底白边八角牌面写「停」，右侧可改杆高 / 板径 / 朝向"
+              data-en-title="Stop sign: click to place; red octagon face with a white border and 停; edit height / diameter / angle in the panel"
+              data-en="Stop sign"><i data-lucide="octagon"></i>停车让行</button>
+            <button class="btn chip" data-dt="signnoentry" title="禁止驶入标志：点击放置；红底白横杠圆形牌面，右侧可改杆高 / 板径 / 朝向"
+              data-en-title="No-entry sign: click to place; red circle face with a white bar; edit height / diameter / angle in the panel"
+              data-en="No entry"><i data-lucide="ban"></i>禁止驶入</button>
+            <button class="btn chip" data-dt="signwarn" title="注意行人标志：点击放置；黄底黑边三角警示牌面，右侧可改杆高 / 板径 / 朝向"
+              data-en-title="Pedestrian warning sign: click to place; yellow triangle face with black border; edit height / diameter / angle in the panel"
+              data-en="Pedestrian warning"><i data-lucide="triangle-alert"></i>注意行人</button>
+            <button class="btn chip" data-dt="signboard" title="指路牌：点击放置；蓝底白字长条牌面（默认「主干道」），右侧可改牌面文字 / 杆高 / 板宽 / 朝向"
+              data-en-title="Guide board: click to place; long blue face with white text (主干道 by default); edit text / height / width / angle in the panel"
+              data-en="Guide board"><i data-lucide="signpost"></i>指路牌</button>
+          </div>
+          <div class="dtg">
             <div class="dth" data-en="Details">结构细部</div>
             <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），2D 实心方块加叉，3D 为小方柱"
               data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); solid square with cross in 2D, small column in 3D"
@@ -6218,6 +6242,7 @@
       tiecol: ['构造柱', 'Tie column'], chimney: ['烟囱', 'Chimney'], tree: ['景观树', 'Tree'],
       thresh: ['门槛石', 'Threshold'], flash: ['泛水线', 'Flashing'], band: ['檐口线脚', 'Cornice'], signbd: ['门头广告牌', 'Sign board'], flag: ['旗杆', 'Flagpole'], carport: ['电动车棚', 'Bike shed'],
       barrier: ['路障', 'Barrier'], streetlamp: ['路灯', 'Street lamp'], solarlamp: ['太阳能路灯', 'Solar street lamp'],
+      traflight: ['交通信号灯', 'Traffic light'], signdirect: ['交通指示牌', 'Traffic sign'], signspeed: ['限速标志', 'Speed limit sign'], signstop: ['停车让行', 'Stop sign'], signnoentry: ['禁止驶入', 'No entry'], signwarn: ['注意行人', 'Pedestrian warning'], signboard: ['指路牌', 'Guide board'],
       highway: ['高速公路', 'Highway'], road: ['公路', 'Highway road'], cityroad: ['城市道路', 'City road'],
       countryroad: ['乡村道路', 'Country road'], trail: ['小道', 'Footpath'], sidewalk: ['人行道', 'Sidewalk'],
       camDome: ['半球摄像头', 'Dome camera'], camPTZ: ['球形摄像头', 'PTZ camera'], camBullet: ['枪型摄像头', 'Bullet camera'],
@@ -6280,8 +6305,13 @@
     const isRoadType = t => !!(t && ROAD_STYLES[t]);
     const isStreetLamp = t => t === 'streetlamp' || t === 'solarlamp';   // 两种路灯共用多数 3D / 面板逻辑
     const isSolarLamp = t => t === 'solarlamp';
+    const TRAFFIC_SIGN_TYPES = ['signdirect', 'signspeed', 'signstop', 'signnoentry', 'signwarn', 'signboard'];   // 交通标志牌（杆 + 图形牌面）
+    const isTrafficSign = t => TRAFFIC_SIGN_TYPES.includes(t);
+    const isTraffic = t => t === 'traflight' || isTrafficSign(t);       // 交通设施：信号灯 + 各类标志牌
+    const SIGN_DIRECT_STYLES = [['direct', '直行', 'Straight'], ['left', '左转', 'Left turn'], ['right', '右转', 'Right turn'], ['uturn', '掉头', 'U-turn']];
+    const TRAFFIC_SIGNS_ZH = { red: '红灯', green: '绿灯', yellow: '黄灯' };
     const isExtraLin = t => isRoadType(t) || ['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path', 'thresh', 'flash', 'band', 'signbd'].includes(t);
-    const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(t) || isSecurity(t);
+    const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(t) || isTraffic(t) || isSecurity(t);
     const extraRot = e => e && e.type === 'park' ? ((+e.rot || 0) % 360) : 0;                 // 仅停车位支持整车旋转
     function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
       if (!deg) return { x, y };
@@ -6466,6 +6496,35 @@
                 <rect x="${(bx + 2).toFixed(1)}" y="${(by + 2).toFixed(1)}" width="${Math.max(0, (bw - 4) * bat / 100).toFixed(1)}" height="${Math.max(8, R * .16 - 4).toFixed(1)}" fill="${bcol}" stroke="none"/>
                 <text x="${(e.x).toFixed(1)}" y="${(by + R * .62).toFixed(1)}" text-anchor="middle" font-size="${Math.max(30, R * .3).toFixed(0)}" fill="${bcol}">${Math.round(bat)}%</text>
                 <circle cx="${(e.x + R * .95).toFixed(1)}" cy="${(e.y - R * .95).toFixed(1)}" r="${Math.max(22, R * .16).toFixed(1)}" fill="#ff4438"><animate attributeName="opacity" values="1;.12;1" dur="1s" repeatCount="indefinite"/></circle>`;
+            }
+          } else if (isTraffic(e.type)) {                        // 交通设施俯视：杆点 + 垂直于朝向的牌面条带（按类型着色 + 示意字符）/ 信号灯灯箱三灯状态点
+            const a = ((+e.rot || 0) % 360) * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+            const rr = (cx, cy, ww, dd) => {                     // ww 沿板宽（垂直于朝向）、dd 沿朝向厚度
+              const c = Math.cos(a), s = Math.sin(a);
+              return [[-ww / 2, -dd / 2], [ww / 2, -dd / 2], [ww / 2, dd / 2], [-ww / 2, dd / 2]]
+                .map(([dx, dy]) => `${(cx + dx * c - dy * s).toFixed(1)},${(cy + dx * s + dy * c).toFixed(1)}`).join(' ');
+            };
+            const poleDot = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(45, (e.type === 'traflight' ? (e.w || 140) : 90) / 2)}" fill="${col}" fill-opacity=".55" stroke="none"/>`;
+            if (e.type === 'traflight') {
+              const hw = Math.max(420, (e.w || 140) * 2.6), ht = Math.max(150, hw * .34), off = ht * .5;   // 灯箱居中套在立杆上（与 3D 一致）
+              const scx = e.x + ux * off, scy = e.y + uy * off;
+              const sigc = { red: '#e5484d', green: '#3cc46e', yellow: '#e8b44a' };
+              inner = `<polygon points="${rr(scx, scy, hw, ht)}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="${on ? 2 : 1.3}" vector-effect="non-scaling-stroke"/>`;
+              [['red', -1], ['yellow', 0], ['green', 1]].forEach(([sg, k]) => {
+                const lx = scx - uy * k * hw * .3, ly = scy + ux * k * hw * .3, lit = (e.sig || 'red') === sg;
+                inner += `<circle cx="${lx.toFixed(1)}" cy="${ly.toFixed(1)}" r="${(hw * .13).toFixed(1)}" fill="${lit ? sigc[sg] : '#6b6f73'}" fill-opacity="${lit ? '.95' : '.45'}" stroke="none"/>`;
+              });
+              inner += poleDot;
+            } else {
+              const pw = e.w || 700, t = Math.max(110, pw * .14), offM = Math.max(-3000, Math.min(3000, +e.off || 0));   // 牌面默认居中装在立杆上，off 左右伸出（正 = 朝向右侧）
+              const vx = -uy, vy = ux;                           // 朝向右侧的单位向量（与 3D 局部 +z 一致）
+              const scx = e.x + ux * t * .5 + vx * offM, scy = e.y + uy * t * .5 + vy * offM;
+              const sc = { signdirect: '#2a7fc9', signspeed: '#cf3126', signstop: '#cf3126', signnoentry: '#cf3126', signwarn: '#e9b53a', signboard: '#2a7fc9' }[e.type];
+              const glyph = { signdirect: '行', signspeed: String(Math.round(e.limit ?? 60)), signstop: '停', signnoentry: '禁', signwarn: '人', signboard: String(e.text || '主干道') }[e.type];
+              const fs = e.type === 'signboard' ? Math.max(120, Math.min(200, pw / Math.max(2, glyph.length) * 1.4)) : Math.max(160, Math.min(t * 2.6, pw * .42));
+              inner = (Math.abs(offM) > 80 ? `<line x1="${e.x.toFixed(1)}" y1="${e.y.toFixed(1)}" x2="${scx.toFixed(1)}" y2="${scy.toFixed(1)}" stroke="${col}" stroke-opacity=".7" stroke-width="2" vector-effect="non-scaling-stroke"/>` : '') +
+                `<polygon points="${rr(scx, scy, pw, t)}" fill="${sc}" fill-opacity="${on ? '.9' : '.72'}" stroke="${col}" stroke-width="${on ? 2 : 1.3}" vector-effect="non-scaling-stroke"/>
+                ${T(scx, scy, glyph, '#fff', fs)}` + poleDot;
             }
           } else if (isSecurity(e.type)) {                       // 安防监控：摄像头（含视场扇形）/ 录像机 / 显示器俯视符号
             const a = ((+e.rot || 0) % 360) * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
@@ -7433,6 +7492,9 @@
       if (t === 'barrier') return { ...base, w: 500, h: 750, style: 'cone', rot: 0 };   // 路障：默认交通锥（底宽 500 / 高 750），样式与朝向可在面板改
       if (t === 'streetlamp') { const s = LAMP_STYLES.single; return { ...base, w: s.w, h: s.h, arm: s.arm, style: 'single', rot: 0, on: true, r: 12000 }; }   // 路灯：默认单臂路灯、默认开灯，r=夜景照亮半径（mm）；样式 / 尺寸 / 朝向 / 开关可在面板改
       if (t === 'solarlamp') { const s = SOLAR_LAMP; return { ...base, w: s.w, h: s.h, arm: s.arm, style: 'single', rot: 0, on: true, r: s.r, battery: s.battery, charge: s.charge, drain: s.drain }; }   // 太阳能路灯：额外带电量 / 充放电速度（%/秒）
+      if (t === 'traflight') return { ...base, w: 140, h: 4500, rot: 0, sig: 'red', auto: true };   // 交通信号灯：杆径 / 杆高 / 朝向 / 当前信号 / 自动轮播
+      if (isTrafficSign(t)) return { ...base, w: t === 'signboard' ? 1400 : 700, h: t === 'signboard' ? 2500 : 2200, rot: 0, off: 0,   // 标志牌：板宽 / 杆高 / 朝向 / 左右伸出（0=居中套杆），按类型带初始参数
+        ...(t === 'signdirect' ? { style: 'direct' } : {}), ...(t === 'signspeed' ? { limit: 60 } : {}), ...(t === 'signboard' ? { text: '主干道' } : {}) };
       if (t === 'carport') return { ...base, w: 5000, d: 3000, h: 2500, col: 100 };
       if (t === 'shaft') return { ...base, w: 1200, d: 800, h: 2800, t: 120, z: 0 };
       if (t === 'lawn') return { ...base, w: 2000, d: 1500, h: 60 };
@@ -7491,8 +7553,8 @@
         rows += `<label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
           <label>${tr('位置', 'Position')} Y (mm)<input type="number" id="exY" value="${Math.round(e.y)}" step="10"></label>`;
       } else if (pt) {
-        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : isStreetLamp(e.type) ? tr('杆径', 'Pole ⌀') : (e.type === 'tiecol' || e.type === 'chimney') ? tr('边长', 'Size') : tr('直径', 'Diameter');
-        const hl = e.type === 'tree' ? tr('树高', 'Tree height') : e.type === 'chimney' ? tr('出屋面高', 'Above roof') : isStreetLamp(e.type) ? tr('杆高', 'Pole height') : tr('高度', 'Height');
+        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : isStreetLamp(e.type) ? tr('杆径', 'Pole ⌀') : e.type === 'traflight' ? tr('杆径', 'Pole ⌀') : isTrafficSign(e.type) ? tr('板宽', 'Board width') : (e.type === 'tiecol' || e.type === 'chimney') ? tr('边长', 'Size') : tr('直径', 'Diameter');
+        const hl = e.type === 'tree' ? tr('树高', 'Tree height') : e.type === 'chimney' ? tr('出屋面高', 'Above roof') : isStreetLamp(e.type) || isTraffic(e.type) ? tr('杆高', 'Pole height') : tr('高度', 'Height');
         rows += `${e.type === 'streetlamp' ? `<label>${tr('路灯类型', 'Lamp type')}<select id="exLampType">${STREET_LAMP_TYPES.map(([v, zh, en]) => `<option value="${v}" ${(e.style || 'single') === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('')}</select></label>` : ''}
           <label>${wl} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 100)}" min="60" max="${isStreetLamp(e.type) ? 800 : 4000}" step="10"></label>
           <label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2800)}" min="300" max="30000" step="50"></label>
@@ -7512,6 +7574,13 @@
           ${e.type === 'spout' ? `<label class="chk"><input type="checkbox" id="exHp" ${e.hopper ? 'checked' : ''}> ${tr('顶部落水斗', 'Top hopper')}</label>` : ''}
           ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
             <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+          ${isTraffic(e.type) ? `<label title="${tr('板面法线方向，决定 3D 牌面 / 信号灯朝向', 'Facing of the sign face / signal head')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+          ${isTrafficSign(e.type) ? `<label title="${tr('0 = 牌面居中套在立杆上；不为 0 时杆顶向朝向右侧（正值）或左侧（负值）伸出横向横臂，牌面横向挂装在臂端', '0 centers the face on the pole; otherwise a horizontal arm extends right (+) or left (-) from the pole top and the face mounts sideways on the arm end')}">${tr('左右伸出', 'Lateral offset')} (mm)<input type="number" id="exOff" value="${Math.round(e.off || 0)}" min="-3000" max="3000" step="50"></label>` : ''}
+          ${e.type === 'traflight' ? `<label title="${tr('当前点亮的信号，3D 里点击灯杆也可切换', 'Currently lit signal; also cycles by clicking the pole in 3D')}">${tr('当前信号', 'Signal')}<select id="exSig">${[['red', tr('红灯 · 停', 'Red · stop')], ['green', tr('绿灯 · 行', 'Green · go')], ['yellow', tr('黄灯 · 注意', 'Yellow · caution')]].map(([v, t]) => `<option value="${v}" ${(e.sig || 'red') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            <label class="chk"><input type="checkbox" id="exTAuto" ${e.auto !== false ? 'checked' : ''}> ${tr('自动轮播（每 4 秒切换）', 'Auto cycle every 4s')}</label>` : ''}
+          ${e.type === 'signdirect' ? `<label>${tr('箭头样式', 'Arrow')}<select id="exSignStyle">${SIGN_DIRECT_STYLES.map(([v, zh, en]) => `<option value="${v}" ${(e.style || 'direct') === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('')}</select></label>` : ''}
+          ${e.type === 'signspeed' ? `<label title="${tr('牌面显示的限速值', 'Speed value shown on the face')}">${tr('限速值', 'Speed limit')} (km/h)<input type="number" id="exLimit" value="${Math.round(e.limit ?? 60)}" min="5" max="120" step="5"></label>` : ''}
+          ${e.type === 'signboard' ? `<label title="${tr('蓝底牌面上的白色文字', 'White text on the blue face')}">${tr('牌面文字', 'Board text')}<input type="text" id="exText" value="${esc(e.text || '主干道')}" maxlength="12"></label>` : ''}
           <label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
           <label>${tr('位置', 'Position')} Y (mm)<input type="number" id="exY" value="${Math.round(e.y)}" step="10"></label>`;
       } else {
@@ -7563,7 +7632,9 @@
                                                   : e.type === 'barrier' ? tr('路障点击放置，右侧可切换交通锥 / 水马 / 铁马 / 石墩；2D 按样式画符号，3D 生成对应模型并可设朝向，四种样式在漫游中均可挡人。', 'Barrier: click to place, switch cone / water / steel horse / concrete block in the panel; 2D symbols and 3D models follow the style, all four block walking.')
                                                     : e.type === 'solarlamp' ? tr('太阳能路灯白天靠顶部光伏板充电，切入夜景自动开灯并持续耗电，电量耗尽自动熄灭（白天可再充满）；红色指示灯一直闪烁。3D 点灯杆可手动开 / 关，没电时无法开灯。右侧可改当前电量、白天充电速度与夜晚耗电速度，以及杆高 / 杆径 / 悬臂长 / 朝向 / 照亮半径。', 'Solar street lamp charges through the roof panel by day, switches on automatically at night and drains the battery, then switches off when empty (rechargeable next day). The red indicator keeps blinking. Click the pole in 3D to toggle; it cannot be switched on with an empty battery. Edit battery level, day charge / night drain rates, height / pole / arm / angle / light radius in the panel.')
                                                       : e.type === 'streetlamp' ? tr('路灯点击放置，右侧可切换单臂 / 双臂 / 庭院灯 / 高杆灯；2D 俯视画底座与悬臂灯头（亮灯暖黄、灭灯灰暗），3D 生成锥形灯杆与发光灯头。3D 里点击灯杆可开 / 关，切换到夜景会自动开灯并照亮周围（夜景中仍可手动关）；杆高 / 杆径 / 悬臂长 / 朝向 / 照亮半径均可改。', 'Street lamp: click to place, switch single-arm / double-arm / courtyard / high-mast; 2D plan shows base and glowing head, 3D builds a tapered pole with glowing head. Click the pole in 3D to toggle; switching to night mode automatically turns lamps on and lights the surroundings (can still be switched off manually at night). Edit height / pole / arm / angle / light radius.')
-                                                      : e.type === 'tree' ? tr('景观树点击放置，2D 画双层树冠，3D 为树干与球状树冠。', 'Landscape tree with a spherical canopy in 3D.')
+                                                      : e.type === 'traflight' ? tr('交通信号灯点击放置，默认每 4 秒自动轮播红 / 绿 / 黄（面板可关）。3D 里点击灯杆可立即切换信号，杆顶灯箱三灯与 2D 俯视状态点同步显示当前信号。杆径 / 杆高 / 朝向 / 当前信号均可在右侧改。', 'Traffic light: click to place; auto-cycles red / green / yellow every 4s (toggle in panel). Click the pole in 3D to cycle the signal immediately; the three-lamp head and the 2D status dots follow. Edit pole / height / angle / signal in the panel.')
+                                                        : isTrafficSign(e.type) ? tr('交通标志点击放置：杆顶挂图形牌面，牌面图案按类型绘制（直行 / 左转 / 右转 / 掉头箭头、限速值、停车让行、禁止驶入、注意行人、蓝底指路文字）。2D 俯视画杆点与牌面条带及示意字符。杆高 / 板宽 / 朝向在右侧改，限速标志可改限速值，指路牌可改牌面文字。', 'Traffic sign: click to place; a graphic plate on a pole, the face drawn by type (straight / left / right / U-turn arrows, speed value, stop, no entry, pedestrian warning, blue guide text). 2D shows the pole and the plate band with a glyph. Edit height / width / angle; speed limit value and board text are editable.')
+                                                        : e.type === 'tree' ? tr('景观树点击放置，2D 画双层树冠，3D 为树干与球状树冠。', 'Landscape tree with a spherical canopy in 3D.')
                                                     : tr('雨水管贴墙布置，2D 为圆加十字，3D 为竖向落水管；可拖动整体移动。', 'Downspout: circle in 2D, vertical pipe in 3D.');
       return `<section><h3>${nm}</h3>
     <div class="form">${nameField(e, nm + ' ' + objNo(state.extras, e, q => q.type))}${rows}</div>
@@ -7670,6 +7741,23 @@
         const hp = $('#exHp'); if (hp) hp.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.hopper = hp.checked; });
         upd('exFY', (e, v) => e.flagY = Math.min(e.h ?? 6000, Math.max(500, Math.round(v / 50) * 50)));   // 旗面升降（不超过杆顶）
         const bs = $('#exStyle'); if (bs) bs.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.style = bs.value; });
+        if (e0.type === 'traflight') {
+          const sg = $('#exSig'); if (sg) sg.onchange = () => mutate(() => {
+            const e = (state.extras || []).find(x => x.id === id); if (!e) return;
+            e.sig = sg.value; updateTrafficLampVisual(e.id);       // 切换后立即刷新 3D 三灯颜色
+          });
+          const au = $('#exTAuto'); if (au) au.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.auto = au.checked; });
+        }
+        if (e0.type === 'signdirect') {
+          const ss = $('#exSignStyle'); if (ss) ss.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.style = ss.value; });
+        }
+        if (e0.type === 'signspeed') {
+          const lm = $('#exLimit'); if (lm) lm.onchange = () => { const v = parseFloat(lm.value); if (isNaN(v)) return; mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.limit = Math.max(5, Math.min(120, Math.round(v / 5) * 5)); }); };
+        }
+        if (e0.type === 'signboard') {
+          const tx = $('#exText'); if (tx) tx.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.text = tx.value.trim().slice(0, 12) || '主干道'; });
+        }
+        upd('exOff', (e, v) => e.off = v, -3000, 3000);
         upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
       } else {
         const ws = $('#exWS'); if (ws) ws.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.style = ws.value; });
@@ -11763,7 +11851,7 @@
         }
         return;
       }
-      if (ui.tool === 'draw' && (isRoadType(ui.drawTool) || ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'barrier', 'streetlamp', 'solarlamp', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool) || isSecurity(ui.drawTool))) {   // 选择子工具不创建，落到下面的编辑链
+      if (ui.tool === 'draw' && (isRoadType(ui.drawTool) || ['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'barrier', 'streetlamp', 'solarlamp', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox'].includes(ui.drawTool) || isTraffic(ui.drawTool) || isSecurity(ui.drawTool))) {   // 选择子工具不创建，落到下面的编辑链
         if (ui.drawTool === 'entry') {                                   // 入户工具：点门洞（原始门洞或自画的门）→ 设为全局唯一的入户门
           const og = t.closest('[data-bopen]'), oc = t.closest('[data-open]');
           let id = null;
@@ -12079,7 +12167,7 @@
           }
           renderNotes(); return;
         }
-        if (['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(ui.drawTool) || isSecurity(ui.drawTool)) {  // 点式扩展构件：点击放置
+        if (['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(ui.drawTool) || isTraffic(ui.drawTool) || isSecurity(ui.drawTool)) {  // 点式扩展构件：点击放置
           const kind = ui.drawTool, q = snapPoint(p, e.shiftKey), id = uid();
           mutate(() => (state.extras = state.extras || []).push({
             ...extraDefaults(kind), id, x: Math.round(q.x / 10) * 10, y: Math.round(q.y / 10) * 10
@@ -12093,6 +12181,7 @@
                     : kind === 'streetlamp' ? tr('已放路灯 · 切夜景自动开灯，3D 点灯杆可开 / 关；样式 / 杆径 / 杆高 / 悬臂长 / 朝向 / 照亮半径在右侧改', 'Street lamp placed · automatically switches on in night mode, click the pole in 3D to toggle; edit style / pole / height / arm / angle / light radius in the panel')
                       : kind === 'solarlamp' ? tr('已放太阳能路灯 · 白天充电、夜景自动开灯耗电，没电自动灭；红色指示灯闪烁，3D 点灯杆可开 / 关；电量与充放电速度在右侧改', 'Solar street lamp placed · charges by day, auto-on and drains battery at night, switches off when empty; blinking red indicator, click pole in 3D to toggle; edit battery and charge / drain rates in the panel')
                       : isSecurity(kind) ? tr(`已放${extraName({ type: kind })} · ${isNVR(kind) ? '在右侧勾选添加的摄像机与连接的显示器' : isMonitor(kind) ? '3D 屏幕会显示所连录像机的实时画面' : '加入录像机后 3D 可实时取景'}`, `Placed ${extraName({ type: kind })} · ${isNVR(kind) ? 'check cameras and monitors in the panel' : isMonitor(kind) ? '3D screen shows live feeds from the connected NVR' : 'add to an NVR for live 3D view'}`)
+                        : isTraffic(kind) ? tr(`已放${extraName({ type: kind })} · 杆高 / 板宽 / 朝向在右侧改` + (kind === 'traflight' ? '，3D 点击信号灯可切换信号' : ''), `Placed ${extraName({ type: kind })} · edit height / width / angle in the panel` + (kind === 'traflight' ? '; click the light in 3D to cycle the signal' : ''))
                         : tr('已放雨水管 · 直径 / 高度在右侧改', 'Downspout placed · edit diameter / height in the panel'));
           return;
         }
@@ -13614,6 +13703,13 @@
       if (isSecurity(dt)) toast(tr(`${EXTRA_NAME[dt][0]}：点击放置；${isNVR(dt) ? '右侧勾选要添加的摄像机与要连接的显示器，3D 屏幕将实时显示这些摄像机的画面' : isMonitor(dt) ? '3D 屏幕真实显示所连录像机的摄像机实时画面（分屏 + 通道 / 时间），可改宽高 / 标高 / 朝向' : '安装高度 / 朝向 / 视场角在右侧改，加入录像机后 3D 可实时取景'}`, `${EXTRA_NAME[dt][1]}: click to place; ${isNVR(dt) ? 'check cameras to add and monitors to connect in the panel; 3D screens show their live feeds' : isMonitor(dt) ? '3D screen shows live feeds from the connected NVR (split-screen + channel / time); edit size / height / angle' : 'edit mount height / angle / FOV in the panel; add to an NVR for live 3D view'}`));
       if (dt === 'streetlamp') toast(tr('路灯：点击放置；切夜景自动开灯，3D 点灯杆可开 / 关；右侧切换单臂 / 双臂 / 庭院灯 / 高杆灯，改杆径 / 杆高 / 悬臂长 / 朝向 / 照亮半径', 'Street lamp: click to place; automatically switches on in night mode, click pole in 3D to toggle; switch single-arm / double-arm / courtyard / high-mast, edit pole / height / arm / angle / light radius in the panel'));
       if (dt === 'solarlamp') toast(tr('太阳能路灯：点击放置；白天充电、夜景自动开灯耗电，没电自动灭；红色指示灯闪烁，3D 点灯杆可开 / 关；右侧可改电量、充 / 放电速度', 'Solar street lamp: click to place; charges by day, auto-on and drains battery at night, switches off when empty; blinking red indicator, click pole in 3D to toggle; edit battery and charge / drain rates in the panel'));
+      if (dt === 'traflight') toast(tr('交通信号灯：点击放置；3D 点灯杆切换红 / 绿 / 黄，默认每 4 秒自动轮播（面板可关）；右侧可改杆径 / 杆高 / 朝向 / 当前信号', 'Traffic light: click to place; click the pole in 3D to cycle red / green / yellow; auto-cycles every 4s (toggle in panel); edit pole / height / angle / signal in the panel'));
+      if (dt === 'signdirect') toast(tr('交通指示牌：点击放置；蓝底箭头牌面，右侧可切直行 / 左转 / 右转 / 掉头，改杆高 / 板宽 / 朝向', 'Traffic sign: click to place; blue arrow plate, switch straight / left / right / U-turn and edit height / width / angle in the panel'));
+      if (dt === 'signspeed') toast(tr('限速标志：点击放置；牌面显示限速值（默认 60），右侧可改限速值 / 杆高 / 板径 / 朝向', 'Speed limit sign: click to place; the face shows the limit (60 by default); edit limit / height / diameter / angle in the panel'));
+      if (dt === 'signstop') toast(tr('停车让行标志：点击放置；红底八角牌面写「停」，右侧可改杆高 / 板径 / 朝向', 'Stop sign: click to place; red octagon face with 停; edit height / diameter / angle in the panel'));
+      if (dt === 'signnoentry') toast(tr('禁止驶入标志：点击放置；红底白横杠圆形牌面，右侧可改杆高 / 板径 / 朝向', 'No-entry sign: click to place; red circle with a white bar; edit height / diameter / angle in the panel'));
+      if (dt === 'signwarn') toast(tr('注意行人标志：点击放置；黄底三角警示牌面，右侧可改杆高 / 板径 / 朝向', 'Pedestrian warning sign: click to place; yellow triangle face; edit height / diameter / angle in the panel'));
+      if (dt === 'signboard') toast(tr('指路牌：点击放置；蓝底白字长条牌面，右侧可改牌面文字 / 杆高 / 板宽 / 朝向', 'Guide board: click to place; long blue face with white text; edit text / height / width / angle in the panel'));
       if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；边长 / 高度在右侧改', 'Tie column: click a wall end or corner; edit size / height in the panel'));
       if (dt === 'lintel') toast(tr('过梁：沿门窗洞口上方点起点、终点；宽度 / 梁高 / 底标高在右侧改', 'Lintel: click start and end above an opening; edit width / height / level in the panel'));
       if (dt === 'seam') toast(tr('变形缝：点起点，再点终点；缝宽 / 缝深在右侧改', 'Movement joint: click start then end; edit joint width / depth in the panel'));
@@ -14364,7 +14460,7 @@
           if (!f) return;
           fdrag = { id: f.id, pid: e.pointerId, sx: e.clientX, sy: e.clientY, ox: g.x - f.cx, oy: g.y - f.cy, before: snap(), moved: false };
         } else {
-          const lampPick = (h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && ui.sel.kind === 'extra';   // 路灯 / 太阳能路灯：pick3d 用 type 作 kind，选中记为 extra，这里对齐后按 extra 拖动
+          const lampPick = (h?.kind === 'streetlamp' || h?.kind === 'solarlamp' || h?.kind === 'traflight') && ui.sel.kind === 'extra';   // 路灯 / 太阳能路灯 / 信号灯：pick3d 用 type 作 kind，选中记为 extra，这里对齐后按 extra 拖动
           if (!h?.kind || String(h.id) !== String(ui.sel.id) || (h.kind !== ui.sel.kind && !lampPick)) return;
           const dkind = lampPick ? 'extra' : h.kind;
           const info = openDragInfo(dkind, h.id);
@@ -14373,7 +14469,7 @@
             kind: dkind, id: h.id, pid: e.pointerId, sx: e.clientX, sy: e.clientY, gx: g.x, gy: g.y, dx: 0, dy: 0, moved: false, openInfo: info,
             targets: archUp.children.filter(o => {
               const t = o.userData.pick3d; if (!t || String(t.id) !== String(h.id)) return false;
-              return t.kind === h.kind || (lampPick && (t.kind === 'streetlamp' || t.kind === 'solarlamp'));
+              return t.kind === h.kind || (lampPick && (t.kind === 'streetlamp' || t.kind === 'solarlamp' || t.kind === 'traflight'));
             }).map(o => ({ o, x: o.position.x, z: o.position.z }))
           };
         }
@@ -14440,7 +14536,7 @@
         const tap = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) <= TAP;
         if (look?.id === e.pointerId) {
           look = null;
-          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 旗杆 / 灯具 / 路灯（不选中，只开关）；点别处 = 射击
+          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 旗杆 / 灯具 / 路灯 / 信号灯（不选中，只动作）；点别处 = 射击
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
@@ -14455,6 +14551,7 @@
           else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
           else if (h?.kind === 'lamp') toggleLamp(h.id, h.gang);
           else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp')) toggleStreetLamp(h.id, false);   // 预览态：只开关不选中
+          else if (h?.kind === 'traflight') cycleTrafficLight(h.id);   // 预览态：信号灯只切换信号不选中
           else if (h?.room) window.select({ kind: 'room', id: h.room });
           return;
         }
@@ -14469,6 +14566,7 @@
         }
         else if (h?.kind === 'lamp') { toggleLamp(h.id, h.gang); window.select({ kind: 'lamp', id: h.id }); }   // 灯具 / 灯开关：点亮 + 选中（面板可改半径 / 高度）
         else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp')) toggleStreetLamp(h.id);   // 路灯：点亮 + 选中（面板可改灯型 / 高度 / 开关）
+        else if (h?.kind === 'traflight') cycleTrafficLight(h.id, true);   // 信号灯：切换信号 + 选中（面板可改信号 / 自动轮播）
         else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
         else if (h?.fid) window.select({ kind: 'furn', id: h.fid });
         else if (h?.room) window.select({ kind: 'room', id: h.room });
@@ -14552,7 +14650,7 @@
           doorTip.textContent = tip;
           doorTip.classList.add('open');
           doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
-        } else if (h?.kind === 'streetlamp' || h?.kind === 'solarlamp') {   // 路灯 / 太阳能路灯：整杆高亮 + 开 / 关提示（没电提示充电）
+        } else if (h?.kind === 'streetlamp' || h?.kind === 'solarlamp' || h?.kind === 'traflight') {   // 路灯 / 太阳能路灯 / 交通信号灯：整杆高亮 + 动作提示
           const ex = (state.extras || []).find(x => x.id === h.id);
           const gl = ex && archUp.children.find(o => o.userData.pick3d?.kind === ex.type && String(o.userData.pick3d.id) === String(ex.id));
           if (!gl) { clearDoorHover(); return; }
@@ -14567,10 +14665,14 @@
             doorHover = gl;
           }
           cv.style.cursor = baseCur;
-          const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
-          doorTip.textContent = ex.on === false
-            ? (empty ? tr('点击开灯（电量不足，白天自动充电）', 'Click to turn on (battery empty, charges by day)') : tr('点击开灯', 'Click to turn on'))
-            : tr('点击关灯', 'Click to turn off');
+          if (ex.type === 'traflight') {
+            doorTip.textContent = tr('点击切换信号灯 · 当前', 'Click to cycle the signal · now ') + TRAFFIC_SIGNS_ZH[ex.sig || 'red'];
+          } else {
+            const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
+            doorTip.textContent = ex.on === false
+              ? (empty ? tr('点击开灯（电量不足，白天自动充电）', 'Click to turn on (battery empty, charges by day)') : tr('点击开灯', 'Click to turn on'))
+              : tr('点击关灯', 'Click to turn off');
+          }
           doorTip.classList.add('open');
           doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
         } else clearDoorHover();
@@ -15663,6 +15765,72 @@
       streetPoolTex = new THREE.CanvasTexture(c); streetPoolTex.colorSpace = THREE.SRGBColorSpace;
       return streetPoolTex;
     }
+    const signFaceCache = new Map();
+    function signFaceTexture(e) {                                // 交通标志牌面 Canvas 贴图：按类型 / 箭头样式 / 限速值 / 文字绘制
+      const key = [e.type, e.style || '', e.limit ?? '', e.text || ''].join('|');
+      if (signFaceCache.has(key)) return signFaceCache.get(key);
+      const wide = e.type === 'signboard';
+      const c = document.createElement('canvas'); c.width = wide ? 512 : 256; c.height = wide ? 164 : 256;
+      const g = c.getContext('2d');
+      const BLUE = '#1a6db5', RED = '#cf3126', YEL = '#f7c948';
+      if (e.type === 'signdirect') {                             // 指示标志：蓝底白箭头（直行 / 左转 / 右转 / 掉头）
+        g.fillStyle = BLUE; g.fillRect(0, 0, 256, 256);
+        g.strokeStyle = g.fillStyle = '#fff'; g.lineWidth = 42; g.lineCap = 'round'; g.lineJoin = 'round';
+        const st = e.style || 'direct';
+        if (st === 'direct') {
+          g.beginPath(); g.moveTo(128, 214); g.lineTo(128, 96); g.stroke();
+          g.beginPath(); g.moveTo(128, 40); g.lineTo(94, 104); g.lineTo(162, 104); g.closePath(); g.fill();
+        } else if (st === 'left' || st === 'right') {
+          const dir = st === 'left' ? -1 : 1;                    // 竖杆 128+dir*37、臂端 128-dir*9、尖 128-dir*59：墨迹 x 70..187 居中；纵向 54..201 也居中；箭头底高 38 包住 21 圆头，不会鼓出笔头
+          const SX = 128 + dir * 37, AX = 128 - dir * 9, TP = 128 - dir * 59;
+          g.beginPath(); g.moveTo(SX, 180); g.lineTo(SX, 92); g.lineTo(AX, 92); g.stroke();
+          g.beginPath(); g.moveTo(TP, 92); g.lineTo(AX, 54); g.lineTo(AX, 130); g.closePath(); g.fill();
+        } else {                                                // 掉头：上行后弯回向下
+          g.beginPath(); g.moveTo(96, 214); g.lineTo(96, 108); g.arc(128, 108, 32, Math.PI, 0); g.lineTo(160, 188); g.stroke();
+          g.beginPath(); g.moveTo(160, 230); g.lineTo(130, 176); g.lineTo(190, 176); g.closePath(); g.fill();
+        }
+      } else if (e.type === 'signspeed') {                        // 限速：白底红圈黑字
+        g.fillStyle = '#fff'; g.fillRect(0, 0, 256, 256);
+        g.strokeStyle = RED; g.lineWidth = 34; g.beginPath(); g.arc(128, 128, 94, 0, Math.PI * 2); g.stroke();
+        g.fillStyle = '#141414'; g.font = 'bold 116px Arial'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillText(String(Math.round(e.limit ?? 60)), 128, 134);
+      } else if (e.type === 'signstop') {                         // 停车让行：红底白边八角 + 白「停」
+        g.fillStyle = RED; g.beginPath();
+        for (let k = 0; k < 8; k++) { const a2 = k * Math.PI / 4 + Math.PI / 8, x = 128 + Math.cos(a2) * 116, y = 128 + Math.sin(a2) * 116; k ? g.lineTo(x, y) : g.moveTo(x, y); }
+        g.closePath(); g.fill();
+        g.strokeStyle = '#fff'; g.lineWidth = 12; g.stroke();
+        g.fillStyle = '#fff'; g.font = 'bold 128px "Microsoft YaHei", sans-serif'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.fillText('停', 128, 134);
+      } else if (e.type === 'signnoentry') {                      // 禁止驶入：红底白横杠
+        g.fillStyle = RED; g.beginPath(); g.arc(128, 128, 110, 0, Math.PI * 2); g.fill();
+        g.fillStyle = '#fff'; g.fillRect(36, 106, 184, 44);
+      } else if (e.type === 'signwarn') {                         // 注意行人：黄底黑边三角 + 简笔行人
+        g.fillStyle = YEL; g.strokeStyle = '#161616'; g.lineWidth = 14; g.lineJoin = 'round';
+        g.beginPath(); g.moveTo(128, 22); g.lineTo(238, 226); g.lineTo(18, 226); g.closePath(); g.fill(); g.stroke();
+        g.fillStyle = g.strokeStyle = '#161616'; g.lineCap = 'round';
+        g.beginPath(); g.arc(128, 106, 18, 0, Math.PI * 2); g.fill();          // 头
+        g.lineWidth = 18;
+        g.beginPath(); g.moveTo(128, 128); g.lineTo(128, 166); g.stroke();      // 躯干
+        g.beginPath(); g.moveTo(128, 138); g.lineTo(98, 156); g.moveTo(128, 138); g.lineTo(158, 156); g.stroke();   // 手臂
+        g.beginPath(); g.moveTo(128, 166); g.lineTo(108, 202); g.moveTo(128, 166); g.lineTo(148, 202); g.stroke();  // 腿
+      } else {                                                    // 指路牌：蓝底白边白字，超长自动缩小
+        g.fillStyle = BLUE; g.fillRect(0, 0, 512, 164);
+        g.strokeStyle = '#fff'; g.lineWidth = 5; g.strokeRect(9, 9, 494, 146);
+        const txt = String(e.text || '主干道');
+        g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle';
+        g.font = `bold ${txt.length > 6 ? 68 : 88}px "Microsoft YaHei", sans-serif`;
+        g.fillText(txt, 256, 86);
+      }
+      const tx = new THREE.CanvasTexture(c); tx.colorSpace = THREE.SRGBColorSpace; tx.anisotropy = 4;
+      signFaceCache.set(key, tx); return tx;
+    }
+    const remapShapeUV = geo => {                                // ShapeGeometry 的 UV 是原始 xy 坐标，归一化到 0..1 才能整幅贴图
+      geo.computeBoundingBox();
+      const bb = geo.boundingBox, pos = geo.attributes.position, uv = geo.attributes.uv;
+      const sx = bb.max.x - bb.min.x || 1, sy = bb.max.y - bb.min.y || 1;
+      for (let i = 0; i < uv.count; i++) uv.setXY(i, (pos.getX(i) - bb.min.x) / sx, (pos.getY(i) - bb.min.y) / sy);
+      uv.needsUpdate = true; return geo;
+    };
     let pickWallId = null, pickWallKind = 'wall';                // 当前正在建模的墙 id / kind（门洞墙垛也归属这面墙）
     const tagPick = (o, kind, id) => { if (o && id != null) o.userData.pick3d = { kind, id }; return o; };   // 3D 点击选中标记
     const markNew = (start, kind, id) => { for (let i = start; i < archUp.children.length; i++) { const o = archUp.children[i]; if (!o.userData.pick3d) tagPick(o, kind, id); } };   // 已标记的（如墙垛）保持原归属
@@ -16790,6 +16958,39 @@
       updateSolarVisuals();
     }
     setInterval(solarStep, 500);                                // 独立于 3D 主循环：2D 模式下电量与指示灯同样持续变化
+    const TRAFFIC_SEQ = ['red', 'green', 'yellow'];
+    function updateTrafficLampVisual(id) {                       // 信号灯三灯颜色：当前信号常亮，其余暗色（每灯独立 MeshBasicMaterial，直接改色）
+      if (!scene) return;
+      const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
+      const lit = { red: 0xe5484d, yellow: 0xf5c542, green: 0x3cc46e }, dim = { red: 0x3a1512, yellow: 0x3a3114, green: 0x143a20 };
+      scene.traverse(o => {
+        const ud = o.userData || {};
+        if (ud.trafficLamp && String(ud.trafficLamp) === String(id) && o.material?.color?.setHex) {
+          o.material.color.setHex(ud.trafficPos === (e.sig || 'red') ? lit[ud.trafficPos] : dim[ud.trafficPos]);
+        }
+      });
+    }
+    function cycleTrafficLight(id, sel) {                        // 点击信号灯：切到下一个信号（红 → 绿 → 黄 → 红）；sel = 设计态顺带选中
+      const e = (state.extras || []).find(x => String(x.id) === String(id) && x.type === 'traflight'); if (!e) return;
+      e.sig = TRAFFIC_SEQ[(TRAFFIC_SEQ.indexOf(e.sig || 'red') + 1) % TRAFFIC_SEQ.length];
+      updateTrafficLampVisual(e.id); markDirty();
+      if (typeof renderExtras2 === 'function') renderExtras2();  // 2D 俯视状态点同步
+      if (sel) window.select?.({ kind: 'extra', id: e.id });
+      const zh = TRAFFIC_SIGNS_ZH[e.sig] || e.sig;
+      toast(tr(`信号灯已切换到${zh}`, `Signal switched to ${zh}`));
+    }
+    let trafficClock = 0;
+    function trafficStep() {                                     // 信号灯自动轮播：每 4s 切一相，只改当前数据不入撤销栈（每 500ms 调用）
+      const tls = (state.extras || []).filter(e => e.type === 'traflight' && e.auto !== false);
+      if (!tls.length) return;
+      trafficClock += .5;
+      if (trafficClock < 4) return;
+      trafficClock = 0;
+      tls.forEach(e => { e.sig = TRAFFIC_SEQ[(TRAFFIC_SEQ.indexOf(e.sig || 'red') + 1) % TRAFFIC_SEQ.length]; updateTrafficLampVisual(e.id); });
+      markDirty();
+      if (typeof renderExtras2 === 'function') renderExtras2();
+    }
+    setInterval(trafficStep, 500);
     function buildBox3D(kind, b) {                              // 强电箱 / 弱电箱：暗装箱体（嵌墙 + 门框饰边）+ 内部器件 + 可点击开合箱门
       const isP = kind === 'pbox';
       const W = Math.max(.2, (b.w || 0) / 1000), D = Math.max(.12, (b.d || 0) / 1000);
@@ -18310,6 +18511,52 @@
               }
               return;
             }
+            if (isTraffic(T3)) {                                  // 交通设施：底座 + 锥形杆 + 碰撞；信号灯挂三灯灯箱，标志牌挂 Canvas 图案板面
+              const ang = ((+e.rot || 0) % 360) * Math.PI / 180;
+              const grp = new THREE.Group(); grp.position.set(px, 0, pz); grp.rotation.y = -ang; archUp.add(grp);
+              grp.userData.pick3d = T3 === 'traflight' ? { kind: 'traflight', id: e.id } : { kind: 'extra', id: e.id };   // 信号灯整杆可拾取（点击切换信号）；标志牌按普通构件选中
+              const part = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; grp.add(o); return o; };
+              const poleM = mat('#5f666b', { metalness: .55, roughness: .5 }), darkM = mat('#3f4549', { metalness: .45, roughness: .55 });
+              part(new THREE.CylinderGeometry(.09, .12, .14, 12), mat('#8f8a7e', { roughness: .9 }), 0, .07, 0);   // 底座
+              part(new THREE.CylinderGeometry(.026, .04, h - .14, 12), poleM, 0, .14 + (h - .14) / 2, 0);           // 锥形杆
+              colliders.push([px - .12, pz - .12, px + .12, pz + .12, 0, Math.min(h, 2.2)]);                       // 只挡杆脚
+              if (T3 === 'traflight') {                           // 信号灯：暗色灯箱 + 前脸三灯（红上 / 黄中 / 绿下），当前信号常亮
+                const hw = Math.max(.3, M(e.w || 140) * 2.2), hh = hw * 2.9, cy = h - hh / 2 - .05;
+                part(new THREE.BoxGeometry(.16, hh, hw), darkM, 0, cy, 0);                                        // 灯箱
+                part(new THREE.BoxGeometry(.024, hh * .94, hw * .86), mat('#20262b', { roughness: .4 }), .085, cy, 0);   // 前脸内衬
+                part(new THREE.CylinderGeometry(.055, .075, .1, 8), darkM, 0, h + .02, 0);                        // 顶盖
+                [['red', 1], ['yellow', 0], ['green', -1]].forEach(([sig, t]) => {
+                  const lamp = part(new THREE.SphereGeometry(hw * .32, 14, 10), oneMat(new THREE.MeshBasicMaterial({ color: 0x3a1414 })), .105, cy + t * hh * .3, 0);
+                  lamp.castShadow = false;
+                  lamp.userData.trafficLamp = e.id; lamp.userData.trafficPos = sig;   // updateTrafficLampVisual / 点击切换按此定位
+                });
+                part(new THREE.BoxGeometry(Math.max(.18, hw * .5), .04, .05), poleM, .05, cy, 0);                 // 灯箱连接抱箍
+                updateTrafficLampVisual(e.id);                       // 按当前信号点亮（重建后即时同步）
+              } else {                                              // 标志牌：圆形 / 八角 / 三角 / 矩形板面，贴 signFaceTexture 图案，默认居中套在立杆上，off 可左右伸出
+                const bw = Math.max(.3, M(e.w || 700)), bh = T3 === 'signboard' ? bw * .32 : bw;
+                const cy = h - bh / 2 - .06, ox = .04;              // 牌面中心对准立杆轴线，向外偏一个杆半径贴在杆身上
+                const offM = Math.max(-3, Math.min(3, M(e.off || 0)));   // 左右伸出（m）：正 = 朝向右侧、负 = 左侧（M 已做 mm→m）
+                const faceM = oneMat(new THREE.MeshBasicMaterial({ map: signFaceTexture(e), toneMapped: false }));   // 牌面只画正面（单面），背面另铺素色铝板，不再透出镜像图案
+                let faceGeo;
+                if (T3 === 'signboard') faceGeo = new THREE.PlaneGeometry(bw, bh);
+                else if (T3 === 'signwarn') { const s = new THREE.Shape(); s.moveTo(0, .54); s.lineTo(-.5, -.28); s.lineTo(.5, -.28); s.closePath(); faceGeo = remapShapeUV(new THREE.ShapeGeometry(s)); }
+                else if (T3 === 'signstop') { const s = new THREE.Shape(); for (let k = 0; k < 8; k++) { const a2 = k * Math.PI / 4 + Math.PI / 8, x = Math.cos(a2) * .5, y = Math.sin(a2) * .5; k ? s.lineTo(x, y) : s.moveTo(x, y); } s.closePath(); faceGeo = remapShapeUV(new THREE.ShapeGeometry(s)); }
+                else faceGeo = new THREE.CircleGeometry(bw / 2, 40);
+                if (Math.abs(offM) > .015) {                        // 伸出时：杆顶伸横向臂，牌面横向挂装在臂端（悬臂式标志）
+                  const armY = cy + bh / 2 + .035;
+                  const arm = part(new THREE.CylinderGeometry(.028, .028, Math.abs(offM) + .12, 12), poleM, 0, armY, offM / 2);
+                  arm.rotation.x = Math.PI / 2;                    // 横臂沿左右方向从杆顶伸出
+                  part(new THREE.BoxGeometry(.09, .08, .08), darkM, 0, armY - .06, offM);   // 横臂到牌面的挂件
+                }
+                const face = part(faceGeo, faceM, ox, cy, offM);
+                face.rotation.y = Math.PI / 2;                       // 板面法线朝本地 +x（朝向方向）
+                face.castShadow = false;
+                const back = part(faceGeo, mat('#aeb3b8', { roughness: .85, metalness: .2 }), ox - .008, cy, offM);   // 牌背素色铝板（正面朝本地 -x，从背后看是一块干净的板）
+                back.rotation.y = -Math.PI / 2;
+                back.castShadow = false;
+              }
+              return;
+            }
             if (T3 === 'streetlamp' || T3 === 'solarlamp') {       // 路灯 / 太阳能路灯：底座 + 锥形灯杆 + 悬臂 / 灯盘 + 发光灯头
               const st = e.style || 'single', r = Math.max(.06, M(e.w || LAMP_STYLES.single.w) / 2);
               const ang = ((+e.rot || 0) % 360) * Math.PI / 180, cosA = Math.cos(ang), sinA = Math.sin(ang);
@@ -19293,7 +19540,7 @@
           const g = furnG.children.find(g => g.userData.fid === ui.sel.id);
           if (g) targets.push(g);
         } else if (ui.sel?.id != null) {
-          const lampKind = ui.sel.kind === 'extra' && ['streetlamp', 'solarlamp'].includes(state.extras?.find(x => String(x.id) === String(ui.sel.id))?.type);   // 路灯 / 太阳能路灯：pick3d 用 type 作 kind，选中却是 extra，这里对齐
+          const lampKind = ui.sel.kind === 'extra' && ['streetlamp', 'solarlamp', 'traflight'].includes(state.extras?.find(x => String(x.id) === String(ui.sel.id))?.type);   // 路灯 / 太阳能路灯 / 信号灯：pick3d 用 type 作 kind，选中却是 extra，这里对齐
           archUp.children.forEach(o => {                         // 墙段可能有多块，全部高亮
             const t = o.userData.pick3d;
             if (t && String(t.id) === String(ui.sel.id) && (t.kind === ui.sel.kind || (lampKind && t.kind === state.extras.find(x => String(x.id) === String(ui.sel.id)).type))) targets.push(o);
@@ -19926,7 +20173,7 @@
       if (opt.mode === 'walk' && e.code === 'KeyR') unstickWalk();         // R 脱离卡死：附近找空位，找不到回入户门
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
-      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); }
+      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); }
     });
     addEventListener('keyup', e => keys[e.code] = false);
 
@@ -20305,7 +20552,7 @@
             walkTip.classList.add('open');
           } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
         } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
-      } else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5 && doorHiRef) {   // 瞄准路灯 / 太阳能路灯：整杆高亮 + 开 / 关提示（3.5m 与点按 / E 的判定距离一致）
+      } else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp' || h?.kind === 'traflight') && h.dist < 3.5 && doorHiRef) {   // 瞄准路灯 / 太阳能路灯 / 信号灯：整杆高亮 + 动作提示（3.5m 与点按 / E 的判定距离一致）
         const ex = (state.extras || []).find(x => x.id === h.id);
         const gl = ex && archUp.children.find(o => o.userData.pick3d?.kind === ex.type && String(o.userData.pick3d.id) === String(ex.id));
         let shown = false;
@@ -20320,10 +20567,13 @@
           }
         }
         if (shown) {
-          const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
-          const onTxt = empty ? (touchWalk ? tr('点按开灯（电量不足）', 'Tap to turn on (battery empty)') : tr('E 开灯（电量不足）', 'Press E to turn on (battery empty)'))
-            : (touchWalk ? tr('点按开灯', 'Tap to turn on') : tr('E 开灯', 'Press E to turn on'));
-          walkTip.textContent = ex.on === false ? onTxt : (touchWalk ? tr('点按关灯', 'Tap to turn off') : tr('E 关灯', 'Press E to turn off'));
+          if (ex.type === 'traflight') walkTip.textContent = (touchWalk ? tr('点按切换信号灯 · 当前', 'Tap to cycle the signal · now ') : tr('E 切换信号灯 · 当前', 'Press E to cycle the signal · now ')) + TRAFFIC_SIGNS_ZH[ex.sig || 'red'];
+          else {
+            const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
+            const onTxt = empty ? (touchWalk ? tr('点按开灯（电量不足）', 'Tap to turn on (battery empty)') : tr('E 开灯（电量不足）', 'Press E to turn on (battery empty)'))
+              : (touchWalk ? tr('点按开灯', 'Tap to turn on') : tr('E 开灯', 'Press E to turn on'));
+            walkTip.textContent = ex.on === false ? onTxt : (touchWalk ? tr('点按关灯', 'Tap to turn off') : tr('E 关灯', 'Press E to turn off'));
+          }
           walkTip.classList.add('open');
         } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
       } else {
