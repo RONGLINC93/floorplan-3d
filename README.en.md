@@ -31,6 +31,19 @@ A pure front-end tool for interior design on a floor plan: place furniture, remo
 - Detailed furniture models: cabinet door gaps and handles, upholstered headboards, metal and ceramic materials with environment reflections, and more
 - Select and drag furniture in 3D as well, kept in sync with the 2D plan in real time
 
+**Multi-Floor & Slabs**
+- Floor bar on top of the canvas: switch between 1F / 2F / all floors; each floor's height is editable (1200–12000mm); add floors or duplicate an entire floor
+- New building tools "Slab" and "Floor": click two diagonal corners to define an area; stairwells and elevator shafts are punched through automatically
+- Lower-floor ghost walls: from 2F up, the walls of the floor below are shown semi-transparent in both 2D and 3D, with a one-click toggle
+- Marquee-selected objects can be copied / moved across floors (target floor picker in the panel)
+- "All floors" walkthrough lets you move between levels via stairs and elevators; rooms without a custom style on other floors get an automatic slab, so the whole building is walkable with no floating
+
+**Elevator System**
+- The "Elevator" tool: shaft with configurable floor count and per-floor stop heights; the car rises with the current floor
+- Car control panel beside the door: floor buttons light up and queue (multi-select); the lift stops in travel order and opens / closes doors automatically; tapping an already-passed floor blinks once and is ignored
+- The "Elevator door" opening (Building tools): link it to an elevator and set its floor; the call button beside the door (with a glowing floor display) summons the car to that level
+- Doors auto-close 6 seconds after opening; a light-curtain keeps them open when someone (or a pet) is in the doorway, and they reverse instantly if blocked while closing
+
 **Plans & Statistics**
 - Automatic calculation of room areas and net usable floor area
 - Change the floor material of each room (wood, tiles, marble, terrazzo, carpet, etc.), with cost estimates based on area plus 5% wastage
@@ -46,6 +59,7 @@ The following features are all added on top of the original project (which is a 
 - **Server-side plan storage**: plans are saved as JSON in the server's `plans/` directory with save / open / delete support, plus automatic saving to the server (`autosave.json`); writes use "temp file + atomic replace" to prevent corruption. Plans no longer rely only on browser localStorage and survive device changes
 - **Fully localized dependencies**: Three.js and the icon library are now loaded from the local `libs/` directory instead of the jsDelivr CDN — **all features work offline**
 - **One-click launch**: on Windows, double-click `启动服务器.bat` to automatically check and install Python dependencies, then start the server
+- **Mobile support**: on phones / small tablets (≤820px) the top bar collapses into an "⋯ Tools" menu and the side panels become drawers with a mask; floating widgets are re-staggered to avoid overlap, touch targets are enlarged, and wall-length input gains an "Apply" button
 
 ## Quick Start
 
