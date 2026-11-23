@@ -1502,6 +1502,35 @@
         17070,
         10580
       ]
+    },
+    {
+      "type": "streetlamp",
+      "w": 180,
+      "h": 8000,
+      "arm": 2000,
+      "style": "single",
+      "rot": 0,
+      "on": true,
+      "r": 12000,
+      "id": "fmwspxgy1148",
+      "x": 25220,
+      "y": 6880
+    },
+    {
+      "type": "solarlamp",
+      "w": 180,
+      "h": 8000,
+      "arm": 2000,
+      "style": "single",
+      "rot": 0,
+      "on": true,
+      "r": 12000,
+      "battery": 65.2,
+      "charge": 2.5,
+      "drain": 1.2,
+      "id": "fmwspxi48149",
+      "x": 36080,
+      "y": 6880
     }
   ],
   "leaders": [
@@ -3292,6 +3321,35 @@
             17070,
             10580
           ]
+        },
+        {
+          "type": "streetlamp",
+          "w": 180,
+          "h": 8000,
+          "arm": 2000,
+          "style": "single",
+          "rot": 0,
+          "on": true,
+          "r": 12000,
+          "id": "fmwspxgy1148",
+          "x": 25220,
+          "y": 6880
+        },
+        {
+          "type": "solarlamp",
+          "w": 180,
+          "h": 8000,
+          "arm": 2000,
+          "style": "single",
+          "rot": 0,
+          "on": true,
+          "r": 12000,
+          "battery": 65.2,
+          "charge": 2.5,
+          "drain": 1.2,
+          "id": "fmwspxi48149",
+          "x": 36080,
+          "y": 6880
         }
       ],
       "leaders": [
@@ -3789,7 +3847,8 @@
         "CWfmwhqg7q7187": 4200,
         "CWfmwhqg9wc188": 4200
       },
-      "entryDoor": "Ofmwjcswgy93"
+      "entryDoor": "Ofmwjcswgy93",
+      "roomLayoutInitDone": true
     }
   },
   "layers": {
@@ -3802,6 +3861,7 @@
     "axis": true,
     "bearing": false,
     "wallSnap": true,
-    "ghost": true
+    "ghost": true,
+    "slab": true
   }
 }

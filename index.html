@@ -14522,6 +14522,27 @@
           doorTip.textContent = tip;
           doorTip.classList.add('open');
           doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
+        } else if (h?.kind === 'streetlamp' || h?.kind === 'solarlamp') {   // 路灯 / 太阳能路灯：整杆高亮 + 开 / 关提示（没电提示充电）
+          const ex = (state.extras || []).find(x => x.id === h.id);
+          const gl = ex && archUp.children.find(o => o.userData.pick3d?.kind === ex.type && String(o.userData.pick3d.id) === String(ex.id));
+          if (!gl) { clearDoorHover(); return; }
+          if (doorHover !== gl) {                                        // 高亮层挂到场景：灯杆是 Group 无 geometry 参数，用世界包围盒（排除光晕精灵，避免框比灯大）
+            const bb = new THREE.Box3();
+            gl.children.forEach(c => { if (!c.isSprite) bb.expandByObject(c); });
+            if (bb.isEmpty()) { clearDoorHover(); return; }
+            const s = bb.getSize(new THREE.Vector3());
+            doorHi.removeFromParent(); doorHi.visible = true;
+            doorHi.scale.set(Math.max(.05, s.x) * 1.08, Math.max(.05, s.y) * 1.08, Math.max(.05, s.z) * 1.08);
+            bb.getCenter(doorHi.position); scene.add(doorHi);
+            doorHover = gl;
+          }
+          cv.style.cursor = baseCur;
+          const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
+          doorTip.textContent = ex.on === false
+            ? (empty ? tr('点击开灯（电量不足，白天自动充电）', 'Click to turn on (battery empty, charges by day)') : tr('点击开灯', 'Click to turn on'))
+            : tr('点击关灯', 'Click to turn off');
+          doorTip.classList.add('open');
+          doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
         } else clearDoorHover();
       });
       cv.addEventListener('pointerleave', clearDoorHover);
@@ -20225,6 +20246,27 @@
               : (willOn ? tr('E 开灯', 'Press E to turn on') : tr('E 关灯', 'Press E to turn off'));
             walkTip.classList.add('open');
           } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
+        } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
+      } else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5 && doorHiRef) {   // 瞄准路灯 / 太阳能路灯：整杆高亮 + 开 / 关提示（3.5m 与点按 / E 的判定距离一致）
+        const ex = (state.extras || []).find(x => x.id === h.id);
+        const gl = ex && archUp.children.find(o => o.userData.pick3d?.kind === ex.type && String(o.userData.pick3d.id) === String(ex.id));
+        let shown = false;
+        if (gl) {
+          const bb = new THREE.Box3();                               // 排除光晕精灵，高亮框只框住杆 / 悬臂 / 灯头
+          gl.children.forEach(c => { if (!c.isSprite) bb.expandByObject(c); });
+          if (!bb.isEmpty()) {
+            const s = bb.getSize(new THREE.Vector3());
+            doorHiRef.removeFromParent(); doorHiRef.visible = true;
+            doorHiRef.scale.set(Math.max(.05, s.x) * 1.08, Math.max(.05, s.y) * 1.08, Math.max(.05, s.z) * 1.08);
+            bb.getCenter(doorHiRef.position); scene.add(doorHiRef); shown = true;
+          }
+        }
+        if (shown) {
+          const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
+          const onTxt = empty ? (touchWalk ? tr('点按开灯（电量不足）', 'Tap to turn on (battery empty)') : tr('E 开灯（电量不足）', 'Press E to turn on (battery empty)'))
+            : (touchWalk ? tr('点按开灯', 'Tap to turn on') : tr('E 开灯', 'Press E to turn on'));
+          walkTip.textContent = ex.on === false ? onTxt : (touchWalk ? tr('点按关灯', 'Tap to turn off') : tr('E 关灯', 'Press E to turn off'));
+          walkTip.classList.add('open');
         } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
       } else {
         if (doorHiRef) { doorHiRef.removeFromParent(); doorHiRef.visible = false; }
