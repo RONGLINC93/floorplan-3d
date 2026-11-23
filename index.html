@@ -356,7 +356,7 @@
       display: none !important
     }
 
-    /* 楼层切换条：画板顶部居中，切层 / 复制 / 删除 / 层高设置 */
+    /* 楼层切换条：画板顶部居中悬浮，切层 / 复制 / 删除 / 层高设置 */
     #floorBar {
       position: absolute;
       left: 50%;
@@ -599,7 +599,7 @@
     .modehint {
       position: absolute;
       left: 50%;
-      top: 12px;
+      top: 56px;
       transform: translateX(-50%);
       background: var(--ink);
       color: #fff;
@@ -610,7 +610,7 @@
       transition: opacity .2s;
       pointer-events: none;
       z-index: 20
-        /* 提示信息始终压在左上角 / 顶部中间 / 右上角浮件之上 */
+        /* 提示信息压在浮件之上，但定位在楼层条下方，不再遮挡顶部居中的楼层条 */
     }
 
     .modehint.show {
@@ -1680,7 +1680,7 @@
     #hint3d {
       position: absolute;
       left: 50%;
-      top: 12px;
+      top: 56px;
       transform: translateX(-50%);
       background: rgba(43, 40, 36, .82);
       color: #fff;
@@ -2721,15 +2721,16 @@
         flex-wrap: wrap
       }
 
+      /* 提示条放在楼层条上方、工具行下方的空档，不再与楼层条重叠 */
       #hint3d {
-        top: 100px;
+        top: 52px;
         max-width: calc(100% - 24px);
         overflow: hidden;
         text-overflow: ellipsis
       }
 
       .modehint {
-        top: 96px;
+        top: 52px;
         max-width: calc(100% - 24px);
         text-align: center
       }
@@ -3588,6 +3589,12 @@
           data-en-title="Design: select / draw walls, doors / windows (W)" data-en="Design">设计</button>
       </div>
       <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
+      <div id="dirPad" class="only2d" hidden>
+          <button class="btn on" id="wallOrtho" title="直角：绘制线段与拖动对象都只走水平或垂直（适合大多数户型）；按住 Shift 同效"><i
+              data-lucide="corner-down-right"></i>直角</button>
+          <button class="btn" id="wallFree" title="自由：绘制与拖动可任意方向；按住 Shift 临时锁水平 / 垂直"><i
+              data-lucide="pencil-line"></i>自由</button>
+      </div>
       <div class="grp only3d" id="sunPad"><label class="range"><span data-en="Sun">日照</span> <input type="range"
             id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span
             id="sunT">10:00</span></label><button class="btn chip" data-t="night" data-en="Night">夜景</button></div>
@@ -3633,12 +3640,6 @@
           placeholder="0"><span>°</span>
         <span class="muted" data-en="Enter to apply · Esc to cancel">Enter 确认 · Esc 取消</span><button class="btn"
           id="rotOk" data-en="Apply">应用</button>
-      </div>
-      <div id="dirPad" class="only2d" hidden>
-        <button class="btn on" id="wallOrtho" title="直角：绘制线段与拖动对象都只走水平或垂直（适合大多数户型）；按住 Shift 同效"><i
-            data-lucide="corner-down-right"></i>直角</button>
-        <button class="btn" id="wallFree" title="自由：绘制与拖动可任意方向；按住 Shift 临时锁水平 / 垂直"><i
-            data-lucide="pencil-line"></i>自由</button>
       </div>
     </main>
 
@@ -4278,7 +4279,23 @@
       packActiveFloor();
       const src = deepCopy(state.byFloor[cur.id] || {});
       const srcArrs = ['furniture', 'walls', 'openings', 'notes', 'dims', 'rails', 'beams', 'levels', 'slabs', 'parapets', 'canopies', 'balconies', 'planters', 'flues', 'arcWalls', 'roofs', 'pools', 'decks', 'pergolas', 'gates', 'extras', 'leaders', 'lamps', 'powerBoxes', 'weakBoxes', 'stairs', 'pillars', 'axes'];
-      srcArrs.forEach(k => { if (Array.isArray(src[k])) src[k].forEach(o => { if (o && typeof o === 'object') o.id = uid(); }); });
+      const idMap = {};                                          // 旧对象 id → 新 id（walls 元素存裸 id，引用侧带 'CW' 前缀）
+      srcArrs.forEach(k => { if (Array.isArray(src[k])) src[k].forEach(o => { if (o && typeof o === 'object' && o.id != null) { const ni = uid(); idMap[String(o.id)] = ni; o.id = ni; } }); });
+      const remapWallRef = r => (typeof r === 'string' && r.startsWith('CW')) ? ('CW' + (idMap[r.slice(2)] || r.slice(2))) : r;   // 自画墙引用换新 id；内置墙 'wN' 不变
+      (src.openings || []).forEach(o => {                        // 门窗 / 门洞组贴在墙上：墙 id 重生成后必须跟着改，否则开不了墙几何、门窗整批消失
+        if (!o || typeof o !== 'object') return;
+        o.wall = remapWallRef(o.wall);
+        if (Array.isArray(o.legs)) o.legs.forEach(l => { if (l) l.wall = remapWallRef(l.wall); });
+      });
+      ['powerBoxes', 'weakBoxes', 'lamps'].forEach(k => (src[k] || []).forEach(o => { if (o && typeof o === 'object' && o.wall != null) o.wall = remapWallRef(o.wall); }));   // 电箱吸附墙体、壁装灯具锚在墙面
+      (src.lamps || []).forEach(o => {                           // 开关联动引用（ctl / ctlByGang / links）按灯具新 id 重映射，否则副本层开关全失效
+        if (!o || typeof o !== 'object') return;
+        if (Array.isArray(o.ctl)) o.ctl = o.ctl.map(i => idMap[String(i)] || i);
+        if (Array.isArray(o.ctlByGang)) o.ctlByGang = o.ctlByGang.map(g => Array.isArray(g) ? g.map(i => idMap[String(i)] || i) : g);
+        if (Array.isArray(o.links)) o.links = o.links.map(i => idMap[String(i)] || i);
+      });
+      if (typeof src.entryDoor === 'string' && src.entryDoor[0] === 'O') src.entryDoor = 'O' + (idMap[src.entryDoor.slice(1)] || src.entryDoor.slice(1));   // 入户门标记指向门洞新 id
+      ['deletedWalls', 'demolished'].forEach(k => { if (Array.isArray(src[k])) src[k] = src[k].map(remapWallRef); });   // 已删 / 已拆的自画墙引用同步换新 id
       remapDuplicatedRoomIds(src);                              // 自画房间 id 与 rooms / bover 键同步重映射，副本房间才能正常显示
       const idx = state.floors.findIndex(f => f.id === cur.id);
       const nf = newFloor(uid(), (cur.name || '') + tr(' 副本', ' copy'), cur.h);
