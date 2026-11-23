@@ -3466,7 +3466,7 @@
               data-en-title="NVR recorder: click to place (400×380×90 by default); add cameras and connect monitors in the panel to show live feeds split-screen"
               data-en="NVR"><i data-lucide="hard-drive"></i>监控录像机</button>
             <button class="btn chip" data-dt="monitor" title="监控显示器：点击放置（默认 800×450、中心高 1500），3D 屏幕真实显示所连录像机的摄像机实时画面（多画面分割 + 通道 / 时间 OSD）"
-              data-en-title="Monitor: click to place (800×450, center 1500 by default); the 3D screen shows live feeds from the connected NVR's cameras with split-screen and channel/time OSD"
+              data-en-title="Monitor: click to place (800×450, center 400 by default); the 3D screen shows live feeds from the connected NVR's cameras with split-screen and channel/time OSD"
               data-en="Monitor"><i data-lucide="monitor"></i>监控显示器</button>
           </div>
           <div class="dtg">
@@ -7422,7 +7422,7 @@
       if (isRoadType(t)) return { ...base, w: ROAD_STYLES[t].w, h: ROAD_STYLES[t].h };
       if (isCamType(t)) return { ...base, w: t === 'camPTZ' ? 180 : t === 'camBullet' ? 90 : 120, h: 120, z: 2800, rot: 0, fov: 80 };   // 摄像头：安装高度 z、朝向 rot、视场角 fov
       if (isNVR(t)) return { ...base, w: 400, d: 380, h: 90, cams: [], mons: [] };   // 录像机：机箱尺寸 + 所接摄像机 / 显示器 id 列表
-      if (isMonitor(t)) return { ...base, w: 800, h: 450, z: 1500, rot: 0 };          // 显示器：屏幕宽高 + 中心标高 + 朝向
+      if (isMonitor(t)) return { ...base, w: 800, h: 450, z: 400, rot: 0 };          // 显示器：屏幕宽高 + 中心标高 + 朝向
       return base;
     }
     function extraPanel(e) {
@@ -7460,7 +7460,7 @@
         } else {
           rows += `<label>${tr('屏幕宽', 'Screen width')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 800)}" min="200" max="6000" step="10"></label>
             <label>${tr('屏幕高', 'Screen height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 450)}" min="150" max="4000" step="10"></label>
-            <label>${tr('中心标高', 'Center height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 1500)}" min="300" max="6000" step="50"></label>
+            <label>${tr('中心标高', 'Center height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 400)}" min="300" max="6000" step="50"></label>
             <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>`;
         }
         rows += `<label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
@@ -14410,7 +14410,7 @@
         const tap = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) <= TAP;
         if (look?.id === e.pointerId) {
           look = null;
-          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 旗杆 / 灯具 / 路灯；点别处 = 射击
+          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 旗杆 / 灯具 / 路灯（不选中，只开关）；点别处 = 射击
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
@@ -14424,7 +14424,7 @@
           else if (h?.door) h.door.open = !h.door.open;
           else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
           else if (h?.kind === 'lamp') toggleLamp(h.id, h.gang);
-          else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp')) toggleStreetLamp(h.id);
+          else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp')) toggleStreetLamp(h.id, false);   // 预览态：只开关不选中
           else if (h?.room) window.select({ kind: 'room', id: h.room });
           return;
         }
@@ -16680,7 +16680,7 @@
       }
       applyLight(); markDirty(); renderPillars();
     }
-    function toggleStreetLamp(id) {                              // 3D 点击路灯 / 太阳能路灯灯杆：切换亮灭
+    function toggleStreetLamp(id, sel = true) {                  // 3D 点击路灯 / 太阳能路灯灯杆：切换亮灭（漫游 / 预览传 sel=false 只开关不选中）
       const e = (state.extras || []).find(x => x.id === id && (x.type === 'streetlamp' || x.type === 'solarlamp')); if (!e) return;
       const solar = e.type === 'solarlamp';
       if (solar && e.on === false && (e.battery ?? 0) <= 0) {     // 太阳能路灯没电时不允许手动开灯
@@ -16689,7 +16689,7 @@
       e.on = e.on === false;                                     // 未设置 on 视为开，第一次点击关闭
       applyLight(); markDirty();
       if (typeof renderExtras2 === 'function') renderExtras2();
-      window.select?.({ kind: 'extra', id: e.id });              // 同时选中，面板可继续改灯型 / 尺寸 / 开关
+      if (sel) window.select?.({ kind: 'extra', id: e.id });     // 设计态顺带选中，面板可继续改灯型 / 尺寸 / 开关；漫游 / 预览态不选中
       const nm = solar ? tr('太阳能路灯', 'Solar lamp') : tr('路灯', 'Street lamp');
       toast(tr(`${nm}已${e.on ? '打开' : '关闭'}`, `${nm} ${e.on ? 'on' : 'off'}`));
     }
@@ -18120,7 +18120,7 @@
           if (isExtraPt(T3)) {                                  // 点构件：雨水管 / 构造柱 / 烟囱 / 景观树 / 安防监控
             const h = Math.max(.3, M(e.h || 2800)), px = wx(e.x), pz = wz(e.y);
             if (isSecurity(T3)) {                               // 安防监控：摄像头（半球 / 球形云台 / 枪型）+ 录像机 + 显示器
-              const mountY = Math.max(.3, M(e.z || (isMonitor(T3) ? 1500 : 2800)));
+              const mountY = Math.max(.3, M(e.z || (isMonitor(T3) ? 400 : 2800)));
               const ang = ((+e.rot || 0) % 360) * Math.PI / 180;
               const bodyM = mat('#e7ebee', { metalness: .25, roughness: .5 });
               const darkM = mat('#2a3038', { metalness: .45, roughness: .45 });
@@ -18174,8 +18174,8 @@
                 const standY = Math.max(.12, screenBottom - .04);                                                // 支柱顶到屏幕下缘，不再悬空脱节
                 part(new THREE.CylinderGeometry(.16, .19, .04, 20), darkM, 0, .02, 0);                            // 底座
                 part(new THREE.BoxGeometry(.05, standY, .05), darkM, 0, .04 + standY / 2, 0);                    // 支柱（顶到屏幕下缘）
-                part(new THREE.BoxGeometry(w + .055, hh + .055, .055), darkM, .01, mountY, 0);                   // 屏幕边框（略偏后）
-                part(new THREE.BoxGeometry(.02, hh, w * .9), darkM, -.012, mountY, 0);                           // 屏幕背板：背面看不露空框
+                part(new THREE.BoxGeometry(.055, hh + .055, w + .055), darkM, .01, mountY, 0);                   // 屏幕边框：与显示面同向（z 向展开、x 向薄），否则与屏幕十字交叉成 X
+                part(new THREE.BoxGeometry(.02, hh, w * .9), darkM, -.012, mountY, 0);                           // 屏幕背板：贴在边框后面，背面看不露空框
                 const cv = document.createElement('canvas'); cv.width = 640; cv.height = 360;
                 const ctx2 = cv.getContext('2d'); ctx2.fillStyle = '#08101a'; ctx2.fillRect(0, 0, cv.width, cv.height);
                 const tex = new THREE.CanvasTexture(cv); tex.colorSpace = THREE.SRGBColorSpace;
@@ -18329,11 +18329,14 @@
               if (T3 === 'solarlamp') {                           // 太阳能路灯：顶部光伏板 + 红色闪烁指示灯 + 杆身电量条
                 const bat = Math.max(0, Math.min(100, +e.battery || 0));
                 part(new THREE.CylinderGeometry(.035, .035, .45, 8), poleM, 0, h + .2, 0);
-                const panel = part(new THREE.BoxGeometry(1.7, .06, 1.05), mat('#223a5f', { metalness: .35, roughness: .4 }), 0, h + .48, 0);
-                panel.rotation.x = -.42;                         // 朝南倾斜，模拟光伏板受光面
-                for (let k = -1; k <= 1; k++) {
-                  const cell = part(new THREE.BoxGeometry(1.66, .012, .015), mat('#7fa7d4', { metalness: .3, roughness: .4 }), 0, h + .48 + k * .3, 0);
-                  cell.rotation.x = -.42;
+                // 光伏板：整块 + 栅格线放进同一个倾斜组，栅格按板的局部坐标分布，避免倾斜后脱板飘空
+                const panelG = new THREE.Group(); panelG.position.set(0, h + .48, 0); panelG.rotation.x = -.42; grp.add(panelG);
+                const panel = new THREE.Mesh(new THREE.BoxGeometry(1.7, .06, 1.05), mat('#223a5f', { metalness: .35, roughness: .4 }));
+                panel.castShadow = panel.receiveShadow = true; panelG.add(panel);
+                const cellM = mat('#7fa7d4', { metalness: .3, roughness: .4 });
+                for (let k = -1; k <= 1; k++) {                   // 三条栅格线贴板面，沿板宽均布
+                  const cell = new THREE.Mesh(new THREE.BoxGeometry(1.66, .012, .015), cellM);
+                  cell.position.set(0, .036, k * .3); cell.castShadow = cell.receiveShadow = true; panelG.add(cell);
                 }
                 const redMat = oneMat(new THREE.MeshStandardMaterial({ color: 0x3b1210, emissive: 0xff2a1f, emissiveIntensity: .1, roughness: .5 }));
                 const led = part(new THREE.SphereGeometry(.075, 12, 8), redMat, r * 1.25, 1.45, 0);
@@ -19226,6 +19229,10 @@
       return { x: hit.x * 1000 + OX, y: hit.z * 1000 + OY, s };
     }
     function updateSel() {                                       // 家具 / 墙 / 柱 / 楼梯等选中对象统一橙色包围盒
+      if (m3dPreview || opt.mode === 'walk') {                   // 3D 预览 / 漫游态：不显示编辑用的选中包围盒（只看效果，进这些模式前残留的选中线也一并清掉）
+        if (selHelpers.length) { selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = ''; }
+        return;
+      }
       const key = ui.sel?.id != null ? ui.sel.kind + ':' + ui.sel.id : '';
       if (key !== selKey) {
         selKey = key;
@@ -19868,7 +19875,7 @@
       if (opt.mode === 'walk' && e.code === 'KeyR') unstickWalk();         // R 脱离卡死：附近找空位，找不到回入户门
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
-      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id); }
+      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); }
     });
     addEventListener('keyup', e => keys[e.code] = false);
 

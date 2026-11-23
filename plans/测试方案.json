@@ -1486,7 +1486,7 @@
       "id": "fmwkbesmf93",
       "x": 18750,
       "y": 9040,
-      "flagY": 5500
+      "flagY": 800
     },
     {
       "type": "signbd",
@@ -1523,14 +1523,35 @@
       "arm": 2000,
       "style": "single",
       "rot": 0,
-      "on": true,
+      "on": false,
       "r": 12000,
-      "battery": 65.2,
+      "battery": 100,
       "charge": 2.5,
       "drain": 1.2,
       "id": "fmwspxi48149",
       "x": 36080,
       "y": 6880
+    },
+    {
+      "type": "monitor",
+      "w": 800,
+      "h": 450,
+      "z": 1500,
+      "rot": 0,
+      "id": "fmwsqn9nu148",
+      "x": 24400,
+      "y": 12790
+    },
+    {
+      "type": "nvr",
+      "w": 400,
+      "d": 380,
+      "h": 90,
+      "cams": [],
+      "mons": [],
+      "id": "fmwsqs28i148",
+      "x": 24220,
+      "y": 12260
     }
   ],
   "leaders": [
@@ -3305,7 +3326,7 @@
           "id": "fmwkbesmf93",
           "x": 18750,
           "y": 9040,
-          "flagY": 5500
+          "flagY": 800
         },
         {
           "type": "signbd",
@@ -3342,14 +3363,35 @@
           "arm": 2000,
           "style": "single",
           "rot": 0,
-          "on": true,
+          "on": false,
           "r": 12000,
-          "battery": 65.2,
+          "battery": 100,
           "charge": 2.5,
           "drain": 1.2,
           "id": "fmwspxi48149",
           "x": 36080,
           "y": 6880
+        },
+        {
+          "type": "monitor",
+          "w": 800,
+          "h": 450,
+          "z": 1500,
+          "rot": 0,
+          "id": "fmwsqn9nu148",
+          "x": 24400,
+          "y": 12790
+        },
+        {
+          "type": "nvr",
+          "w": 400,
+          "d": 380,
+          "h": 90,
+          "cams": [],
+          "mons": [],
+          "id": "fmwsqs28i148",
+          "x": 24220,
+          "y": 12260
         }
       ],
       "leaders": [
