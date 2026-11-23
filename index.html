@@ -14764,6 +14764,7 @@
     const stage = $('#stage'), host = $('#view3d');
     const OX = 6000, OY = 5300, FOV = 45, FULL_CUT = 2.8; // 户型中心放在世界原点
     let H = 2.8;                                          // 当前楼层高度（米）：按楼层设置，buildArch 前更新
+    let stackSkipSlabs = new Set();                       // 整栋模式跨层楼板去重：被上层地板盖住的层顶板 id（或反向），buildSlab3D 据此跳过，单层模式为空
     const BAY_DRIP = .06;                                // 飘窗顶板 / 窗台板外挑（挡雨滴水檐，上下同尺寸才齐平）
     const wx = x => (x - OX) / 1000, wz = y => (y - OY) / 1000, M = v => v / 1000;
     const SW = () => stage.clientWidth, SH = () => stage.clientHeight;
@@ -16957,7 +16958,7 @@
       archUp.add(m);
     }
     function buildSlab3D(s) {                                   // 地板 / 层顶楼板 / 旧普通楼板：矩形厚板；well 不生成几何，只定义洞口
-      if (s.well) return;
+      if (s.well || stackSkipSlabs.has(s.id)) return;             // 整栋模式：被上层地板完全盖住的层顶板不生成，避免共面闪烁 / 双倍板厚
       const W = Math.max(.1, (s.w || 0) / 1000), D = Math.max(.1, (s.d || 0) / 1000);
       const T = Math.max(.04, (s.thick ?? 120) / 1000), Y = (s.z ?? 0) / 1000;
       const fa = !!s.farea, top = !!s.top;                       // 地板：层底实体楼面；楼板：层顶实体板，顶面与本层层高齐平（略低 5mm 防与天花共面闪烁）
@@ -19769,6 +19770,7 @@
       }
       const a = curA, f = curF, l = curL, sf = curSF;
       const rebuildArch = force || a !== sigArch, rebuildStack = force || sf !== sigStack;
+      if (rebuildArch || rebuildStack) computeStackSkipSlabs();      // 整栋模式先算跨层楼板去重集合（含当前层），供 buildSlab3D 跳过重复板
       if (rebuildStack) { sigStack = sf; buildAllFloors(); }         // 先生成其它楼层，避免其 buildArch 清掉当前层的全局状态
       if (rebuildArch) { sigArch = a; buildFloorPlates(); buildArch(); }
       if (rebuildArch || rebuildStack) {
@@ -19849,6 +19851,31 @@
       if (!pts.length) pts.push([OX - 5000, OY - 5000], [OX + 5000, OY + 5000]);
       const xs = pts.map(p => +p[0] || 0), ys = pts.map(p => +p[1] || 0);
       return [Math.min(...xs) - 300, Math.min(...ys) - 300, Math.max(...xs) + 300, Math.max(...ys) + 300];
+    }
+    // 整栋模式跨层楼板去重：下层「层顶板 top」与紧邻上层的「地板 farea」若顶面同标高（下层 z+h == 上层 z，容差 5mm）
+    // 且 X/Z 范围高度重合（重叠面积 ≥ 较小板的 90%），视为同一块楼板的重复绘制，跳过下层 top，只保留上层地板——
+    // 消除顶面共面 z-fighting 与侧面双倍厚度板带。单层模式不去重（单层没有跨层重叠）。
+    function computeStackSkipSlabs() {
+      stackSkipSlabs = new Set();
+      if (!opt.allFloors) return;
+      const fs = state.floors || [];
+      const dataOf = f => (f.id === state.activeFloor ? state : (state.byFloor?.[f.id] || {}));
+      const slabsOf = f => (dataOf(f).slabs || []);
+      const overlapRatio = (a, b) => {                    // 两块矩形 XZ 平面的重叠面积 / 较小板面积
+        const ax0 = a.x - a.w / 2, ax1 = a.x + a.w / 2, az0 = a.y - a.d / 2, az1 = a.y + a.d / 2;
+        const bx0 = b.x - b.w / 2, bx1 = b.x + b.w / 2, bz0 = b.y - b.d / 2, bz1 = b.y + b.d / 2;
+        const ox = Math.min(ax1, bx1) - Math.max(ax0, bx0), oz = Math.min(az1, bz1) - Math.max(az0, bz0);
+        if (ox <= 0 || oz <= 0) return 0;
+        const area = ox * oz, small = Math.min(a.w * a.d, b.w * b.d) || 1;
+        return area / small;
+      };
+      for (let i = 0; i + 1 < fs.length; i++) {
+        const lo = fs[i], hi = fs[i + 1];
+        if (Math.abs(((lo.z || 0) + (lo.h || 0)) - (hi.z || 0)) > 5) continue;   // 顶面不同标高：楼层间有空隙，不是同一块板
+        const tops = slabsOf(lo).filter(s => s.top && !s.well);
+        const floors = slabsOf(hi).filter(s => s.farea && !s.well);
+        tops.forEach(t => floors.forEach(fl => { if (overlapRatio(t, fl) >= .9) stackSkipSlabs.add(t.id); }));
+      }
     }
     function buildAllFloors() {
       clearStackGroup(); floorWorlds = []; extraGroups = []; primaryCols = null; stackDisp.clear();   // 旧楼层面板随场景一起失效，重新构建时重注册

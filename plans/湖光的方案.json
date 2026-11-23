@@ -3,19 +3,19 @@
   "rooms": {
     "Xfmwtc0oj1173": {
       "name": "大厅",
-      "mat": "tile800"
+      "mat": "walnut"
     },
     "Xfmwtc15jg174": {
       "name": "厨房",
-      "mat": "tile800"
+      "mat": "walnut"
     },
     "Xfmwtc1jc0175": {
       "name": "过道",
-      "mat": "tile800"
+      "mat": "walnut"
     },
     "Xfmwtc1pbx176": {
       "name": "卫生间",
-      "mat": "tile800"
+      "mat": "carpet"
     }
   },
   "demolished": [],
@@ -479,17 +479,17 @@
       "dw": 900,
       "dh": 2100,
       "dpos": 0,
-      "stop": 1200,
+      "stop": 17200,
       "dir": 0,
       "floors": [
         1200,
-        4200,
-        7200,
-        10200,
-        13200,
-        16200
+        4400,
+        7600,
+        10800,
+        14000,
+        17200
       ],
-      "cur": 0
+      "cur": 5
     }
   ],
   "balconies": [],
@@ -687,19 +687,19 @@
       "rooms": {
         "Xfmwtc0oj1173": {
           "name": "大厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc15jg174": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc1jc0175": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc1pbx176": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         }
       },
       "demolished": [],
@@ -1296,31 +1296,31 @@
       "rooms": {
         "Xfmwtbxvu8166": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbybm3167": {
           "name": "大厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbynf5168": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbz16z169": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbzb2y170": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc001v171": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "Xfmwtc0agb172": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         }
       },
       "demolished": [],
@@ -2120,7 +2120,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -2135,43 +2135,43 @@
       "rooms": {
         "fmwtc25s3277": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3280": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3281": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3282": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtc25s3283": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "Xfmwtc5tx5287": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc64lr288": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc6mx3289": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc6vo4290": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc7bb9291": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         }
       },
       "demolished": [],
@@ -3167,7 +3167,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -3182,43 +3182,43 @@
       "rooms": {
         "fmwtcajhf343": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf346": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf347": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf348": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcajhf349": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcajhf350": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf351": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf352": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf353": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf354": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -4362,7 +4362,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -4377,43 +4377,43 @@
       "rooms": {
         "fmwtcajzb405": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb408": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb409": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb410": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcajzb411": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcajzb412": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb413": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb414": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb415": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb416": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -5513,7 +5513,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -5528,43 +5528,43 @@
       "rooms": {
         "fmwtcakgv467": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv470": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv471": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv472": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcakgv473": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcakgv474": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv475": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv476": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv477": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv478": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -6708,7 +6708,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -6723,44 +6723,44 @@
       "rooms": {
         "fmwtcakvj529": {
           "name": "露台",
-          "mat": "tile800",
+          "mat": "antislip",
           "ceil": false
         },
         "fmwtcakvj532": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj533": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj534": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcakvj535": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcakvj536": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj537": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj538": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj539": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj540": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -7008,17 +7008,6 @@
         }
       ],
       "openings": [
-        {
-          "id": "fmwtcb7tr934",
-          "wall": "CWfmwtcb7tr918",
-          "c": 580.58837890625,
-          "w": 900,
-          "kind": "elev",
-          "flip": false,
-          "liftId": "fmwtbop8x150",
-          "liftFloor": 1,
-          "btn": "l"
-        },
         {
           "id": "fmwtcb7tr935",
           "wall": "CWfmwtcb7tr926",
@@ -7881,7 +7870,18 @@
       "lamps": [],
       "powerBoxes": [],
       "weakBoxes": [],
-      "stairs": [],
+      "stairs": [
+        {
+          "id": "fmwtdwev0202",
+          "x": 2160,
+          "y": -3360,
+          "w": 500,
+          "len": 600,
+          "h": 4200,
+          "dir": 180,
+          "type": "ladder"
+        }
+      ],
       "pillars": [],
       "wallH": {
         "CWfmwtcb7tr931": 1200,

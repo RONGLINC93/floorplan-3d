@@ -1,40 +1,28 @@
 {
   "furniture": [],
   "rooms": {
-    "Xfmwtbxvu8166": {
-      "name": "房间",
-      "mat": "tile800"
-    },
-    "Xfmwtbybm3167": {
+    "Xfmwtc0oj1173": {
       "name": "大厅",
-      "mat": "tile800"
+      "mat": "walnut"
     },
-    "Xfmwtbynf5168": {
-      "name": "进门厅",
-      "mat": "tile800"
-    },
-    "Xfmwtbz16z169": {
-      "name": "过道",
-      "mat": "tile800"
-    },
-    "Xfmwtbzb2y170": {
+    "Xfmwtc15jg174": {
       "name": "厨房",
-      "mat": "tile800"
+      "mat": "walnut"
     },
-    "Xfmwtc001v171": {
-      "name": "阳台",
-      "mat": "tile800"
+    "Xfmwtc1jc0175": {
+      "name": "过道",
+      "mat": "walnut"
     },
-    "Xfmwtc0agb172": {
+    "Xfmwtc1pbx176": {
       "name": "卫生间",
-      "mat": "tile800"
+      "mat": "carpet"
     }
   },
   "demolished": [],
   "measures": [],
   "walls": [
     {
-      "id": "fmwtauk47252",
+      "id": "fmwtab9yp248",
       "a": [
         840,
         -5440
@@ -45,18 +33,18 @@
       ]
     },
     {
-      "id": "fmwtauk47253",
+      "id": "fmwtabgg6249",
       "a": [
         14196,
         -5440
       ],
       "b": [
         14196,
-        -3359
+        -870
       ]
     },
     {
-      "id": "fmwtauk47254",
+      "id": "fmwtabk9l250",
       "a": [
         14196,
         -992
@@ -67,18 +55,18 @@
       ]
     },
     {
-      "id": "fmwtauk47255",
+      "id": "fmwtabot4251",
       "a": [
-        2573,
+        943,
         -992
       ],
       "b": [
-        2573,
+        943,
         -5440
       ]
     },
     {
-      "id": "fmwtauk47256",
+      "id": "fmwtadla4252",
       "a": [
         9226,
         -5440
@@ -89,7 +77,7 @@
       ]
     },
     {
-      "id": "fmwtauk47257",
+      "id": "fmwtaebeb253",
       "a": [
         9226,
         -3359
@@ -100,7 +88,7 @@
       ]
     },
     {
-      "id": "fmwtauk47260",
+      "id": "fmwtaowv0149",
       "a": [
         7476,
         -5440
@@ -111,7 +99,7 @@
       ]
     },
     {
-      "id": "fmwtauk47261",
+      "id": "fmwtap7uk150",
       "a": [
         7476,
         -3359
@@ -122,150 +110,134 @@
       ]
     },
     {
-      "id": "fmwtauk47262",
+      "id": "fmwtarqpf151",
       "a": [
-        11150,
-        -1002
-      ],
-      "b": [
-        11150,
-        -1690
-      ]
-    },
-    {
-      "id": "fmwtbadx0419",
-      "a": [
-        15510,
-        -5440
-      ],
-      "b": [
-        15510,
+        11660,
         -992
-      ]
-    },
-    {
-      "id": "fmwtbahcl420",
-      "a": [
-        15510,
-        -1001
       ],
       "b": [
-        14196,
-        -1001
+        11660,
+        -2390
       ]
     },
     {
-      "id": "fmwtbb02t421",
+      "id": "fmwtaslb0152",
       "a": [
-        14330,
-        -5440
-      ],
-      "b": [
-        15510,
-        -5440
-      ]
-    },
-    {
-      "id": "fmwtbb5tj422",
-      "a": [
-        15510,
-        -3365
-      ],
-      "b": [
-        14330,
-        -3365
-      ]
-    },
-    {
-      "id": "fmwtbbfqt423",
-      "a": [
-        14196,
-        -992
+        11660,
+        -2390
       ],
       "b": [
         14196,
         -2390
       ]
-    },
-    {
-      "id": "fmwtbdjbk425",
-      "a": [
-        -550,
-        -5447
-      ],
-      "b": [
-        -550,
-        -1001
-      ]
-    },
-    {
-      "id": "fmwtbdkz2426",
-      "a": [
-        -670,
-        -1001
-      ],
-      "b": [
-        840,
-        -1001
-      ]
-    },
-    {
-      "id": "fmwtbdy62427",
-      "a": [
-        -670,
-        -5424
-      ],
-      "b": [
-        -670,
-        -5424
-      ]
-    },
-    {
-      "id": "fmwtbe4x1429",
-      "a": [
-        -670,
-        -5447
-      ],
-      "b": [
-        840,
-        -5447
-      ]
     }
   ],
   "openings": [
     {
-      "id": "fmwtb1ufk284",
-      "wall": "CWfmwtauk47256",
-      "c": 580.58837890625,
+      "id": "fmwtay8cd279",
+      "wall": "CWfmwtabgg6249",
+      "c": 189.6279296875,
+      "w": 900,
+      "kind": "door",
+      "flip": false,
+      "mat": "steel"
+    },
+    {
+      "id": "fmwtaymke280",
+      "wall": "CWfmwtaebeb253",
+      "c": 3919.8828125,
+      "w": 800,
+      "kind": "door",
+      "flip": false,
+      "hflip": true
+    },
+    {
+      "id": "fmwtaywj5281",
+      "wall": "CWfmwtaslb0152",
+      "c": 187.5771484375,
+      "w": 700,
+      "kind": "door",
+      "flip": false,
+      "mat": "glass",
+      "dh": 2100
+    },
+    {
+      "id": "fmwtazfqy282",
+      "wall": "CWfmwtadla4252",
+      "c": 577.41162109375,
       "w": 900,
       "kind": "elev",
       "flip": false,
       "liftId": "fmwtcl8uj1099",
-      "liftFloor": 1,
+      "liftFloor": 0,
+      "sill": 1200,
       "btn": "l"
     },
     {
-      "id": "fmwtbcoib424",
-      "wall": "CWfmwtbb5tj422",
-      "c": 198.5341796875,
-      "w": 700,
-      "kind": "door",
+      "id": "fmwtb2c04285",
+      "wall": "CWfmwtabot4251",
+      "c": 619.908447265625,
+      "w": 3250,
+      "kind": "roller",
       "flip": false,
-      "mat": "glass"
+      "dh": 3600
     },
     {
-      "id": "fmwtbfa5x430",
-      "wall": "CWfmwtauk47255",
-      "c": 180.33642578125,
-      "w": 900,
-      "kind": "door",
+      "id": "fmwtb2y9j286",
+      "wall": "CWfmwtab9yp248",
+      "c": 1862.324951171875,
+      "w": 1200,
+      "kind": "window",
+      "flip": false,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwtb311t288",
+      "wall": "CWfmwtabk9l250",
+      "c": 10280.46337890625,
+      "w": 1200,
+      "kind": "window",
+      "flip": false,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwtb32pg289",
+      "wall": "CWfmwtabk9l250",
+      "c": 6171.78076171875,
+      "w": 1200,
+      "kind": "window",
       "flip": true,
-      "hflip": false
+      "wh": 1800,
+      "grille": true
     },
     {
-      "id": "fmwtbjm8c436",
-      "wall": "CWfmwtauk47257",
-      "c": 162.2333984375,
+      "id": "fmwtb34et290",
+      "wall": "CWfmwtabk9l250",
+      "c": 3579.6279296875,
+      "w": 780,
+      "kind": "window",
+      "flip": false,
+      "grille": true,
+      "wh": 1800
+    },
+    {
+      "id": "fmwtb3cbk292",
+      "wall": "CWfmwtab9yp248",
+      "c": 8930.3173828125,
+      "w": 730,
+      "kind": "window",
+      "flip": false,
+      "wh": 1200,
+      "panes": 2,
+      "grille": false,
+      "sill": 2100
+    },
+    {
+      "id": "fmwtb49at293",
+      "wall": "CWfmwtab9yp248",
+      "c": 5209.435546875,
       "w": 900,
       "kind": "door",
       "flip": false,
@@ -273,111 +245,14 @@
       "mat": "steel"
     },
     {
-      "id": "fmwtbtg06157",
-      "wall": "CWfmwtbdjbk425",
-      "c": 669.869873046875,
-      "w": 3040,
-      "kind": "window",
-      "flip": false,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500,
-      "panes": 4
-    },
-    {
-      "id": "fmwtbtinj158",
-      "wall": "CWfmwtauk47252",
-      "c": 2540.8818359375,
-      "w": 1200,
-      "kind": "window",
-      "flip": false,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
-    },
-    {
-      "id": "fmwtbtk0z159",
-      "wall": "CWfmwtauk47254",
-      "c": 9649.698974609375,
-      "w": 1200,
-      "kind": "window",
-      "flip": false,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
-    },
-    {
-      "id": "fmwtbtlf7160",
-      "wall": "CWfmwtauk47252",
-      "c": 5111.4267578125,
-      "w": 1200,
-      "kind": "window",
-      "flip": true,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
-    },
-    {
-      "id": "fmwtbtmly161",
-      "wall": "CWfmwtauk47254",
-      "c": 6168.513671875,
-      "w": 1200,
-      "kind": "window",
-      "flip": true,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
-    },
-    {
-      "id": "fmwtbtolt162",
-      "wall": "CWfmwtauk47254",
-      "c": 1623.212890625,
-      "w": 1170,
-      "kind": "window",
-      "flip": false,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
-    },
-    {
-      "id": "fmwtbtqpq163",
-      "wall": "CWfmwtbadx0419",
-      "c": 2254.595458984375,
-      "w": 2000,
-      "kind": "window",
-      "flip": false,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
-    },
-    {
-      "id": "fmwtbtvw7164",
-      "wall": "CWfmwtbb02t421",
-      "c": 147.4697265625,
-      "w": 770,
+      "id": "fmwtb6y4w294",
+      "wall": "CWfmwtabgg6249",
+      "c": 3260,
+      "w": 900,
       "kind": "hwin",
-      "flip": false,
+      "flip": true,
       "sill": 2000,
       "wh": 600
-    },
-    {
-      "id": "fmwtbvnpj165",
-      "wall": "CWfmwtauk47252",
-      "c": 8914.8291015625,
-      "w": 830,
-      "kind": "window",
-      "flip": false,
-      "sill": 900,
-      "wh": 1800,
-      "grille": true,
-      "th": 500
     }
   ],
   "deletedWalls": [
@@ -455,163 +330,89 @@
   "bover": {},
   "roomsExtra": [
     {
-      "id": "Xfmwtbxvu8166",
+      "id": "Xfmwtc0oj1173",
       "poly": [
         [
-          -430,
-          -5320
+          1090,
+          -5290
         ],
         [
-          2450,
-          -5320
+          7330,
+          -5290
         ],
         [
-          2420,
+          7350,
+          -1120
+        ],
+        [
+          1070,
+          -1120
+        ]
+      ],
+      "mat": "tile800"
+    },
+    {
+      "id": "Xfmwtc15jg174",
+      "poly": [
+        [
+          7350,
+          -3240
+        ],
+        [
+          11520,
+          -3230
+        ],
+        [
+          11530,
+          -1120
+        ],
+        [
+          7360,
           -1150
-        ],
-        [
-          -430,
-          -1110
         ]
       ],
       "mat": "tile800"
     },
     {
-      "id": "Xfmwtbybm3167",
+      "id": "Xfmwtc1jc0175",
       "poly": [
         [
-          2700,
-          -5330
-        ],
-        [
-          7350,
-          -5310
-        ],
-        [
-          7350,
-          -1130
-        ],
-        [
-          2710,
-          -1110
-        ]
-      ],
-      "mat": "tile800"
-    },
-    {
-      "id": "Xfmwtbynf5168",
-      "poly": [
-        [
-          7360,
-          -3230
-        ],
-        [
-          11020,
-          -3230
-        ],
-        [
-          11020,
-          -1120
-        ],
-        [
-          7360,
-          -1120
-        ]
-      ],
-      "mat": "tile800"
-    },
-    {
-      "id": "Xfmwtbz16z169",
-      "poly": [
-        [
-          11030,
+          11520,
           -3240
-        ],
-        [
-          14330,
-          -3240
-        ],
-        [
-          14330,
-          -2390
-        ],
-        [
-          11030,
-          -2390
-        ]
-      ],
-      "mat": "tile800"
-    },
-    {
-      "id": "Xfmwtbzb2y170",
-      "poly": [
-        [
-          11010,
-          -2390
         ],
         [
           14070,
-          -2390
+          -3240
         ],
         [
-          14090,
-          -1120
+          14070,
+          -2520
         ],
         [
-          11280,
-          -1120
-        ],
-        [
-          11260,
-          -1690
-        ],
-        [
-          11010,
-          -1690
+          11520,
+          -2520
         ]
       ],
       "mat": "tile800"
     },
     {
-      "id": "Xfmwtc001v171",
+      "id": "Xfmwtc1pbx176",
       "poly": [
         [
-          14330,
-          -3240
+          11780,
+          -2270
         ],
         [
-          15400,
-          -3240
+          14060,
+          -2270
         ],
         [
-          15400,
+          14060,
           -1130
         ],
         [
-          14330,
+          11780,
           -1130
-        ]
-      ],
-      "mat": "tile800"
-    },
-    {
-      "id": "Xfmwtc0agb172",
-      "poly": [
-        [
-          14330,
-          -5310
-        ],
-        [
-          15380,
-          -5310
-        ],
-        [
-          15380,
-          -3500
-        ],
-        [
-          14330,
-          -3500
         ]
       ],
       "mat": "tile800"
@@ -624,44 +425,44 @@
   "levels": [],
   "slabs": [
     {
-      "id": "fmwtauk47265",
-      "x": 7475,
+      "id": "fmwta9xak246",
+      "x": 7570,
       "y": -3220,
-      "w": 16270,
+      "w": 13500,
+      "d": 4700,
+      "thick": 100,
+      "z": 0,
+      "farea": true
+    },
+    {
+      "id": "fmwtaatxm247",
+      "x": 7580,
+      "y": -3220,
+      "w": 13500,
       "d": 4700,
       "thick": 100,
       "z": 0,
       "top": true
     },
     {
-      "id": "fmwtbg4r2431",
-      "x": 11720,
+      "id": "fmwtawb68276",
+      "x": 8360,
       "y": -4400,
-      "w": 4710,
-      "d": 1820,
-      "thick": 120,
-      "z": 0,
-      "well": "stair"
-    },
-    {
-      "id": "fmwtbg8r7432",
-      "x": 8350,
-      "y": -4400,
-      "w": 1500,
+      "w": 1510,
       "d": 1840,
       "thick": 120,
       "z": 0,
       "well": "lift"
     },
     {
-      "id": "fmwtbmolw149",
-      "x": 7490,
-      "y": -3215,
-      "w": 16310,
-      "d": 4690,
-      "thick": 100,
+      "id": "fmwtawkh2277",
+      "x": 11720,
+      "y": -4400,
+      "w": 4730,
+      "d": 1840,
+      "thick": 120,
       "z": 0,
-      "farea": true
+      "well": "stair"
     }
   ],
   "parapets": [],
@@ -678,17 +479,17 @@
       "dw": 900,
       "dh": 2100,
       "dpos": 0,
-      "stop": 1200,
+      "stop": 17200,
       "dir": 0,
       "floors": [
         1200,
-        4200,
-        7200,
-        10200,
-        13200,
-        16200
+        4400,
+        7600,
+        10800,
+        14000,
+        17200
       ],
-      "cur": 0
+      "cur": 5
     }
   ],
   "balconies": [],
@@ -706,7 +507,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47266",
+      "id": "fmwtafx42255",
       "x": 9410,
       "y": -1020,
       "d": 300
@@ -715,7 +516,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47267",
+      "id": "fmwtafyn0256",
       "x": 9410,
       "y": -5420,
       "d": 300
@@ -724,7 +525,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47268",
+      "id": "fmwtag10g257",
       "x": 14020,
       "y": -5410,
       "d": 300
@@ -733,7 +534,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47269",
+      "id": "fmwtag1za258",
       "x": 14020,
       "y": -1020,
       "d": 300
@@ -742,7 +543,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47270",
+      "id": "fmwtag39u259",
       "x": 1120,
       "y": -1020,
       "d": 300
@@ -751,7 +552,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47271",
+      "id": "fmwtag4l5260",
       "x": 1130,
       "y": -5420,
       "d": 300
@@ -760,7 +561,7 @@
       "type": "tiecol",
       "w": 240,
       "h": 2800,
-      "id": "fmwtauk47272",
+      "id": "fmwtahhse261",
       "x": 9230,
       "y": -3360
     },
@@ -768,7 +569,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47273",
+      "id": "fmwtai9e5264",
       "x": 5430,
       "y": -5410,
       "d": 300
@@ -777,7 +578,7 @@
       "type": "tiecol",
       "w": 600,
       "h": 2800,
-      "id": "fmwtauk47274",
+      "id": "fmwtaitmu266",
       "x": 5430,
       "y": -1020,
       "d": 300
@@ -787,7 +588,7 @@
       "w": 240,
       "d": 240,
       "h": 2800,
-      "id": "fmwtauk47275",
+      "id": "fmwtanx6n148",
       "x": 7480,
       "y": -5440
     },
@@ -796,43 +597,7 @@
       "w": 240,
       "d": 240,
       "h": 2800,
-      "id": "fmwtbq61r151",
-      "x": -550,
-      "y": -990
-    },
-    {
-      "type": "tiecol",
-      "w": 240,
-      "d": 240,
-      "h": 2800,
-      "id": "fmwtbq718152",
-      "x": -550,
-      "y": -5450
-    },
-    {
-      "type": "tiecol",
-      "w": 240,
-      "d": 240,
-      "h": 2800,
-      "id": "fmwtbq840153",
-      "x": 15510,
-      "y": -990
-    },
-    {
-      "type": "tiecol",
-      "w": 240,
-      "d": 240,
-      "h": 2800,
-      "id": "fmwtbq8z9154",
-      "x": 15510,
-      "y": -5450
-    },
-    {
-      "type": "tiecol",
-      "w": 240,
-      "d": 240,
-      "h": 2800,
-      "id": "fmwtbqar6155",
+      "id": "fmwtbqd2j156",
       "x": 7480,
       "y": -3360
     }
@@ -843,22 +608,28 @@
   "weakBoxes": [],
   "stairs": [
     {
-      "id": "fmwtbhpci435",
-      "x": 11710,
-      "y": -4400,
+      "id": "fmwtawqt9278",
+      "x": 11720,
+      "y": -4410,
       "w": 850,
       "len": 4700,
       "dir": 0,
-      "rise": 3200,
-      "runs": 2,
+      "rise": 4200,
+      "runs": 3,
+      "stack": true,
+      "flipX": true,
       "railLand": false,
-      "railSide": "right",
-      "flipZ": true
+      "railSide": "left",
+      "steps": [
+        7,
+        9,
+        9
+      ]
     }
   ],
   "pillars": [],
   "wallH": {},
-  "entryDoor": null,
+  "entryDoor": "Ofmwtay8cd279",
   "floors": [
     {
       "id": "f1",
@@ -909,26 +680,26 @@
       "h": 1200
     }
   ],
-  "activeFloor": "fmwtaufux153",
+  "activeFloor": "f1",
   "byFloor": {
     "f1": {
       "furniture": [],
       "rooms": {
         "Xfmwtc0oj1173": {
           "name": "大厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc15jg174": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc1jc0175": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc1pbx176": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         }
       },
       "demolished": [],
@@ -1525,31 +1296,31 @@
       "rooms": {
         "Xfmwtbxvu8166": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbybm3167": {
           "name": "大厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbynf5168": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbz16z169": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtbzb2y170": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc001v171": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "Xfmwtc0agb172": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         }
       },
       "demolished": [],
@@ -2349,7 +2120,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -2364,43 +2135,43 @@
       "rooms": {
         "fmwtc25s3277": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3280": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3281": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3282": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtc25s3283": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "Xfmwtc5tx5287": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc64lr288": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc6mx3289": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc6vo4290": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "Xfmwtc7bb9291": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         }
       },
       "demolished": [],
@@ -3396,7 +3167,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -3411,43 +3182,43 @@
       "rooms": {
         "fmwtcajhf343": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf346": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf347": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf348": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcajhf349": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcajhf350": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf351": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf352": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf353": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajhf354": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -4591,7 +4362,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -4606,43 +4377,43 @@
       "rooms": {
         "fmwtcajzb405": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb408": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb409": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb410": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcajzb411": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcajzb412": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb413": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb414": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb415": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcajzb416": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -5742,7 +5513,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -5757,43 +5528,43 @@
       "rooms": {
         "fmwtcakgv467": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv470": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv471": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv472": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcakgv473": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcakgv474": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv475": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv476": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv477": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakgv478": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -6937,7 +6708,7 @@
           "rise": 3200,
           "runs": 2,
           "railLand": false,
-          "railSide": "right",
+          "railSide": "left",
           "flipZ": true
         }
       ],
@@ -6952,44 +6723,44 @@
       "rooms": {
         "fmwtcakvj529": {
           "name": "露台",
-          "mat": "tile800",
+          "mat": "antislip",
           "ceil": false
         },
         "fmwtcakvj532": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj533": {
           "name": "厨房",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj534": {
           "name": "阳台",
-          "mat": "tile800"
+          "mat": "antislip"
         },
         "fmwtcakvj535": {
           "name": "卫生间",
-          "mat": "tile800"
+          "mat": "carpet"
         },
         "fmwtcakvj536": {
           "name": "房间",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj537": {
           "name": "过道",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj538": {
           "name": "进门厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj539": {
           "name": "餐厅",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtcakvj540": {
           "name": "娱乐区",
-          "mat": "tile800"
+          "mat": "walnut"
         },
         "fmwtc25s3277": {
           "name": "房间",
@@ -7237,17 +7008,6 @@
         }
       ],
       "openings": [
-        {
-          "id": "fmwtcb7tr934",
-          "wall": "CWfmwtcb7tr918",
-          "c": 580.58837890625,
-          "w": 900,
-          "kind": "elev",
-          "flip": false,
-          "liftId": "fmwtbop8x150",
-          "liftFloor": 1,
-          "btn": "l"
-        },
         {
           "id": "fmwtcb7tr935",
           "wall": "CWfmwtcb7tr926",
@@ -8110,7 +7870,18 @@
       "lamps": [],
       "powerBoxes": [],
       "weakBoxes": [],
-      "stairs": [],
+      "stairs": [
+        {
+          "id": "fmwtdwev0202",
+          "x": 2160,
+          "y": -3360,
+          "w": 500,
+          "len": 600,
+          "h": 4200,
+          "dir": 180,
+          "type": "ladder"
+        }
+      ],
       "pillars": [],
       "wallH": {
         "CWfmwtcb7tr931": 1200,
