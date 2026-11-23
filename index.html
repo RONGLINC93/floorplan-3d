@@ -3131,8 +3131,8 @@
           </div>
           <div class="dtg">
             <div class="dth" data-en="Windows">窗</div>
-            <button class="btn chip" data-dt="win" title="点击墙上的位置放一个 1200mm 窗户"
-              data-en-title="Click a wall to place a 1200mm window" data-en="Window"><i
+            <button class="btn chip" data-dt="win" title="点击墙上的位置放一个 1200mm 窗户（窗台默认 900、窗高 1800、带窗花，可在右侧改）"
+              data-en-title="Click a wall to place a 1200mm window (sill 900, height 1800, transom included; editable in the panel)" data-en="Window"><i
                 data-lucide="blinds"></i>窗户</button>
             <button class="btn chip" data-dt="hwin" title="点击墙上的位置放一个 1200mm 高窗（窗台抬高，默认 1400mm，适合卫生间 / 楼梯间）"
               data-en-title="Click a wall to place a 1200mm high window (raised sill, 1400mm by default; for bathrooms / stairwells)"
@@ -3419,8 +3419,8 @@
           </div>
           <div class="dtg">
             <div class="dth" data-en="Details">结构细部</div>
-            <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），2D 实心方块加叉，3D 为小方柱"
-              data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); solid square with cross in 2D, small column in 3D"
+            <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），长 / 宽 / 高度可在右侧改，2D 实心方块加叉，3D 为小方柱"
+              data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); edit length / width / height in the panel; solid square with cross in 2D, small column in 3D"
               data-en="Tie column"><i data-lucide="columns-3"></i>构造柱</button>
             <button class="btn chip" data-dt="lintel" title="过梁：沿门窗洞口上方点起点、终点；默认 240 宽 × 200 高、底标高 2100，3D 为洞口上方梁"
               data-en-title="Lintel: click start and end above a door / window opening; 240 wide × 200 high, underside 2100 by default; beam above the opening in 3D"
@@ -4168,7 +4168,7 @@
       s.demolished = Array.isArray(s.demolished) ? s.demolished.filter(x => typeof x === 'string') : [];
       s.measures = Array.isArray(s.measures) ? s.measures : [];
       s.removedB = Array.isArray(s.removedB) ? s.removedB : [];
-      s.entryDoor = (s.entryDoor && typeof s.entryDoor === 'object' && !Array.isArray(s.entryDoor)) ? s.entryDoor : null;
+      s.entryDoor = (typeof s.entryDoor === 'string' && s.entryDoor) ? s.entryDoor : null;   // 入户门存的是门洞 id 字符串（'dN' 或 'O<openingId>'），不是对象；旧校验会把每次保存的入户门清成 null
       s.walls = Array.isArray(s.walls) ? s.walls : [];
       s.openings = Array.isArray(s.openings) ? s.openings : [];
       s.openings.forEach(o => { if (o.kind === 'elev') { o.liftId = o.liftId == null || o.liftId === '' ? null : String(o.liftId); o.liftFloor = Math.max(0, Math.round(+(o.liftFloor ?? 0) || 0)); } });   // 电梯门联动 id 为字符串，所在楼层为索引数值
@@ -4242,10 +4242,17 @@
       s.extras = s.extras.filter(ex => ex && typeof ex === 'object' && ex.id != null && ex.type != null);
       s.lamps = s.lamps.filter(l => l && typeof l === 'object' && l.id != null);
       s.lifts = s.lifts.filter(l => l && typeof l === 'object' && l.id != null);
-      for (const rk of Object.keys(s.rooms)) {                     // 房间：poly 必须是 ≥3 个数值点，坏房间直接丢弃
+      /* 房间样式表 state.rooms 是 id→{name,mat,ch?,ceil?}，本身没有 poly（几何 poly 在 ROOMS 常量 / roomsExtra / bover['R'+id]）。
+         旧版防线误按 r.poly 过滤 s.rooms，导致每次打开方案都把全部区域样式删光（区域画完保存后再打开就消失）。
+         这里只剔除完全无效的样式项；poly 合法性改由 roomsExtra 与 bover 的房间覆盖负责。 */
+      for (const rk of Object.keys(s.rooms)) {
         const r = s.rooms[rk];
-        if (!r || typeof r !== 'object' || !Array.isArray(r.poly) || r.poly.length < 3
-          || r.poly.some(v => !Array.isArray(v) || !Number.isFinite(+v?.[0]) || !Number.isFinite(+v?.[1]))) delete s.rooms[rk];
+        if (!r || typeof r !== 'object' || Array.isArray(r)) delete s.rooms[rk];
+      }
+      const fixValidPoly = p => Array.isArray(p) && p.length >= 3 && !p.some(v => !Array.isArray(v) || !Number.isFinite(+v?.[0]) || !Number.isFinite(+v?.[1]));
+      s.roomsExtra = (Array.isArray(s.roomsExtra) ? s.roomsExtra : []).filter(r => r && typeof r === 'object' && fixValidPoly(r.poly));   // 自画区域：poly 必须是 ≥3 个数值点，坏区域丢弃
+      for (const bk of Object.keys(s.bover || {})) {                                                                                     // 内置房间顶点覆盖同样要求合法 poly
+        if (bk.startsWith('R') && !fixValidPoly(s.bover[bk])) delete s.bover[bk];
       }
       return s;
     }
@@ -5738,20 +5745,25 @@
       $('#gGrid').innerHTML = `<rect x="-20000" y="-20000" width="55000" height="55000" fill="${ui.layers.grid ? 'url(#grid)' : 'transparent'}" data-bg="1"/>`;
     }
 
-    // 坐标基准轴：贴在图纸左下角（跟着图纸平移 / 缩放 / 旋转），原点小方框 + 向右的 X 轴、向上的 Y 轴
-    function renderAxes() {
-      const g = $('#gAxis'); if (!g) return;
-      if (!ui.layers.axis) { g.innerHTML = ''; return; }
-      let x0 = Infinity, y1 = -Infinity;                             // 图纸内容（墙 + 房间地面）的左下角
+    // 坐标基准轴原点：图纸内容（墙 + 房间地面）的左下角；renderAxes 与「打开方案定位到原点」共用
+    function axesOrigin() {
+      let x0 = Infinity, y1 = -Infinity;
       const add = (x, y) => { if (x < x0) x0 = x; if (y > y1) y1 = y; };
       state.walls.forEach(w => { add(w.a[0], w.a[1]); add(w.b[0], w.b[1]); });
       allRooms().forEach(r => r.poly.forEach(p => add(p[0], p[1])));
       if (!isFinite(x0)) { x0 = 0; y1 = 0; }
+      return { x: x0, y: y1 };
+    }
+    // 坐标基准轴：贴在图纸左下角（跟着图纸平移 / 缩放 / 旋转），原点小方框 + 向右的 X 轴、向上的 Y 轴
+    function renderAxes() {
+      const g = $('#gAxis'); if (!g) return;
+      if (!ui.layers.axis) { g.innerHTML = ''; return; }
+      const o = axesOrigin();
       const k = 1 / view.s, rot = view.rot || 0, A = 44 * k, S = 9 * k, C = '#2f5d62';
       const ST = `stroke="${C}" stroke-width="1.4" vector-effect="non-scaling-stroke" fill="none" stroke-linecap="square"`;
       const TXT = (x, y, str) => `<text x="${x}" y="${y}" font-size="${12 * k}" text-anchor="middle" fill="${C}" font-weight="600"
         stroke="#fff" stroke-width="${3 * k}" paint-order="stroke" transform="rotate(${-rot} ${x} ${y})">${str}</text>`;
-      g.innerHTML = `<g transform="translate(${x0} ${y1})">
+      g.innerHTML = `<g transform="translate(${o.x} ${o.y})">
         <rect x="${-S / 2}" y="${-S / 2}" width="${S}" height="${S}" ${ST}/>             <!-- 原点 -->
         <line x1="${S / 2}" y1="0" x2="${A}" y2="0" ${ST}/>                             <!-- X 轴 -->
         <line x1="0" y1="${-S / 2}" x2="0" y2="${-A}" ${ST}/>                           <!-- Y 轴 -->
@@ -5973,7 +5985,7 @@
         const x0 = s.x - w / 2, y0 = s.y - d / 2, x1 = s.x + w / 2, y1 = s.y + d / 2;
         const box = `x="${x0}" y="${y0}" width="${w}" height="${d}"`;
         return `<g data-slab="${s.id}" style="cursor:move">
-          <rect ${box} fill="${col}" fill-opacity="${on ? .16 : .10}" pointer-events="none"/>
+          <rect ${box} fill="${col}" fill-opacity="${on ? .16 : .10}" data-slab-hit="${s.id}"/>
           <g pointer-events="none">
             <rect ${box} fill="none" stroke="${col}" stroke-width="${on ? 1.8 : 1.1}" vector-effect="non-scaling-stroke"/>
             <line x1="${x0}" y1="${y0}" x2="${x1}" y2="${y1}" stroke="${col}" stroke-width=".8" stroke-opacity=".5" vector-effect="non-scaling-stroke"/>
@@ -6715,10 +6727,12 @@
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"/>
               <circle cx="${e.x}" cy="${e.y}" r="${r * .62}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-opacity=".55" stroke-width=".9" vector-effect="non-scaling-stroke"/>
               <circle cx="${e.x}" cy="${e.y}" r="${Math.max(30, r * .12)}" fill="${col}" fill-opacity=".5" stroke="none"/>`;
-          } else if (e.type === 'tiecol' || e.type === 'chimney') { // 构造柱 / 烟囱：实心方块 + 对角叉
-            inner = `<rect x="${e.x - r}" y="${e.y - r}" width="${r * 2}" height="${r * 2}" fill="${col}" fill-opacity=".22" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
-              <line x1="${e.x - r}" y1="${e.y - r}" x2="${e.x + r}" y2="${e.y + r}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
-              <line x1="${e.x + r}" y1="${e.y - r}" x2="${e.x - r}" y2="${e.y + r}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+          } else if (e.type === 'tiecol' || e.type === 'chimney') { // 构造柱 / 烟囱：实心方块 + 对角叉（构造柱支持长×宽矩形，旧数据无 d 时按边长）
+            const rw = e.type === 'tiecol' ? Math.max(minR, (+e.w || 240) / 2) : r;
+            const rd = e.type === 'tiecol' ? Math.max(minR, (+e.d || +e.w || 240) / 2) : r;
+            inner = `<rect x="${e.x - rw}" y="${e.y - rd}" width="${rw * 2}" height="${rd * 2}" fill="${col}" fill-opacity=".22" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
+              <line x1="${e.x - rw}" y1="${e.y - rd}" x2="${e.x + rw}" y2="${e.y + rd}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
+              <line x1="${e.x + rw}" y1="${e.y - rd}" x2="${e.x - rw}" y2="${e.y + rd}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
           } else if (e.type === 'barrier') {                      // 路障：按样式画 2D 符号（锥：圆+三角；水马/铁马：矩形+纹路；石墩：实心圆）
             const st = e.style || 'cone', a = ((+e.rot || 0) % 360) * Math.PI / 180;
             const R = Math.max(140, r * 2.2);
@@ -7785,7 +7799,7 @@
       if (t === 'retain') return { ...base, w: 300, h: 1800 };
       if (t === 'gutter') return { ...base, w: 300, h: 120 };
       if (t === 'spout') return { ...base, w: 100, h: 2800 };
-      if (t === 'tiecol') return { ...base, w: 240, h: 2800 };
+      if (t === 'tiecol') return { ...base, w: 240, d: 240, h: 2800 };   // 构造柱：长(X) × 宽(Y) 独立可设，默认 240×240
       if (t === 'chimney') return { ...base, w: 400, h: 1200, z: 2800 };
       if (t === 'tree') return { ...base, w: 900, h: 3000 };
       if (t === 'lintel') return { ...base, w: 240, h: 200, z: 2100 };
@@ -7865,10 +7879,11 @@
         rows += `<label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
           <label>${tr('位置', 'Position')} Y (mm)<input type="number" id="exY" value="${Math.round(e.y)}" step="10"></label>`;
       } else if (pt) {
-        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : isStreetLamp(e.type) ? tr('杆径', 'Pole ⌀') : e.type === 'traflight' ? tr('杆径', 'Pole ⌀') : isTrafficSign(e.type) ? tr('板宽', 'Board width') : (e.type === 'tiecol' || e.type === 'chimney') ? tr('边长', 'Size') : tr('直径', 'Diameter');
+        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : isStreetLamp(e.type) ? tr('杆径', 'Pole ⌀') : e.type === 'traflight' ? tr('杆径', 'Pole ⌀') : isTrafficSign(e.type) ? tr('板宽', 'Board width') : e.type === 'tiecol' ? tr('长（X 向）', 'Length (X)') : e.type === 'chimney' ? tr('边长', 'Size') : tr('直径', 'Diameter');
         const hl = e.type === 'tree' ? tr('树高', 'Tree height') : e.type === 'chimney' ? tr('出屋面高', 'Above roof') : isStreetLamp(e.type) || isTraffic(e.type) ? tr('杆高', 'Pole height') : tr('高度', 'Height');
         rows += `${e.type === 'streetlamp' ? `<label>${tr('路灯类型', 'Lamp type')}<select id="exLampType">${STREET_LAMP_TYPES.map(([v, zh, en]) => `<option value="${v}" ${(e.style || 'single') === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('')}</select></label>` : ''}
           <label>${wl} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 100)}" min="60" max="${isStreetLamp(e.type) ? 800 : 4000}" step="10"></label>
+          ${e.type === 'tiecol' ? `<label>${tr('宽（Y 向）', 'Width (Y)')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? e.w ?? 240)}" min="60" max="4000" step="10"></label>` : ''}
           <label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2800)}" min="300" max="30000" step="50"></label>
           ${isStreetLamp(e.type) ? `<label>${tr('悬臂长', 'Arm length')} (mm)<input type="number" id="exArm" value="${Math.round(e.arm ?? 0)}" min="0" max="8000" step="100"></label>
             <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
@@ -7941,7 +7956,7 @@
                                             : e.type === 'hatch' ? tr('屋面检修口，2D 画内框，3D 为翻边与盖板。', 'Roof hatch with curb and cover.')
                                               : e.type === 'solar' ? tr('太阳能热水器，2D 画集热板分格与水箱，3D 为斜置集热板与水箱。', 'Solar water heater with tilted collector.')
                                                 : e.type === 'equip' ? tr('屋面设备基础，2D 画机组轮廓，3D 为基础与设备体量。', 'Rooftop equipment base and unit.')
-                                                  : e.type === 'tiecol' ? tr('构造柱设在墙端 / 墙交角，2D 为实心方块加叉，3D 为通高小方柱。', 'Tie column at wall ends and corners.')
+                                                  : e.type === 'tiecol' ? tr('构造柱设在墙端 / 墙交角，长 / 宽分别设置做矩形截面（默认 240×240，旧数据按边长）。2D 实心方块加叉，3D 为通高柱。', 'Tie column at wall ends and corners; set length / width separately for a rectangular section (default 240×240; legacy data uses the single size).')
                                                     : e.type === 'chimney' ? tr('烟囱出屋面，2D 为实心方块加叉，3D 为方柱与压顶。', 'Chimney above the roof with a cap.')
                                                       : e.type === 'barrier' ? tr('路障点击放置，右侧可切换交通锥 / 水马 / 铁马 / 石墩；2D 按样式画符号，3D 生成对应模型并可设朝向，四种样式在漫游中均可挡人。', 'Barrier: click to place, switch cone / water / steel horse / concrete block in the panel; 2D symbols and 3D models follow the style, all four block walking.')
                                                         : e.type === 'solarlamp' ? tr('太阳能路灯白天靠顶部光伏板充电，切入夜景自动开灯并持续耗电，电量耗尽自动熄灭（白天可再充满）；红色指示灯一直闪烁。3D 点灯杆可手动开 / 关，没电时无法开灯。右侧可改当前电量、白天充电速度与夜晚耗电速度，以及杆高 / 杆径 / 悬臂长 / 朝向 / 照亮半径。', 'Solar street lamp charges through the roof panel by day, switches on automatically at night and drains the battery, then switches off when empty (rechargeable next day). The red indicator keeps blinking. Click the pole in 3D to toggle; it cannot be switched on with an empty battery. Edit battery level, day charge / night drain rates, height / pole / arm / angle / light radius in the panel.')
@@ -8038,6 +8053,7 @@
           renderPanel();                                          // 重绘面板，露出 / 收起悬臂长控件
         });
         upd('exW', (e, v) => e.w = v, 60, isStreetLamp(e0.type) ? 800 : 4000);
+        if (e0.type === 'tiecol') upd('exD', (e, v) => e.d = v, 60, 4000);   // 构造柱宽（Y 向），与长（X 向）独立
         upd('exH', (e, v) => e.h = v, 300, 30000);
         upd('exZ', (e, v) => e.z = v);
         upd('exX', (e, v) => e.x = v);
@@ -11130,13 +11146,36 @@
       renderSel(); renderMeasure(); renderAxes();                   // 缩放 / 旋转后按新的 px 比例重画基准轴刻度
     }
     const rotRad = () => (view.rot || 0) * Math.PI / 180;
+    // 当前方案实际内容的包围盒 [x0,y0,x1,y1]（世界 mm）；固定 BOUNDS 只框住内置默认方案，自画方案会偏出屏幕，故按真实内容算
+    function contentBounds() {
+      const pts = [];
+      const add = (x, y) => { if (Number.isFinite(+x) && Number.isFinite(+y)) pts.push([+x, +y]); };
+      WALLS.forEach((w, i) => {                                      // 内置墙：跳过已删 / 已拆的
+        const id = 'w' + i;
+        if ((state.deletedWalls || []).includes(id) || (state.demolished || []).includes(id)) return;
+        add(w[0], w[1]); add(w[2], w[3]);
+      });
+      (state.walls || []).forEach(w => { if (w.a) add(w.a[0], w.a[1]); if (w.b) add(w.b[0], w.b[1]); });
+      (state.arcWalls || []).forEach(w => { if (w.a) add(w.a[0], w.a[1]); if (w.b) add(w.b[0], w.b[1]); });
+      allRooms().forEach(r => (r.poly || []).forEach(p => add(p[0], p[1])));
+      (state.furniture || []).forEach(f => { const a = aabb(f); add(f.cx - a.hw, f.cy - a.hh); add(f.cx + a.hw, f.cy + a.hh); });
+      (state.extras || []).forEach(e => add(e.x, e.y));
+      (state.stairs || []).forEach(s => add(s.x, s.y));
+      (state.pillars || []).forEach(p => add(p.x, p.y));
+      if (!pts.length) return null;
+      const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+      return [Math.min(...xs), Math.min(...ys), Math.max(...xs), Math.max(...ys)];
+    }
     function fitView() {
       const W = svg.clientWidth, H = svg.clientHeight, rot = view.rot || 0;
       if (!W || !H) return;                                          // 布局尚未完成时不计算，避免除零
-      const bw = rot % 180 ? BOUNDS.h : BOUNDS.w, bh = rot % 180 ? BOUNDS.w : BOUNDS.h;   // 转 90° 后可见范围宽高互换
+      const b = contentBounds() || [BOUNDS.x, BOUNDS.y, BOUNDS.x + BOUNDS.w, BOUNDS.y + BOUNDS.h];
+      const pad = 400;                                               // 四周留白（mm），图纸不贴边
+      const x = b[0] - pad, y = b[1] - pad, w = b[2] - b[0] + 2 * pad, h = b[3] - b[1] + 2 * pad;
+      const bw = rot % 180 ? h : w, bh = rot % 180 ? w : h;          // 转 90° 后可见范围宽高互换
       view.s = Math.min(W / bw, H / bh);
-      view.x0 = BOUNDS.x + BOUNDS.w / 2 - W / view.s / 2;
-      view.y0 = BOUNDS.y + BOUNDS.h / 2 - H / view.s / 2;
+      view.x0 = x + w / 2 - W / view.s / 2;                          // 按实际内容中心居中
+      view.y0 = y + h / 2 - H / view.s / 2;
       applyView();
     }
     function zoomAt(ns, mx, my) {
@@ -11763,7 +11802,7 @@
       const c = Math.max(0, Math.min(L - w, t - w / 2));
       for (const o of openingsOf(ref)) if (c < o.c + o.w && o.c < c + w)
         return toast(tr('和已有的门窗重叠，换个位置试试', 'Overlaps another opening — try another spot'));
-      mutate(() => state.openings.push({ id: uid(), wall: ref, c, w, kind, flip: openingsOf(ref).length % 2 === 1, ...(kind === 'hwin' ? { sill: 1400 } : kind === 'louver' ? { sill: 900, wh: 1200 } : kind === 'cwin' ? { sill: 900 } : kind === 'bay' ? { sill: 500, wh: 1200, bayDepth: 600, panes: 3 } : kind === 'arch' ? { sh: 2100, rise: Math.min(600, Math.round(w / 2)) } : kind === 'niche' ? { sill: 900, wh: 700, nd: 250 } : kind === 'hole' ? { sill: 900, wh: 900 } : kind === 'swin' ? { sill: 900, wh: 1200, panes: 2 } : kind === 'auto' ? { sill: 0, dh: 2400 } : kind === 'revolve' ? { sill: 0, dh: 2400 } : kind === 'elev' ? { liftId: null, liftFloor: 0 } : kind === 'strip' ? { sill: 600, wh: 1500 } : {}) }));
+      mutate(() => state.openings.push({ id: uid(), wall: ref, c, w, kind, flip: openingsOf(ref).length % 2 === 1, ...(kind === 'window' ? { sill: 900, wh: 1800, grille: true, th: 500 } : kind === 'hwin' ? { sill: 1400 } : kind === 'louver' ? { sill: 900, wh: 1200 } : kind === 'cwin' ? { sill: 900 } : kind === 'bay' ? { sill: 500, wh: 1200, bayDepth: 600, panes: 3 } : kind === 'arch' ? { sh: 2100, rise: Math.min(600, Math.round(w / 2)) } : kind === 'niche' ? { sill: 900, wh: 700, nd: 250 } : kind === 'hole' ? { sill: 900, wh: 900 } : kind === 'swin' ? { sill: 900, wh: 1200, panes: 2 } : kind === 'auto' ? { sill: 0, dh: 2400 } : kind === 'revolve' ? { sill: 0, dh: 2400 } : kind === 'elev' ? { liftId: null, liftFloor: 0 } : kind === 'strip' ? { sill: 600, wh: 1500 } : {}) }));
       const no = state.openings[state.openings.length - 1];
       select({ kind: 'open', id: no.id });
       toast(kind === 'door'
@@ -11810,7 +11849,7 @@
                                                 ? tr(`已放圆窗 ${Math.round(w)} mm（直径 = 宽度，窗台默认 900）`, `Round window ${Math.round(w)} mm added (diameter = width, sill 900)`)
                                                 : kind === 'bay'
                                                   ? tr(`已放飘窗 ${Math.round(w)} mm（窗台 500，向外凸出 600，进深 / 朝向可在右侧改）`, `Bay window ${Math.round(w)} mm added (sill 500, 600 deep; depth / side editable in the panel)`)
-                                                  : tr(`已放窗户 ${Math.round(w)} mm（窗台默认 900，可在属性里调）`, `Window ${Math.round(w)} mm added (sill 900, editable in the panel)`));
+                                                  : tr(`已放窗户 ${Math.round(w)} mm（窗台默认 900、窗高 1800、带窗花，可在属性里调）`, `Window ${Math.round(w)} mm added (sill 900, height 1800, transom included; editable in the panel)`));
     }
     // 取墙的两端坐标（内置墙 / 自画墙统一）
     function wallEnds(ref) {
@@ -12538,7 +12577,7 @@
           }));
           select({ kind: 'extra', id });
           toast(kind === 'tree' ? tr('已放景观树 · 冠幅 / 树高在右侧改', 'Tree placed · edit canopy / height in the panel')
-            : kind === 'tiecol' ? tr('已放构造柱 · 边长 / 高度在右侧改', 'Tie column placed · edit size / height in the panel')
+            : kind === 'tiecol' ? tr('已放构造柱 · 长 / 宽 / 高度在右侧改', 'Tie column placed · edit length / width / height in the panel')
               : kind === 'chimney' ? tr('已放烟囱 · 边长 / 出屋面高 / 标高在右侧改', 'Chimney placed · edit size / height / level in the panel')
                 : kind === 'flag' ? tr('已放旗杆 · 杆径 / 高度在右侧改', 'Flagpole placed · edit diameter / height in the panel')
                   : kind === 'barrier' ? tr('已放路障 · 样式（锥桶 / 水马 / 铁马 / 石墩）/ 尺寸 / 朝向在右侧改', 'Barrier placed · switch style (cone / water / steel horse / concrete block), size and angle in the panel')
@@ -13960,8 +13999,18 @@
     function download(name, blob) { const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = name; a.click(); setTimeout(() => URL.revokeObjectURL(a.href), 1000); }
     function svgToPngBlob(W) {
       return new Promise((resolve, reject) => {
-        const clone = svg.cloneNode(true), H = Math.round(W * BOUNDS.h / BOUNDS.w);
-        clone.setAttribute('viewBox', `${BOUNDS.x} ${BOUNDS.y} ${BOUNDS.w} ${BOUNDS.h}`);
+        // 按实际图纸内容取景（固定 BOUNDS 只框住内置默认方案，自画方案会截到空白处）
+        const b = contentBounds() || [BOUNDS.x, BOUNDS.y, BOUNDS.x + BOUNDS.w, BOUNDS.y + BOUNDS.h];
+        const pad = 400;
+        let bx = b[0] - pad, by = b[1] - pad, bw = b[2] - b[0] + 2 * pad, bh = b[3] - b[1] + 2 * pad;
+        // 缩略图向卡片展示比例（约 480:434）靠拢：内容过扁时上下补白、过高时左右补白，始终完整不裁切
+        if (W === 480) {
+          const target = 434 / 480;                                  // 期望高 / 宽
+          if (bh / bw < target) { const need = bw * target; by -= (need - bh) / 2; bh = need; }
+          else { const need = bh / target; bx -= (need - bw) / 2; bw = need; }
+        }
+        const clone = svg.cloneNode(true), H = Math.round(W * bh / bw);
+        clone.setAttribute('viewBox', `${bx} ${by} ${bw} ${bh}`);
         clone.setAttribute('width', W); clone.setAttribute('height', H);
         clone.querySelector('#gSel').innerHTML = '';
         clone.querySelector('#gGrid').innerHTML = `<rect x="-20000" y="-20000" width="55000" height="55000" fill="${ui.layers.grid ? 'url(#grid)' : '#f7f4ee'}"/>`;
@@ -14172,7 +14221,7 @@
       if (dt === 'signnoentry') toast(tr('禁止驶入标志：点击放置；红底白横杠圆形牌面，右侧可改杆高 / 板径 / 朝向', 'No-entry sign: click to place; red circle with a white bar; edit height / diameter / angle in the panel'));
       if (dt === 'signwarn') toast(tr('注意行人标志：点击放置；黄底三角警示牌面，右侧可改杆高 / 板径 / 朝向', 'Pedestrian warning sign: click to place; yellow triangle face; edit height / diameter / angle in the panel'));
       if (dt === 'signboard') toast(tr('指路牌：点击放置；蓝底白字长条牌面，右侧可改牌面文字 / 杆高 / 板宽 / 朝向', 'Guide board: click to place; long blue face with white text; edit text / height / width / angle in the panel'));
-      if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；边长 / 高度在右侧改', 'Tie column: click a wall end or corner; edit size / height in the panel'));
+      if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；长 / 宽 / 高度在右侧改', 'Tie column: click a wall end or corner; edit length / width / height in the panel'));
       if (dt === 'lintel') toast(tr('过梁：沿门窗洞口上方点起点、终点；宽度 / 梁高 / 底标高在右侧改', 'Lintel: click start and end above an opening; edit width / height / level in the panel'));
       if (dt === 'seam') toast(tr('变形缝：点起点，再点终点；缝宽 / 缝深在右侧改', 'Movement joint: click start then end; edit joint width / depth in the panel'));
       if (dt === 'shaft') toast(tr('管道井：两次点击对角点；井壁厚 / 井高在右侧改，3D 为四壁井道', 'Service shaft: click two opposite corners; edit wall thickness / height in the panel'));
@@ -14371,7 +14420,7 @@
     $('#fileIn').onchange = e => {
       const file = e.target.files[0]; if (!file) return;
       file.text().then(txt => {
-        try { const s = JSON.parse(txt); if (!Array.isArray(s.furniture)) throw 0; applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); syncPlanName(file.name.replace(/\.json$/i, '')); toast(tr('方案已导入', 'Plan imported')); }
+        try { const s = JSON.parse(txt); if (!Array.isArray(s.furniture)) throw 0; applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); fitView(); syncPlanName(file.name.replace(/\.json$/i, '')); toast(tr('方案已导入', 'Plan imported')); }
         catch (err) { toast(tr('文件格式不正确', 'Invalid file format')); }
       });
       e.target.value = '';
@@ -14388,7 +14437,7 @@
 
     /* ======================= 服务器方案（Python 后端 /api/plans） ======================= */
     const planURL = n => '/api/plans/' + encodeURIComponent(n);
-    const cloudLoad = (s, name) => { applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); syncPlanName(name || ''); autoSaved = serializePlan(); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };   // 清空撤销栈：否则 Ctrl+Z 会退回上一个方案，而自动保存会把那份内容写进刚打开的文件
+    const cloudLoad = (s, name) => { applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); fitView(); syncPlanName(name || ''); autoSaved = serializePlan(); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };   // 清空撤销栈：否则 Ctrl+Z 会退回上一个方案，而自动保存会把那份内容写进刚打开的文件
     const cloudFail = () => toast(tr('操作失败：请确认程序已启动', 'Failed — make sure the app is running'));
 
     /* 自动保存：改动后 2 秒写入当前方案——已命名的方案直接回写自身，未命名 / 草稿仍写「自动保存」槽位（静默进行，失败不打扰，下次改动再试） */
@@ -18883,14 +18932,15 @@
               });
               return;
             }
-            if (T3 === 'tiecol' || T3 === 'chimney') {          // 构造柱 / 烟囱：方柱（烟囱从屋面标高起）
-              const s = Math.max(.06, M(e.w || 240)), z = T3 === 'chimney' ? Math.max(0, M(e.z || 2800)) : 0;
+            if (T3 === 'tiecol' || T3 === 'chimney') {          // 构造柱 / 烟囱：方柱（构造柱支持长×宽矩形截面；烟囱从屋面标高起）
+              const sw = Math.max(.06, M(e.w || 240)), sd = T3 === 'tiecol' ? Math.max(.06, M(e.d || e.w || 240)) : sw;
+              const z = T3 === 'chimney' ? Math.max(0, M(e.z || 2800)) : 0;
               const m = mat('#c2bbab', { roughness: .92 });
-              if (z < .3) colliders.push([px - s / 2 - .02, pz - s / 2 - .02, px + s / 2 + .02, pz + s / 2 + .02, z, z + h]);   // 落地构造柱挡人；烟囱从屋面起，不挡地面行走
-              box(s, h, s, px, z + h / 2, pz, m);
+              if (z < .3) colliders.push([px - sw / 2 - .02, pz - sd / 2 - .02, px + sw / 2 + .02, pz + sd / 2 + .02, z, z + h]);   // 落地构造柱挡人；烟囱从屋面起，不挡地面行走
+              box(sw, h, sd, px, z + h / 2, pz, m);
               if (T3 === 'chimney') {
-                box(s + .08, .08, s + .08, px, z + h + .04, pz, mat('#a9a293', { roughness: .9 }));
-                box(s * .5, .06, s * .5, px, z + h + .11, pz, mat('#4b453c', { roughness: 1 }));
+                box(sw + .08, .08, sw + .08, px, z + h + .04, pz, mat('#a9a293', { roughness: .9 }));
+                box(sw * .5, .06, sw * .5, px, z + h + .11, pz, mat('#4b453c', { roughness: 1 }));
               }
               return;
             }
@@ -19801,7 +19851,7 @@
       return [Math.min(...xs) - 300, Math.min(...ys) - 300, Math.max(...xs) + 300, Math.max(...ys) + 300];
     }
     function buildAllFloors() {
-      clearStackGroup(); floorWorlds = []; extraGroups = []; primaryCols = null;
+      clearStackGroup(); floorWorlds = []; extraGroups = []; primaryCols = null; stackDisp.clear();   // 旧楼层面板随场景一起失效，重新构建时重注册
       if (!scene || !opt.allFloors) return;
       const fs = state.floors || []; if (fs.length < 2) return;    // 单层无需堆叠，当前层已有完整几何
       stackGroup = new THREE.Group(); scene.add(stackGroup);
@@ -20288,10 +20338,13 @@
     const liftDoorReq = new Map();                                // 层站呼叫来源：id → Map<楼层索引, 门洞 id>，到站只开被呼叫的那扇层门
     const liftGo = new Map();                                     // 到站后待续行：id → { tAt }，门关到位再出发去下一个目标层
     const liftDir = new Map();                                    // 运行方向：id → 1 上行 / -1 下行，用于顺向优先调度
-    const liftDisp = new Map();                                  // 电梯显示屏：id → [panel]，运行时按当前楼层重绘内外面板 + 所有联动门洞呼叫面板
-    const regLiftDisp = (id, panel) => {                         // 注册面板（门洞先于电梯构建，需按 id 惰性建表）
+    const liftDisp = new Map();                                  // 当前层电梯显示屏：id → [panel]（buildArch 每次重建都会 clear）
+    const stackDisp = new Map();                                 // 整栋模式其它楼层门洞呼叫面板：id → [panel]，单独存，避免被当前层 buildArch 的 clear 清掉
+    const liftAllDisp = id => [...(liftDisp.get(id) || []), ...(stackDisp.get(id) || [])];   // 该电梯全部面板：当前层 + 其它楼层
+    const regLiftDisp = (id, panel) => {                         // 注册面板（门洞先于电梯构建，需按 id 惰性建表）；整栋模式构建其它楼层时写入 stackDisp
       if (id == null) return;
-      let a = liftDisp.get(id); if (!a) liftDisp.set(id, a = []);
+      const m = skipLift3D ? stackDisp : liftDisp;
+      let a = m.get(id); if (!a) m.set(id, a = []);
       a.push(panel);
     };
     function stairHOne(x, z, ref, W, withLift) {
@@ -20407,13 +20460,30 @@
     }
     let stuckT = 0;                                              // 卡死计时：持续有移动输入但两轴试探都被挡的累计秒数（松开移动键即清零）
     let stuckTip = null;                                         // 准星下方「脱离卡死」提示条（stepWalk 检测到卡死时显示；触屏可直接点它脱离）
-    function walkRespawn() {                                     // 回到入户门出生点：进入漫游与脱离卡死共用同一位置与朝向
-      const eg = entryGeom();
+    function walkRespawn() {                                     // 回到入户门出生点：进入漫游与脱离卡死共用同一位置与朝向；全楼层模式固定在 1F
+      let eg = null, yOff = 0;
+      const fs = state.floors || [];
+      const first = fs.length ? fs.reduce((a, b) => ((b.z || 0) < (a.z || 0) ? b : a)) : null;   // 1F = 标高最低的楼层（与 isGroundFloor 同定义）
+      if (opt.allFloors && first) {
+        // 整栋模式世界高度以「当前编辑层」为 0，1F 位于其下方：出生高度 = 1F 标高 - 当前层标高（与 buildAllFloors 的 y0 同式）
+        yOff = (first.z || 0) / 1000 - floorY();
+        // 出生门几何也取 1F：临时把 1F 分层数据换到顶层复用 entryGeom（读全局 state），完事立即还原
+        if (first.id === state.activeFloor) eg = entryGeom();
+        else {
+          const ss = {}; FLOOR_KEYS.forEach(k => ss[k] = state[k]);
+          try {
+            const d = state.byFloor?.[first.id];
+            if (d) FLOOR_KEYS.forEach(k => { state[k] = d[k] === undefined ? ss[k] : d[k]; });
+            eg = entryGeom();
+          } finally { FLOOR_KEYS.forEach(k => { state[k] = ss[k]; }); }
+        }
+        fallY = yOff; jumpY = jumpV = fallV = 0;                 // 支撑高度对齐 1F，避免第一帧被当前编辑层的支撑高度拉走
+      } else eg = entryGeom();
       if (eg) {
-        camera.position.set(wx(eg.cx + eg.out[0] * 1800), 1.6, wz(eg.cy + eg.out[1] * 1800));
-        camera.lookAt(wx(eg.cx), 1.5, wz(eg.cy));
+        camera.position.set(wx(eg.cx + eg.out[0] * 1800), yOff + 1.6, wz(eg.cy + eg.out[1] * 1800));
+        camera.lookAt(wx(eg.cx), yOff + 1.5, wz(eg.cy));
       } else {
-        camera.position.set(wx(4200), 1.6, wz(8755)); camera.lookAt(wx(7000), 1.5, wz(8755));   // 兜底：原始入户门外
+        camera.position.set(wx(4200), yOff + 1.6, wz(8755)); camera.lookAt(wx(7000), yOff + 1.5, wz(8755));   // 兜底：原始入户门外
       }
     }
     function unstickWalk() {                                     // 脱离卡死：先在附近环形找同层空位挪过去（半径逐档放大），找不到回入户门；重置跳跃 / 跌落 / 攀梯 / 趴下状态
@@ -20809,8 +20879,8 @@
       }
       return Math.max(0, Math.min(fs.length - 1, Math.round(l.cur ?? 0)));
     }
-    function liftRefreshDisp(id) {                                // 重绘该电梯的显示屏与所有联动面板（当前层 + 亮灯的目标层）
-      const a = liftDisp.get(id); if (!a || !a.length) return;
+    function liftRefreshDisp(id) {                                // 重绘该电梯的显示屏与所有联动面板（当前层 + 整栋其它楼层 + 亮灯的目标层）
+      const a = liftAllDisp(id); if (!a.length) return;
       const cur = liftCurIdx(id), lit = liftLit.get(id);
       a.forEach(p => p.setState(cur, lit));
     }
@@ -20915,7 +20985,7 @@
           const fsx = liftFloors(l);
           let ck = 0, cd = Infinity;
           fsx.forEach((v, i) => { const d = Math.abs(liftFloorY(l, i) - r.base); if (d < cd) { cd = d; ck = i; } });
-          if (r.dispK !== ck) { r.dispK = ck; (liftDisp.get(id) || []).forEach(p => p.setState(ck, liftLit.get(id))); }
+          if (r.dispK !== ck) { r.dispK = ck; liftAllDisp(id).forEach(p => p.setState(ck, liftLit.get(id))); }
         }
         ds.forEach(d => {
           if (d.group) d.group.position.y = r.base - r.from;      // 只移动轿厢组；联动层门固定在各自楼层
