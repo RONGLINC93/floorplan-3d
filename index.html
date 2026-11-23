@@ -3453,14 +3453,14 @@
           </div>
           <div class="dtg">
             <div class="dth" data-en="Security">安防监控</div>
-            <button class="btn chip" data-dt="camDome" title="半球摄像头：点击放置（默认吸顶高 2800、直径 120），2D 画半球罩 + 视场扇形，3D 为吸顶半球罩 + 镜头，可联动录像机实时取景"
-              data-en-title="Dome camera: click to place (ceiling 2800, ⌀120 by default); dome + view cone in 2D, ceiling dome + lens in 3D, linkable to an NVR for live view"
+            <button class="btn chip" data-dt="camDome" title="半球摄像头：点击放置（默认吸顶标高 2800、直径 120），支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式，2D 画半球罩 + 视场扇形，3D 按安装方式生成底盘 / 吊杆 / 墙架 / 立杆，可联动录像机实时取景"
+              data-en-title="Dome camera: click to place (ceiling 2800, ⌀120 by default); ceiling / pendant / wall / pole mounts, dome + view cone in 2D, plate / rod / bracket / pole in 3D, linkable to an NVR for live view"
               data-en="Dome camera"><i data-lucide="camera"></i>半球摄像头</button>
-            <button class="btn chip" data-dt="camPTZ" title="球形摄像头：点击放置（默认吊/壁装高 2800、球径 180），2D 画球形云台 + 视场扇形，3D 为球罩 + 云台支架 + 镜头，可联动录像机实时取景"
-              data-en-title="PTZ camera: click to place (mount 2800, ⌀180 by default); sphere pan-tilt + view cone in 2D, ball dome + bracket + lens in 3D, linkable to an NVR"
+            <button class="btn chip" data-dt="camPTZ" title="球形摄像头：点击放置（默认吊装标高 2800、球径 180），支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式，2D 画球形云台 + 视场扇形，3D 按安装方式生成底盘 / 吊杆 / 墙架 / 立杆，可联动录像机实时取景"
+              data-en-title="PTZ camera: click to place (pendant 2800, ⌀180 by default); ceiling / pendant / wall / pole mounts, sphere pan-tilt + view cone in 2D, plate / rod / bracket / pole in 3D, linkable to an NVR"
               data-en="PTZ camera"><i data-lucide="scan"></i>球形摄像头</button>
-            <button class="btn chip" data-dt="camBullet" title="枪型摄像头：点击放置（默认壁装高 2800、枪身宽 90），2D 画枪身 + 视场扇形，3D 为枪筒 + 支架 + 镜头，朝向可改，可联动录像机实时取景"
-              data-en-title="Bullet camera: click to place (wall 2800, 90 wide by default); barrel + view cone in 2D, bullet + bracket + lens in 3D, angle editable, linkable to an NVR"
+            <button class="btn chip" data-dt="camBullet" title="枪型摄像头：点击放置（默认壁装高 2800、枪身宽 90），支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式，2D 画枪身 + 视场扇形，3D 按安装方式生成底盘 / 吊杆 / 墙架 / 立杆，朝向可改，可联动录像机实时取景"
+              data-en-title="Bullet camera: click to place (wall 2800, 90 wide by default); ceiling / pendant / wall / pole mounts, barrel + view cone in 2D, plate / rod / bracket / pole in 3D, angle editable, linkable to an NVR"
               data-en="Bullet camera"><i data-lucide="video"></i>枪型摄像头</button>
             <button class="btn chip" data-dt="nvr" title="监控录像机：点击放置（默认 400×380×90），右侧可添加摄像机、设置连接的显示器，把所接摄像机的实时画面分屏显示在显示器上"
               data-en-title="NVR recorder: click to place (400×380×90 by default); add cameras and connect monitors in the panel to show live feeds split-screen"
@@ -6228,6 +6228,10 @@
        显示器实时画面：找到 mons 含该显示器 id 的录像机，取其 cams 逐路渲染到 WebGLRenderTarget 并贴到屏幕分格。 */
     const CAM_TYPES = ['camDome', 'camPTZ', 'camBullet'];
     const isCamType = t => CAM_TYPES.includes(t);
+    /* 摄像头安装方式：吸顶（贴天花板）/ 吊装（吊杆下垂）/ 壁装（墙面支架）/ 立杆（从地面立杆）。
+       mount 存在构件上；旧数据无 mount 时按类型给默认：半球吸顶、球形吊装、枪型壁装。 */
+    const CAM_MOUNTS = [['ceiling', '吸顶装', 'Ceiling mount'], ['pendant', '吊装', 'Pendant mount'], ['wall', '壁装', 'Wall mount'], ['pole', '立杆装', 'Pole mount']];
+    const camMount = e => CAM_MOUNTS.some(m => m[0] === e.mount) ? e.mount : (e.type === 'camBullet' ? 'wall' : e.type === 'camPTZ' ? 'pendant' : 'ceiling');
     const isNVR = t => t === 'nvr';
     const isMonitor = t => t === 'monitor';
     const isSecurity = t => isCamType(t) || isNVR(t) || isMonitor(t);
@@ -6471,20 +6475,34 @@
               const p1 = [e.x + Math.cos(a - half) * reach, e.y + Math.sin(a - half) * reach];
               const p2 = [e.x + Math.cos(a + half) * reach, e.y + Math.sin(a + half) * reach];
               const cone = `<polygon points="${e.x},${e.y} ${p1[0].toFixed(1)},${p1[1].toFixed(1)} ${p2[0].toFixed(1)},${p2[1].toFixed(1)}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-opacity=".45" stroke-width="1" stroke-dasharray="40 28" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+              const mnt = camMount(e);                           // 安装方式在俯视图中的标记：壁装=背后墙板短线 / 吊装=外围虚线圈 / 立杆=中心方杆帽
+              let mk = '';
+              if (mnt === 'wall') {
+                const back = e.type === 'camBullet' ? R * 1.2 : R;   // 机身 / 球罩后缘
+                const bx = e.x - ux * back, by = e.y - uy * back;
+                const wx = e.x - ux * R * 1.9, wy = e.y - uy * R * 1.9, L = R * 1.5, nx = -uy, ny = ux;
+                mk = `<line x1="${bx.toFixed(1)}" y1="${by.toFixed(1)}" x2="${wx.toFixed(1)}" y2="${wy.toFixed(1)}" stroke="${col}" stroke-opacity=".6" stroke-width="1.4" vector-effect="non-scaling-stroke" pointer-events="none"/>
+                  <line x1="${(wx - nx * L).toFixed(1)}" y1="${(wy - ny * L).toFixed(1)}" x2="${(wx + nx * L).toFixed(1)}" y2="${(wy + ny * L).toFixed(1)}" stroke="${col}" stroke-opacity=".8" stroke-width="3" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+              } else if (mnt === 'pendant') {
+                mk = `<circle cx="${e.x}" cy="${e.y}" r="${(R * 1.55).toFixed(1)}" fill="none" stroke="${col}" stroke-opacity=".55" stroke-width="1" stroke-dasharray="30 22" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+              } else if (mnt === 'pole') {
+                const cA = Math.cos(a), sA = Math.sin(a), S2 = R * .75;
+                mk = `<polygon points="${[[-S2, -S2], [S2, -S2], [S2, S2], [-S2, S2]].map(([dx, dy]) => `${(e.x + dx * cA - dy * sA).toFixed(1)},${(e.y + dx * sA + dy * cA).toFixed(1)}`).join(' ')}" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-opacity=".7" stroke-width="1.4" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+              }
               if (e.type === 'camBullet') {                      // 枪型：机身矩形 + 镜头 + 视场
                 const bw = R * 2.4, bd = R * .85, c = Math.cos(a), s = Math.sin(a);
                 const rect = (ox, oy, w2, d2) => [[-w2 / 2, -d2 / 2], [w2 / 2, -d2 / 2], [w2 / 2, d2 / 2], [-w2 / 2, d2 / 2]]
                   .map(([dx, dy]) => `${(e.x + ox + dx * c - dy * s).toFixed(1)},${(e.y + oy + dx * s + dy * c).toFixed(1)}`).join(' ');
                 inner = cone + `<polygon points="${rect(0, 0, bw, bd)}" fill="${col}" fill-opacity=".3" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
-                  <polygon points="${rect(ux * bw * .5, uy * bw * .5, R * .5, bd * .7)}" fill="${col}" fill-opacity=".7" stroke="none"/>`;
+                  <polygon points="${rect(ux * bw * .5, uy * bw * .5, R * .5, bd * .7)}" fill="${col}" fill-opacity=".7" stroke="none"/>` + mk;
               } else if (e.type === 'camPTZ') {                  // 球形：双层圆（云台 + 球罩）+ 视场
                 inner = cone + `<circle cx="${e.x}" cy="${e.y}" r="${R}" fill="${col}" fill-opacity=".22" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
                   <circle cx="${e.x}" cy="${e.y}" r="${R * .62}" fill="${col}" fill-opacity=".35" stroke="${col}" stroke-opacity=".6" stroke-width="1" vector-effect="non-scaling-stroke"/>
-                  <circle cx="${e.x + ux * R * .62}" cy="${e.y + uy * R * .62}" r="${R * .22}" fill="${col}" stroke="none"/>`;
+                  <circle cx="${e.x + ux * R * .62}" cy="${e.y + uy * R * .62}" r="${R * .22}" fill="${col}" stroke="none"/>` + mk;
               } else {                                            // 半球：半圆罩 + 底座圆 + 视场
                 inner = cone + `<circle cx="${e.x}" cy="${e.y}" r="${R}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
                   <path d="M ${e.x - R * .7} ${e.y} A ${R * .7} ${R * .7} 0 0 1 ${e.x + R * .7} ${e.y} Z" fill="${col}" fill-opacity=".4" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
-                  <circle cx="${e.x + ux * R * .5}" cy="${e.y + uy * R * .5}" r="${R * .2}" fill="${col}" stroke="none"/>`;
+                  <circle cx="${e.x + ux * R * .5}" cy="${e.y + uy * R * .5}" r="${R * .2}" fill="${col}" stroke="none"/>` + mk;
               }
             } else if (isNVR(e.type)) {                          // 录像机：机箱矩形 + 硬盘位 / 指示灯
               const w2 = Math.max(500, +e.w || 900), d2 = Math.max(300, +e.d || 700);
@@ -6493,18 +6511,17 @@
               inner = `<rect x="${e.x - w2 / 2}" y="${e.y - d2 / 2}" width="${w2}" height="${d2}" rx="30" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
                 <rect x="${e.x - w2 * .42}" y="${e.y - d2 * .08}" width="${w2 * .84}" height="${d2 * .42}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-opacity=".5" stroke-width=".9" vector-effect="non-scaling-stroke"/>
                 ${leds}`;
-            } else {                                              // 显示器：正视样式符号——机壳外框 + 深色内屏 + 支柱 + 底座；符号整体旋转，底座侧背对朝向，名称标注在底座后方
-              const w2 = Math.max(400, +e.w || 800), hh2 = w2 * .62;
-              const c = -Math.sin(a), s = Math.cos(a);            // 正视图整体旋转 rot+90°：符号「下」= 朝向反方向（背后）
-              const rect = (ox, oy, ww, dd) => [[-ww / 2, -dd / 2], [ww / 2, -dd / 2], [ww / 2, dd / 2], [-ww / 2, dd / 2]]
-                .map(([dx, dy]) => `${(e.x + ox + dx * c - dy * s).toFixed(1)},${(e.y + oy + dx * s + dy * c).toFixed(1)}`).join(' ');
-              const standH = w2 * .09, baseH = w2 * .07, baseFar = hh2 / 2 + standH + baseH;   // 支柱 / 底座画在机壳下方（背对屏幕朝向）
-              inner = `<polygon points="${rect(0, 0, w2, hh2)}" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="${on ? 2 : 1.4}" vector-effect="non-scaling-stroke"/>
-                <polygon points="${rect(0, hh2 * .04, w2 * .86, hh2 * .78)}" fill="#26313a" fill-opacity=".92" stroke="none"/>
-                <polygon points="${rect(0, -w2 * .035, w2 * .3, w2 * .07)}" fill="${col}" fill-opacity=".8" stroke="none"/>
-                <polygon points="${rect(0, -(hh2 / 2 + standH / 2), w2 * .18, standH)}" fill="${col}" fill-opacity=".8" stroke="none"/>
-                <polygon points="${rect(0, -(baseFar - baseH / 2), w2 * .55, baseH)}" fill="${col}" fill-opacity=".8" stroke="none"/>
-                ${T(e.x - ux * (baseFar + 160), e.y - uy * (baseFar + 160), extraName(e), col)}`;
+            } else {                                              // 显示器：俯视符号（对齐 3D 俯视）——底座圆 + 支柱 + 圆角薄片屏幕面板（后暗前亮的屏幕截面），名称标注在底座后方
+              const w2 = Math.max(400, +e.w || 800), t = Math.max(90, w2 * .13), baseR = Math.max(170, w2 * .27);
+              const rdeg = +e.rot || 0;
+              inner = `<circle cx="${e.x}" cy="${e.y}" r="${baseR}" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke"/>
+                <g transform="rotate(${rdeg} ${e.x} ${e.y})">
+                  <rect x="${(e.x - t * 1.25).toFixed(1)}" y="${(e.y - t * .3).toFixed(1)}" width="${(t * .75).toFixed(1)}" height="${(t * .6).toFixed(1)}" rx="${(t * .2).toFixed(1)}" fill="${col}" fill-opacity=".5" stroke="none"/>
+                  <rect x="${(e.x - t / 2).toFixed(1)}" y="${(e.y - w2 / 2).toFixed(1)}" width="${t.toFixed(1)}" height="${w2.toFixed(1)}" rx="${(t * .3).toFixed(1)}" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="${on ? 2 : 1.4}" vector-effect="non-scaling-stroke"/>
+                  <rect x="${(e.x - t * .46).toFixed(1)}" y="${(e.y - w2 * .48).toFixed(1)}" width="${(t * .5).toFixed(1)}" height="${(w2 * .96).toFixed(1)}" rx="${(t * .2).toFixed(1)}" fill="#1b242c" fill-opacity=".92" stroke="none"/>
+                  <rect x="${(e.x + t * .1).toFixed(1)}" y="${(e.y - w2 * .48).toFixed(1)}" width="${(t * .32).toFixed(1)}" height="${(w2 * .96).toFixed(1)}" rx="${(t * .14).toFixed(1)}" fill="#5aa6d8" fill-opacity=".88" stroke="none"/>
+                </g>
+                ${T(e.x - ux * (baseR + 170), e.y - uy * (baseR + 170), extraName(e), col)}`;
             }
           } else {                                                // 雨水管：圆 + 中心十字
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
@@ -7425,7 +7442,7 @@
       if (t === 'solar') return { ...base, w: 2000, d: 1600, h: 300, z: 2800 };
       if (t === 'equip') return { ...base, w: 1500, d: 1000, h: 800, thick: 150, z: 0 };
       if (isRoadType(t)) return { ...base, w: ROAD_STYLES[t].w, h: ROAD_STYLES[t].h };
-      if (isCamType(t)) return { ...base, w: t === 'camPTZ' ? 180 : t === 'camBullet' ? 90 : 120, h: 120, z: 2800, rot: 0, fov: 80 };   // 摄像头：安装高度 z、朝向 rot、视场角 fov
+      if (isCamType(t)) return { ...base, w: t === 'camPTZ' ? 180 : t === 'camBullet' ? 90 : 120, h: 120, z: 2800, rot: 0, fov: 80, mount: t === 'camBullet' ? 'wall' : t === 'camPTZ' ? 'pendant' : 'ceiling', drop: 400 };   // 摄像头：安装方式（默认半球吸顶 / 球形吊装 / 枪型壁装）、安装高度 z、吊杆长 drop、朝向 rot、视场角 fov
       if (isNVR(t)) return { ...base, w: 400, d: 380, h: 90, cams: [], mons: [] };   // 录像机：机箱尺寸 + 所接摄像机 / 显示器 id 列表
       if (isMonitor(t)) return { ...base, w: 800, h: 450, z: 400, rot: 0 };          // 显示器：屏幕宽高 + 中心标高 + 朝向
       return base;
@@ -7452,7 +7469,10 @@
           ? arr.map(x => `<label class="chk"><input type="checkbox" id="${idp}${x.id}" ${(sel || []).includes(x.id) ? 'checked' : ''}> ${esc(x.name || extraName(x) + ' ' + objNo(state.extras, x, q => q.type))}</label>`).join('')
           : `<div class="muted">${tr('暂无可选设备', 'No devices available')}</div>`;
         if (isCamType(e.type)) {
-          rows += `<label>${tr('安装高度', 'Mount height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="300" max="12000" step="50"></label>
+          const mnt = camMount(e);
+          rows += `<label title="${tr('吸顶=贴天花板；吊装=吊杆下垂；壁装=墙面支架伸出；立杆=从地面立杆', 'Ceiling / Pendant (drop rod) / Wall bracket / Pole from floor')}">${tr('安装方式', 'Mount')}<select id="exMount">${CAM_MOUNTS.map(([v, zh, en]) => `<option value="${v}" ${mnt === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('')}</select></label>
+            <label title="${mnt === 'ceiling' || mnt === 'pendant' ? tr('吸顶盘 / 吊杆顶的标高，摄像机挂在其下方', 'Level of the ceiling plate; camera hangs below it') : tr('摄像机镜头中心的高度', 'Height of the lens center')}">${mnt === 'ceiling' || mnt === 'pendant' ? tr('吸顶标高', 'Ceiling level') : tr('安装高度', 'Mount height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="300" max="12000" step="50"></label>
+            ${mnt === 'pendant' ? `<label>${tr('吊杆长', 'Drop rod')} (mm)<input type="number" id="exDrop" value="${Math.round(e.drop ?? 400)}" min="100" max="3000" step="50"></label>` : ''}
             <label>${tr('镜头尺寸', 'Lens size')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 120)}" min="40" max="600" step="10"></label>
             <label title="${tr('取景方向，决定 3D 实时画面的朝向', 'Viewing direction, decides the live 3D feed heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
             <label title="${tr('摄像机取景视场角，越大看得越广', 'Camera field of view; larger sees wider')}">${tr('视场角', 'Field of view')} (°)<input type="number" id="exFov" value="${Math.round(e.fov ?? 80)}" min="30" max="150" step="5"></label>`;
@@ -7514,7 +7534,7 @@
         if (e.type === 'solar') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('支架高', 'Stand')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 300)}" min="80" max="2000" step="10"></label>`;
         if (e.type === 'equip') rows += `<label>${tr('基础厚', 'Base')} (mm)<input type="number" id="exT" value="${Math.round(e.thick ?? 150)}" min="60" max="600" step="10"></label><label>${tr('设备高', 'Unit height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 800)}" min="200" max="4000" step="50"></label><label>${tr('安装标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" min="-500" max="12000" step="50"></label>`;
       }
-      const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，2D 画镜头 + 视场扇形，3D 按类型生成半球 / 球形云台 / 枪型模型。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装高度 / 朝向 / 视场角均可改。', 'Camera: click to place; 2D shows lens + view cone, 3D builds dome / PTZ / bullet model. Add it to an NVR and the 3D feed renders live from its viewpoint (people, animals, doors, lifts). Edit mount height / angle / FOV.')
+      const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式（壁装 / 立杆时此处为镜头中心高度，吸顶 / 吊装为吸顶盘标高，吊装另可改吊杆长）。2D 画镜头 + 视场扇形并带安装标记，3D 按类型生成半球 / 球形云台 / 枪型模型与对应支架。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装方式 / 高度 / 朝向 / 视场角均可改。', 'Camera: click to place; ceiling / pendant / wall / pole mounts (wall & pole use lens-center height, ceiling & pendant use the plate level, pendant adds a drop-rod length). 2D shows lens + view cone with mount marks, 3D builds dome / PTZ / bullet model with matching bracket. Add it to an NVR and the 3D feed renders live from its viewpoint. Edit mount / height / angle / FOV.')
           : isNVR(e.type) ? tr('录像机是监控系统的中枢：在上方勾选「添加的摄像机」登记要录像的镜头，再勾选「连接的显示器」指定把画面送到哪些屏幕。只有既被录像机添加、又连到显示器的摄像机画面才会出现在 3D 屏幕上。', 'NVR is the hub: check "Cameras" to register feeds, then check "Connected monitors" to route them. A camera appears on a 3D screen only if it is added here and that monitor is connected.')
             : tr('监控显示器在 3D 里真实显示所连录像机的摄像机实时画面：自动分屏（1/2/4/9 路）、每路带通道名与移动时间戳、REC 指示与扫描线；无连接时显示雪花「无信号」。屏幕宽高 / 标高 / 朝向可改。', 'Monitor shows live feeds from the connected NVR in 3D: auto split screen (1/2/4/9), per-channel name and running timestamp, REC indicator and scanlines; "NO SIGNAL" snow when unconnected. Edit size / height / angle.'))
         : e.type === 'slabhole' ? tr('2D 为虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边。', 'Dashed outline with cross in 2D; a cored hole with upturn in 3D.')
@@ -7606,7 +7626,12 @@
         upd('exD', (e, v) => e.d = v, 150, 1200);
         upd('exH', (e, v) => e.h = v, 40, 4000);
         upd('exFov', (e, v) => e.fov = v, 30, 150);
+        upd('exDrop', (e, v) => e.drop = v, 100, 3000);
         upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
+        const em = $('#exMount'); if (em) em.onchange = () => mutate(() => {
+          const e = (state.extras || []).find(x => x.id === id); if (!e) return;
+          e.mount = em.value; renderPanel();                     // 重绘面板：吸顶标高 / 吊杆长随安装方式切换
+        });
         upd('exX', (e, v) => e.x = v);
         upd('exY', (e, v) => e.y = v);
         if (isNVR(e0.type)) { bindChkList('camChk_', 'cams'); bindChkList('monChk_', 'mons'); }
@@ -18135,31 +18160,47 @@
               const grp = new THREE.Group(); grp.position.set(px, 0, pz); grp.rotation.y = -ang; archUp.add(grp);   // 部门本地 +x = 取景朝向
               const part = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; grp.add(o); return o; };
               if (isCamType(T3)) {
-                part(new THREE.CylinderGeometry(.075, .075, .022, 18), darkM, 0, mountY, 0);                       // 吸顶 / 壁装底盘
-                part(new THREE.CylinderGeometry(.016, .016, .1, 10), darkM, 0, mountY - .06, 0);                   // 短吊杆
+                const mnt = camMount(e);                                                                        // 安装方式：ceiling 吸顶 / pendant 吊装 / wall 壁装 / pole 立杆
+                const drop = mnt === 'pendant' ? Math.max(.1, M(e.drop ?? 400)) : 0;                            // 吊杆长（默认 400mm）
+                const attachY = mnt === 'pendant' ? mountY - drop : mnt === 'pole' ? Math.max(.5, mountY) - .12 : mountY;   // 摄像机挂点标高：吊装=吊杆下端，立杆=杆顶往下留支架高度
+                if (mnt === 'pendant') {
+                  part(new THREE.CylinderGeometry(.075, .075, .022, 18), darkM, 0, mountY, 0);                  // 吸顶盘
+                  part(new THREE.CylinderGeometry(.012, .012, drop, 10), darkM, 0, mountY - drop / 2, 0);       // 吊杆
+                } else if (mnt === 'wall') {
+                  part(new THREE.BoxGeometry(.016, .15, .15), darkM, -.085, attachY - .13, 0);                  // 墙面背板（竖板，法线沿取景方向）
+                  part(new THREE.BoxGeometry(.07, .018, .018), bodyM, -.048, attachY - .13, 0);                 // 悬臂支架
+                } else if (mnt === 'pole') {
+                  const poleLen = Math.max(.5, mountY) - .12;
+                  part(new THREE.CylinderGeometry(.11, .13, .02, 16), darkM, 0, .01, 0);                        // 地面底盘
+                  part(new THREE.CylinderGeometry(.028, .042, poleLen, 12), bodyM, 0, poleLen / 2, 0);          // 立杆
+                  colliders.push([px - .06, pz - .06, px + .06, pz + .06, 0, poleLen]);                         // 立杆占位（挡人）
+                } else {
+                  part(new THREE.CylinderGeometry(.075, .075, .022, 18), darkM, 0, mountY, 0);                  // 吸顶底盘
+                  if (T3 !== 'camDome') part(new THREE.CylinderGeometry(.016, .016, .1, 10), darkM, 0, mountY - .06, 0);   // 短吊杆（半球贴盘，无需）
+                }
                 if (T3 === 'camDome') {
                   const dome = new THREE.Mesh(new THREE.SphereGeometry(.11, 20, 12, 0, Math.PI * 2, 0, Math.PI / 2), bodyM);
-                  dome.position.set(0, mountY - .11, 0); dome.rotation.x = Math.PI; dome.castShadow = true; grp.add(dome);   // 半球罩朝下
-                  part(new THREE.SphereGeometry(.038, 14, 10), lensM, .045, mountY - .165, 0);                    // 镜头
-                  part(new THREE.CylinderGeometry(.012, .012, .008, 12), ledM, -.05, mountY - .15, .055);          // 状态灯
+                  dome.position.set(0, attachY - .11, 0); dome.rotation.x = Math.PI; dome.castShadow = true; grp.add(dome);   // 半球罩朝下
+                  part(new THREE.SphereGeometry(.038, 14, 10), lensM, .045, attachY - .165, 0);                    // 镜头
+                  part(new THREE.CylinderGeometry(.012, .012, .008, 12), ledM, -.05, attachY - .15, .055);          // 状态灯
                 } else if (T3 === 'camPTZ') {
-                  part(new THREE.BoxGeometry(.06, .05, .06), darkM, 0, mountY - .13, 0);                           // 云台
-                  const ball = part(new THREE.SphereGeometry(.105, 20, 14), bodyM, 0, mountY - .23, 0);           // 球形护罩
+                  part(new THREE.BoxGeometry(.06, .05, .06), darkM, 0, attachY - .13, 0);                           // 云台
+                  const ball = part(new THREE.SphereGeometry(.105, 20, 14), bodyM, 0, attachY - .23, 0);           // 球形护罩
                   ball.scale.y = .92;
-                  part(new THREE.CylinderGeometry(.042, .05, .05, 16), lensM, .09, mountY - .25, 0).rotation.z = Math.PI / 2;   // 前伸镜头
-                  part(new THREE.SphereGeometry(.012, 10, 8), ledM, .05, mountY - .17, .07);
+                  part(new THREE.CylinderGeometry(.042, .05, .05, 16), lensM, .09, attachY - .25, 0).rotation.z = Math.PI / 2;   // 前伸镜头
+                  part(new THREE.SphereGeometry(.012, 10, 8), ledM, .05, attachY - .17, .07);
                 } else {                                                                                          // 枪型：横置枪筒 + 支架
-                  part(new THREE.BoxGeometry(.05, .06, .05), darkM, 0, mountY - .13, 0);
-                  const barrel = part(new THREE.CylinderGeometry(.052, .058, .28, 16), bodyM, .1, mountY - .17, 0);
+                  part(new THREE.BoxGeometry(.05, .06, .05), darkM, 0, attachY - .13, 0);
+                  const barrel = part(new THREE.CylinderGeometry(.052, .058, .28, 16), bodyM, .1, attachY - .17, 0);
                   barrel.rotation.z = Math.PI / 2;                                                                // 筒身沿本地 +x（取景方向）
-                  part(new THREE.CylinderGeometry(.045, .045, .02, 16), lensM, .245, mountY - .17, 0).rotation.z = Math.PI / 2;
-                  part(new THREE.SphereGeometry(.011, 10, 8), ledM, .06, mountY - .12, .05);
+                  part(new THREE.CylinderGeometry(.045, .045, .02, 16), lensM, .245, attachY - .17, 0).rotation.z = Math.PI / 2;
+                  part(new THREE.SphereGeometry(.011, 10, 8), ledM, .06, attachY - .12, .05);
                 }
                 const W = 256, Hh = 144;                                                                          // 离屏取景：16:9
                 const rt = new THREE.WebGLRenderTarget(W, Hh, { minFilter: THREE.LinearFilter, magFilter: THREE.LinearFilter, format: THREE.RGBAFormat, depthBuffer: true });
                 rt.texture.colorSpace = THREE.SRGBColorSpace;
                 const rc = new THREE.PerspectiveCamera(Math.max(30, Math.min(150, +e.fov || 80)), W / Hh, .05, 120);
-                const lensY = mountY - (T3 === 'camBullet' ? .17 : T3 === 'camPTZ' ? .25 : .16);
+                const lensY = attachY - (T3 === 'camBullet' ? .17 : T3 === 'camPTZ' ? .25 : .16);
                 rc.position.set(px + Math.cos(ang) * .12, lensY, pz + Math.sin(ang) * .12);
                 const pitch = (T3 === 'camDome' ? 48 : T3 === 'camPTZ' ? 30 : 14) * Math.PI / 180, D = 5;
                 rc.lookAt(px + Math.cos(ang) * D, lensY - Math.tan(pitch) * D, pz + Math.sin(ang) * D);
