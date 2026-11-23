@@ -6493,18 +6493,18 @@
               inner = `<rect x="${e.x - w2 / 2}" y="${e.y - d2 / 2}" width="${w2}" height="${d2}" rx="30" fill="${col}" fill-opacity=".2" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
                 <rect x="${e.x - w2 * .42}" y="${e.y - d2 * .08}" width="${w2 * .84}" height="${d2 * .42}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-opacity=".5" stroke-width=".9" vector-effect="non-scaling-stroke"/>
                 ${leds}`;
-            } else {                                              // 显示器：正视样式符号——机壳外框 + 深色内屏 + 支柱 + 底座，名称标注在符号下方
+            } else {                                              // 显示器：正视样式符号——机壳外框 + 深色内屏 + 支柱 + 底座；符号整体旋转，底座侧背对朝向，名称标注在底座后方
               const w2 = Math.max(400, +e.w || 800), hh2 = w2 * .62;
-              const c = Math.cos(a), s = Math.sin(a);
+              const c = -Math.sin(a), s = Math.cos(a);            // 正视图整体旋转 rot+90°：符号「下」= 朝向反方向（背后）
               const rect = (ox, oy, ww, dd) => [[-ww / 2, -dd / 2], [ww / 2, -dd / 2], [ww / 2, dd / 2], [-ww / 2, dd / 2]]
                 .map(([dx, dy]) => `${(e.x + ox + dx * c - dy * s).toFixed(1)},${(e.y + oy + dx * s + dy * c).toFixed(1)}`).join(' ');
-              const standH = w2 * .09, baseH = w2 * .07, baseOff = hh2 / 2 + standH + baseH / 2;   // 支柱 / 底座画在机壳下方（朝向反方向）
+              const standH = w2 * .09, baseH = w2 * .07, baseFar = hh2 / 2 + standH + baseH;   // 支柱 / 底座画在机壳下方（背对屏幕朝向）
               inner = `<polygon points="${rect(0, 0, w2, hh2)}" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="${on ? 2 : 1.4}" vector-effect="non-scaling-stroke"/>
                 <polygon points="${rect(0, hh2 * .04, w2 * .86, hh2 * .78)}" fill="#26313a" fill-opacity=".92" stroke="none"/>
                 <polygon points="${rect(0, -w2 * .035, w2 * .3, w2 * .07)}" fill="${col}" fill-opacity=".8" stroke="none"/>
                 <polygon points="${rect(0, -(hh2 / 2 + standH / 2), w2 * .18, standH)}" fill="${col}" fill-opacity=".8" stroke="none"/>
-                <polygon points="${rect(0, -baseOff, w2 * .55, baseH)}" fill="${col}" fill-opacity=".8" stroke="none"/>
-                ${T(e.x, e.y + hh2 / 2 + baseH + 160, extraName(e), col)}`;
+                <polygon points="${rect(0, -(baseFar - baseH / 2), w2 * .55, baseH)}" fill="${col}" fill-opacity=".8" stroke="none"/>
+                ${T(e.x - ux * (baseFar + 160), e.y - uy * (baseFar + 160), extraName(e), col)}`;
             }
           } else {                                                // 雨水管：圆 + 中心十字
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
