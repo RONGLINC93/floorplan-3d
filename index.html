@@ -18690,8 +18690,8 @@
               const stripe = (off, len, color, thick, pattern) => {
                 const m = mat(color, { roughness: .85 });
                 if (!pattern) { const [px, pz] = pos(0, off); box(len, .012, thick, px, h + .004, pz, m, rot); return; }
-                for (let t = 0; t < L - .05; t += pattern[0] + pattern[1]) {
-                  const seg = Math.min(pattern[0], L - t); if (seg < .15) break;
+                for (let t = -L / 2; t < L / 2 - .05; t += pattern[0] + pattern[1]) {
+                  const seg = Math.min(pattern[0], L / 2 - t); if (seg < .15) break;
                   const [px, pz] = pos(t + seg / 2, off);
                   box(seg, .012, thick, px, h + .004, pz, m, rot);
                 }
@@ -18709,8 +18709,8 @@
               if (st.centerStyle === 'double') [-.1, .1].forEach(o => stripe(o * lay.scale, L, st.center, .1));
               else if (st.centerStyle === 'dash') stripe(0, L, st.center, .12, dash);
               if (st.grid) {                                    // 小道 / 人行道：铺装分格与路缘
-                const step = st.grid / 1000;
-                for (let t = step; t < L - .05; t += step) { const [px, pz] = pos(t, 0); box(.02, .008, w, px, h + .004, pz, mat(st.edge, { roughness: .95 }), rot); }
+                const step = st.grid / 1000, n = Math.max(2, Math.round(L / step));
+                for (let i = 1; i < n; i++) { const [px, pz] = pos(-L / 2 + i * L / n, 0); box(.02, .008, w, px, h + .004, pz, mat(st.edge, { roughness: .95 }), rot); }
                 if (st.curb) {
                   const co = Math.max(0, half - Math.min(.12, half * .2));
                   [-1, 1].forEach(sd => { const [px, pz] = pos(0, sd * co); box(L, .1, .1, px, h, pz, mat('#8f887a', { roughness: .95 }), rot); });
