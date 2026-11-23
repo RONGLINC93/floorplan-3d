@@ -8,9 +8,25 @@
 
 ## 界面预览
 
-| 2D 设计模式（画墙 / 门窗 / 柱子 / 楼梯） | 3D 场景（鸟瞰 / 漫游） |
+**2D 平面设计**：画墙 / 门窗 / 柱子 / 楼梯，尺寸与面积实时标注
+
+![2D 平面设计](docs/screenshots/screenshots1.png)
+
+**3D 鸟瞰与剖切**：全高墙 / 剖切墙切换，支持全楼层同屏查看
+
+| 3D 鸟瞰（单层） | 全楼层剖切 |
 | --- | --- |
-| ![2D 设计模式](docs/screenshots/screenshots1.png) | ![3D 场景](docs/screenshots/screenshots2.png) |
+| ![3D 鸟瞰](docs/screenshots/screenshots2.png) | ![全楼层剖切](docs/screenshots/screenshots3.png) |
+
+**3D 漫游与电梯**：第一人称漫游（WASD / 虚拟摇杆），可点门开关；电梯门呼梯、轿厢内选层、到站自动开门
+
+| 3D 漫游（建筑外观） | 电梯门呼梯（发光楼层显示屏） |
+| --- | --- |
+| ![3D 漫游](docs/screenshots/screenshots4.png) | ![电梯门呼梯](docs/screenshots/screenshots5.png) |
+
+电梯轿厢内楼层按钮可多选排队亮灯，按运行方向顺向依次停靠：
+
+![电梯轿厢操作面板](docs/screenshots/screenshots6.png)
 
 ## 功能
 

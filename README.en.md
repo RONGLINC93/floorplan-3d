@@ -8,9 +8,25 @@ A pure front-end tool for interior design on a floor plan: place furniture, remo
 
 ## Screenshots
 
-| 2D Design mode (walls / doors & windows / columns / stairs) | 3D scene (bird's-eye / walkthrough) |
+**2D floor plan design**: draw walls / doors & windows / columns / stairs, with live dimensions and area labels
+
+![2D design mode](docs/screenshots/screenshots1.png)
+
+**3D bird's-eye and cutaway**: switch between full-height and cutaway walls, and view all floors at once
+
+| 3D bird's-eye (single floor) | All floors, cutaway view |
 | --- | --- |
-| ![2D design mode](docs/screenshots/screenshots1.png) | ![3D scene](docs/screenshots/screenshots2.png) |
+| ![3D bird's-eye](docs/screenshots/screenshots2.png) | ![All floors cutaway](docs/screenshots/screenshots3.png) |
+
+**3D walkthrough and elevator**: first-person walk (WASD / virtual joystick) with clickable doors; elevator call buttons, in-car floor selection, automatic door operation on arrival
+
+| 3D walkthrough (exterior) | Elevator door call panel (glowing floor display) |
+| --- | --- |
+| ![3D walkthrough](docs/screenshots/screenshots4.png) | ![Elevator call panel](docs/screenshots/screenshots5.png) |
+
+Multiple floor buttons in the car can be lit and queued; stops are served in the direction of travel:
+
+![Elevator car control panel](docs/screenshots/screenshots6.png)
 
 ## Features
 
