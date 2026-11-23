@@ -3,7 +3,7 @@
 # 启动：python app.py [--port 8765] [--data-dir plans]
 #       飞牛 fnOS 原生应用由 cmd/main 传入 --port 与 --data-dir（应用数据目录）
 """Floor-plan app: stdlib-only server hosting the web UI and plan storage API."""
-import argparse, json, socket, sys, threading, time, webbrowser
+import argparse, gzip, json, socket, sys, threading, time, webbrowser
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import quote, unquote, urlsplit
@@ -60,6 +60,11 @@ class Handler(BaseHTTPRequestHandler):
         elif isinstance(body, str):
             body = body.encode("utf-8")
         self.send_response(code)
+        # 文本类响应超 1.4KB 时 gzip 压缩：index.html 有 1.6MB，局域网手机 / 弱网首次加载明显提速（压缩比约 5:1）
+        if (len(body) > 1400 and "gzip" in (self.headers.get("Accept-Encoding") or "").lower()
+                and (ctype.startswith("text/") or "json" in ctype or ctype == "image/svg+xml")):
+            body = gzip.compress(body, 6)
+            self.send_header("Content-Encoding", "gzip")
         self.send_header("Content-Type", ctype)
         self.send_header("Content-Length", str(len(body)))
         self.send_header("Cache-Control", "no-store")

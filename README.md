@@ -78,22 +78,23 @@
 
 以下功能均为在原版基础上新增（原版仅一个 `index.html`，依赖 CDN）：
 
-- **Python 本地服务器**（`app.py`，FastAPI）：托管网页界面，同一局域网内手机 / 平板 / 电脑等任何设备浏览器均可访问（`http://<本机IP>:8765`）
+- **Python 本地服务器**（`app.py`，纯 Python 标准库，无第三方依赖）：托管网页界面（静态资源 gzip 压缩传输），同一局域网内手机 / 平板 / 电脑等任何设备浏览器均可访问（`http://<本机IP>:8765`）
 - **服务器端方案存储**：方案以 JSON 保存到服务器 `plans/` 目录，支持保存 / 打开 / 删除，并自动保存到服务器（`自动保存.json`）；写入采用「临时文件 + 原子替换」，避免写一半损坏。方案不再只存浏览器 localStorage，换设备不丢失
 - **依赖库完全本地化**：Three.js、图标库由 jsDelivr CDN 加载改为随 `libs/` 目录本地加载，**断网也能使用全部功能**
-- **一键启动**：Windows 双击 `启动服务器.bat`，自动检测并安装 Python 依赖后启动服务器
+- **一键启动**：Windows 双击 `启动服务器.bat` 即可启动服务器（仅需本机已安装 Python，无需安装其它依赖）
 - **移动端适配**：手机 / 小平板（≤820px）顶栏自动收纳为「⋯ 工具」，左右面板作为抽屉弹出、点遮罩或关闭按钮收起；画板浮件错层排布避免互相遮挡，触控目标加大，画墙长度新增「应用」按钮，输入框与弹窗适配小屏
 
 ## 快速开始
 
 ### 方式一：Python 本地服务器（推荐，支持多设备访问与服务器存方案）
 
-Windows 直接双击 `启动服务器.bat`（首次运行会自动安装依赖），或手动执行：
+Windows 直接双击 `启动服务器.bat`，或手动执行：
 
 ```bash
-pip install -r requirements.txt
 python app.py
 ```
+
+> 服务器只用 Python 标准库，无需安装任何第三方依赖（需 Python 3.8+）。
 
 启动后自动打开浏览器访问 `http://localhost:8765`；同一局域网内的其他设备访问 `http://<本机IP>:8765` 即可。
 
@@ -132,7 +133,7 @@ python3 -m http.server 8000
 - 原生 HTML / CSS / JavaScript，无框架、无构建步骤
 - 2D 平面图用 SVG 绘制
 - 3D 场景用 [Three.js](https://threejs.org/) r160（OrbitControls、PointerLockControls、RoundedBoxGeometry、RoomEnvironment、CSS2DRenderer）
-- 本地服务器用 Python + FastAPI / Uvicorn（`app.py`）
+- 本地服务器用 Python 标准库（`app.py`），无第三方依赖
 
 ## 设计模式与代码架构
 
@@ -154,7 +155,7 @@ libs/               本地 Three.js 等依赖库
 app.py              Python 本地服务器（网页托管 + 方案存取 API）
 plans/              服务器端保存的方案 JSON
 启动服务器.bat       Windows 一键启动脚本
-requirements.txt    Python 依赖
+CHANGELOG.md        更新日志（v1.0.16 及更早条目在 docs/CHANGELOG-archive.md）
 push.py             Git 推送脚本（python push.py [提交说明]）
 pull.py             Git 拉取脚本（python pull.py，rebase 方式）
 pack_fpk.py         飞牛 fnOS 应用打包脚本（python pack_fpk.py [版本号]，生成 .fpk 安装包）

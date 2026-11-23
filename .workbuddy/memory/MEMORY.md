@@ -13,8 +13,10 @@
 
 ## 其它踩坑备忘
 
-- 点式扩展构件放置：`onSvgPointerDown` 大数组白名单 + 点式放置分支两处都要加新类型，漏一处就"画不出来"。
-- 2D 扩展构件实际渲染容器是 `#gNotes`（不是 `#gExtras`）。
+- 点式扩展构件放置：`DRAW_PLACE_TOOLS`（Set 常量，原 onSvgPointerDown 内联 130 项数组）+ 点式放置分支两处都要加新类型，漏一处就"画不出来"。
+- **状态改动与 3D 刷新契约**：`View3D.sync()` 用 `window.stateRev` 版本号判断是否重算签名，凡是改变 `state` 的入口（`mutate` / `commit` / `undo` / `redo` 均已递增）必须走 `commit`，直接改 `state` 又期望 3D 刷新会失效。电量 / 信号相位这类每 0.5s 的字段刻意不 bump（视觉由 `applyLight` / `updateSolarVisuals` 直改）。
+- 2D 扩展构件实际渲染容器是 `#gNotes`（不是 `#gExtras`）；电梯 / 灯具 / 电箱的 2D 符号却画在 `gOpens`（`renderOpenings` 里的 renderLifts2 / renderLamps2 / renderBoxes2）。
 - 室内太阳能热水器类型叫 `solar`，路灯别占用这个名字；室内灯具 `LAMP_TYPES` 与路灯 `STREET_LAMP_TYPES` 不能重名。
 - 蓄能 / 电量等每 0.5s 变化的字段：只 `markDirty()` 不入撤销栈，否则撤销记录被刷爆。
 - `applyLight()` 统一控制所有自发光 / 点光源 / 光晕 / 光斑；新灯型挂 `lampGlowMats` + `userData.lampRef` 接入即可。
+- **验证纪律**：改 `index.html` 后必须 grep 复核（曾有外部编辑器并发覆盖、静默回退改动的情况）；浏览器冒烟测试必须 `python app.py --data-dir <临时目录>`，否则防抖自动保存会覆盖 `plans/` 里的真实方案。

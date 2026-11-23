@@ -78,22 +78,23 @@ Multiple floor buttons in the car can be lit and queued; stops are served in the
 
 The following features are all added on top of the original project (which is a single `index.html` with CDN dependencies):
 
-- **Python local server** (`app.py`, FastAPI): hosts the web UI so any device on the same network — phones, tablets, computers — can access it from a browser (`http://<your-ip>:8765`)
+- **Python local server** (`app.py`, pure Python standard library, zero third-party dependencies; static assets are gzip-compressed): hosts the web UI so any device on the same network — phones, tablets, computers — can access it from a browser (`http://<your-ip>:8765`)
 - **Server-side plan storage**: plans are saved as JSON in the server's `plans/` directory with save / open / delete support, plus automatic saving to the server (`autosave.json`); writes use "temp file + atomic replace" to prevent corruption. Plans no longer rely only on browser localStorage and survive device changes
 - **Fully localized dependencies**: Three.js and the icon library are now loaded from the local `libs/` directory instead of the jsDelivr CDN — **all features work offline**
-- **One-click launch**: on Windows, double-click `启动服务器.bat` to automatically check and install Python dependencies, then start the server
+- **One-click launch**: on Windows, double-click `启动服务器.bat` to start the server (requires only Python installed, no other dependencies)
 - **Mobile support**: on phones / small tablets (≤820px) the top bar collapses into an "⋯ Tools" menu and the side panels become drawers with a mask; floating widgets are re-staggered to avoid overlap, touch targets are enlarged, and wall-length input gains an "Apply" button
 
 ## Quick Start
 
 ### Option 1: Python local server (recommended — multi-device access, server-side plans)
 
-On Windows, just double-click `启动服务器.bat` (dependencies install automatically on first run), or run manually:
+On Windows, just double-click `启动服务器.bat`, or run manually:
 
 ```bash
-pip install -r requirements.txt
 python app.py
 ```
+
+> The server is pure Python standard library — no third-party dependencies (Python 3.8+).
 
 The browser opens `http://localhost:8765` automatically; other devices on the same network can visit `http://<your-ip>:8765`.
 
@@ -132,7 +133,7 @@ python3 -m http.server 8000
 - Vanilla HTML / CSS / JavaScript — no framework, no build step
 - 2D floor plan rendered with SVG
 - 3D scene built with [Three.js](https://threejs.org/) r160 (OrbitControls, PointerLockControls, RoundedBoxGeometry, RoomEnvironment, CSS2DRenderer)
-- Local server: Python + FastAPI / Uvicorn (`app.py`)
+- Local server: Python standard library (`app.py`), no third-party dependencies
 
 ## Design Patterns & Architecture
 
@@ -154,7 +155,7 @@ libs/               Local Three.js and other dependency libraries
 app.py              Python local server (web hosting + plan storage API)
 plans/              Plans saved on the server (JSON)
 启动服务器.bat       One-click launch script for Windows
-requirements.txt    Python dependencies
+CHANGELOG.md        Changelog (entries up to v1.0.16 archived in docs/CHANGELOG-archive.md)
 push.py             Git push script (python push.py [commit message])
 pull.py             Git pull script (python pull.py, rebase-based)
 pack_fpk.py         fnOS (飞牛 NAS) app packaging script (python pack_fpk.py [version], produces a .fpk installer)
