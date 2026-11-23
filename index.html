@@ -3675,7 +3675,7 @@
     /* ======================= 多语言（中文 / English，默认中文） ======================= */
     const LANG_KEY = 'huxing-lang';
     const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字）/ English
-    const APP_VER = '1.0.23';                       // 应用版本号：release.py 发布后自动同步 manifest 的 version=
+    const APP_VER = '1.0.24';                       // 应用版本号：release.py 发布后自动同步 manifest 的 version=
     let LANG = (() => { try { const l = localStorage.getItem(LANG_KEY); return LANGS.includes(l) ? l : 'zh'; } catch (e) { return 'zh'; } })();
     // 简 → 繁：先按词替换一字多义的字，再逐字查表（表由 OpenCC s2tw 按本页用到的字生成）
     const S2T_PHRASES = [['布置', '佈置'], ['布局', '佈局'], ['台面', '檯面'], ['复制', '複製']];
