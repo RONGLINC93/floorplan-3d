@@ -3330,6 +3330,10 @@
             <button class="btn chip" data-dt="lampSw" title="灯开关：点击位置放置（默认控制半径 6m）；3D 里点击开关面板，范围内的灯一起开 / 关"
               data-en-title="Light switch: click to place (6m control radius by default); click the switch in 3D to toggle all lamps within range"
               data-en="Light switch"><i data-lucide="toggle-right"></i>灯开关</button>
+            <button class="btn chip" data-dt="lampFloorSw"
+              title="地板开关：点击地面位置放置（地面平嵌面板，可选单开单控 ~ 四开单控共 9 种 86 型号 / 面板材质；默认控制半径 6m、贴地安装）；3D 里点击翘板可开 / 关所控灯（多联各联独立）"
+              data-en-title="Floor switch: click a floor position (flush floor panel, 9 standard 86 models from 1-gang 1-way to 4-gang 1-way, panel material; 6m control radius, flush-mounted by default); click the rockers in 3D to toggle its controlled lamps (per gang for multi-gang)"
+              data-en="Floor switch"><i data-lucide="toggle-right"></i>地板开关</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Outdoor & Equipment">室外 · 设备</div>
@@ -3943,7 +3947,7 @@
     }
 
     /* 灯具照明：吊灯 / 吸顶灯 / 筒灯 / 射灯 / 落地灯 / 壁灯 / 壁装灯管 / 壁装灯泡 + 灯开关（type → [中文名, 英文名]）；wall* 三类吸附墙体（wall + c 沿墙偏移 + side 墙面） */
-    const LAMP_NAMES = { chandelier: ['吊灯', 'Chandelier'], ceil: ['吸顶灯', 'Ceiling lamp'], down: ['筒灯', 'Downlight'], spot: ['射灯', 'Spotlight'], floor: ['落地灯', 'Floor lamp'], wall: ['壁灯', 'Wall lamp'], tube: ['壁装灯管', 'Wall tube light'], bulb: ['壁装灯泡', 'Wall bulb'], socket: ['插座', 'Socket'], network: ['网络信息插座', 'Network socket'], floorSocket: ['地插座', 'Floor socket'], trackSocket: ['轨道插座', 'Track socket'], deskSocket: ['桌面插座', 'Desk socket'], wallSwitch: ['墙面开关', 'Wall switch'], switch: ['灯开关', 'Light switch'] };
+    const LAMP_NAMES = { chandelier: ['吊灯', 'Chandelier'], ceil: ['吸顶灯', 'Ceiling lamp'], down: ['筒灯', 'Downlight'], spot: ['射灯', 'Spotlight'], floor: ['落地灯', 'Floor lamp'], wall: ['壁灯', 'Wall lamp'], tube: ['壁装灯管', 'Wall tube light'], bulb: ['壁装灯泡', 'Wall bulb'], socket: ['插座', 'Socket'], network: ['网络信息插座', 'Network socket'], floorSocket: ['地插座', 'Floor socket'], trackSocket: ['轨道插座', 'Track socket'], deskSocket: ['桌面插座', 'Desk socket'], wallSwitch: ['墙面开关', 'Wall switch'], floorSwitch: ['地板开关', 'Floor switch'], switch: ['灯开关', 'Light switch'] };
     const WALL_LAMP_TYPES = ['wall', 'tube', 'bulb', 'socket', 'network', 'trackSocket', 'wallSwitch'];
     const PASSIVE_LAMP_TYPES = ['socket', 'network', 'floorSocket', 'trackSocket', 'deskSocket'];    // 不发光、不参与照明的面板类对象
     /* 电箱设备目录：强电箱 = 漏电开关 / 空气开关（均可多选、每种可设数量）；弱电箱 = 光猫 / 交换机 / 无线路由器 / 有线路由器 */
@@ -3964,7 +3968,7 @@
     /* 整体拖动类 drag.kind 白名单（svg pointermove 的轴锁判定用） */
     const MOVE_DRAG_KINDS = new Set(['move', 'multiMove', 'noteMove', 'dimMove', 'railMove', 'beamMove', 'levelMove', 'liftMove', 'northMove', 'slabMove', 'stairMove', 'pillarMove']);
     /* 2D 落点处「创建新构件」的绘制工具白名单（onSvgPointerDown 用）：提为 Set 常量，避免每次点击重建 130+ 项数组字面量；新增点式 / 绘制工具记得同步补进来 */
-    const DRAW_PLACE_TOOLS = new Set(['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'barrier', 'streetlamp', 'solarlamp', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'pbox', 'wbox']);
+    const DRAW_PLACE_TOOLS = new Set(['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'barrier', 'streetlamp', 'solarlamp', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'lampFloorSw', 'pbox', 'wbox']);
     const BOX_NAME = { pbox: ['强电箱', 'Power box'], wbox: ['弱电箱', 'Weak-current box'] };
     const SOCKET_STYLES = {
       dual: ['二三插（五孔）', '2+3 pin (5-hole)'], two: ['二插（两孔）', '2 pin'], three: ['三插 10A', '3 pin 10A'],
@@ -3991,9 +3995,9 @@
       s3w1: ['三开单控', '3-gang 1-way'], s3w3: ['三开多控', '3-gang multi-way'], s4w1: ['四开单控', '4-gang 1-way']
     };
     const SWITCH_LAYOUT = { s1w1: [1, 1], s1w2: [1, 2], s2w1: [2, 1], s2w2: [2, 2], s1w3: [1, 3], s2w3: [2, 3], s3w1: [3, 1], s3w3: [3, 3], s4w1: [4, 1] };  // [联数, 路数]：1=单控 2=双控 3=多控
-    const PASSIVE_STYLES = { socket: [SOCKET_STYLES, 'dual'], network: [NETWORK_STYLES, 'rj45'], floorSocket: [FLOOR_SOCKET_STYLES, 'pop'], trackSocket: [TRACK_SOCKET_STYLES, 'track2'], deskSocket: [DESK_SOCKET_STYLES, 'desk1'], wallSwitch: [SWITCH_STYLES, 's1w1'] };
-    const isLightType = t => ![...PASSIVE_LAMP_TYPES, 'wallSwitch', 'switch'].includes(t);
-    const isSwitchType = t => t === 'switch' || t === 'wallSwitch';
+    const PASSIVE_STYLES = { socket: [SOCKET_STYLES, 'dual'], network: [NETWORK_STYLES, 'rj45'], floorSocket: [FLOOR_SOCKET_STYLES, 'pop'], trackSocket: [TRACK_SOCKET_STYLES, 'track2'], deskSocket: [DESK_SOCKET_STYLES, 'desk1'], wallSwitch: [SWITCH_STYLES, 's1w1'], floorSwitch: [SWITCH_STYLES, 's1w1'] };
+    const isLightType = t => ![...PASSIVE_LAMP_TYPES, 'wallSwitch', 'floorSwitch', 'switch'].includes(t);
+    const isSwitchType = t => t === 'switch' || t === 'wallSwitch' || t === 'floorSwitch';
     // 开关控制的灯：ctlMode='list' 时按显式选中的 id，否则按控制半径（旧方案兼容）
     // gang：多联开关的第几联（0 起）。多联且 ctlByGang[gang] 已配置时只取该联；否则回退到整开关 ctl（兼容旧方案 / 未分联）。
     // 不传 gang 时返回整开关控制的全部灯（各联并集），供既有关联线 / 反向列表 / 3D 整开关逻辑使用。
@@ -5282,7 +5286,7 @@
     }
     function renderLamps2() {                                   // 灯具 2D 符号 + 照亮范围虚线圈（亮着的灯画范围，关掉不画）
       return renderSwitchLinks2() + (state.lamps || []).map(l => {
-        const on = l.on !== false, isSw = l.type === 'switch', isElec = PASSIVE_LAMP_TYPES.includes(l.type) || l.type === 'wallSwitch', sel = ui.sel?.kind === 'lamp' && ui.sel.id === l.id;
+        const on = l.on !== false, isSw = l.type === 'switch', isElec = PASSIVE_LAMP_TYPES.includes(l.type) || l.type === 'wallSwitch' || l.type === 'floorSwitch', sel = ui.sel?.kind === 'lamp' && ui.sel.id === l.id;
         const pmFill = isElec || isSw ? (PANEL_FILL[l.panelMat || 'plastic'] || PANEL_FILL.plastic) : null;   // 开关 / 插座：按面板材质取 2D 配色
         const st = `fill="${pmFill || (isSw ? '#8d8069' : '#e8c56a')}" fill-opacity="${on ? .9 : .35}" stroke="${isElec ? '#7a7265' : on ? '#b58a2a' : '#9a917f'}" stroke-width="${sel ? 2 : 1}" vector-effect="non-scaling-stroke"`;
         let body;
@@ -5380,6 +5384,18 @@
             + pin(l.x, l.y - 2, 10, '#b5653a')                                                  // 下组三孔：接地孔在上（橙色）
             + pin(l.x - 25, l.y + 38, 10, '#b9b2a4') + pin(l.x + 25, l.y + 38, 10, '#b9b2a4')
             + ((l.style || 'pop') === 'popUsb' ? `<rect x="${l.x - 22}" y="${l.y + 100}" width="44" height="20" rx="4" fill="#4a4238"/>` : '');
+        }
+        else if (l.type === 'floorSwitch') {                    // 地板开关：方形地面盒 + 按型号画 1~4 联翘板（下方小点表示双控 / 多控）
+          const r = 140, [gangs, ways] = SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1;
+          const w = gangs === 1 ? 110 : (170 - (gangs - 1) * 12) / gangs, gap = w + 12;
+          let parts = '';
+          for (let i = 0; i < gangs; i++) {
+            const sx = l.x - ((gangs - 1) * gap) / 2 + i * gap;
+            parts += `<rect x="${Math.round(sx - w / 2)}" y="${l.y - 55}" width="${Math.round(w)}" height="100" rx="8" fill="${on ? '#fff6df' : '#8d8069'}" stroke="${on ? '#b58a2a' : '#6a6256'}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+            const dots = ways === 1 ? 0 : ways === 2 ? 1 : 2;   // 单控无点，双控 1 点，多控 2 点
+            for (let j = 0; j < dots; j++) parts += `<circle cx="${sx + (j - (dots - 1) / 2) * 14}" cy="${l.y + 78}" r="5" fill="#b5653a"/>`;
+          }
+          body = `<rect x="${l.x - r}" y="${l.y - r}" width="${2 * r}" height="${2 * r}" rx="24" ${st}/>` + parts;
         }
         else if (l.type === 'deskSocket') {                     // 桌面插座：长条桌面盒（五孔 + USB / 双五孔）
           const dual = (l.style || 'desk1') === 'desk2', pin = (x, y, rad, fill) => `<circle cx="${x}" cy="${y}" r="${rad}" fill="${fill}" stroke="none"/>`;
@@ -9974,32 +9990,32 @@
     }
 
     function lampPanel(l) {
-      const isSw = l.type === 'switch', isWall = WALL_LAMP_TYPES.includes(l.type), isPassive = PASSIVE_LAMP_TYPES.includes(l.type), isWallSw = l.type === 'wallSwitch';
+      const isSw = l.type === 'switch', isWall = WALL_LAMP_TYPES.includes(l.type), isPassive = PASSIVE_LAMP_TYPES.includes(l.type), isWallSw = l.type === 'wallSwitch', isFloorSw = l.type === 'floorSwitch', isAnySw = isSw || isWallSw || isFloorSw;
       const [zh, en] = LAMP_NAMES[l.type] || LAMP_NAMES.ceil;
       const wL = isWall ? (openingWallGeom(l.wall)?.L ?? 0) : 0;
       const fields = [];
       fields.push(nameField(l, lampLabel(l)));                   // 名称：对象列表与开关控制列表显示
-      const listMode = (isSw || isWallSw) && l.ctlMode === 'list';
-      if (!isSw && !isWallSw && !isPassive) fields.push(`<label title="${tr('夜景模式下的照亮范围半径（2D 虚线圈）', 'Light radius in night mode (dashed circle in 2D)')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 3000)}" min="500" max="9000" step="100"></label>`);
+      const listMode = isAnySw && l.ctlMode === 'list';
+      if (!isAnySw && !isPassive) fields.push(`<label title="${tr('夜景模式下的照亮范围半径（2D 虚线圈）', 'Light radius in night mode (dashed circle in 2D)')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 3000)}" min="500" max="9000" step="100"></label>`);
       if (PASSIVE_STYLES[l.type]) {                              // 面板类对象：按类型给出全部型号（电源 / 信息 / 地插 / 轨道 / 桌面）
         const [defs, dflt] = PASSIVE_STYLES[l.type];
         const styles = Object.entries(defs).map(([v, [szh, sen]]) => `<option value="${v}" ${(l.style || dflt) === v ? 'selected' : ''}>${tr(szh, sen)}</option>`).join('');
-        const [mlzh, mlen] = { socket: ['插座型号', 'Socket model'], network: ['网络接口型号', 'Network model'], floorSocket: ['地插型号', 'Floor socket model'], trackSocket: ['轨道插座型号', 'Track socket model'], deskSocket: ['桌面插座型号', 'Desk socket model'], wallSwitch: ['开关型号', 'Switch model'] }[l.type];
+        const [mlzh, mlen] = { socket: ['插座型号', 'Socket model'], network: ['网络接口型号', 'Network model'], floorSocket: ['地插型号', 'Floor socket model'], trackSocket: ['轨道插座型号', 'Track socket model'], deskSocket: ['桌面插座型号', 'Desk socket model'], wallSwitch: ['开关型号', 'Switch model'], floorSwitch: ['开关型号', 'Switch model'] }[l.type];
         fields.push(`<label title="${tr('型号决定面板上的接口组合与形态；2D / 3D 同步变化', 'Model decides the ports and shape; 2D / 3D update together')}">${tr(mlzh, mlen)}<select id="lStyle">${styles}</select></label>`);
       }
-      if (isPassive || isSw || isWallSw) {                       // 面板材质
+      if (isPassive || isAnySw) {                       // 面板材质
         const pm = Object.entries(PANEL_MATS).map(([v, [zh, en]]) => `<option value="${v}" ${(l.panelMat || 'plastic') === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('');
         fields.push(`<label class="full" title="${tr('开关 / 插座面板的 3D 材质与 2D 配色', '3D material and 2D tint of the switch / socket plate')}">${tr('面板材质', 'Panel material')}<select id="lPanelMat">${pm}</select></label>`);
       }
-      fields.push(`<label title="${isPassive ? tr('面板中心离地高度（地插为 0，桌面插座默认 750mm，墙插常见 300mm）', 'Plate height above floor (0 for floor sockets, 750mm for desk sockets, 300mm typical for wall plates)') : tr('面板离地高度（300–8000mm）', 'Height above floor (300–8000mm)')}">${tr('安装高度', 'Mount height')} (mm)<input type="number" id="lZ" value="${Math.round(l.z ?? (l.type === 'floorSocket' ? 0 : l.type === 'deskSocket' ? 750 : isPassive ? 300 : 1500))}" min="${['floorSocket', 'deskSocket'].includes(l.type) ? 0 : 300}" max="8000" step="50"></label>`);
+      fields.push(`<label title="${isPassive ? tr('面板中心离地高度（地插为 0，桌面插座默认 750mm，墙插常见 300mm）', 'Plate height above floor (0 for floor sockets, 750mm for desk sockets, 300mm typical for wall plates)') : tr('面板离地高度（300–8000mm）', 'Height above floor (300–8000mm)')}">${tr('安装高度', 'Mount height')} (mm)<input type="number" id="lZ" value="${Math.round(l.z ?? (l.type === 'floorSocket' || l.type === 'floorSwitch' ? 0 : l.type === 'deskSocket' ? 750 : isPassive ? 300 : 1500))}" min="${['floorSocket', 'deskSocket', 'floorSwitch'].includes(l.type) ? 0 : 300}" max="8000" step="50"></label>`);
       if (isWall) fields.push(`<label title="${tr('面板中心沿墙到墙起点的距离（0 到墙长）', 'Distance from wall start along the wall (0 to wall length)')}">${tr('沿墙位置', 'Along wall')} (mm)<input type="number" id="lC" value="${Math.round(l.c ?? 0)}" min="0" max="${Math.max(0, Math.round(wL))}" step="10"></label>`);
       if (!isPassive) fields.push(`<label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`);
       if (!isWall) fields.push(`<label>X (mm)<input type="number" id="lX" value="${Math.round(l.x)}" step="10"></label>`, `<label>Y (mm)<input type="number" id="lY" value="${Math.round(l.y)}" step="10"></label>`);
-      if (isSw || isWallSw) {                                    // 控制方式 + 控制半径同行（各占一列），在灯具列表上方
+      if (isAnySw) {                                    // 控制方式 + 控制半径同行（各占一列），在灯具列表上方
         fields.push(`<label title="${tr('按半径：控制半径内的灯；指定灯具：只控制下面勾选的灯', 'By radius: lamps within range; Selected lamps: only the checked lamps below')}">${tr('控制方式', 'Control mode')}<select id="lMode"><option value="radius" ${listMode ? '' : 'selected'}>${tr('按半径', 'By radius')}</option><option value="list" ${listMode ? 'selected' : ''}>${tr('指定灯具', 'Selected lamps')}</option></select></label>`);
         if (!listMode) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
       }
-      if (isSw || isWallSw) {                                        // 反向灯具列表：这个开关实际控制的灯（与灯具侧「联动开关」对称），悬停行在画板高亮对应灯
+      if (isAnySw) {                                        // 反向灯具列表：这个开关实际控制的灯（与灯具侧「联动开关」对称），悬停行在画板高亮对应灯
         // 多联开关：每一联各自列出受控灯具，实现「双开 / 三开 / 四开各开各的」；单联维持单一列表
         const gangs = (SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1)[0];
         const lights = (state.lamps || []).filter(x => isLightType(x.type));
@@ -10060,8 +10076,10 @@
                 ? tr('吸附在墙上：2D 里按住插座沿墙拖动即可滑动，右侧「换到墙另一面」可换面；型号支持二三插 / 16A / 带开关 / USB / 夜灯 / 漏保 / 智能 / 防水 / 工业插座，2D 与 3D 同步变化。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side in the panel; models: 2+3 pin / 16A / with switch / USB / night light / RCD / smart / weatherproof / industrial — 2D and 3D stay in sync.')
                 : isWallSw
                   ? tr('吸附在墙上：2D 里按住开关沿墙拖动即可滑动，右侧可换面 / 选型号（单开单控、双开双控、三开多控、四开单控等 9 种 86 面板）；双控 / 多控型号下，右侧「关联开关」列表勾选其它开关即可建立多位置控制关系（双向绑定），2D 自动画联络虚线；3D 里点击开关面板可开 / 关所控制的灯（按半径或指定灯具）。', 'Snapped to the wall: drag it in 2D to slide along the wall, flip side / choose model (9 standard 86 models: 1~4 gang, 1-way / 2-way / multi-way); for 2-way / multi-way models, link other switches in the panel list (mutual) and a dashed line is drawn in 2D; click the plate in 3D to toggle its controlled lamps (by radius or a picked list).')
-                  : isSw
-                    ? tr('3D 里点击开关面板：所控制的灯一起开 / 关（控制方式可选按半径或指定灯具）。', 'Click the switch in 3D: its controlled lamps toggle together (by radius or a picked list).')
+                  : isFloorSw
+                    ? tr('贴地平嵌面板：2D 里拖动改位置，右侧可选型号（单开单控 ~ 四开单控共 9 种 86 面板）/ 面板材质 / 抬高安装；控制方式可选按半径或指定灯具，双控 / 多控型号可关联其它开关；3D 里点击翘板即可开 / 关所控灯（多联各联独立）。', 'Flush floor panel: drag in 2D to reposition, choose model (9 standard 86 types, 1~4 gang) / material / raised mounting in the panel; control by radius or a picked list, link other switches for 2-way / multi-way; click the rockers in 3D to toggle its controlled lamps (per gang for multi-gang).')
+                    : isSw
+                      ? tr('3D 里点击开关面板：所控制的灯一起开 / 关（控制方式可选按半径或指定灯具）。', 'Click the switch in 3D: its controlled lamps toggle together (by radius or a picked list).')
                     : isWall
                       ? tr('吸附在墙上：2D 里按住灯沿墙拖动即可滑动（可跨到另一面）；开灯时灯头白天 / 夜景都会亮，3D 点灯体可开 / 关，2D 虚线圈即照亮范围（夜景才照亮周围）。', 'Snapped to the wall: drag it in 2D to slide along the wall (cross to the other side). The lamp head glows when on in 3D both day and night; click it in 3D to toggle. The dashed circle in 2D is the light radius (surroundings lit at night only).')
                       : tr('开灯时灯头白天 / 夜景都会亮（白天只亮灯头，不照亮周围）；3D 里点击灯体本身可开 / 关，2D 虚线圈即照亮范围。', 'The lamp head glows when on in 3D both day and night (by day the head only, without lighting the surroundings); click the lamp in 3D to toggle. The dashed circle in 2D is the light radius.');
@@ -10079,8 +10097,8 @@
           const v = parseFloat(e.target.value); if (isNaN(v)) return;
           mutate(() => {
             const l = g(); if (!l) return;
-            if (k === 'lR') l.r = Math.max(l.type === 'switch' ? 1000 : 500, Math.min(l.type === 'switch' ? 10000 : 9000, Math.round(v / 100) * 100));
-            else if (k === 'lZ') l.z = Math.max(['floorSocket', 'deskSocket'].includes(l.type) ? 0 : 300, Math.min(8000, Math.round(v / 50) * 50));
+            if (k === 'lR') l.r = Math.max(isSwitchType(l.type) ? 1000 : 500, Math.min(isSwitchType(l.type) ? 10000 : 9000, Math.round(v / 100) * 100));
+            else if (k === 'lZ') l.z = Math.max(['floorSocket', 'deskSocket', 'floorSwitch'].includes(l.type) ? 0 : 300, Math.min(8000, Math.round(v / 50) * 50));
             else if (k === 'lC') {                                    // 壁装灯具：沿墙位置（0 到墙长），同步墙面锚点
               l.c = Math.max(0, Math.min((openingWallGeom(l.wall)?.L ?? 0) - 100, Math.round(v / 10) * 10));
               const q = wallLampPos(l); if (q) { l.x = q.x; l.y = q.y; }
@@ -12621,7 +12639,7 @@
           return;
         }
         if (ui.drawTool?.startsWith('lamp')) {                            // 灯具 / 灯开关：点位置放置（夜景模式自动照亮，3D 点灯体 / 开关切换亮灭）
-          const T = { lampCh: ['chandelier', 3500, 1900], lampCeil: ['ceil', 3200, 2650], lampDown: ['down', 1800, 2650], lampSpot: ['spot', 2500, 2650], lampFloor: ['floor', 2200, 1500], lampWall: ['wall', 2200, 1600], lampTube: ['tube', 2600, 1900], lampBulb: ['bulb', 1800, 1800], lampSocket: ['socket', 0, 300], lampNetwork: ['network', 0, 300], lampFloorSock: ['floorSocket', 0, 0], lampTrackSock: ['trackSocket', 6000, 1100], lampDeskSock: ['deskSocket', 0, 750], lampWallSw: ['wallSwitch', 6000, 1100], lampSw: ['switch', 6000, 1100] }[ui.drawTool];
+          const T = { lampCh: ['chandelier', 3500, 1900], lampCeil: ['ceil', 3200, 2650], lampDown: ['down', 1800, 2650], lampSpot: ['spot', 2500, 2650], lampFloor: ['floor', 2200, 1500], lampWall: ['wall', 2200, 1600], lampTube: ['tube', 2600, 1900], lampBulb: ['bulb', 1800, 1800], lampSocket: ['socket', 0, 300], lampNetwork: ['network', 0, 300], lampFloorSock: ['floorSocket', 0, 0], lampTrackSock: ['trackSocket', 6000, 1100], lampDeskSock: ['deskSocket', 0, 750], lampWallSw: ['wallSwitch', 6000, 1100], lampSw: ['switch', 6000, 1100], lampFloorSw: ['floorSwitch', 6000, 0] }[ui.drawTool];
           const id = uid();
           if (WALL_LAMP_TYPES.includes(T[0])) {                           // 壁灯 / 壁装灯管 / 壁装灯泡：吸附墙体（点墙上的位置）
             const w = wallAt(p);
@@ -12654,7 +12672,9 @@
             ? tr('已放地插座 · 弹出式五孔（可选带 USB），右侧可改型号', 'Floor socket placed · pop-up 5-hole (optional USB), model editable in the panel')
             : ui.drawTool === 'lampDeskSock'
               ? tr('已放桌面插座 · 默认离地 0.75m，右侧可改型号 / 高度', 'Desk socket placed · 0.75m above floor by default, model / height editable in the panel')
-              : ui.drawTool === 'lampSw'
+              : ui.drawTool === 'lampFloorSw'
+                ? tr('已放地板开关 · 3D 里点击翘板可开 / 关所控灯（多联各联独立），右侧可选型号 / 面板材质', 'Floor switch placed · click the rockers in 3D to toggle its controlled lamps (per gang for multi-gang); model / panel material in the panel')
+                : ui.drawTool === 'lampSw'
                 ? tr('已放灯开关 · 3D 里点击开关面板，范围内的灯一起开 / 关', 'Switch placed · click it in 3D to toggle all lamps within range')
                 : tr('已放灯具 · 夜景模式自动照亮，3D 点灯体可开 / 关；照亮半径 / 安装高度在右侧改', 'Lamp placed · lights up in night mode, click it in 3D to toggle; radius / height in the panel'));
           renderPillars(); return;
@@ -14183,6 +14203,7 @@
       if (dt === 'lampCh' || dt === 'lampCeil' || dt === 'lampDown' || dt === 'lampSpot' || dt === 'lampFloor')
         toast(tr('灯具：点位置放置 · 夜景模式自动照亮，3D 点灯体可开 / 关；照亮半径 / 安装高度在右侧改', 'Lamp: click to place · lights up in night mode, click it in 3D to toggle; radius / height in the panel'));
       if (dt === 'lampSw') toast(tr('灯开关：点位置放置 · 3D 里点击开关面板，范围内的灯一起开 / 关', 'Light switch: click to place · click it in 3D to toggle all lamps within range'));
+      if (dt === 'lampFloorSw') toast(tr('地板开关：点击地面位置放置 · 3D 里点击翘板开 / 关所控灯（多联各联独立）', 'Floor switch: click a floor position · click the rockers in 3D to toggle its controlled lamps (per gang for multi-gang)'));
       if (dt === 'arch') toast(tr('拱形门洞：点击墙上的位置放置；直段高 / 拱高在右侧改', 'Arched opening: click a wall; edit spring height / rise in the panel'));
       if (dt === 'cornerwin') toast(tr('转角窗：点击两面墙的直角转角处，两侧各生成一樘落地玻璃', 'Corner window: click a square corner; one floor-to-ceiling pane goes on each wall'));
       if (dt === 'niche') toast(tr('壁龛：点击墙上的位置放置；龛底 / 龛高 / 龛深与开口朝向在右侧改', 'Niche: click a wall; edit sill / height / depth and facing in the panel'));
@@ -17133,7 +17154,7 @@
       colliders.push([wx(f.x) - W / 2, wz(f.y) - D / 2, wx(f.x) + W / 2, wz(f.y) + D / 2, Y, Y + H]);
     }
     function buildLamp3D(l) {                                   // 灯具 / 灯开关：灯体 + 夜景点光源（点光源挂 lampG，applyLight 统一按夜景与开关状态点亮）
-      const X = wx(l.x), Z = wz(l.y), Y = ['floorSocket', 'deskSocket'].includes(l.type) ? Math.max(0, (l.z ?? (l.type === 'deskSocket' ? 750 : 0)) / 1000) : Math.max(.3, (l.z ?? 1500) / 1000);
+      const X = wx(l.x), Z = wz(l.y), Y = ['floorSocket', 'deskSocket', 'floorSwitch'].includes(l.type) ? Math.max(0, (l.z ?? (l.type === 'deskSocket' ? 750 : 0)) / 1000) : Math.max(.3, (l.z ?? 1500) / 1000);
       const glow = PASSIVE_LAMP_TYPES.includes(l.type) ? null : oneMat(new THREE.MeshStandardMaterial({ color: '#fff6df', emissive: '#ffd9a0', emissiveIntensity: .3 }));
       if (glow) { glow.userData.lampRef = l; lampGlowMats.push(glow); }   // 发光材质记录归属的灯对象：开关状态变 → emissive 跟着变；插座不发光
       const headMat = (color, extra = {}) => {                   // 灯头 / 灯罩：白天也自发光，强度低于灯泡，随开关状态变化
@@ -17310,6 +17331,31 @@
           hole(.02, .008, .08, 0, '#4a4238');
         }
         if (fl) colliders.push([X - W / 2, Z - D / 2, X + W / 2, Z + D / 2, Y, Y + .032]);   // 面板仅 3cm 高：贴地可踩踏，抬高安装后只在对应高度挡人
+        tagPick(g, 'lamp', l.id); archUp.add(g);
+        return;
+      }
+      if (l.type === 'floorSwitch') {                           // 地板开关：地面平嵌面板 + 按型号生成 1~4 联翘板（顶面朝上，点翘板切所控灯）
+        const [gangs, ways] = SWITCH_LAYOUT[l.style || 's1w1'] || SWITCH_LAYOUT.s1w1;
+        const W = .3, D = .3;
+        const box = new THREE.Mesh(new THREE.BoxGeometry(W, .02, D), mat('#8d8069', { roughness: .75 }));
+        box.position.y = Y + .01; box.castShadow = box.receiveShadow = true; g.add(box);
+        const top = new THREE.Mesh(new THREE.BoxGeometry(W - .03, .008, D - .03), panelMat(l.panelMat));
+        top.position.y = Y + .026; top.receiveShadow = true; g.add(top);
+        const rw = gangs === 1 ? .13 : gangs === 2 ? .075 : gangs === 3 ? .052 : .04, gap = rw + .022;
+        for (let i = 0; i < gangs; i++) {
+          const sx = -((gangs - 1) * gap) / 2 + i * gap;
+          const rocker = new THREE.Mesh(new THREE.BoxGeometry(rw, .01, .075), (l.panelMat || 'plastic') === 'plastic' ? mat('#f5f0e6', { roughness: .5 }) : panelMat(l.panelMat));
+          rocker.position.set(sx, Y + .035, -.02); rocker.castShadow = true; g.add(rocker);
+          if (gangs > 1) tagPick(rocker, 'lamp', l.id), rocker.userData.gang = i;   // 多联：每个翘板单独拾取，点哪联切哪联
+          const dotMat = glow.clone(); dotMat.userData = { ...glow.userData, gangRef: { sw: l, gang: i } }; lampGlowMats.push(dotMat);
+          const dot = new THREE.Mesh(new THREE.CylinderGeometry(.007, .007, .004, 10), dotMat); dot.position.set(sx, Y + .032, .055); g.add(dot);   // 该联受控灯全亮时指示灯亮
+          const marks = ways === 1 ? 0 : ways === 2 ? 1 : 2;        // 双控 1 点，多控 2 点
+          for (let j = 0; j < marks; j++) {
+            const mk = new THREE.Mesh(new THREE.BoxGeometry(.005, .002, .005), mat('#b5653a', { roughness: .8 }));
+            mk.position.set(sx + (j - (marks - 1) / 2) * .011, Y + .031, .055); g.add(mk);
+          }
+        }
+        colliders.push([X - W / 2, Z - D / 2, X + W / 2, Z + D / 2, Y, Y + .045]);   // 面板 4.5cm 高：贴地可踩踏，抬高安装后只在对应高度挡人
         tagPick(g, 'lamp', l.id); archUp.add(g);
         return;
       }
@@ -18565,29 +18611,36 @@
       survRigs.forEach(r => r.rt && r.rt.dispose()); survRigs = []; survScreens = []; survScreenMeshes = []; survTexs.forEach(t => t.dispose()); survTexs = [];   // 安防监控：释放上一轮离屏渲染目标 / 屏幕纹理
       const top = opt.cut;
       allRooms().forEach(r => {
-        const st = state.rooms[r.id] || (stackDefaultFloors ? { mat: 'tile800' } : null);   // 整栋模式构建其它楼层：无样式房间按默认材质生成楼板 / 天花，上层仰视不再是空的
+        const styled = !!state.rooms[r.id];                        // 房间是否选过地面材料（有样式）
+        const st = state.rooms[r.id] || (stackDefaultFloors ? { mat: 'tile800' } : null);
         if (!st) return;                                           // 空方案：3D 里也不生成房间地面
         const m = floorMat(st.mat), bay = r.counted === false;
-        let geo;
-        if (bay) geo = new THREE.ExtrudeGeometry(shapeOf(r.poly), { depth: .45, bevelEnabled: false });
-        else {                                                     // 房间地板：楼梯间 / 电梯井 / 楼板洞口挖穿；洞口跨房间边界时按房间轮廓裁剪，各房间合起来开穿
-          const sh = shapeOf(r.poly);
-          holePathsFor(r.poly).forEach(pts => {
-            const p = new THREE.Path();
-            pts.forEach(([X, Z], i) => p[i ? 'lineTo' : 'moveTo'](X, -Z));
-            sh.holes.push(p);
-          });
-          geo = new THREE.ShapeGeometry(sh);
+        // 整栋模式下无样式房间完全不补（地面 + 天花都不生成）：roomsExtra 几何可能与 rooms 样式 id 失配（旧版楼层复制
+        // 只重生成几何 id、样式键留在源层），区域多边形又可能大于本层墙 outline，补出的板会从楼层侧面 / 顶面露出多余薄板。
+        // 有样式的房间照常生成；阳台（counted=false）即使无样式也照常生成，避免整栋视图里阳台消失。
+        const gen = styled || bay || !stackDefaultFloors;
+        if (gen) {
+          let geo;
+          if (bay) geo = new THREE.ExtrudeGeometry(shapeOf(r.poly), { depth: .45, bevelEnabled: false });
+          else {                                                   // 房间地板：楼梯间 / 电梯井 / 楼板洞口挖穿；洞口跨房间边界时按房间轮廓裁剪，各房间合起来开穿
+            const sh = shapeOf(r.poly);
+            holePathsFor(r.poly).forEach(pts => {
+              const p = new THREE.Path();
+              pts.forEach(([X, Z], i) => p[i ? 'lineTo' : 'moveTo'](X, -Z));
+              sh.holes.push(p);
+            });
+            geo = new THREE.ShapeGeometry(sh);
+          }
+          geo.rotateX(-Math.PI / 2);
+          const fl = new THREE.Mesh(geo, bay ? [m, mat('#e9e4da')] : m);
+          fl.receiveShadow = true; fl.userData.room = r.id;
+          fl.visible = opt.slabs !== false;                        // 楼板开关：房间地面跟随隐藏（洞口 / 俯视层间）
+          if (bay) { fl.castShadow = true; archUp.add(fl); } else archFloor.add(fl);
         }
-        geo.rotateX(-Math.PI / 2);
-        const fl = new THREE.Mesh(geo, bay ? [m, mat('#e9e4da')] : m);
-        fl.receiveShadow = true; fl.userData.room = r.id;
-        fl.visible = opt.slabs !== false;                          // 楼板开关：房间地面跟随隐藏（洞口 / 俯视层间）
-        if (bay) { fl.castShadow = true; archUp.add(fl); } else archFloor.add(fl);
         // 天花：法线朝下，只在室内仰视时可见；高度跟着该房间的墙高（面板里可单独设）
-        // 楼梯间 / 勾了「无天花」的房间不做天花，也不挂吊灯（保留通高）
+        // 楼梯间 / 勾了「无天花」的房间不做天花，也不挂吊灯（保留通高）；整栋模式无样式房间同样不补天花
         const noCeil = roomNoCeil(r), ch = roomCeilMM(r) / 1000;
-        if (!noCeil) {
+        if (!noCeil && gen) {
           const csh = shapeOf(r.poly, true);
           holePathsFor(r.poly).forEach(pts => {                  // 天花同样跟随洞口挖穿：否则楼梯间 / 电梯井 / 板洞被实心天花盖平，从上往下看像楼板没镂空
             const p = new THREE.Path();
@@ -18598,7 +18651,7 @@
           const ceil = new THREE.Mesh(cg, mat('#fbfaf7', { roughness: 1 })); ceil.position.y = ch; ceil.visible = top >= H;
           ceil.userData.ceil = true; archUp.add(ceil);
         }
-        if (r.at && !noCeil) {
+        if (r.at && !noCeil && gen) {
           const lamp = new THREE.Mesh(new THREE.CylinderGeometry(.22, .22, .02, 32), new THREE.MeshStandardMaterial({ color: '#fff', emissive: '#fff2d6', emissiveIntensity: .3 }));
           lamp.position.set(wx(r.at[0]), ch - .012, wz(r.at[1])); lamp.visible = top >= H; lampG.add(lamp);
           const pl = new THREE.PointLight(0xffd9a8, 0, 7, 1.6); pl.position.set(wx(r.at[0]), ch - .25, wz(r.at[1])); lampG.add(pl);
