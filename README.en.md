@@ -60,6 +60,13 @@ Multiple floor buttons in the car can be lit and queued; stops are served in the
 - The "Elevator door" opening (Building tools): link it to an elevator and set its floor; the call button beside the door (with a glowing floor display) summons the car to that level
 - Doors auto-close 6 seconds after opening; a light-curtain keeps them open when someone (or a pet) is in the doorway, and they reverse instantly if blocked while closing
 
+**Site & Roads**
+- New "Roads" group in Building tools: highway, road, city road, country road, footpath and sidewalk — click a start and end point (orthogonal / free mode, hold Shift to temporarily lock the axis)
+- 2D shows the pavement, curbs, dashed lane lines / double yellow center / median / paving joints by type; 3D builds a solid road surface with markings that stays walkable in roaming mode
+- End handles resize the road; the panel switches road type, edits "lanes per direction" (1-8; width is computed as lanes × lane width + median + shoulders), road width and pavement thickness; marquee selection, duplicate, delete, undo and per-floor storage are supported
+- Building tool "Street lamp": click to place; switch between single-arm / double-arm / courtyard / high-mast lamps; 2D plan shows the base, arm and head, 3D builds a tapered pole with a glowing head (only the pole base blocks walking, the head is overhead). Switchable on/off: click the pole in 3D or use the panel checkbox; switching to night mode automatically turns lamps back on and lights the surroundings (they can still be switched off manually at night; by day only the head glows); the panel edits pole diameter, height, arm length, angle and light radius, with marquee selection, duplicate, delete, undo and per-floor storage
+- Building tool "Solar street lamp": has a tilted roof panel, blinking red indicator and a battery bar on the pole. It charges by day, switches on automatically and drains the battery at night, and switches off when empty (manual on is blocked until recharged). Click the pole in 3D to toggle; the panel edits battery level, charge / drain rates and dimensions. The 2D plan shows the panel, battery percentage and blinking red dot
+
 **Plans & Statistics**
 - Automatic calculation of room areas and net usable floor area
 - Change the floor material of each room (wood, tiles, marble, terrazzo, carpet, etc.), with cost estimates based on area plus 5% wastage
