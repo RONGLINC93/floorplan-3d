@@ -3374,6 +3374,9 @@
             <button class="btn chip" data-dt="flag" title="旗杆：点击放置（默认杆径 120、高 6000），3D 为锥形杆 + 顶球 + 旗面，可拖动"
               data-en-title="Flagpole: click to place (⌀120, 6000 high by default); tapered pole + finial + flag in 3D, draggable"
               data-en="Flagpole"><i data-lucide="flag"></i>旗杆</button>
+            <button class="btn chip" data-dt="barrier" title="路障：点击放置；右侧可切换交通锥 / 水马 / 铁马 / 石墩，改尺寸与朝向"
+              data-en-title="Barrier: click to place; switch between traffic cone / water-filled barrier / steel horse / concrete block in the panel"
+              data-en="Barrier"><i data-lucide="cone"></i>路障</button>
             <button class="btn chip" data-dt="carport" title="电动车棚：两次点击对角点；默认 5000×3000、檐高 2500、柱径 100，3D 为钢柱 + 轻钢平顶"
               data-en-title="Bike shed: click two opposite corners; 5000×3000, eave 2500, posts 100 by default; steel posts + flat roof in 3D"
               data-en="Bike shed"><i data-lucide="warehouse"></i>电动车棚</button>
@@ -6168,10 +6171,11 @@
       shaft: ['管道井', 'Service shaft'], lawn: ['草坪', 'Lawn'], well2: ['雨水井', 'Drain well'],
       dormer: ['老虎窗', 'Dormer'], hatch: ['检修口', 'Roof hatch'], solar: ['太阳能', 'Solar heater'], equip: ['设备基础', 'Equipment base'],
       tiecol: ['构造柱', 'Tie column'], chimney: ['烟囱', 'Chimney'], tree: ['景观树', 'Tree'],
-      thresh: ['门槛石', 'Threshold'], flash: ['泛水线', 'Flashing'], band: ['檐口线脚', 'Cornice'], signbd: ['门头广告牌', 'Sign board'], flag: ['旗杆', 'Flagpole'], carport: ['电动车棚', 'Bike shed']
+      thresh: ['门槛石', 'Threshold'], flash: ['泛水线', 'Flashing'], band: ['檐口线脚', 'Cornice'], signbd: ['门头广告牌', 'Sign board'], flag: ['旗杆', 'Flagpole'], carport: ['电动车棚', 'Bike shed'],
+      barrier: ['路障', 'Barrier']
     };
     const isExtraLin = t => ['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path', 'thresh', 'flash', 'band', 'signbd'].includes(t);
-    const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag'].includes(t);
+    const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier'].includes(t);
     const extraRot = e => e && e.type === 'park' ? ((+e.rot || 0) % 360) : 0;                 // 仅停车位支持整车旋转
     function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
       if (!deg) return { x, y };
@@ -6247,6 +6251,34 @@
             inner = `<rect x="${e.x - r}" y="${e.y - r}" width="${r * 2}" height="${r * 2}" fill="${col}" fill-opacity=".22" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
               <line x1="${e.x - r}" y1="${e.y - r}" x2="${e.x + r}" y2="${e.y + r}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
               <line x1="${e.x + r}" y1="${e.y - r}" x2="${e.x - r}" y2="${e.y + r}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+          } else if (e.type === 'barrier') {                      // 路障：按样式画 2D 符号（锥：圆+三角；水马/铁马：矩形+纹路；石墩：实心圆）
+            const st = e.style || 'cone', a = ((+e.rot || 0) % 360) * Math.PI / 180;
+            const R = Math.max(140, r * 2.2);
+            const box2 = (w2, d2) => {                            // 旋转后的矩形四角（屏幕 y 向下）
+              const c = Math.cos(a), s = Math.sin(a);
+              return [[-w2 / 2, -d2 / 2], [w2 / 2, -d2 / 2], [w2 / 2, d2 / 2], [-w2 / 2, d2 / 2]]
+                .map(([dx, dy]) => `${(e.x + dx * c - dy * s).toFixed(1)},${(e.y + dx * s + dy * c).toFixed(1)}`).join(' ');
+            };
+            if (st === 'cone') {
+              inner = `<circle cx="${e.x}" cy="${e.y}" r="${R}" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
+                <polygon points="${e.x},${e.y - R * .78} ${e.x - R * .55},${e.y + R * .5} ${e.x + R * .55},${e.y + R * .5}" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+                <line x1="${e.x - R * .38}" y1="${e.y}" x2="${e.x + R * .38}" y2="${e.y}" stroke="${col}" stroke-width="1.6" vector-effect="non-scaling-stroke"/>`;
+            } else if (st === 'water' || st === 'horse') {
+              const w2 = Math.max(R * 2.4, st === 'water' ? 1200 : 2000), d2 = st === 'water' ? R * .7 : R * .45;
+              inner = `<polygon points="${box2(w2, d2)}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>`;
+              if (st === 'water') {                               // 水马：注水腔分格
+                for (let k = -2; k <= 2; k++) {
+                  const t = k * w2 / 6, c = Math.cos(a), s = Math.sin(a);
+                  inner += `<line x1="${e.x + t * c - d2 * .3 * s}" y1="${e.y + t * s + d2 * .3 * c}" x2="${e.x + t * c + d2 * .3 * s}" y2="${e.y + t * s - d2 * .3 * c}" stroke="${col}" stroke-width=".9" vector-effect="non-scaling-stroke"/>`;
+                }
+              } else {                                            // 铁马：交叉斜杆示意
+                const c = Math.cos(a), s = Math.sin(a), hx = w2 / 2 - R * .2;
+                inner += `<line x1="${e.x - hx * c}" y1="${e.y - hx * s}" x2="${e.x + hx * c}" y2="${e.y + hx * s}" stroke="${col}" stroke-width=".8" stroke-dasharray="40 30" vector-effect="non-scaling-stroke"/>`;
+              }
+            } else {
+              inner = `<circle cx="${e.x}" cy="${e.y}" r="${R * .85}" fill="${col}" fill-opacity=".32" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
+                <circle cx="${e.x}" cy="${e.y}" r="${R * .34}" fill="none" stroke="${col}" stroke-width=".9" stroke-dasharray="30 20" vector-effect="non-scaling-stroke"/>`;
+            }
           } else if (e.type === 'flag') {                         // 旗杆：杆点 + 旗面三角
             const fs2 = Math.max(220, r * 3);
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(30, r * .5)}" fill="${col}" stroke="none"/>
@@ -6431,6 +6463,7 @@
       if (K === 'lift') { const l = (state.lifts || []).find(x => x.id === sel.id); return l ? { kind: K, id: l.id, x: l.x, y: l.y, dir: +l.dir || 0 } : null; }
       if (BOX_ARR[K]) { const b = (state[BOX_ARR[K]] || []).find(x => x.id === sel.id); return b ? { kind: K, id: b.id, x: b.x, y: b.y, dir: +b.dir || 0 } : null; }
       if (K === 'flue') { const f = (state.flues || []).find(x => x.id === sel.id); return f ? { kind: K, id: f.id, x: f.x, y: f.y } : null; }
+      if (K === 'extra') { const o = (state.extras || []).find(x => x.id === sel.id); return o && o.type === 'barrier' ? { kind: K, id: o.id, x: o.x, y: o.y, rot: +o.rot || 0 } : null; }   // 路障支持 R 键转向
       if (ROT_LINEAR[K]) {
         const o = (state[ROT_LINEAR[K]] || []).find(x => x.id === sel.id);
         return o ? { kind: K, id: sel.id, a: o.a.slice(), b: o.b.slice() } : null;
@@ -6479,6 +6512,9 @@
         } else if (t.kind === 'flue') {
           const o = (state.flues || []).find(x => x.id === t.id); if (!o) return;
           const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y;
+        } else if (t.kind === 'extra') {
+          const o = (state.extras || []).find(x => x.id === t.id); if (!o || o.type !== 'barrier') return;
+          const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y; o.rot = norm(t.rot + deg);
         } else if (ROT_LINEAR[t.kind]) {
           const o = (state[ROT_LINEAR[t.kind]] || []).find(x => x.id === t.id); if (!o) return;
           o.a = rq(t.a[0], t.a[1]); o.b = rq(t.b[0], t.b[1]);
@@ -7149,6 +7185,7 @@
       if (t === 'band') return { ...base, w: 200, h: 150, z: 2000 };
       if (t === 'signbd') return { ...base, w: 120, h: 800, z: 2800 };
       if (t === 'flag') return { ...base, w: 120, h: 6000, flagY: 5400 };
+      if (t === 'barrier') return { ...base, w: 500, h: 750, style: 'cone', rot: 0 };   // 路障：默认交通锥（底宽 500 / 高 750），样式与朝向可在面板改
       if (t === 'carport') return { ...base, w: 5000, d: 3000, h: 2500, col: 100 };
       if (t === 'shaft') return { ...base, w: 1200, d: 800, h: 2800, t: 120, z: 0 };
       if (t === 'lawn') return { ...base, w: 2000, d: 1500, h: 60 };
@@ -7173,13 +7210,15 @@
           <label>${tr('起点', 'Start')} X (mm)<input type="number" id="exAX" value="${Math.round(e.a[0])}" step="10"></label>
           <label>${tr('起点', 'Start')} Y (mm)<input type="number" id="exAY" value="${Math.round(e.a[1])}" step="10"></label>`;
       } else if (pt) {
-        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : (e.type === 'tiecol' || e.type === 'chimney') ? tr('边长', 'Size') : tr('直径', 'Diameter');
+        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : (e.type === 'tiecol' || e.type === 'chimney') ? tr('边长', 'Size') : tr('直径', 'Diameter');
         const hl = e.type === 'tree' ? tr('树高', 'Tree height') : e.type === 'chimney' ? tr('出屋面高', 'Above roof') : tr('高度', 'Height');
         rows += `<label>${wl} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 100)}" min="60" max="4000" step="10"></label>
           <label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2800)}" min="300" max="12000" step="50"></label>
           ${e.type === 'flag' ? `<label title="${tr('3D 场景中点击旗杆可在升起 / 降下之间切换', 'In 3D, click the flagpole to toggle raised / lowered')}">${tr('旗面顶标高', 'Flag top')} (mm)<input type="number" id="exFY" value="${Math.round(e.flagY ?? Math.round((e.h ?? 6000) * .9))}" min="500" max="12000" step="50"></label>` : ''}
           ${e.type === 'chimney' ? `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label>` : ''}
           ${e.type === 'spout' ? `<label class="chk"><input type="checkbox" id="exHp" ${e.hopper ? 'checked' : ''}> ${tr('顶部落水斗', 'Top hopper')}</label>` : ''}
+          ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
+            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           <label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
           <label>${tr('位置', 'Position')} Y (mm)<input type="number" id="exY" value="${Math.round(e.y)}" step="10"></label>`;
       } else {
@@ -7224,7 +7263,8 @@
                                             : e.type === 'equip' ? tr('屋面设备基础，2D 画机组轮廓，3D 为基础与设备体量。', 'Rooftop equipment base and unit.')
                                               : e.type === 'tiecol' ? tr('构造柱设在墙端 / 墙交角，2D 为实心方块加叉，3D 为通高小方柱。', 'Tie column at wall ends and corners.')
                                                 : e.type === 'chimney' ? tr('烟囱出屋面，2D 为实心方块加叉，3D 为方柱与压顶。', 'Chimney above the roof with a cap.')
-                                                  : e.type === 'tree' ? tr('景观树点击放置，2D 画双层树冠，3D 为树干与球状树冠。', 'Landscape tree with a spherical canopy in 3D.')
+                                                  : e.type === 'barrier' ? tr('路障点击放置，右侧可切换交通锥 / 水马 / 铁马 / 石墩；2D 按样式画符号，3D 生成对应模型并可设朝向，四种样式在漫游中均可挡人。', 'Barrier: click to place, switch cone / water / steel horse / concrete block in the panel; 2D symbols and 3D models follow the style, all four block walking.')
+                                                    : e.type === 'tree' ? tr('景观树点击放置，2D 画双层树冠，3D 为树干与球状树冠。', 'Landscape tree with a spherical canopy in 3D.')
                                                     : tr('雨水管贴墙布置，2D 为圆加十字，3D 为竖向落水管；可拖动整体移动。', 'Downspout: circle in 2D, vertical pipe in 3D.');
       return `<section><h3>${nm}</h3>
     <div class="form">${nameField(e, nm + ' ' + objNo(state.extras, e, q => q.type))}${rows}</div>
@@ -7262,6 +7302,8 @@
         upd('exY', (e, v) => e.y = v);
         const hp = $('#exHp'); if (hp) hp.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.hopper = hp.checked; });
         upd('exFY', (e, v) => e.flagY = Math.min(e.h ?? 6000, Math.max(500, Math.round(v / 50) * 50)));   // 旗面升降（不超过杆顶）
+        const bs = $('#exStyle'); if (bs) bs.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.style = bs.value; });
+        upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
       } else {
         const ws = $('#exWS'); if (ws) ws.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.style = ws.value; });
         upd('exW', (e, v) => e.w = v, 100, 30000);
@@ -11664,7 +11706,7 @@
           }
           renderNotes(); return;
         }
-        if (['spout', 'tiecol', 'chimney', 'tree', 'flag'].includes(ui.drawTool)) {  // 点式扩展构件：点击放置
+        if (['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier'].includes(ui.drawTool)) {  // 点式扩展构件：点击放置
           const kind = ui.drawTool, q = snapPoint(p, e.shiftKey), id = uid();
           mutate(() => (state.extras = state.extras || []).push({
             ...extraDefaults(kind), id, x: Math.round(q.x / 10) * 10, y: Math.round(q.y / 10) * 10
@@ -11674,7 +11716,8 @@
             : kind === 'tiecol' ? tr('已放构造柱 · 边长 / 高度在右侧改', 'Tie column placed · edit size / height in the panel')
               : kind === 'chimney' ? tr('已放烟囱 · 边长 / 出屋面高 / 标高在右侧改', 'Chimney placed · edit size / height / level in the panel')
                 : kind === 'flag' ? tr('已放旗杆 · 杆径 / 高度在右侧改', 'Flagpole placed · edit diameter / height in the panel')
-                  : tr('已放雨水管 · 直径 / 高度在右侧改', 'Downspout placed · edit diameter / height in the panel'));
+                  : kind === 'barrier' ? tr('已放路障 · 样式（锥桶 / 水马 / 铁马 / 石墩）/ 尺寸 / 朝向在右侧改', 'Barrier placed · switch style (cone / water / steel horse / concrete block), size and angle in the panel')
+                    : tr('已放雨水管 · 直径 / 高度在右侧改', 'Downspout placed · edit diameter / height in the panel'));
           return;
         }
         if (ui.drawTool === 'leader' || ui.drawTool === 'section') {      // 引线标注 / 剖切符号：两点绘制
@@ -13191,6 +13234,7 @@
       if (dt === 'retain') toast(tr('挡土墙：点起点，再点终点；墙厚 / 高度在右侧改，带压顶', 'Retaining wall: click start then end; edit thickness / height in the panel'));
       if (dt === 'gutter') toast(tr('天沟 / 檐沟：点起点，再点终点；槽宽 / 槽深在右侧改', 'Gutter: click start then end; edit channel width / depth in the panel'));
       if (dt === 'spout') toast(tr('雨水管：点击放置；直径 / 高度在右侧改，可拖动整体移动', 'Downspout: click to place; edit diameter / height in the panel'));
+      if (dt === 'barrier') toast(tr('路障：点击放置；右侧切换锥桶 / 水马 / 铁马 / 石墩，改尺寸与朝向', 'Barrier: click to place; switch cone / water / steel horse / concrete block and edit size / angle in the panel'));
       if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；边长 / 高度在右侧改', 'Tie column: click a wall end or corner; edit size / height in the panel'));
       if (dt === 'lintel') toast(tr('过梁：沿门窗洞口上方点起点、终点；宽度 / 梁高 / 底标高在右侧改', 'Lintel: click start and end above an opening; edit width / height / level in the panel'));
       if (dt === 'seam') toast(tr('变形缝：点起点，再点终点；缝宽 / 缝深在右侧改', 'Movement joint: click start then end; edit joint width / depth in the panel'));
@@ -17636,6 +17680,46 @@
               const fy = Math.min(h - .5, Math.max(.5, M(e.flagY ?? Math.round(h * 1000 * .9))));
               const fb = box(fw, fh, .02, px + fw / 2 + r, fy - fh / 2, pz, mat('#a44e3d', { roughness: .8 }));
               fb.userData.flagId = e.id; fb.userData.flagMeshFor = e.id;   // flagMeshFor 供升降动画逐帧定位
+              return;
+            }
+            if (T3 === 'barrier') {                             // 路障：锥桶 / 水马 / 铁马 / 石墩，带朝向
+              const st = e.style || 'cone', W = Math.max(.2, M(e.w || 500)), ang = ((+e.rot || 0) % 360) * Math.PI / 180;
+              const grp = new THREE.Group(); grp.position.set(px, 0, pz); grp.rotation.y = -ang; archUp.add(grp);
+              const part = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; grp.add(o); return o; };
+              const orange = mat('#e87722', { roughness: .65 }), white = mat('#f2ece0', { roughness: .7 }), dark = mat('#5d6469', { metalness: .5, roughness: .5 });
+              if (st === 'cone') {                              // 交通锥：方底座 + 锥体 + 两道反光白条
+                const bw = W, bh = Math.max(.25, h * .12), cr = W * .28;
+                part(new THREE.BoxGeometry(bw, bh, bw), dark, 0, bh / 2, 0);
+                part(new THREE.CylinderGeometry(cr * .3, cr, h - bh, 16), orange, 0, bh + (h - bh) / 2, 0);
+                [.38, .68].forEach(t => {
+                  const yy = bh + (h - bh) * t, rr = cr * (1 - t) * .92 + .012;
+                  part(new THREE.CylinderGeometry(rr, rr + .012, .055, 16), white, 0, yy, 0);
+                });
+                colliders.push([px - bw / 2, pz - bw / 2, px + bw / 2, pz + bw / 2, 0, h]);
+              } else if (st === 'water') {                      // 水马：注水底座 + 上横梁 + 反光条
+                const bw = Math.max(1, W * 2.4), bd = Math.max(.25, W * .6), bh = Math.max(.35, h * .45);
+                part(new THREE.BoxGeometry(bw, bh, bd), orange, 0, bh / 2, 0);
+                part(new THREE.BoxGeometry(bw * .96, Math.max(.12, h - bh), bd * .72), orange, 0, bh + (h - bh) / 2, 0);
+                part(new THREE.BoxGeometry(bw * .6, .07, bd * .78), white, 0, h * .62, 0);
+                part(new THREE.BoxGeometry(bw * .6, .07, bd * .78), white, 0, h * .86, 0);
+                const c = Math.abs(Math.cos(ang)), s = Math.abs(Math.sin(ang)), hx = (bw * c + bd * s) / 2, hz = (bw * s + bd * c) / 2;
+                colliders.push([px - hx, pz - hz, px + hx, pz + hz, 0, h]);
+              } else if (st === 'horse') {                      // 铁马：双立柱 + 两道横杆 + 两支脚
+                const bw = Math.max(1, W * 4), bd = Math.max(.18, W * .4);
+                [-1, 1].forEach(sd => {
+                  part(new THREE.BoxGeometry(.06, h, .06), dark, sd * (bw / 2 - .03), h / 2, 0);
+                  part(new THREE.BoxGeometry(.05, h * .55, .05), dark, sd * (bw / 2 - .03), h * .275, sd * bd * .55);   // 支脚
+                });
+                [.42, .85].forEach(t => part(new THREE.BoxGeometry(bw, .07, .07), orange, 0, h * t, 0));
+                const c = Math.abs(Math.cos(ang)), s = Math.abs(Math.sin(ang)), hx = (bw * c + bd * s) / 2, hz = (bw * s + bd * c) / 2;
+                colliders.push([px - hx, pz - hz, px + hx, pz + hz, 0, h]);
+              } else {                                          // 石墩：圆柱墩 + 顶盖 + 反光环
+                const rr = Math.max(.2, W / 2);
+                part(new THREE.CylinderGeometry(rr * .88, rr, h, 18), mat('#c9c5b9', { roughness: .95 }), 0, h / 2, 0);
+                part(new THREE.CylinderGeometry(rr * .95, rr * .95, .06, 18), mat('#a9a397', { roughness: .9 }), 0, h + .03, 0);
+                [.5, .78].forEach(t => part(new THREE.CylinderGeometry(rr * .9, rr * .9, .05, 18), orange, 0, h * t, 0));
+                colliders.push([px - rr, pz - rr, px + rr, pz + rr, 0, h]);
+              }
               return;
             }
             const r = Math.max(.02, M(e.w || 100) / 2);
