@@ -5921,7 +5921,7 @@
         const st2 = ROAD_STYLES[ui.drawTool];
         const pts = ui.exPts.map(p => [p[0], p[1]]).concat([[Math.round(ui.exCur.x), Math.round(ui.exCur.y)]]);
         const tmp = { type: ui.drawTool, w: st2.w, h: st2.h, pts, fillet: 3000 };
-        const sm = roadSamples(tmp), hw = (+st2.w || 6000) / 2;
+        const sm = roadSamples(tmp).pts, hw = (+st2.w || 6000) / 2;
         s += roadRibbon2(sm, hw, -hw, `fill="${st2.fill}" fill-opacity=".5" stroke="none" pointer-events="none"`);
         [-1, 1].forEach(sd => { s += roadLine2(sm, sd * hw, st2.edge, 1); });
         s += `<polyline points="${pts.map(q => q.join(',')).join(' ')}" fill="none" stroke="#7a6a4f" stroke-width="1.2"
@@ -6339,9 +6339,29 @@
     const roadPts = e => (e.pts && e.pts.length > 1) ? e.pts.map(p => [+p[0], +p[1]]) : [[+e.a[0], +e.a[1]], [+e.b[0], +e.b[1]]];
     const roadLen = e => { const p = roadPts(e); let L = 0; for (let i = 1; i < p.length; i++) L += Math.hypot(p[i][0] - p[i - 1][0], p[i][1] - p[i - 1][1]); return L; };
     function roadSamples(e) {
-      const raw = roadPts(e), halfW = (+e.w || 600) / 2, out = [];
-      const R = (+e.fillet || 0) > 0 ? Math.max(halfW + 500, +e.fillet) : 0;   // 圆弧半径必须大于半路宽，否则内侧偏移边内翻自交；fillet=0 保留尖角
+      let raw = roadPts(e);
+      const halfW = (+e.w || 600) / 2, out = [], hard = [];
+      const joinsOtherRoad = P => (state.extras || []).some(o => {    // 端点是否接到另一条路（含 T 字路中与多端点共点）
+        if (o.id === e.id || !isRoadType(o.type)) return false;
+        const ps = roadPts(o);
+        for (let i = 0; i < ps.length - 1; i++) {
+          const a = ps[i], b = ps[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1;
+          let t = ((P[0] - a[0]) * dx + (P[1] - a[1]) * dy) / L2; t = Math.max(0, Math.min(1, t));
+          if (Math.hypot(P[0] - a[0] - dx * t, P[1] - a[1] - dy * t) < 24) return true;
+        }
+        return false;
+      });
+      const nearTurn = Math.min(15000, Math.max(halfW * 3, (+e.fillet || 0) * 2));
+      for (const end of [0, 1]) while (raw.length > 2) {             // 接口前的末拐点太近：圆角会卷进路口，渲染时拉直接入（不删原始点）
+        const tip = end === 0 ? raw[0] : raw[raw.length - 1];
+        if (!joinsOtherRoad(tip)) break;
+        const k = end === 0 ? 1 : raw.length - 2, p = raw[k];
+        if (Math.hypot(p[0] - tip[0], p[1] - tip[1]) > nearTurn) break;
+        raw.splice(k, 1);
+      }
+      const R0 = (+e.fillet || 0) > 0 ? Math.max(halfW + 500, +e.fillet) : 0;   // 期望圆角半径（至少略大于半路宽，否则内侧偏移边自交）
       const push = p => { const l = out[out.length - 1]; if (!l || Math.hypot(p[0] - l[0], p[1] - l[1]) > 1) out.push(p); };
+      const hardCorner = (P, u1, u2) => hard.push({ x: P[0], y: P[1], a: u1, b: u2, half: halfW });
       push(raw[0]);
       for (let i = 1; i < raw.length - 1; i++) {
         const P = raw[i], A = raw[i - 1], B = raw[i + 1];
@@ -6349,10 +6369,12 @@
         if (l1 < 1 || l2 < 1) continue;                             // 重合点直接跳过
         const u1 = [(P[0] - A[0]) / l1, (P[1] - A[1]) / l1], u2 = [(B[0] - P[0]) / l2, (B[1] - P[1]) / l2];
         const cr = u1[0] * u2[1] - u1[1] * u2[0], dt = Math.max(-1, Math.min(1, u1[0] * u2[0] + u1[1] * u2[1])), phi = Math.acos(dt);
-        if (Math.abs(cr) < .01 || phi < .12 || R < 100) { push(P); continue; }   // 近直线 / 未设圆角：保留尖角
-        const tan2 = Math.tan(phi / 2), t = R * tan2;
-        if (t > l1 / 2 || t > l2 / 2) { push(P); continue; }        // 相邻段撑不起足够大的圆角：保留尖角，绝不把半径缩到半路宽以内
-        const rc = t / tan2;
+        if (Math.abs(cr) < .01 || phi < .12) { push(P); continue; }  // 近直线：原样通过，不当拐角处理
+        const tan2 = Math.tan(phi / 2), tMax = Math.min(l1, l2) / 2;
+        let R = R0;
+        if (R > 100 && R * tan2 > tMax) R = tMax / tan2;            // 路段太短：自动缩小圆角，避免退化成斜切缺口
+        if (R < 100 || R < halfW * 1.02) { push(P); hardCorner(P, u1, u2); continue; }   // 圆角放不下：保留尖角，由路口补丁盖平
+        const t = R * tan2, rc = R;
         const T1 = [P[0] - u1[0] * t, P[1] - u1[1] * t], T2 = [P[0] + u2[0] * t, P[1] + u2[1] * t];
         const C = [T1[0] - u1[1] * Math.sign(cr) * rc, T1[1] + u1[0] * Math.sign(cr) * rc];      // 圆心 = T1 + 内侧法线×rc
         push(T1);
@@ -6364,16 +6386,16 @@
       }
       push(raw[raw.length - 1]);
       let s = 0;
-      return out.map((p, i) => {
+      const pts = out.map((p, i) => {
         if (i) s += Math.hypot(out[i][0] - out[i - 1][0], out[i][1] - out[i - 1][1]);
         const q = out[Math.min(i + 1, out.length - 1)], r = out[Math.max(i - 1, 0)];
         const dx = q[0] - r[0], dy = q[1] - r[1], l = Math.hypot(dx, dy) || 1;
         return { x: p[0], y: p[1], nx: -dy / l, ny: dx / l, s };
       });
+      return { pts, hard };
     }
-    /* 道路端点对接：靠近其它道路的端点（约 12px 屏幕半径）时自动吸附过去，
-       两条路端点完全重合即连成路网——城建游戏的连接方式。只吸首 / 尾端点，
-       吸附点即可合并点，不会吸到路中途造成「拉这个点却接了别的点」。返回吸附点 [x,y] 或 null。 */
+    /* 道路端点吸附：靠近其它道路的端点或路中线时自动吸附过去——城建游戏的连接方式，
+       端点重合可合并成一条路，落在路中则形成 T 形路口（由路口补丁融合）。返回吸附点 [x,y] 或 null。 */
     function roadVertexSnap(p, excludeId) {
       const tol = 12 / view.s;
       let best = null, bd = tol;
@@ -6384,8 +6406,143 @@
           const d = Math.hypot(ps[i][0] - p.x, ps[i][1] - p.y);
           if (d < bd) { bd = d; best = ps[i]; }
         });
+        for (let i = 0; i < ps.length - 1 && ps[i + 1]; i++) {     // 路中任意位置：吸附后形成 T 形路口
+          const a = ps[i], b = ps[i + 1], dx = b[0] - a[0], dy = b[1] - a[1], L2 = dx * dx + dy * dy || 1;
+          let t = ((p.x - a[0]) * dx + (p.y - a[1]) * dy) / L2; t = Math.max(0, Math.min(1, t));
+          const q = [a[0] + dx * t, a[1] + dy * t], d = Math.hypot(q[0] - p.x, q[1] - p.y);
+          if (d < bd) { bd = d; best = q; }
+        }
       });
       return best;
+    }
+    /* ══ 城建游戏式路网：路口补丁 ══
+       找出道路之间（端点相接 / 端接路中 / 十字斜穿）以及自身圆角放不下的硬拐角，
+       在每个连接点用「路面凸包」补一块沥青，盖住接头缺口、路面描边与穿过路口的标线。 */
+    const roadHull = pts => {                                     // Andrew 单调链凸包
+      const ps = pts.map(p => [p[0], p[1]]).sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+      const cross = (o, a, b) => (a[0] - o[0]) * (b[1] - o[1]) - (a[1] - o[1]) * (b[0] - o[0]);
+      const uniq = [];
+      for (const p of ps) { const l = uniq[uniq.length - 1]; if (!l || Math.hypot(p[0] - l[0], p[1] - l[1]) > .5) uniq.push(p); }
+      if (uniq.length < 3) return uniq;
+      const lo = [], up = [];
+      for (const p of uniq) { while (lo.length >= 2 && cross(lo[lo.length - 2], lo[lo.length - 1], p) <= 0) lo.pop(); lo.push(p); }
+      for (let i = uniq.length - 1; i >= 0; i--) { const p = uniq[i]; while (up.length >= 2 && cross(up[up.length - 2], up[up.length - 1], p) <= 0) up.pop(); up.push(p); }
+      lo.pop(); up.pop();
+      const h = lo.concat(up);
+      return h.length >= 3 ? h : uniq;
+    };
+    const lineX = (p1, d1, p2, d2) => {                           // 两条直线（点 + 方向）交点
+      const den = d1[0] * d2[1] - d1[1] * d2[0];
+      if (Math.abs(den) < 1e-6) return null;
+      const t = ((p2[0] - p1[0]) * d2[1] - (p2[1] - p1[1]) * d2[0]) / den;
+      return [p1[0] + d1[0] * t, p1[1] + d1[1] * t];
+    };
+    function roadJunctions() {
+      const roads = (state.extras || []).filter(e => isRoadType(e.type));
+      if (!roads.length) return [];
+      const TOL = 24, nodes = [];
+      const nodeAt = (x, y) => {
+        for (const n of nodes) if (Math.hypot(n.x - x, n.y - y) < TOL) return n;
+        const n = { x, y, inc: [] }; nodes.push(n); return n;
+      };
+      const addInc = (n, r, dir) => {                             // 同一条路同一方向只记一次
+        const half = (+r.w || 600) / 2;
+        if (n.inc.some(i => i.id === r.id && i.dir[0] * dir[0] + i.dir[1] * dir[1] > .98)) return;
+        n.inc.push({ id: r.id, dir, half, w: +r.w || 600, h: +r.h || 200, fill: ROAD_STYLES[r.type].fill });
+      };
+      const dirEnd = (r, i) => {                                  // 端点处的实际渲染方向（指向路内，含接口拉直修正）
+        const ps = roadSamples(r).pts, a = i === 0 ? ps[0] : ps[ps.length - 1], b = i === 0 ? ps[1] : ps[ps.length - 2];
+        const l = Math.hypot(b.x - a.x, b.y - a.y) || 1;
+        return [(b.x - a.x) / l, (b.y - a.y) / l];
+      };
+      roads.forEach(r => {                                        // 自身硬拐角：圆角放不下时补平
+        roadSamples(r).hard.forEach(hc => { const n = nodeAt(hc.x, hc.y); addInc(n, r, hc.a); addInc(n, r, hc.b); });
+      });
+      for (let i = 0; i < roads.length; i++) {
+        const ri = roads[i], pi = roadPts(ri);
+        for (let j = i + 1; j < roads.length; j++) {
+          const rj = roads[j], pj = roadPts(rj);
+          for (const ia of [0, pi.length - 1]) for (const ib of [0, pj.length - 1]) {   // 端点 - 端点
+            const a = pi[ia], b = pj[ib];
+            if (Math.hypot(a[0] - b[0], a[1] - b[1]) < TOL) {
+              const n = nodeAt((a[0] + b[0]) / 2, (a[1] + b[1]) / 2);
+              addInc(n, ri, dirEnd(ri, ia)); addInc(n, rj, dirEnd(rj, ib));
+            }
+          }
+          for (const [rA, pA, rB, pB] of [[ri, pi, rj, pj], [rj, pj, ri, pi]]) {        // 端点落在另一条路中段（T 形）
+            for (const ia of [0, pA.length - 1]) {
+              const a = pA[ia];
+              for (let k = 0; k < pB.length - 1; k++) {
+                const c = pB[k], d = pB[k + 1], dx = d[0] - c[0], dy = d[1] - c[1], L2 = dx * dx + dy * dy || 1;
+                let t = ((a[0] - c[0]) * dx + (a[1] - c[1]) * dy) / L2; t = Math.max(0, Math.min(1, t));
+                const q = [c[0] + dx * t, c[1] + dy * t];
+                if (Math.hypot(a[0] - q[0], a[1] - q[1]) < TOL && t > .001 && t < .999) {
+                  const n = nodeAt(q[0], q[1]), l = Math.sqrt(L2);
+                  addInc(n, rA, dirEnd(rA, ia)); addInc(n, rB, [dx / l, dy / l]);
+                }
+              }
+            }
+          }
+          for (let k = 0; k < pi.length - 1; k++) for (let m = 0; m < pj.length - 1; m++) {   // 线段相交（十字 / 斜穿）
+            const a = pi[k], b = pi[k + 1], c = pj[m], d = pj[m + 1];
+            const dx1 = b[0] - a[0], dy1 = b[1] - a[1], dx2 = d[0] - c[0], dy2 = d[1] - c[1];
+            const den = dx1 * dy2 - dy1 * dx2;
+            if (Math.abs(den) < 1e-6) continue;
+            const t = ((c[0] - a[0]) * dy2 - (c[1] - a[1]) * dx2) / den;
+            const u = ((c[0] - a[0]) * dy1 - (c[1] - a[1]) * dx1) / den;
+            if (t <= .001 || t >= .999 || u <= .001 || u >= .999) continue;   // 端点相接已在上两步处理
+            const n = nodeAt(a[0] + dx1 * t, a[1] + dy1 * t), l1 = Math.hypot(dx1, dy1) || 1, l2 = Math.hypot(dx2, dy2) || 1;
+            addInc(n, ri, [dx1 / l1, dy1 / l1]); addInc(n, rj, [dx2 / l2, dy2 / l2]);
+          }
+        }
+      }
+      const pads = [];
+      for (const n of nodes) {
+        if (n.inc.length < 2) continue;
+        const maxHalf = Math.max(...n.inc.map(i => i.half)), pts = [];
+        n.inc.forEach(i => {                                      // 各方向的路面横截面端点
+          const nx = -i.dir[1], ny = i.dir[0];
+          pts.push([n.x + nx * i.half, n.y + ny * i.half], [n.x - nx * i.half, n.y - ny * i.half]);
+        });
+        for (let a = 0; a < n.inc.length; a++) for (let b = a + 1; b < n.inc.length; b++) {
+          const A = n.inc[a], B = n.inc[b];
+          if (Math.abs(A.dir[0] * B.dir[1] - A.dir[1] * B.dir[0]) < .06) continue;   // 近乎平行：无需斜接
+          for (const sa of [-1, 1]) for (const sb of [-1, 1]) {   // 两侧路缘线斜接点：补齐外侧角
+            const pa = [n.x - A.dir[1] * A.half * sa, n.y + A.dir[0] * A.half * sa];
+            const pb = [n.x - B.dir[1] * B.half * sb, n.y + B.dir[0] * B.half * sb];
+            const x = lineX(pa, A.dir, pb, B.dir);
+            if (x && Math.hypot(x[0] - n.x, x[1] - n.y) <= 2.5 * maxHalf) pts.push(x);
+          }
+        }
+        const poly = roadHull(pts);
+        if (poly.length < 3) continue;
+        let area = 0;
+        for (let i = 0; i < poly.length; i++) { const p = poly[i], q = poly[(i + 1) % poly.length]; area += p[0] * q[1] - q[0] * p[1]; }
+        if (Math.abs(area) < 2000) continue;
+        const dom = n.inc.reduce((m, i) => (i.w > m.w ? i : m), n.inc[0]);
+        const lines = [];
+        if (n.inc.length === 3) {                                  // T 字口：主路背向支路的一侧边线连续通过，支路开口侧不画横线
+          for (let a = 0; a < 3 && !lines.length; a++) for (let b = a + 1; b < 3; b++) {
+            const A = n.inc[a], B = n.inc[b], C = n.inc[3 - a - b];
+            if (A.dir[0] * B.dir[0] + A.dir[1] * B.dir[1] > -.9) continue;
+            const road = roads.find(r => r.id === (A.w >= B.w ? A : B).id), st = road && ROAD_STYLES[road.type];
+            if (!st || st.curb) break;
+            let dx = A.dir[0] - B.dir[0], dy = A.dir[1] - B.dir[1];
+            const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
+            let nx = -dy, ny = dx;
+            if (nx * C.dir[0] + ny * C.dir[1] > 0) { nx = -nx; ny = -ny; }
+            const half = Math.max(A.half, B.half), off = Math.max(0, half - Math.min(150, half * .12)), reach = half + 100;
+            lines.push({ a: [n.x - dx * reach + nx * off, n.y - dy * reach + ny * off], b: [n.x + dx * reach + nx * off, n.y + dy * reach + ny * off], color: st.edge });
+            break;
+          }
+        }
+        pads.push({ poly, fill: dom.fill, h: Math.max(...n.inc.map(i => i.h)), lines });
+      }
+      return pads;
+    }
+    function roadPads2() {                                        // 路口补丁：不透明沥青，盖住缺口 / 描边 / 标线
+      return roadJunctions().map(pd => `<polygon points="${pd.poly.map(p => p[0].toFixed(1) + ',' + p[1].toFixed(1)).join(' ')}" fill="${pd.fill}" stroke="none" pointer-events="none"/>` +
+        (pd.lines || []).map(l => `<line x1="${l.a[0]}" y1="${l.a[1]}" x2="${l.b[0]}" y2="${l.b[1]}" stroke="${l.color}" stroke-width="1.3" vector-effect="non-scaling-stroke" pointer-events="none"/>`).join('')).join('');
     }
     /* 折线道路 2D（SVG，mm 单位）：带状多边形 = 中心线 ± 两侧偏移；roadLine2 沿偏移路径画单线（可带虚线） */
     function roadRibbon2(sm, d1, d2, attrs) {
@@ -6457,8 +6614,8 @@
             const dash = st.dash ? `${st.dash[0]} ${st.dash[1]}` : '';
             const lay = roadLayout(e);
             if (e.pts && e.pts.length > 2) {                      // 折线道路：圆角过渡路面 + 标线沿路径
-              const sm = roadSamples(e), RL = roadLen(e);
-              inner += roadRibbon2(sm, w, -w, `fill="${st.fill}" fill-opacity=".92" stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"`);
+              const sm = roadSamples(e).pts, RL = roadLen(e);
+              inner += roadRibbon2(sm, w, -w, `fill="${st.fill}" fill-opacity="1" stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"`);
               if (!st.curb) { const eo = Math.max(0, w - Math.min(150, w * .12));[-1, 1].forEach(sd => { inner += roadLine2(sm, sd * eo, st.edge, 1.3); }); }
               if (lay.median > 0) inner += roadRibbon2(sm, lay.median / 2, -lay.median / 2, `fill="#b9b3a5" fill-opacity=".95" stroke="none" pointer-events="none"`);
               lay.lines.forEach(li => {                           // 车道分界虚线 / 分隔带与路肩边线
@@ -6483,7 +6640,7 @@
               }
             } else {
               const poly = arr => arr.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
-              inner += `<polygon points="${poly([P(0, -w), P(1, -w), P(1, w), P(0, w)])}" fill="${st.fill}" fill-opacity=".92"
+              inner += `<polygon points="${poly([P(0, -w), P(1, -w), P(1, w), P(0, w)])}" fill="${st.fill}" fill-opacity="1"
               stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"/>`;
               const ln = (off, c, sw, dash2) => {
                 const p1 = P(0, off), p2 = P(1, off);
@@ -6795,7 +6952,7 @@
           ${parkRot ? `<g transform="rotate(${parkRot} ${e.x} ${e.y})">${body}</g>` : body}
           ${T(e.x, e.y, e.type === 'park' ? `${extraName(e)} ${Math.round(e.no ?? 1)}` : extraName(e), col)}</g>`);
       });
-      return out.join('');
+      return out.join('') + roadPads2();                          // 路口补丁最后画：盖住接头缺口、描边与穿过路口的标线
     }
     function renderLeaders2() {                                   // 引线标注 / 剖切符号
       return (state.leaders || []).map(l => {
@@ -11962,17 +12119,24 @@
         else if (!d.onSel) { ui.multi = []; ui.mq = null; renderSel(); renderPanel(); }   // 轻点空白 / 房间地面 = 取消框选
         return;
       }
-      if (d.kind === 'extraEnd' && d.pts0 && d.moved && !cancel) {   // 折线道路端点拖到其它道路端点：松手直接合并成一条路
+      if (d.kind === 'extraEnd' && d.pts0 && d.moved && !cancel) {   // 折线道路端点拖到同类道路端点：松手直接合并成一条路
         const q = (state.extras || []).find(x => x.id === d.id);
         const pt = q && (d.end === 0 || d.end === q.pts.length - 1) ? (d.end === 0 ? q.pts[0] : q.pts[q.pts.length - 1]) : null;
-        const t = pt && (state.extras || []).find(e => e.id !== q.id && isRoadType(e.type)
-          && roadPts(e).some((pp, i) => (i === 0 || i === roadPts(e).length - 1) && Math.hypot(pp[0] - pt[0], pp[1] - pt[1]) < 10));
+        const t = pt && (state.extras || []).find(e => e.id !== q.id && isRoadType(e.type) && e.type === q.type
+          && Math.abs((+e.w || 0) - (+q.w || 0)) < 1
+          && roadPts(e).some((pp, i) => (i === 0 || i === roadPts(e).length - 1) && Math.hypot(pp[0] - pt[0], pp[1] - pt[1]) < 12));
         if (t) {
-          const src = q.pts.map(p => [...p]), tid = t.id;
-          mutate(() => { mergeRoadInto(src, d.id); state.extras = (state.extras || []).filter(x => x.id !== d.id); });
-          select({ kind: 'extra', id: tid });
-          toast(tr('两条道路已合并为一条 · 宽度 / 类型沿用所接道路', 'Roads merged · width / type kept from the connected road'));
-          return;                                                  // 合并已单独入撤销栈，跳过通用拖动提交
+          const src = q.pts.map(p => [...p]);
+          let tid = null;
+          mutate(() => {
+            const m = mergeRoadInto(src, d.id, e => e.type === q.type && Math.abs((+e.w || 0) - (+q.w || 0)) < 1);
+            if (m) { tid = m.id; state.extras = (state.extras || []).filter(x => x.id !== d.id); }
+          });
+          if (tid) {
+            select({ kind: 'extra', id: tid });
+            toast(tr('已并入同类型道路 · 拐点可继续拖拽调整', 'Merged into the same road · drag corners to reshape'));
+            return;                                              // 合并已单独入撤销栈，跳过通用拖动提交
+          }
         }
       }
       if (d.moved) { commit(d.before); markDirty(); renderAll(); }
@@ -12864,27 +13028,34 @@
       svg.setPointerCapture(e.pointerId);
     }
     svg.addEventListener('pointerdown', onSvgPointerDown);
-    /* 城建游戏式连接：把点列 cur 并入与它端点相接的道路（首 / 尾端点吸附重合即合并成一条折线，
-       支持链式接多条），宽度 / 类型 / 圆角沿用被并入的那条路。返回目标路 id 或 null。 */
-    function mergeRoadInto(cur, excludeId) {
+    /* 城建游戏式连接：把点列 cur 并入与它端点相接、且类型 / 宽度一致的道路（首 / 尾端点吸附重合即合并成一条折线，
+       支持链式接多条）。类型或宽度不同时不合并——各自保留宽度，由路口补丁融合成路口。
+       sameStyle 可选：额外过滤可并入的道路。返回目标路 id 或 null。 */
+    function mergeRoadInto(cur, excludeId, sameStyle) {
       let head = cur.map(p => [...p]), target = null;
       const used = new Set();
       for (let g = 0; g < 8; g++) {
-        let hit = null, at = 0, tail = true;
+        let hit = null;
         outer:
         for (const e of (state.extras || [])) {
           if (!isRoadType(e.type) || e.id === excludeId || used.has(e.id)) continue;
+          if (sameStyle && !sameStyle(e)) continue;
           const qs = roadPts(e);
           for (const [pt, isTail] of [[head[head.length - 1], true], [head[0], false]])
-            for (const i of [0, qs.length - 1])
-              if (Math.hypot(qs[i][0] - pt[0], qs[i][1] - pt[1]) < 10) { hit = e; at = i; tail = isTail; break outer; }
+            for (const at of [0, qs.length - 1])
+              if (Math.hypot(qs[at][0] - pt[0], qs[at][1] - pt[1]) < 12) { hit = { e, at, isTail }; break outer; }
         }
         if (!hit) break;
-        used.add(hit.id);
-        const qs = roadPts(hit).map(p => [...p]);
-        if (!tail) head = head.slice().reverse();    // 拼接点统一挪到 head 末尾再接
-        head = at === 0 ? [...head.slice(0, -1), ...qs] : [...qs.slice(0, -1), ...head];
-        target = hit;
+        used.add(hit.e.id);
+        const qs = roadPts(hit.e).map(p => [...p]);
+        if (hit.isTail) {                                        // 接在 head 末尾：已有路从接头点向另一端展开
+          const start = hit.at === 0 ? qs : qs.slice().reverse();
+          head = [...head, ...start.slice(1)];
+        } else {                                                 // 接在 head 开头：已有路走到接头点后再接 head
+          const end = hit.at === 0 ? qs.slice().reverse() : qs;
+          head = [...end, ...head.slice(1)];
+        }
+        target = hit.e;
       }
       if (!target || head.length < 2) return null;
       target.pts = head; target.a = head[0]; target.b = head[head.length - 1];
@@ -12909,13 +13080,13 @@
       const id = uid();
       let mergedId = null;
       mutate(() => {
-        const m = mergeRoadInto(pts);                // 连接到已有道路的端点：直接并入那条路，不新建对象
+        const m = mergeRoadInto(pts, null, e => e.type === tool && Math.abs((+e.w || 0) - ROAD_STYLES[tool].w) < 1);
         if (m) { mergedId = m.id; return; }
         (state.extras = state.extras || []).push({ ...extraDefaults(tool), id, pts, a: pts[0], b: pts[pts.length - 1], fillet: 3000 });
       });
       select({ kind: 'extra', id: mergedId || id });
       toast(mergedId
-        ? tr('两条道路已合并为一条 · 宽度 / 类型沿用所接道路', 'Roads merged · width / type kept from the connected road')
+        ? tr('已并入同类型道路 · 拐点可继续拖拽调整', 'Merged into the same road · drag corners to reshape')
         : tr(`已加${extraName({ type: tool })} · 拖拐点改线形，圆角 / 宽度 / 厚度在右侧改`, 'Added · drag corners to reshape, radius / width / thickness in the panel'));
       renderNotes(); return true;
     }
@@ -16111,11 +16282,11 @@
     // ---------- 任意角度的墙段 / 门 / 窗（设计模式画的墙、开的门窗用） ----------
     const wallAngle = (P0, P1) => Math.atan2(-(wz(P1[1]) - wz(P0[1])), wx(P1[0]) - wx(P0[0]));
     const wallMid = (P0, P1) => [wx((P0[0] + P1[0]) / 2), wz((P0[1] + P1[1]) / 2)];
-    function pushWallCollider(P0, P1, T) {
-      const h = T / 2, xs = [P0[0] - h, P0[0] + h, P1[0] - h, P1[0] + h], ys = [P0[1] - h, P0[1] + h, P1[1] - h, P1[1] + h];
-      colliders.push([wx(Math.min(...xs)), wz(Math.min(...ys)), wx(Math.max(...xs)), wz(Math.max(...ys))]);
+    function pushWallCollider(P0, P1, T, h = H) {              // h：碰撞体顶面高度（米，本层局部）。墙体必须按真实墙高登记，否则单层模式会被当作无限高，爬到楼顶 / 墙顶后仍被墙挡死
+      const hh = Math.max(.01, Math.min(H, +h || H)), hw = T / 2, xs = [P0[0] - hw, P0[0] + hw, P1[0] - hw, P1[0] + hw], ys = [P0[1] - hw, P0[1] + hw, P1[1] - hw, P1[1] + hw];
+      colliders.push([wx(Math.min(...xs)), wz(Math.min(...ys)), wx(Math.max(...xs)), wz(Math.max(...ys)), 0, hh]);
     }
-    const pushSillCollider = (P0, P1, T, dB) => { if (dB > .35) pushWallCollider(P0, P1, T); };   // 门槛 / 龛底矮墙：高过半步才挡路，矮门槛可直接跨过
+    const pushSillCollider = (P0, P1, T, dB) => { if (dB > .35) pushWallCollider(P0, P1, T, dB); };   // 门槛 / 龛底矮墙：高过半步才挡路，矮门槛可直接跨过
     function wallSeg3D(P0, P1, T, yb, yt, capTop = true) {   // capTop：墙顶是否用剖面深色（矮墙顶部朝上、会被看到时传 false，避免看起来像一块黑面）
       const L = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]);
       if (L < 1 || yt - yb <= .001) return;
@@ -17726,7 +17897,7 @@
             const a = [wx(PC[0]) + ux * t0, wz(PC[1]) + uz * t0], b = [wx(PC[0]) + ux * t1, wz(PC[1]) + uz * t1];
             addBaySash(rev ? b : a, rev ? a : b, sillW, Math.max(.2, sTop - sillW), ox, oz);
           }
-          pushWallCollider(PC, PD, T);                        // 窗下不能穿行
+          pushWallCollider(PC, PD, T, top);                   // 窗下不能穿行
         }
         return;
       }
@@ -17752,7 +17923,7 @@
           sl.position.set(mx, sill + (k + .5) * wh / nS, mz);
           sl.rotation.set(0, rot, 0); sl.rotateX(-.65); sl.castShadow = true; archUp.add(sl);
         }
-        pushWallCollider(P0, P1, T);
+        pushWallCollider(P0, P1, T, top);
         return;
       }
       if (o.kind === 'cwin') {                               // 圆窗：方板挖圆洞补墙 + 圆形窗框、玻璃与十字分格
@@ -17776,7 +17947,7 @@
           const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, .05), frameMat);
           m.position.set(mx, sill + d / 2, mz); m.rotation.y = rot; m.castShadow = true; archUp.add(m);
         });
-        pushWallCollider(P0, P1, T);
+        pushWallCollider(P0, P1, T, top);
         return;
       }
       if (o.kind === 'bay') {                                // 飘窗：外凸的窗台体 + 正面 / 两侧玻璃 + 竖梃
@@ -17824,7 +17995,7 @@
             p.position.set(pcx + dirX * R, sill + wh / 2, pcz + dirZ * R);
             p.rotation.y = Math.atan2(dirX, -dirZ); p.castShadow = true; archUp.add(p);
           });
-          pushWallCollider(P0, P1, T);
+          pushWallCollider(P0, P1, T, top);
           return;
         }
         const nP = Math.max(1, Math.min(8, Math.round(o.panes ?? 3))), pw = L / nP;
@@ -17862,7 +18033,7 @@
           const b = new THREE.Mesh(new THREE.BoxGeometry(L, .05, .06), frameMat);
           b.position.set(mx + nx * dep, y, mz + nz * dep); b.rotation.y = rot; b.castShadow = true; archUp.add(b);
         });
-        pushWallCollider(P0, P1, T);                         // 窗洞处不可穿行
+        pushWallCollider(P0, P1, T, top);                    // 窗洞处不可穿行
         return;
       }
       if (o.kind === 'strip') {                              // 带形窗：通长玻璃带 + 约 1200 分格竖梃
@@ -17884,7 +18055,7 @@
           const bar = new THREE.Mesh(new THREE.BoxGeometry(L, .05, .07), frameMat);
           bar.position.set(mx, y, mz); bar.rotation.y = rot; bar.castShadow = true; archUp.add(bar);
         });
-        pushWallCollider(P0, P1, T);
+        pushWallCollider(P0, P1, T, top);
         return;
       }
       if (o.kind === 'auto') {                                // 自动感应门：双扇平移玻璃 + 门机箱 + 顶部感应器；漫游靠近自动滑开、离开关上
@@ -18073,7 +18244,7 @@
             post.position.set(wx(cp[0]), top / 2, wz(cp[1])); post.castShadow = true; archUp.add(post);
           }
         }
-        pushWallCollider(P0, P1, T);
+        pushWallCollider(P0, P1, T, top);
         return;
       }
       if (o.kind === 'slid') {                               // 推拉门：玻璃双扇，点哪扇开哪扇（沿轨道滑向对面叠上）
@@ -18240,7 +18411,7 @@
         const bar = new THREE.Mesh(new THREE.BoxGeometry(.05, gh, .06), frameMat);
         bar.position.set(mx + dx * off, cy, mz + dz * off); bar.rotation.y = rot; archUp.add(bar);
       });
-      pushWallCollider(P0, P1, T);                           // 窗下不能穿行
+      pushWallCollider(P0, P1, T, top);                      // 窗下不能穿行
     }
     // 转角飘窗转角补齐：台板 / 坐板整条按一个 L 形轮廓生成（转角斜接），再补上两段之间缺的两面转角玻璃。
     // 之前的做法是把两段的台板各出一块 + 转角处用世界坐标包围盒补一个方块，转角会外扩 / 压进墙里，上下面都出现台阶。
@@ -18414,7 +18585,7 @@
         const s = builtinSeg(i), os = openingsOf(id), cuts = wallCuts(id, s.L), ht = wallTop(id, wallTypeOf(i) === 'low' ? Math.min(1, top) : top);
         if (!cuts.length) {
           wallBox(w, 0, ht);
-          colliders.push([wx(w[0]), wz(w[1]), wx(w[2]), wz(w[3])]);
+          colliders.push([wx(w[0]), wz(w[1]), wx(w[2]), wz(w[3]), 0, ht]);
           return;
         }
         wallSegs(id, s.L).forEach(([c0, c1]) => {
@@ -18422,7 +18593,7 @@
           const lbo = c1 - c0 <= 400 && ((c1 >= s.L - 1 && lbCornerAt(id, 1)) || (c0 <= 1 && lbCornerAt(id, 0)));
           if (lbo) cornerStub3D(P0, P1, s.T, ht, lbo);
           else wallSegHoles3D(P0, P1, s.T, ht, boxHolesOf(id, ht).map(h => ({ c0: h.c0 - c0, c1: h.c1 - c0, yb: h.yb, yt: h.yt })).filter(h => h.c1 > 0 && h.c0 < c1 - c0));
-          pushWallCollider(P0, P1, s.T);
+          pushWallCollider(P0, P1, s.T, ht);
         });
         os.forEach(o => { const s0 = archUp.children.length; buildOpening3D(s.A, s.B, o, ht, s.T); markNew(s0, 'open', o.id); });   // 自画门窗：点击可开合并选中
       });
@@ -18449,7 +18620,7 @@
           } else {
             wallSegHoles3D(P0, P1, cwT(w), ht, boxHolesOf(id, ht).map(h => ({ c0: h.c0 - c0, c1: h.c1 - c0, yb: h.yb, yt: h.yt })).filter(h => h.c1 > 0 && h.c0 < c1 - c0));
           }
-          pushWallCollider(P0, P1, cwT(w));
+          pushWallCollider(P0, P1, cwT(w), ht);
         });
         openingsOf(id).forEach(o => { const s0 = archUp.children.length; buildOpening3D(w.a, w.b, o, ht, cwT(w)); markNew(s0, 'open', o.id); });
       });
@@ -18462,7 +18633,7 @@
         const ht = Math.min(top, Math.max(.6, (+w.h || currentFloorH()) / 1000));
         for (let i = 0; i < pts.length - 1; i++) {
           wallSeg3D(pts[i], pts[i + 1], th, 0, ht);
-          pushWallCollider(pts[i], pts[i + 1], th);
+          pushWallCollider(pts[i], pts[i + 1], th, ht);
         }
       });
       pickWallId = null; pickWallKind = 'wall';                // 后续洞口过梁等不属于任何可选墙
@@ -18933,7 +19104,7 @@
             if (T3 === 'retain') {                              // 挡土墙：实心墙 + 压顶
               box(L, h, w, mx, h / 2, mz, mat('#b9b2a3', { roughness: .95 }), rot);
               box(L + .02, .05, w + .06, mx, h + .025, mz, mat('#cdc6b6', { roughness: .9 }), rot);
-              pushWallCollider(e.a, e.b, (e.w || 300));         // 实心挡土墙挡人
+              pushWallCollider(e.a, e.b, (e.w || 300), h);         // 实心挡土墙挡人
             } else if (T3 === 'gutter') {                       // 天沟：深色槽底 + 两侧沟壁
               box(L, h, w, mx, h / 2, mz, mat('#8f8b80', { roughness: .9 }), rot);
               const ny = [Math.sin(rot), Math.cos(rot)];          // 墙厚方向的单位向量（3D 中 x/z）
@@ -18951,7 +19122,7 @@
             } else if (isRoadType(T3)) {                        // 道路：路面 + 路缘 + 车道标线（不挡人，可在上面漫游）
               const st = ROAD_STYLES[T3];
               if (e.pts && e.pts.length > 2) {                  // 折线道路：中心线圆角采样 → 沿路径带状网格
-                const sm = roadSamples(e).map(p => ({ x: wx(p.x), z: wz(p.y) }));   // 世界坐标（米）
+                const sm = roadSamples(e).pts.map(p => ({ x: wx(p.x), z: wz(p.y) }));   // 世界坐标（米）
                 for (let i = 0; i < sm.length; i++) {           // 世界系法线 + 累计弧长
                   const a = sm[Math.max(0, i - 1)], b = sm[Math.min(sm.length - 1, i + 1)];
                   const dx = b.x - a.x, dz = b.z - a.z, l = Math.hypot(dx, dz) || 1;
@@ -19229,6 +19400,29 @@
             return;
           }
         } finally { markNew(s0, 'extra', e.id); }
+      });
+      roadJunctions().forEach(pd => {                         // 路口补丁：盖住接头缺口、路面描边与穿过路口的标线
+        const y = Math.max(0, pd.h / 1000) + .012;              // 高于直路标线盒顶面（h+.01），把路口内的车道线 / 边线真正盖住
+        const P = pd.poly.map(p => [wx(p[0]), wz(p[1])]);
+        let a2 = 0;                                            // 统一绕序：俯视逆时针，法线朝上才能被阳光照亮（否则整块发黑）
+        for (let i = 0; i < P.length; i++) { const a = P[i], b = P[(i + 1) % P.length]; a2 += a[0] * b[1] - b[0] * a[1]; }
+        if (a2 > 0) P.reverse();
+        const pos = [], nor = [];
+        for (let i = 1; i < P.length - 1; i++) {
+          const A = P[0], B = P[i], C = P[i + 1];
+          pos.push(A[0], y, A[1], B[0], y, B[1], C[0], y, C[1]);
+          nor.push(0, 1, 0, 0, 1, 0, 0, 1, 0);
+        }
+        const g = new THREE.BufferGeometry();
+        g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
+        g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
+        const mesh = new THREE.Mesh(g, mat(pd.fill, { roughness: .95, side: THREE.DoubleSide }));
+        mesh.receiveShadow = true; archUp.add(mesh);
+        (pd.lines || []).forEach(ln => {                          // T 字口主路远侧连续边线
+          const ax = wx(ln.a[0]), az = wz(ln.a[1]), bx = wx(ln.b[0]), bz = wz(ln.b[1]);
+          const dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz);
+          if (len > .01) box(len, .008, .1, (ax + bx) / 2, y + .004, (az + bz) / 2, mat(ln.color, { roughness: .85 }), Math.atan2(-dz, dx));
+        });
       });
       (state.pillars || []).forEach(c => {                   // 柱子：方 / 圆 / L 形 / 十字形，从地面通到顶，占碰撞（漫游挡路）
         const r = c.w / 2000, shape = pillarShape(c);
@@ -19997,14 +20191,13 @@
         }
       }
       if (footH !== null) for (const [ax, az, bx, bz, y0, y1, reach, so] of W.barriers) {
-        if (footH + headH < y0 || footH > y1) continue;
-        if (so && y1 <= footH + WALK_STEP_OVER) continue;
+        if (footH + headH < y0 || y1 <= footH + WALK_STEP_OVER) continue;   // 顶边不高于脚底 + 一步高：站在上一层地面时，下层栏杆 / 梯身不再当空气墙拦人
         const vx = bx - ax, vz = bz - az, len2 = vx * vx + vz * vz;
         const t = len2 ? Math.max(0, Math.min(1, ((x - ax) * vx + (z - az) * vz) / len2)) : 0;
         if (Math.hypot(x - (ax + vx * t), z - (az + vz * t)) < reach) return true;
       }
       for (const d of W.doors) {
-        if (footH !== null && (footH + headH < (d.y0 ?? -Infinity) || footH > (d.y1 ?? Infinity))) continue;
+        if (footH !== null && (footH + headH < (d.y0 ?? -Infinity) || (d.y1 ?? Infinity) <= footH + WALK_STEP_OVER)) continue;   // 门扇顶面 ≤ 脚底 + 一步高：站在上一层地面时，下层门叶不再当空气墙拦人
         if (d.fold) {
           if (!d.open) {
             const p0x = d.mx + d.ax * d.s0, p0z = d.mz + d.az * d.s0;
@@ -20035,7 +20228,7 @@
         }
         if (d.win) {
           if (d.open) continue;
-          if (footH !== null && (footH + headH < (d.y0 ?? 0) || footH > (d.y1 ?? 2.5))) continue;
+          if (footH !== null && (footH + headH < (d.y0 ?? 0) || (d.y1 ?? 2.5) <= footH + WALK_STEP_OVER)) continue;
           const a = d.a0, px2 = d.pivot.position.x, pz2 = d.pivot.position.z, ln = d.len ?? .9;
           const ex2 = px2 + Math.cos(a) * ln, ez2 = pz2 - Math.sin(a) * ln;
           const t = clamp01(((x - px2) * (ex2 - px2) + (z - pz2) * (ez2 - pz2)) / ((ex2 - px2) ** 2 + (ez2 - pz2) ** 2));
@@ -20101,7 +20294,7 @@
       let a = liftDisp.get(id); if (!a) liftDisp.set(id, a = []);
       a.push(panel);
     };
-    function stairHOne(x, z, ref, W, withLift, topFallback = true) {   // topFallback：是否登记「洞口内虚拟层顶落脚面」，整栋合并第一轮关掉它（见 stairH）
+    function stairHOne(x, z, ref, W, withLift) {
       const px = x * 1000 + 6000, py = z * 1000 + 5300;
       let cand;
       const hitRects = list => list.some(rc => x > rc[0] && x < rc[2] && z > rc[1] && z < rc[3]);
@@ -20119,14 +20312,8 @@
       } else cand = [0];                                        // 底层 / 单层模式整片可走
       if ((W.topRects || []).length) {                          // 层顶楼板：踩在本层层高上时可站立
         const inTopHole = (W.holes || []).some(h => x > h[0] && x < h[2] && z > h[1] && z < h[3]);
-        if (!inTopHole) {                                       // 实体屋面：维持原逻辑，靠下方 near 过滤（≤ 脚高 + .55m）避免站在本层地面时被误拉上楼
-          if (hitRects(W.topRects)) cand.push(W.h ?? H);
-        } else if (topFallback && hitRects(W.topRects) && (ref ?? 0) >= (W.h ?? H) - .55) {
-          // 楼梯间 / 电梯井 / 板洞：3D 几何仍是镂空的，但漫游碰撞层保留一层「过渡落脚面」——人正是从这些竖井里的楼梯 / 电梯上到楼顶，
-          // 出口一迈步若没有支撑就会被拉回地面、再被墙体挡住，永远走不进屋面。只在脚已抬到层顶附近时登记，站在本层地面时不会被凭空拉上来。
-          // 整栋模式第一轮不登记：它与脚等高（d=0），会永远压过正在上升 / 下降的楼梯踏步，导致下层竖井把上层楼梯「钉」在本层楼面高度。
-          cand.push(W.h ?? H);
-        }
+        // 楼梯间 / 电梯井 / 板洞是真实洞口：不铺虚拟落脚面。踩不到踏步 / 平台 / 轿厢就没有支撑，漫游会正常坠落。
+        if (!inTopHole && hitRects(W.topRects)) cand.push(W.h ?? H);
       }
       (W.stairs || []).forEach(s => {
         const a = s.dir * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
@@ -20179,29 +20366,32 @@
       if (!near.length) return cand.length ? Math.min(...cand) : null;   // null = 此处无任何支撑（足迹外），由 stairH 合并时跳过
       return Math.max(...near);
     }
-    function stairH(x, z, ref) {                                 // 支撑高度：整栋模式下合并各层楼梯 / 门槛，按世界标高就近取
+    function stairH(x, z, ref) {                                 // 支撑高度：合并各层楼梯 / 门槛，按世界标高就近取
       const worlds = worldDatasets();
-      if (worlds.length === 1) { const h0 = stairHOne(x, z, ref, worlds[0], true); return h0 === null ? 0 : h0; }
-      // 两轮采样：第一轮只认「真实支撑」（楼梯踏步 / 平台 / 楼面 / 墙顶 / 电梯轿厢），关掉洞口内的虚拟层顶落脚面。
-      // 该过渡面与脚等高（d = 0），在整栋合并里会永远压过只高出几厘米的楼梯踏步：下层楼梯间洞正好在下层楼面标高
-      // 铺了一层过渡面，于是上到 2F 后再走楼梯（无论上行还是下行）脚都被钉在 2F 楼面高度，表现为「上不去也下不来」。
-      // 只有第一轮拿不到近处真实支撑时（从楼梯 / 电梯竖井顶端迈出、脚下是镂空洞口），才在第二轮把过渡面补回来，
-      // 保住「上到楼顶能走出洞口」的原有行为；单层模式仍走 stairHOne 默认开启的路径，行为不变。
-      for (let pass = 0; pass < 2; pass++) {
-        let best = 0, bd = Infinity;
-        worlds.forEach((W, i) => {
-          const localRef = ref == null ? null : ref - W.y0;
-          if (localRef != null && (localRef < -W.h - .5 || localRef > W.h + .5)) return;
-          const h0 = stairHOne(x, z, localRef, W, i === 0, pass === 1);
-          if (h0 === null) return;                               // 该数据集此处无支撑（足迹外）→ 走出楼外会自然坠落
-          const wy = h0 + W.y0;
-          const d = ref == null ? Math.abs(wy) : Math.abs(wy - ref);
-          if (d < bd) { bd = d; best = wy; }
-        });
-        if (bd < .6) return best;                               // 有够得着的真实支撑：贴着它上下楼梯，不用虚拟过渡面
-        if (pass === 1) return best;                            // 第二轮仍只有远处候选：沿用旧行为（原逻辑同样会取最近的一个）
-      }
-      return 0;                                                  // 两轮都无支撑 → 落回场地地面
+      // 只认真实支撑（楼梯踏步 / 平台 / 楼面 / 墙顶 / 电梯轿厢）。楼梯间、电梯井、板洞是真实洞口，
+      // 踩不到任何支撑就返回 0（无支撑），由 stepWalk 触发跌落——不再铺虚拟落脚面。
+      let best = 0, bd = Infinity;
+      const take = wy => { const d = ref == null ? Math.abs(wy) : Math.abs(wy - ref); if (d < bd) { bd = d; best = wy; } };
+      worlds.forEach((W, i) => {
+        const localRef = ref == null ? null : ref - W.y0;
+        if (localRef != null && (localRef < -W.h - .5 || localRef > W.h + .5)) return;
+        const h0 = stairHOne(x, z, localRef, W, i === 0);
+        if (h0 === null) return;                               // 该数据集此处无支撑（足迹外）→ 走出楼外会自然坠落
+        take(h0 + W.y0);
+      });
+      // 电梯轿厢：整栋共用支撑面，停靠高度是绝对标高，不随「当前层 ±0.6m」窗口取舍。
+      // 否则从 1F 数据集里坐电梯上到 3F 时，1F 数据集被高度窗口排除，轿厢支撑跟着丢失，人一到站就踩空坠落。
+      const px = x * 1000 + 6000, py = z * 1000 + 5300;
+      (state.lifts || []).forEach(l => {
+        const B = liftRides.has(l.id) ? liftRides.get(l.id).base : Math.max(0, (l.stop ?? 0) / 1000 - floorY());
+        if (B <= .001) return;
+        const th = -(l.dir || 0) * Math.PI / 180, ct = Math.cos(th), st = Math.sin(th);
+        const dx = px - l.x, dy = py - l.y;
+        const lx = dx * ct - dy * st, ly = dx * st + dy * ct;
+        const hw = Math.max(800, l.w ?? 2000) / 2 + 120, hd = Math.max(800, l.d ?? 2000) / 2 + 120;
+        if (Math.abs(lx) <= hw && Math.abs(ly) <= hd) take(B);
+      });
+      return best;                                             // 无支撑 → 0（落回场地地面）；洞口内无支撑同样按 0 处理
     }
     let jumpV = 0, jumpY = 0;                                    // 漫游跳跃：竖直速度 / 离地高度（视高 1.6m + jumpY）
     let fallV = 0, fallY = null;                                 // 跌落：竖直速度 / 当前支撑高度（null = 待初始化）
@@ -21085,7 +21275,7 @@
       ui.layers.slab = v;                                       // 与图层设置保持一致（随方案保存）
     }
 
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; } } };
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
   </script>
 </body>
 
