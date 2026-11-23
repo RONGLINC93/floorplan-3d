@@ -34,7 +34,12 @@ __pycache__/
 .fpk_stage/
 tools/deps/
 *.tar.gz
-app/www/
+app/
+
+# 临时调试 / 测试文件
+diag_*.png
+__mock_server.py
+docs/screenshots/监控联动演示.png
 
 # 环境变量
 .env
