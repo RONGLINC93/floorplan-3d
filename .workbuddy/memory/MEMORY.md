@@ -24,3 +24,4 @@
 - 蓄能 / 电量等每 0.5s 变化的字段：只 `markDirty()` 不入撤销栈，否则撤销记录被刷爆。
 - `applyLight()` 统一控制所有自发光 / 点光源 / 光晕 / 光斑；新灯型挂 `lampGlowMats` + `userData.lampRef` 接入即可。
 - **验证纪律**：改 `index.html` 后必须 grep 复核（曾有外部编辑器并发覆盖、静默回退改动的情况）；浏览器冒烟测试必须 `python app.py --data-dir <临时目录>`，否则防抖自动保存会覆盖 `plans/` 里的真实方案。
+- **3D 独立函数的作用域陷阱**：`foot` / `small` / `wp` 是 `buildPark3D` 内部的局部助手；从它拆出的独立建模函数（如 `buildSan3D`）访问不到，且需从 ctx 解构 `ang`。`node --check` 只查语法、抓不到这类运行时 `ReferenceError`——新增独立 3D 函数后，用 Node + THREE Proxy 桩 + ctx 桩逐分支实际执行一遍（各跑 on 真/假）再交付。

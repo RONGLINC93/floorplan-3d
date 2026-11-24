@@ -334,7 +334,7 @@
       "id": "fmwu9q68b160",
       "x": 4960,
       "y": 5160,
-      "up": true
+      "up": false
     },
     {
       "type": "facRisingBollard",
@@ -344,7 +344,7 @@
       "id": "fmwu9q6fi161",
       "x": 4800,
       "y": 5330,
-      "up": true
+      "up": false
     },
     {
       "type": "facRetractGate",
@@ -393,7 +393,8 @@
       "d": 300,
       "id": "fmwu9qncx166",
       "x": 9040,
-      "y": 5850
+      "y": 5850,
+      "busy": false
     },
     {
       "type": "facPvCarport",
@@ -468,6 +469,703 @@
       "id": "fmwu9r6uy173",
       "x": 15740,
       "y": -4510
+    },
+    {
+      "type": "traflight",
+      "w": 140,
+      "h": 4500,
+      "rot": 0,
+      "sig": "red",
+      "auto": true,
+      "id": "fmwubt7jh148",
+      "x": 2110,
+      "y": -7890
+    },
+    {
+      "type": "signdirect",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "style": "direct",
+      "id": "fmwubt9du149",
+      "x": 1330,
+      "y": -8810
+    },
+    {
+      "type": "signspeed",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "limit": 60,
+      "id": "fmwubtbcb150",
+      "x": 1240,
+      "y": -9670
+    },
+    {
+      "type": "signstop",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtcyq151",
+      "x": 1100,
+      "y": -10370
+    },
+    {
+      "type": "signnoentry",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtekq152",
+      "x": 1230,
+      "y": -11320
+    },
+    {
+      "type": "signwarn",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtg3e153",
+      "x": 1470,
+      "y": -12100
+    },
+    {
+      "type": "signboard",
+      "w": 1400,
+      "h": 2500,
+      "rot": 0,
+      "off": 0,
+      "text": "主干道",
+      "id": "fmwubthsi154",
+      "x": 850,
+      "y": -13160
+    },
+    {
+      "type": "signCross",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtjd9155",
+      "x": 1090,
+      "y": -14140
+    },
+    {
+      "type": "signTCross",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtkyi156",
+      "x": 1230,
+      "y": -15290
+    },
+    {
+      "type": "signCurveL",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtmyd157",
+      "x": 1990,
+      "y": -16450
+    },
+    {
+      "type": "signCurveR",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtpey158",
+      "x": 1730,
+      "y": -17970
+    },
+    {
+      "type": "signRevCurve",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtr6q159",
+      "x": 2020,
+      "y": -19290
+    },
+    {
+      "type": "signContCurve",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubttgy160",
+      "x": 2160,
+      "y": -20620
+    },
+    {
+      "type": "signSteepUp",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtvhe161",
+      "x": 5970,
+      "y": -8440
+    },
+    {
+      "type": "signSteepDown",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtxg4162",
+      "x": 6030,
+      "y": -9720
+    },
+    {
+      "type": "signNarrow",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubtz4y163",
+      "x": 5580,
+      "y": -10750
+    },
+    {
+      "type": "signNarrowBridge",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubu150164",
+      "x": 5580,
+      "y": -11950
+    },
+    {
+      "type": "signTwoWay",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubu2o3165",
+      "x": 5830,
+      "y": -13110
+    },
+    {
+      "type": "signChildren",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubu4ia166",
+      "x": 5730,
+      "y": -14080
+    },
+    {
+      "type": "signSignal",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubu6fe167",
+      "x": 5670,
+      "y": -15180
+    },
+    {
+      "type": "signRock",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubu85e168",
+      "x": 5570,
+      "y": -16150
+    },
+    {
+      "type": "signTunnel",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubu9qi169",
+      "x": 5930,
+      "y": -16890
+    },
+    {
+      "type": "signConstruction",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwububsc170",
+      "x": 5470,
+      "y": -18450
+    },
+    {
+      "type": "signVillage",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubueqz171",
+      "x": 10240,
+      "y": -8560
+    },
+    {
+      "type": "signSlow",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubugl0172",
+      "x": 10080,
+      "y": -9490
+    },
+    {
+      "type": "signNoPass",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubujik173",
+      "x": 10300,
+      "y": -10340
+    },
+    {
+      "type": "signNoHorn",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubulf6174",
+      "x": 9980,
+      "y": -11160
+    },
+    {
+      "type": "signNoParking",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubun0q175",
+      "x": 10370,
+      "y": -11930
+    },
+    {
+      "type": "signNoLongPark",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubupgi176",
+      "x": 10500,
+      "y": -12780
+    },
+    {
+      "type": "signHeightLimit",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "limit": 4.5,
+      "id": "fmwubur6i177",
+      "x": 10570,
+      "y": -13510
+    },
+    {
+      "type": "signWeightLimit",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "limit": 20,
+      "id": "fmwubuswq178",
+      "x": 10570,
+      "y": -14410
+    },
+    {
+      "type": "signNoOvertake",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubuupu179",
+      "x": 10820,
+      "y": -15030
+    },
+    {
+      "type": "signMeetYield",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubuwc5180",
+      "x": 12540,
+      "y": -8860
+    },
+    {
+      "type": "signEndLimit",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubuyiy181",
+      "x": 12650,
+      "y": -9630,
+      "limit": 120
+    },
+    {
+      "type": "signYield",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubv04q182",
+      "x": 12590,
+      "y": -10220
+    },
+    {
+      "type": "signRoundabout",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubv2du183",
+      "x": 12900,
+      "y": -10820
+    },
+    {
+      "type": "signAllowUTurn",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubv4dm184",
+      "x": 12940,
+      "y": -11780
+    },
+    {
+      "type": "signCrosswalk",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubv6cs185",
+      "x": 12960,
+      "y": -12540
+    },
+    {
+      "type": "signMotorLane",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubv8ei186",
+      "x": 13240,
+      "y": -13270
+    },
+    {
+      "type": "signNonMotorLane",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubv9tm187",
+      "x": 14600,
+      "y": -8970
+    },
+    {
+      "type": "signNonMotor",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubvbuy188",
+      "x": 15170,
+      "y": -9650
+    },
+    {
+      "type": "signMinSpeed",
+      "w": 700,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "limit": 50,
+      "id": "fmwubvel6189",
+      "x": 14990,
+      "y": -10300
+    },
+    {
+      "type": "signOneWay",
+      "w": 400,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubvhvu190",
+      "x": 14850,
+      "y": -11030
+    },
+    {
+      "type": "signAdvance",
+      "w": 1600,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "text": "前方路口",
+      "id": "fmwubvl3f191",
+      "x": 14610,
+      "y": -11880
+    },
+    {
+      "type": "signDistance",
+      "w": 1600,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "text": "前方路口 200m",
+      "id": "fmwubvtys192",
+      "x": 19000,
+      "y": -9060
+    },
+    {
+      "type": "signFuel",
+      "w": 1200,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubvvma193",
+      "x": 19040,
+      "y": -10250
+    },
+    {
+      "type": "signCharge",
+      "w": 1200,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubvxdx194",
+      "x": 19130,
+      "y": -11580
+    },
+    {
+      "type": "signParking",
+      "w": 1200,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubvyxh195",
+      "x": 19460,
+      "y": -13130
+    },
+    {
+      "type": "signToilet",
+      "w": 1200,
+      "h": 2200,
+      "rot": 0,
+      "off": 0,
+      "id": "fmwubw7yi196",
+      "x": 21230,
+      "y": -8580
+    },
+    {
+      "type": "facMirror",
+      "w": 800,
+      "h": 3000,
+      "rot": 0,
+      "id": "fmwubw9sb197",
+      "x": 21050,
+      "y": -9450
+    },
+    {
+      "type": "facHeightGate",
+      "w": 6000,
+      "h": 4500,
+      "rot": 0,
+      "id": "fmwubwbl1198",
+      "x": 21280,
+      "y": -10330
+    },
+    {
+      "type": "facBollard",
+      "w": 120,
+      "h": 900,
+      "rot": 0,
+      "id": "fmwubwfl1199",
+      "x": 24320,
+      "y": -13730
+    },
+    {
+      "type": "facFlashBeacon",
+      "w": 200,
+      "h": 4000,
+      "rot": 0,
+      "id": "fmwubwilm200",
+      "x": 22890,
+      "y": -14570
+    },
+    {
+      "type": "facBusStop",
+      "w": 1200,
+      "h": 2600,
+      "rot": 0,
+      "id": "fmwubwl0e201",
+      "x": 22440,
+      "y": -13300
+    },
+    {
+      "type": "facSpeedBump",
+      "w": 3000,
+      "h": 120,
+      "rot": 0,
+      "id": "fmwubwqgi202",
+      "x": 25090,
+      "y": -16810
+    },
+    {
+      "type": "facCrosswalk",
+      "w": 4000,
+      "d": 3000,
+      "h": 12,
+      "n": 6,
+      "rot": 0,
+      "id": "fmwubwsmq203",
+      "x": 27940,
+      "y": -14670
+    },
+    {
+      "type": "sanSortBin",
+      "w": 1200,
+      "h": 1100,
+      "rot": 0,
+      "d": 450,
+      "on": false,
+      "id": "fmwud7vfw148",
+      "x": 29780,
+      "y": -4190
+    },
+    {
+      "type": "sanLitterBin",
+      "w": 400,
+      "h": 950,
+      "rot": 0,
+      "d": 400,
+      "on": false,
+      "id": "fmwud7x1u149",
+      "x": 31490,
+      "y": -4190
+    },
+    {
+      "type": "sanCollectPoint",
+      "w": 2400,
+      "h": 2400,
+      "rot": 0,
+      "d": 1200,
+      "on": false,
+      "id": "fmwufgrxf148",
+      "x": 29400,
+      "y": -2450
+    },
+    {
+      "type": "sanGarbageRoom",
+      "w": 3000,
+      "h": 2800,
+      "rot": 0,
+      "d": 2400,
+      "on": false,
+      "id": "fmwufgtk4149",
+      "x": 33130,
+      "y": -5510
+    },
+    {
+      "type": "sanToilet",
+      "w": 4000,
+      "h": 3200,
+      "rot": 0,
+      "d": 2400,
+      "on": false,
+      "id": "fmwuflj5d148",
+      "x": 25470,
+      "y": -7100
+    },
+    {
+      "type": "sanMobileToilet",
+      "w": 1200,
+      "h": 2400,
+      "rot": 0,
+      "d": 1200,
+      "on": false,
+      "id": "fmwufll7n149",
+      "x": 28250,
+      "y": -11420
+    },
+    {
+      "type": "sanWashBasin",
+      "w": 1500,
+      "h": 900,
+      "rot": 0,
+      "d": 600,
+      "on": false,
+      "id": "fmwuflmu1150",
+      "x": 30480,
+      "y": -11790
+    },
+    {
+      "type": "sanToolCabinet",
+      "w": 1200,
+      "h": 1900,
+      "rot": 0,
+      "d": 500,
+      "on": false,
+      "id": "fmwuflod4151",
+      "x": 33390,
+      "y": -11470
+    },
+    {
+      "type": "sanWaterPoint",
+      "w": 300,
+      "h": 1100,
+      "rot": 0,
+      "d": 300,
+      "on": false,
+      "id": "fmwuflpq9152",
+      "x": 36040,
+      "y": -11930
+    },
+    {
+      "type": "sanTransferStation",
+      "w": 6000,
+      "h": 4500,
+      "rot": 0,
+      "d": 4000,
+      "on": true,
+      "id": "fmwuflr9p153",
+      "x": 32390,
+      "y": -16680
+    },
+    {
+      "type": "sanRecycleStation",
+      "w": 3600,
+      "h": 3000,
+      "rot": 0,
+      "d": 2200,
+      "on": false,
+      "id": "fmwufltgp154",
+      "x": 38090,
+      "y": -2510
+    },
+    {
+      "type": "sanRestRoom",
+      "w": 3000,
+      "h": 3000,
+      "rot": 0,
+      "d": 2400,
+      "on": false,
+      "id": "fmwufluqh155",
+      "x": 22310,
+      "y": 790
     }
   ],
   "leaders": [],
@@ -822,7 +1520,7 @@
           "id": "fmwu9q68b160",
           "x": 4960,
           "y": 5160,
-          "up": true
+          "up": false
         },
         {
           "type": "facRisingBollard",
@@ -832,7 +1530,7 @@
           "id": "fmwu9q6fi161",
           "x": 4800,
           "y": 5330,
-          "up": true
+          "up": false
         },
         {
           "type": "facRetractGate",
@@ -881,7 +1579,8 @@
           "d": 300,
           "id": "fmwu9qncx166",
           "x": 9040,
-          "y": 5850
+          "y": 5850,
+          "busy": false
         },
         {
           "type": "facPvCarport",
@@ -956,6 +1655,703 @@
           "id": "fmwu9r6uy173",
           "x": 15740,
           "y": -4510
+        },
+        {
+          "type": "traflight",
+          "w": 140,
+          "h": 4500,
+          "rot": 0,
+          "sig": "red",
+          "auto": true,
+          "id": "fmwubt7jh148",
+          "x": 2110,
+          "y": -7890
+        },
+        {
+          "type": "signdirect",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "style": "direct",
+          "id": "fmwubt9du149",
+          "x": 1330,
+          "y": -8810
+        },
+        {
+          "type": "signspeed",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "limit": 60,
+          "id": "fmwubtbcb150",
+          "x": 1240,
+          "y": -9670
+        },
+        {
+          "type": "signstop",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtcyq151",
+          "x": 1100,
+          "y": -10370
+        },
+        {
+          "type": "signnoentry",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtekq152",
+          "x": 1230,
+          "y": -11320
+        },
+        {
+          "type": "signwarn",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtg3e153",
+          "x": 1470,
+          "y": -12100
+        },
+        {
+          "type": "signboard",
+          "w": 1400,
+          "h": 2500,
+          "rot": 0,
+          "off": 0,
+          "text": "主干道",
+          "id": "fmwubthsi154",
+          "x": 850,
+          "y": -13160
+        },
+        {
+          "type": "signCross",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtjd9155",
+          "x": 1090,
+          "y": -14140
+        },
+        {
+          "type": "signTCross",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtkyi156",
+          "x": 1230,
+          "y": -15290
+        },
+        {
+          "type": "signCurveL",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtmyd157",
+          "x": 1990,
+          "y": -16450
+        },
+        {
+          "type": "signCurveR",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtpey158",
+          "x": 1730,
+          "y": -17970
+        },
+        {
+          "type": "signRevCurve",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtr6q159",
+          "x": 2020,
+          "y": -19290
+        },
+        {
+          "type": "signContCurve",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubttgy160",
+          "x": 2160,
+          "y": -20620
+        },
+        {
+          "type": "signSteepUp",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtvhe161",
+          "x": 5970,
+          "y": -8440
+        },
+        {
+          "type": "signSteepDown",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtxg4162",
+          "x": 6030,
+          "y": -9720
+        },
+        {
+          "type": "signNarrow",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubtz4y163",
+          "x": 5580,
+          "y": -10750
+        },
+        {
+          "type": "signNarrowBridge",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubu150164",
+          "x": 5580,
+          "y": -11950
+        },
+        {
+          "type": "signTwoWay",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubu2o3165",
+          "x": 5830,
+          "y": -13110
+        },
+        {
+          "type": "signChildren",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubu4ia166",
+          "x": 5730,
+          "y": -14080
+        },
+        {
+          "type": "signSignal",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubu6fe167",
+          "x": 5670,
+          "y": -15180
+        },
+        {
+          "type": "signRock",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubu85e168",
+          "x": 5570,
+          "y": -16150
+        },
+        {
+          "type": "signTunnel",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubu9qi169",
+          "x": 5930,
+          "y": -16890
+        },
+        {
+          "type": "signConstruction",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwububsc170",
+          "x": 5470,
+          "y": -18450
+        },
+        {
+          "type": "signVillage",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubueqz171",
+          "x": 10240,
+          "y": -8560
+        },
+        {
+          "type": "signSlow",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubugl0172",
+          "x": 10080,
+          "y": -9490
+        },
+        {
+          "type": "signNoPass",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubujik173",
+          "x": 10300,
+          "y": -10340
+        },
+        {
+          "type": "signNoHorn",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubulf6174",
+          "x": 9980,
+          "y": -11160
+        },
+        {
+          "type": "signNoParking",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubun0q175",
+          "x": 10370,
+          "y": -11930
+        },
+        {
+          "type": "signNoLongPark",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubupgi176",
+          "x": 10500,
+          "y": -12780
+        },
+        {
+          "type": "signHeightLimit",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "limit": 4.5,
+          "id": "fmwubur6i177",
+          "x": 10570,
+          "y": -13510
+        },
+        {
+          "type": "signWeightLimit",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "limit": 20,
+          "id": "fmwubuswq178",
+          "x": 10570,
+          "y": -14410
+        },
+        {
+          "type": "signNoOvertake",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubuupu179",
+          "x": 10820,
+          "y": -15030
+        },
+        {
+          "type": "signMeetYield",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubuwc5180",
+          "x": 12540,
+          "y": -8860
+        },
+        {
+          "type": "signEndLimit",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubuyiy181",
+          "x": 12650,
+          "y": -9630,
+          "limit": 120
+        },
+        {
+          "type": "signYield",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubv04q182",
+          "x": 12590,
+          "y": -10220
+        },
+        {
+          "type": "signRoundabout",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubv2du183",
+          "x": 12900,
+          "y": -10820
+        },
+        {
+          "type": "signAllowUTurn",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubv4dm184",
+          "x": 12940,
+          "y": -11780
+        },
+        {
+          "type": "signCrosswalk",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubv6cs185",
+          "x": 12960,
+          "y": -12540
+        },
+        {
+          "type": "signMotorLane",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubv8ei186",
+          "x": 13240,
+          "y": -13270
+        },
+        {
+          "type": "signNonMotorLane",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubv9tm187",
+          "x": 14600,
+          "y": -8970
+        },
+        {
+          "type": "signNonMotor",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubvbuy188",
+          "x": 15170,
+          "y": -9650
+        },
+        {
+          "type": "signMinSpeed",
+          "w": 700,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "limit": 50,
+          "id": "fmwubvel6189",
+          "x": 14990,
+          "y": -10300
+        },
+        {
+          "type": "signOneWay",
+          "w": 400,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubvhvu190",
+          "x": 14850,
+          "y": -11030
+        },
+        {
+          "type": "signAdvance",
+          "w": 1600,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "text": "前方路口",
+          "id": "fmwubvl3f191",
+          "x": 14610,
+          "y": -11880
+        },
+        {
+          "type": "signDistance",
+          "w": 1600,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "text": "前方路口 200m",
+          "id": "fmwubvtys192",
+          "x": 19000,
+          "y": -9060
+        },
+        {
+          "type": "signFuel",
+          "w": 1200,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubvvma193",
+          "x": 19040,
+          "y": -10250
+        },
+        {
+          "type": "signCharge",
+          "w": 1200,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubvxdx194",
+          "x": 19130,
+          "y": -11580
+        },
+        {
+          "type": "signParking",
+          "w": 1200,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubvyxh195",
+          "x": 19460,
+          "y": -13130
+        },
+        {
+          "type": "signToilet",
+          "w": 1200,
+          "h": 2200,
+          "rot": 0,
+          "off": 0,
+          "id": "fmwubw7yi196",
+          "x": 21230,
+          "y": -8580
+        },
+        {
+          "type": "facMirror",
+          "w": 800,
+          "h": 3000,
+          "rot": 0,
+          "id": "fmwubw9sb197",
+          "x": 21050,
+          "y": -9450
+        },
+        {
+          "type": "facHeightGate",
+          "w": 6000,
+          "h": 4500,
+          "rot": 0,
+          "id": "fmwubwbl1198",
+          "x": 21280,
+          "y": -10330
+        },
+        {
+          "type": "facBollard",
+          "w": 120,
+          "h": 900,
+          "rot": 0,
+          "id": "fmwubwfl1199",
+          "x": 24320,
+          "y": -13730
+        },
+        {
+          "type": "facFlashBeacon",
+          "w": 200,
+          "h": 4000,
+          "rot": 0,
+          "id": "fmwubwilm200",
+          "x": 22890,
+          "y": -14570
+        },
+        {
+          "type": "facBusStop",
+          "w": 1200,
+          "h": 2600,
+          "rot": 0,
+          "id": "fmwubwl0e201",
+          "x": 22440,
+          "y": -13300
+        },
+        {
+          "type": "facSpeedBump",
+          "w": 3000,
+          "h": 120,
+          "rot": 0,
+          "id": "fmwubwqgi202",
+          "x": 25090,
+          "y": -16810
+        },
+        {
+          "type": "facCrosswalk",
+          "w": 4000,
+          "d": 3000,
+          "h": 12,
+          "n": 6,
+          "rot": 0,
+          "id": "fmwubwsmq203",
+          "x": 27940,
+          "y": -14670
+        },
+        {
+          "type": "sanSortBin",
+          "w": 1200,
+          "h": 1100,
+          "rot": 0,
+          "d": 450,
+          "on": false,
+          "id": "fmwud7vfw148",
+          "x": 29780,
+          "y": -4190
+        },
+        {
+          "type": "sanLitterBin",
+          "w": 400,
+          "h": 950,
+          "rot": 0,
+          "d": 400,
+          "on": false,
+          "id": "fmwud7x1u149",
+          "x": 31490,
+          "y": -4190
+        },
+        {
+          "type": "sanCollectPoint",
+          "w": 2400,
+          "h": 2400,
+          "rot": 0,
+          "d": 1200,
+          "on": false,
+          "id": "fmwufgrxf148",
+          "x": 29400,
+          "y": -2450
+        },
+        {
+          "type": "sanGarbageRoom",
+          "w": 3000,
+          "h": 2800,
+          "rot": 0,
+          "d": 2400,
+          "on": false,
+          "id": "fmwufgtk4149",
+          "x": 33130,
+          "y": -5510
+        },
+        {
+          "type": "sanToilet",
+          "w": 4000,
+          "h": 3200,
+          "rot": 0,
+          "d": 2400,
+          "on": false,
+          "id": "fmwuflj5d148",
+          "x": 25470,
+          "y": -7100
+        },
+        {
+          "type": "sanMobileToilet",
+          "w": 1200,
+          "h": 2400,
+          "rot": 0,
+          "d": 1200,
+          "on": false,
+          "id": "fmwufll7n149",
+          "x": 28250,
+          "y": -11420
+        },
+        {
+          "type": "sanWashBasin",
+          "w": 1500,
+          "h": 900,
+          "rot": 0,
+          "d": 600,
+          "on": false,
+          "id": "fmwuflmu1150",
+          "x": 30480,
+          "y": -11790
+        },
+        {
+          "type": "sanToolCabinet",
+          "w": 1200,
+          "h": 1900,
+          "rot": 0,
+          "d": 500,
+          "on": false,
+          "id": "fmwuflod4151",
+          "x": 33390,
+          "y": -11470
+        },
+        {
+          "type": "sanWaterPoint",
+          "w": 300,
+          "h": 1100,
+          "rot": 0,
+          "d": 300,
+          "on": false,
+          "id": "fmwuflpq9152",
+          "x": 36040,
+          "y": -11930
+        },
+        {
+          "type": "sanTransferStation",
+          "w": 6000,
+          "h": 4500,
+          "rot": 0,
+          "d": 4000,
+          "on": true,
+          "id": "fmwuflr9p153",
+          "x": 32390,
+          "y": -16680
+        },
+        {
+          "type": "sanRecycleStation",
+          "w": 3600,
+          "h": 3000,
+          "rot": 0,
+          "d": 2200,
+          "on": false,
+          "id": "fmwufltgp154",
+          "x": 38090,
+          "y": -2510
+        },
+        {
+          "type": "sanRestRoom",
+          "w": 3000,
+          "h": 3000,
+          "rot": 0,
+          "d": 2400,
+          "on": false,
+          "id": "fmwufluqh155",
+          "x": 22310,
+          "y": 790
         }
       ],
       "leaders": [],
