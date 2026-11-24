@@ -15545,7 +15545,7 @@
     $('#fileIn').onchange = e => {
       const file = e.target.files[0]; if (!file) return;
       file.text().then(txt => {
-        try { const s = JSON.parse(txt); if (!Array.isArray(s.furniture)) throw 0; applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); fitView(); syncPlanName(file.name.replace(/\.json$/i, '')); toast(tr('方案已导入', 'Plan imported')); }
+        try { const s = JSON.parse(txt); if (!Array.isArray(s.furniture)) throw 0; applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; window.stateRev++; markDirty(false); renderAll(); fitView(); syncPlanName(file.name.replace(/\.json$/i, '')); toast(tr('方案已导入', 'Plan imported')); }
         catch (err) { toast(tr('文件格式不正确', 'Invalid file format')); }
       });
       e.target.value = '';
@@ -15562,7 +15562,7 @@
 
     /* ======================= 服务器方案（Python 后端 /api/plans） ======================= */
     const planURL = n => '/api/plans/' + encodeURIComponent(n);
-    const cloudLoad = (s, name) => { applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; markDirty(false); renderAll(); fitView(); syncPlanName(name || ''); autoSaved = serializePlan(); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };   // 清空撤销栈：否则 Ctrl+Z 会退回上一个方案，而自动保存会把那份内容写进刚打开的文件
+    const cloudLoad = (s, name) => { applyLayers(s); state = fixState(s); ui.sel = null; undoStack.length = 0; redoStack.length = 0; window.stateRev++; markDirty(false); renderAll(); fitView(); syncPlanName(name || ''); autoSaved = serializePlan(); autoSavedName = autoTarget(); toast(tr('方案已打开', 'Plan loaded')); };   // 清空撤销栈：否则 Ctrl+Z 会退回上一个方案，而自动保存会把那份内容写进刚打开的文件；stateRev++：整体替换 state 没走 commit，必须 bump 版本号，否则 3D 模式下打开方案时 sync() 按版本号判定无变化、场景一直显示旧方案
     const cloudFail = () => toast(tr('操作失败：请确认程序已启动', 'Failed — make sure the app is running'));
 
     /* 自动保存：改动后 2 秒写入当前方案——已命名的方案直接回写自身，未命名 / 草稿仍写「自动保存」槽位（静默进行，失败不打扰，下次改动再试） */
@@ -15738,6 +15738,7 @@
       state = fixState(blankState());
       ui.sel = null;
       undoStack.length = 0; redoStack.length = 0;   // 关闭后无可撤销内容，撤销栈清空
+      window.stateRev++;                            // 整体替换 state 没走 commit：bump 版本号让 3D 场景重建为空白
       autoSaved = '';
       markDirty(false);
       renderAll(); syncPlanName('');
