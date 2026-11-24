@@ -444,10 +444,10 @@
       "x": 15410,
       "y": 4330,
       "st": {
-        "1_2": true,
-        "1_1": true,
+        "2_2": true,
         "1_0": true,
-        "2_2": true
+        "1_1": true,
+        "1_2": true
       }
     },
     {
@@ -475,7 +475,7 @@
       "w": 140,
       "h": 4500,
       "rot": 0,
-      "sig": "yellow",
+      "sig": "red",
       "auto": true,
       "id": "fmwubt7jh148",
       "x": 2110,
@@ -1162,7 +1162,12 @@
       "on": false,
       "id": "fmwufltgp154",
       "x": 39170,
-      "y": 3810
+      "y": 3810,
+      "ports": [
+        false,
+        false,
+        false
+      ]
     },
     {
       "type": "sanRestRoom",
@@ -1281,7 +1286,7 @@
       "type": "carSedan",
       "w": 4600,
       "h": 1500,
-      "rot": 0,
+      "rot": 173.2973314519311,
       "d": 1800,
       "color": "white",
       "int": "beige",
@@ -1293,14 +1298,14 @@
       "trunk": false,
       "lights": true,
       "id": "fmwusz84f197",
-      "x": 33550,
-      "y": 8960
+      "x": 24667,
+      "y": -30055
     },
     {
       "type": "carSedan",
       "w": 4600,
       "h": 1500,
-      "rot": 0,
+      "rot": 206.68745653404582,
       "d": 1800,
       "color": "grey",
       "int": "red",
@@ -1312,8 +1317,8 @@
       "trunk": false,
       "lights": true,
       "id": "fmwuszak0198",
-      "x": 41660,
-      "y": 11010
+      "x": 62561,
+      "y": -17240
     },
     {
       "type": "carSedan",
@@ -1331,14 +1336,14 @@
       "trunk": false,
       "lights": true,
       "id": "fmwuszclz199",
-      "x": 45131,
-      "y": 24345
+      "x": 47639,
+      "y": 24408
     },
     {
       "type": "carSedan",
       "w": 5100,
       "h": 1600,
-      "rot": 0,
+      "rot": 345.63525740819455,
       "d": 2100,
       "color": "blue",
       "int": "grey",
@@ -1350,8 +1355,8 @@
       "trunk": false,
       "lights": true,
       "id": "fmwuszdve200",
-      "x": 44840,
-      "y": 18210
+      "x": 17571,
+      "y": -22794
     },
     {
       "type": "carSedan",
@@ -1904,10 +1909,10 @@
           "x": 15410,
           "y": 4330,
           "st": {
-            "1_2": true,
-            "1_1": true,
+            "2_2": true,
             "1_0": true,
-            "2_2": true
+            "1_1": true,
+            "1_2": true
           }
         },
         {
@@ -1935,7 +1940,7 @@
           "w": 140,
           "h": 4500,
           "rot": 0,
-          "sig": "yellow",
+          "sig": "red",
           "auto": true,
           "id": "fmwubt7jh148",
           "x": 2110,
@@ -2622,7 +2627,12 @@
           "on": false,
           "id": "fmwufltgp154",
           "x": 39170,
-          "y": 3810
+          "y": 3810,
+          "ports": [
+            false,
+            false,
+            false
+          ]
         },
         {
           "type": "sanRestRoom",
@@ -2741,7 +2751,7 @@
           "type": "carSedan",
           "w": 4600,
           "h": 1500,
-          "rot": 0,
+          "rot": 173.2973314519311,
           "d": 1800,
           "color": "white",
           "int": "beige",
@@ -2753,14 +2763,14 @@
           "trunk": false,
           "lights": true,
           "id": "fmwusz84f197",
-          "x": 33550,
-          "y": 8960
+          "x": 24667,
+          "y": -30055
         },
         {
           "type": "carSedan",
           "w": 4600,
           "h": 1500,
-          "rot": 0,
+          "rot": 206.68745653404582,
           "d": 1800,
           "color": "grey",
           "int": "red",
@@ -2772,8 +2782,8 @@
           "trunk": false,
           "lights": true,
           "id": "fmwuszak0198",
-          "x": 41660,
-          "y": 11010
+          "x": 62561,
+          "y": -17240
         },
         {
           "type": "carSedan",
@@ -2791,14 +2801,14 @@
           "trunk": false,
           "lights": true,
           "id": "fmwuszclz199",
-          "x": 45131,
-          "y": 24345
+          "x": 47639,
+          "y": 24408
         },
         {
           "type": "carSedan",
           "w": 5100,
           "h": 1600,
-          "rot": 0,
+          "rot": 345.63525740819455,
           "d": 2100,
           "color": "blue",
           "int": "grey",
@@ -2810,8 +2820,8 @@
           "trunk": false,
           "lights": true,
           "id": "fmwuszdve200",
-          "x": 44840,
-          "y": 18210
+          "x": 17571,
+          "y": -22794
         },
         {
           "type": "carSedan",
