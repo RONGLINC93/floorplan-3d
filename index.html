@@ -3042,7 +3042,7 @@
           start editing.">当前为预览模式，工具暂不可用；点顶部「设计」后即可使用。</div>
         <div id="designTools">
           <div class="dtg">
-            <div class="dth" data-en="Basics">基础</div>
+            <div class="dth" data-en="General">通用操作</div>
             <button class="btn chip on" data-dt="select"
               title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手）"
               data-en-title="Click to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Delete removes, Alt+drag starts anywhere)"
@@ -3054,15 +3054,18 @@
               title="旋转：点此工具后直接在画板上点选对象（可多选），点空白处或回车结束选择，再点基点；移动鼠标旋转，再点一下确认，也可输入角度回车"
               data-en-title="Rotate: click this tool, then click objects on the canvas (multiple OK). Click empty space or press Enter to finish picking, pick a base point, move to rotate, click to confirm — or type an angle"
               data-en="Rotate"><i data-lucide="rotate-cw"></i>旋转</button>
+            <button class="btn chip" data-dt="paint" title="材质刷：先用「选择」点一个房间作为样板（或在右侧选好材料），再点其他房间逐个刷地面材料"
+              data-en-title="Material brush: pick a sample room with Select (or choose the material on the right), then click other rooms to apply the flooring one by one"
+              data-en="Paint"><i data-lucide="paint-bucket"></i>材质刷</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Architecture">建筑主体</div>
             <button class="btn chip" data-dt="wall" title="点击两点画一段墙，可连续画；也可先点起点，输入长度后回车。方向约束（直角 / 自由）在画板下方切换"
               data-en-title="Click two points to draw a wall segment (continuous); or click a start point, type a length and press Enter. Ortho / free constraint toggles below the canvas"
               data-en="Wall"><i data-lucide="brick-wall"></i>画墙</button>
             <button class="btn chip" data-dt="room" title="区域：点击两个对角点拉出一个矩形区域（地面），可用来定义客厅、卧室、厕所、过道、阳台等；可在属性面板改名称与地面材料"
               data-en-title="Room area: click two opposite corners to draw a rectangular floor zone (living room, bedroom, bathroom, corridor, balcony…); rename and set flooring in the panel"
               data-en="Room"><i data-lucide="square"></i>区域</button>
-            <button class="btn chip" data-dt="paint" title="材质刷：先用「选择」点一个房间作为样板（或在右侧选好材料），再点其他房间逐个刷地面材料"
-              data-en-title="Material brush: pick a sample room with Select (or choose the material on the right), then click other rooms to apply the flooring one by one"
-              data-en="Paint"><i data-lucide="paint-bucket"></i>材质刷</button>
             <button class="btn chip" data-dt="farea"
               title="地板：两次点击对角点定义一块板；底标高 0 即整层实体楼面（3D 齐平地面、可站立、楼梯 / 电梯井自动开洞），调高底标高可当挑板 / 雨棚 / 空调板；板厚、底标高、宽深在右侧改"
               data-en-title="Floor: click two opposite corners to define a slab; bottom level 0 makes the storey floor (flush solid deck in 3D, walkable, auto-opened for stairs / lift shafts), raise it for a cantilever / canopy / AC platform. Edit thickness, bottom level and size in the panel"
@@ -3080,6 +3083,16 @@
             <button class="btn chip" data-dt="slabhole" title="楼板洞口：两次点击对角点；2D 虚线轮廓加对角叉，3D 在楼板上挖出洞口并带翻边，穿过地板处真实镂空"
               data-en-title="Slab opening: click two opposite corners; dashed outline with diagonal cross in 2D, hole with upstand cut into the slab in 3D"
               data-en="Slab hole"><i data-lucide="square-dashed"></i>楼板洞口</button>
+            <button class="btn chip" data-dt="ceil" title="吊顶 / 局部下沉顶：两次点击对角点；默认板厚 150、底标高 2500，2D 虚线轮廓，3D 生成顶板"
+              data-en-title="Ceiling / dropped soffit: click two opposite corners; 150 thick, underside at 2500 by default; dashed outline in 2D, ceiling slab in 3D"
+              data-en="Ceiling"><i data-lucide="panel-top"></i>吊顶</button>
+            <button class="btn chip" data-dt="niche"
+              title="壁龛：点击墙上的位置开一个内凹壁龛（默认 900 宽、窗台 900、高 700、进深 250），2D 虚线内凹符号，3D 生成龛体与边框"
+              data-en-title="Niche: click a wall for a recessed niche (900 wide, sill 900, 700 high, 250 deep by default); dashed symbol in 2D, niche body + frame in 3D"
+              data-en="Niche"><i data-lucide="between-vertical-end"></i>壁龛</button>
+            <button class="btn chip" data-dt="well" title="采光井 / 天井：两次点击对角点；默认 100 壁厚、2800 井高，2D 虚线加对角叉，3D 为四周井壁加顶部采光玻璃"
+              data-en-title="Light well: click two opposite corners; 100 walls, 2800 high by default; dashed + cross in 2D, well walls + top glazing in 3D"
+              data-en="Light well"><i data-lucide="sun"></i>采光井</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Doors">门</div>
@@ -3130,6 +3143,7 @@
               data-en-title="Seal: click an existing door / window opening to fill it (removes the leaf too, as in renovation sealing)"
               data-en="Seal"><i data-lucide="eraser"></i>封洞</button>
           </div>
+
           <div class="dtg">
             <div class="dth" data-en="Windows">窗</div>
             <button class="btn chip" data-dt="win" title="点击墙上的位置放一个 1200mm 窗户（窗台默认 900、窗高 1800、带窗花，可在右侧改）"
@@ -3171,7 +3185,7 @@
               data-en="Window board"><i data-lucide="panel-right"></i>窗台板</button>
           </div>
           <div class="dtg">
-            <div class="dth" data-en="Stairs & Ramps">楼梯 · 坡道</div>
+            <div class="dth" data-en="Stairs &amp; circulation">楼梯与交通</div>
             <button class="btn chip" data-dt="stair" title="点击放置一部直跑楼梯（默认 1000×4000，升 2800；方向/尺寸可在右侧改，漫游可走上去）"
               data-en-title="Click to place a straight stair (1000×4000, rise 2800 by default; direction / size editable, walkable in 3D)"
               data-en="Stair"><i data-lucide="arrow-up-narrow-wide"></i>楼梯</button>
@@ -3203,18 +3217,19 @@
               title="点击放置一架梯子（默认宽 500 · 高 3000，钢制直梯），靠近墙自动吸附贴墙、面朝房间；宽 / 高 / 方向可在右侧改，3D 为两根立柱 + 踏棍 + 顶部扶手弯钩，漫游贴近后按 W / S 攀爬，到顶自动翻越，空格跳离"
               data-en-title="Click to place a ladder (500 wide × 3000 high, steel), snaps to nearby walls facing the room; width / height / direction editable, 3D shows two posts + rungs + top hooks, walk close and press W / S to climb in roam mode, auto step-over at the top, Space to jump off"
               data-en="Ladder"><i data-lucide="ladder"></i>梯子</button>
+            <button class="btn chip" data-dt="lift"
+              title="电梯：点击放置（默认 2000×2000，门宽 900，门高 2100）；宽 / 深 / 高 / 停靠高度 / 门宽 / 门高 / 门位置 / 开门方向可改，3D 为井道 + 金属双扇自动门（轿厢内面板 / 门洞呼叫控制）"
+              data-en-title="Lift: click to place (2000×2000, door 900 wide × 2100 high by default); size / height / door editable; shaft + automatic sliding doors in 3D, controlled from the car panel or the elevator door opening"
+              data-en="Lift"><i data-lucide="arrow-up-down"></i>电梯</button>
           </div>
           <div class="dtg">
-            <div class="dth" data-en="Structure">结构 · 构件</div>
+            <div class="dth" data-en="Structure">结构构件</div>
             <button class="btn chip" data-dt="pillar" title="点击放置一根柱子（默认方柱 400mm，通顶并占位挡路；右侧可改圆/方与尺寸，可直接拖动）"
               data-en-title="Click to place a column (400mm square by default, full height, blocks walking; round / square and size editable, draggable)"
               data-en="Column"><i data-lucide="columns-3"></i>柱子</button>
             <button class="btn chip" data-dt="beam" title="梁：第一次点起点，第二次点终点；默认 200 宽 × 300 高、底标高 2400，可在右侧调"
               data-en-title="Beam: click start then end; 200 wide × 300 high, underside at 2400 by default, editable"
               data-en="Beam"><i data-lucide="rectangle-horizontal"></i>梁</button>
-            <button class="btn chip" data-dt="ceil" title="吊顶 / 局部下沉顶：两次点击对角点；默认板厚 150、底标高 2500，2D 虚线轮廓，3D 生成顶板"
-              data-en-title="Ceiling / dropped soffit: click two opposite corners; 150 thick, underside at 2500 by default; dashed outline in 2D, ceiling slab in 3D"
-              data-en="Ceiling"><i data-lucide="panel-top"></i>吊顶</button>
             <button class="btn chip" data-dt="parapet" title="女儿墙：第一次点起点，第二次点终点；默认 120 厚 × 900 高、带压顶，长度 / 厚 / 高 / 底标高可改"
               data-en-title="Parapet: click start then end; 120 thick × 900 high with coping by default; length / thickness / height / underside editable"
               data-en="Parapet"><i data-lucide="fence"></i>女儿墙</button>
@@ -3234,49 +3249,55 @@
             <button class="btn chip" data-dt="part" title="玻璃隔断：第一次点起点，第二次点终点；默认 2400 高通高玻璃，带上下边框与竖梃，长度 / 高度可调"
               data-en-title="Glass partition: click start then end; 2400-high full glass with top / bottom frames and mullions by default; length / height adjustable"
               data-en="Partition"><i data-lucide="columns-2"></i>玻璃隔断</button>
-            <button class="btn chip" data-dt="drain"
-              title="线性排水沟 / 地漏：第一次点起点，第二次点终点；默认 80 宽，2D 带格栅横线，3D 为下沉槽体加不锈钢格栅，槽宽可改"
-              data-en-title="Linear drain: click start then end; 80 wide by default, grating lines in 2D, sunk channel + steel grating in 3D, width editable"
-              data-en="Drain"><i data-lucide="grip-horizontal"></i>排水沟</button>
-            <button class="btn chip" data-dt="niche"
-              title="壁龛：点击墙上的位置开一个内凹壁龛（默认 900 宽、窗台 900、高 700、进深 250），2D 虚线内凹符号，3D 生成龛体与边框"
-              data-en-title="Niche: click a wall for a recessed niche (900 wide, sill 900, 700 high, 250 deep by default); dashed symbol in 2D, niche body + frame in 3D"
-              data-en="Niche"><i data-lucide="between-vertical-end"></i>壁龛</button>
+            <button class="btn chip" data-dt="retain" title="挡土墙：第一次点起点，第二次点终点；默认 300 厚 × 1800 高，带压顶"
+              data-en-title="Retaining wall: click start then end; 300 thick × 1800 high with coping by default"
+              data-en="Retaining wall"><i data-lucide="brick-wall"></i>挡土墙</button>
+            <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），长 / 宽 / 高度可在右侧改，2D 实心方块加叉，3D 为小方柱"
+              data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); edit length / width / height in the panel; solid square with cross in 2D, small column in 3D"
+              data-en="Tie column"><i data-lucide="columns-3"></i>构造柱</button>
+            <button class="btn chip" data-dt="lintel" title="过梁：沿门窗洞口上方点起点、终点；默认 240 宽 × 200 高、底标高 2100，3D 为洞口上方梁"
+              data-en-title="Lintel: click start and end above a door / window opening; 240 wide × 200 high, underside 2100 by default; beam above the opening in 3D"
+              data-en="Lintel"><i data-lucide="move-horizontal"></i>过梁</button>
+            <button class="btn chip" data-dt="seam" title="变形缝 / 沉降缝：点起点，再点终点；默认缝宽 40，2D 虚线缝带，3D 为地面窄缝"
+              data-en-title="Movement joint: click start then end; 40 wide by default; dashed band in 2D, narrow floor gap in 3D"
+              data-en="Joint"><i data-lucide="scan-line"></i>变形缝</button>
+            <button class="btn chip" data-dt="shaft" title="管道井 / 水井：两次点击对角点；默认井壁 120、井高 2800，2D 虚线内框加叉，3D 为四壁井道"
+              data-en-title="Service shaft: click two opposite corners; 120 walls, 2800 high by default; dashed inner frame + cross in 2D, four-wall shaft in 3D"
+              data-en="Shaft"><i data-lucide="container"></i>管道井</button>
+          </div>
+          <div class="dtg">
+            <div class="dth" data-en="Building details">建筑细部</div>
             <button class="btn chip" data-dt="canopy"
               title="雨棚：点击墙上的位置放置（默认沿墙 1500 宽、挑出 800、板厚 100、底标高 2400），朝点击的一侧挑出，长度 / 挑出 / 板厚 / 底标高可改"
               data-en-title="Canopy: click a wall (1500 wide, projects 800, 100 thick, underside 2400 by default); projects to the clicked side; length / projection / thickness / underside editable"
               data-en="Canopy"><i data-lucide="panel-top"></i>雨棚</button>
-            <button class="btn chip" data-dt="fence" title="围墙：第一次点起点，第二次点终点；默认 200 厚 × 1800 高，带压顶与立柱，长度 / 厚 / 高可改"
-              data-en-title="Perimeter wall: click start then end; 200 thick × 1800 high with coping and posts by default; length / thickness / height editable"
-              data-en="Wall"><i data-lucide="fence"></i>围墙</button>
-            <button class="btn chip" data-dt="gate"
-              title="院门：第一次点门洞起点，第二次点终点；默认 1800 高、双扇外开 30°，立柱 / 门扇 / 竖梃自动生成，开启角度可改"
-              data-en-title="Gate: click start then end of the opening; 1800 high, double leaves opening outward 30° by default; posts / leaves / mullions generated, opening angle editable"
-              data-en="Gate"><i data-lucide="door-closed"></i>院门</button>
-            <button class="btn chip" data-dt="pergola" title="廊架 / 花架：两次点击对角点，默认柱 150、梁高 2600，3D 生成立柱 + 纵向梁 + 横向椽条"
-              data-en-title="Pergola: click two opposite corners; posts 150, beams at 2600 by default; posts + beams + rafters in 3D"
-              data-en="Pergola"><i data-lucide="grid-3x3"></i>廊架</button>
-            <button class="btn chip" data-dt="deck" title="露台 / 木平台：两次点击对角点，默认板厚 150、落地，3D 为木纹板 + 板缝"
-              data-en-title="Deck: click two opposite corners; 150 thick, on the ground by default; timber boards with gaps in 3D"
-              data-en="Deck"><i data-lucide="square"></i>露台</button>
-            <button class="btn chip" data-dt="pool" title="泳池：两次点击对角点，默认深 1500、池边石 300，3D 为下沉池体 + 水面 + 池边"
-              data-en-title="Pool: click two opposite corners; 1500 deep, 300 coping by default; sunk pool + water + coping in 3D"
-              data-en="Pool"><i data-lucide="waves"></i>泳池</button>
-            <button class="btn chip" data-dt="lift"
-              title="电梯：点击放置（默认 2000×2000，门宽 900，门高 2100）；宽 / 深 / 高 / 停靠高度 / 门宽 / 门高 / 门位置 / 开门方向可改，3D 为井道 + 金属双扇自动门（轿厢内面板 / 门洞呼叫控制）"
-              data-en-title="Lift: click to place (2000×2000, door 900 wide × 2100 high by default); size / height / door editable; shaft + automatic sliding doors in 3D, controlled from the car panel or the elevator door opening"
-              data-en="Lift"><i data-lucide="arrow-up-down"></i>电梯</button>
-            <button class="btn chip" data-dt="pbox"
-              title="强电箱：点击墙体放置（默认沿墙 600、进深 250、离地 1500），自动吸附墙体；右侧可多选漏电开关 / 空气开关及各自数量、可开关箱门，3D 中点击箱门也能开合"
-              data-en-title="Power box: click a wall to place (600 wide, 250 deep, 1500 above floor by default), snaps to the wall; pick multiple RCDs / MCBs and quantities, switchable door, click the door in 3D to open"
-              data-en="Power box"><i data-lucide="zap"></i>强电箱</button>
-            <button class="btn chip" data-dt="wbox"
-              title="弱电箱：点击墙体放置（默认沿墙 450、进深 250、离地 1500），自动吸附墙体；右侧可多选加入光猫 / 交换机 / 无线路由器 / 有线路由器、可开关箱门，3D 中点击箱门也能开合"
-              data-en-title="Weak-current box: click a wall to place (450 wide, 250 deep, 1500 above floor by default), snaps to the wall; add a modem / switch / Wi-Fi router / wired router, switchable door, click the door in 3D to open"
-              data-en="Weak-current box"><i data-lucide="network"></i>弱电箱</button>
+            <button class="btn chip" data-dt="skylight" title="天窗：两次点击对角点；2D 虚线加对角叉，3D 在屋面生成凸起玻璃天窗"
+              data-en-title="Skylight: click two opposite corners; dashed + cross in 2D, raised glazed skylight on the roof in 3D"
+              data-en="Skylight"><i data-lucide="sun-medium"></i>天窗</button>
+            <button class="btn chip" data-dt="eave" title="挑檐 / 封檐板：沿屋缘点起点、终点；默认挑出 600、板厚 120、标高 2800"
+              data-en-title="Eave / fascia: click start and end along the roof edge; 600 projection, 120 thick, at 2800 by default"
+              data-en="Eave"><i data-lucide="panel-top"></i>挑檐</button>
+            <button class="btn chip" data-dt="thresh" title="门槛石 / 挡水条：沿门口 / 卫生间门口点起点、终点；默认 60 宽 × 20 高，可调"
+              data-en-title="Threshold / water bar: click start and end across a doorway; 60 wide × 20 high by default, editable"
+              data-en="Threshold"><i data-lucide="square"></i>门槛石</button>
+            <button class="btn chip" data-dt="flash" title="泛水线 / 防水卷材带：沿屋面与外墙交界点起点、终点；默认 300 宽，2D 虚线带"
+              data-en-title="Flashing: click start and end along the roof–wall junction; 300 wide by default, dashed band in 2D"
+              data-en="Flashing"><i data-lucide="scan-line"></i>泛水线</button>
+            <button class="btn chip" data-dt="band" title="檐口线脚 / 腰线：沿外墙点起点、终点；默认 200 宽 × 150 高、标高 2000，3D 为墙面装饰横带"
+              data-en-title="Cornice / band: click start and end along the facade; 200 wide × 150 high at 2000 by default; decorative band in 3D"
+              data-en="Cornice"><i data-lucide="panel-right"></i>檐口线脚</button>
+            <button class="btn chip" data-dt="dormer" title="老虎窗：两次点击对角点；默认 1200×1500、屋面标高 2800、窗高 900，3D 生成窗箱与双坡小顶"
+              data-en-title="Dormer: click two opposite corners; 1200×1500 at roof level 2800, window 900 high by default; window box + gable in 3D"
+              data-en="Dormer"><i data-lucide="building-2"></i>老虎窗</button>
+            <button class="btn chip" data-dt="chimney" title="烟囱：点击放置（默认 400×400、出屋面 1200），3D 为方柱与压顶"
+              data-en-title="Chimney: click to place (400×400, 1200 above the roof by default); square stack with coping in 3D"
+              data-en="Chimney"><i data-lucide="factory"></i>烟囱</button>
+            <button class="btn chip" data-dt="hatch" title="屋面检修口：两次点击对角点；默认 700×700、翻边高 250，3D 为翻边与盖板"
+              data-en-title="Roof hatch: click two opposite corners; 700×700, upstand 250 high by default; upstand + cover in 3D"
+              data-en="Hatch"><i data-lucide="grid-2x2"></i>检修口</button>
           </div>
           <div class="dtg">
-            <div class="dth" data-en="Lighting">灯具照明</div>
+            <div class="dth" data-en="Electrical &amp; lighting">照明与电气</div>
             <button class="btn chip" data-dt="lampCh"
               title="吊灯：点击位置放置（默认照亮半径 3.5m、离地 1.9m，带吊杆）；开灯时灯头白天 / 夜景都亮，3D 里点击灯体可开 / 关，半径 / 高度在右侧改"
               data-en-title="Chandelier: click to place (3.5m light radius, 1.9m above floor by default, with rod); lamp head glows when on, day or night, click it in 3D to toggle; radius / height editable"
@@ -3335,69 +3356,64 @@
               title="地板开关：点击地面位置放置（地面平嵌面板，可选单开单控 ~ 四开单控共 9 种 86 型号 / 面板材质；默认控制半径 6m、贴地安装）；3D 里点击翘板可开 / 关所控灯（多联各联独立）"
               data-en-title="Floor switch: click a floor position (flush floor panel, 9 standard 86 models from 1-gang 1-way to 4-gang 1-way, panel material; 6m control radius, flush-mounted by default); click the rockers in 3D to toggle its controlled lamps (per gang for multi-gang)"
               data-en="Floor switch"><i data-lucide="toggle-right"></i>地板开关</button>
+            <button class="btn chip" data-dt="pbox"
+              title="强电箱：点击墙体放置（默认沿墙 600、进深 250、离地 1500），自动吸附墙体；右侧可多选漏电开关 / 空气开关及各自数量、可开关箱门，3D 中点击箱门也能开合"
+              data-en-title="Power box: click a wall to place (600 wide, 250 deep, 1500 above floor by default), snaps to the wall; pick multiple RCDs / MCBs and quantities, switchable door, click the door in 3D to open"
+              data-en="Power box"><i data-lucide="zap"></i>强电箱</button>
+            <button class="btn chip" data-dt="wbox"
+              title="弱电箱：点击墙体放置（默认沿墙 450、进深 250、离地 1500），自动吸附墙体；右侧可多选加入光猫 / 交换机 / 无线路由器 / 有线路由器、可开关箱门，3D 中点击箱门也能开合"
+              data-en-title="Weak-current box: click a wall to place (450 wide, 250 deep, 1500 above floor by default), snaps to the wall; add a modem / switch / Wi-Fi router / wired router, switchable door, click the door in 3D to open"
+              data-en="Weak-current box"><i data-lucide="network"></i>弱电箱</button>
           </div>
           <div class="dtg">
-            <div class="dth" data-en="Outdoor & Equipment">室外 · 设备</div>
-            <button class="btn chip" data-dt="balcony"
-              title="阳台：点击墙上的位置放置（默认沿墙 1500、进深 1200），自动贴住墙面，靠墙的一边不做栏板；板厚 / 底标高 / 栏板高 / 栏板样式与栏板边可在右侧改"
-              data-en-title="Balcony: click a wall (1500 wide, 1200 deep by default); snaps to the wall, no railing on the wall side; slab / underside / railing height & style editable"
-              data-en="Balcony"><i data-lucide="land-plot"></i>阳台</button>
-            <button class="btn chip" data-dt="planter" title="花坛 / 种植池：两次点击对角点；壁厚 / 高 / 底标高可改，3D 中带种植土并占位挡路"
-              data-en-title="Planter: click two opposite corners; wall / height / underside editable, soil in 3D, blocks walking"
-              data-en="Planter"><i data-lucide="sprout"></i>花坛</button>
-            <button class="btn chip" data-dt="well" title="采光井 / 天井：两次点击对角点；默认 100 壁厚、2800 井高，2D 虚线加对角叉，3D 为四周井壁加顶部采光玻璃"
-              data-en-title="Light well: click two opposite corners; 100 walls, 2800 high by default; dashed + cross in 2D, well walls + top glazing in 3D"
-              data-en="Light well"><i data-lucide="sun"></i>采光井</button>
+            <div class="dth" data-en="Plumbing &amp; HVAC">给排水与暖通</div>
             <button class="btn chip" data-dt="flue" title="烟道 / 风道：点击位置放置（默认 300×300、高 2800）；宽 / 进深 / 高 / 底标高可改"
               data-en-title="Flue / duct: click to place (300×300, 2800 high by default); width / depth / height / underside editable"
               data-en="Flue"><i data-lucide="air-vent"></i>烟道</button>
             <button class="btn chip" data-dt="ac" title="设备平台 / 空调机位：两次点击对角点；默认 1200×700、板厚 100，3D 带百叶围板"
               data-en-title="AC platform: click two opposite corners; 1200×700, 100 thick by default, louvred sides in 3D"
               data-en="AC platform"><i data-lucide="air-vent"></i>设备平台</button>
-            <button class="btn chip" data-dt="park" title="停车位：两次点击对角点；2D 画车位线、编号与车头朝向箭头，3D 为地面标线，朝向可改"
-              data-en-title="Parking: click two opposite corners; stall lines, number and direction arrow in 2D, ground marking in 3D, direction editable"
-              data-en="Parking"><i data-lucide="car"></i>停车位</button>
-            <button class="btn chip" data-dt="pavilion" title="凉亭：两次点击对角点；2D 画柱位与顶轮廓，3D 生成立柱 + 顶盖"
-              data-en-title="Pavilion: click two opposite corners; post positions and roof outline in 2D, posts + roof in 3D"
-              data-en="Pavilion"><i data-lucide="tent"></i>凉亭</button>
-            <button class="btn chip" data-dt="apron" title="散水 / 明沟：第一次点起点，第二次点终点；默认 600 宽，2D 画双线散水，3D 为沿墙坡面"
-              data-en-title="Apron: click start then end; 600 wide by default; double-line apron in 2D, sloped strip along the wall in 3D"
-              data-en="Apron"><i data-lucide="grip-horizontal"></i>散水</button>
-            <button class="btn chip" data-dt="retain" title="挡土墙：第一次点起点，第二次点终点；默认 300 厚 × 1800 高，带压顶"
-              data-en-title="Retaining wall: click start then end; 300 thick × 1800 high with coping by default"
-              data-en="Retaining wall"><i data-lucide="brick-wall"></i>挡土墙</button>
-            <button class="btn chip" data-dt="skylight" title="天窗：两次点击对角点；2D 虚线加对角叉，3D 在屋面生成凸起玻璃天窗"
-              data-en-title="Skylight: click two opposite corners; dashed + cross in 2D, raised glazed skylight on the roof in 3D"
-              data-en="Skylight"><i data-lucide="sun-medium"></i>天窗</button>
+            <button class="btn chip" data-dt="drain"
+              title="线性排水沟 / 地漏：第一次点起点，第二次点终点；默认 80 宽，2D 带格栅横线，3D 为下沉槽体加不锈钢格栅，槽宽可改"
+              data-en-title="Linear drain: click start then end; 80 wide by default, grating lines in 2D, sunk channel + steel grating in 3D, width editable"
+              data-en="Drain"><i data-lucide="grip-horizontal"></i>排水沟</button>
             <button class="btn chip" data-dt="gutter" title="天沟 / 檐沟：第一次点起点，第二次点终点；默认 300 宽，2D 画双线沟槽，3D 为排水沟槽"
               data-en-title="Gutter: click start then end; 300 wide by default; double-line channel in 2D, gutter in 3D"
               data-en="Gutter"><i data-lucide="grip-horizontal"></i>天沟</button>
             <button class="btn chip" data-dt="spout" title="雨水管：点击放置一根贴墙落水管（默认直径 100、高 2800），可拖动"
               data-en-title="Downspout: click to place a wall-hugging downpipe (⌀100, 2800 high by default), draggable"
               data-en="Downspout"><i data-lucide="pipette"></i>雨水管</button>
-            <button class="btn chip" data-dt="signbd" title="门头广告牌：沿店面外墙点起点、终点；默认板厚 120、高 800、标高 2800，3D 为竖向招牌板"
-              data-en-title="Sign board: click start and end along the shopfront wall; 120 thick × 800 high at 2800 by default; vertical board in 3D"
-              data-en="Sign board"><i data-lucide="gallery-horizontal"></i>门头广告牌</button>
-            <button class="btn chip" data-dt="flag" title="旗杆：点击放置（默认杆径 120、高 6000），3D 为锥形杆 + 顶球 + 旗面，可拖动"
-              data-en-title="Flagpole: click to place (⌀120, 6000 high by default); tapered pole + finial + flag in 3D, draggable"
-              data-en="Flagpole"><i data-lucide="flag"></i>旗杆</button>
-            <button class="btn chip" data-dt="barrier" title="路障：点击放置；右侧可切换交通锥 / 水马 / 铁马 / 石墩，改尺寸与朝向"
-              data-en-title="Barrier: click to place; switch between traffic cone / water-filled barrier / steel horse / concrete block in the panel"
-              data-en="Barrier"><i data-lucide="cone"></i>路障</button>
-            <button class="btn chip" data-dt="streetlamp"
-              title="路灯：点击放置；切换夜景自动开灯，3D 点灯杆可开 / 关；右侧可切换单臂 / 双臂 / 庭院灯 / 高杆灯，改杆径 / 杆高 / 悬臂长 / 朝向 / 照亮半径"
-              data-en-title="Street lamp: click to place; automatically switches on in night mode, click the pole in 3D to toggle; switch single-arm / double-arm / courtyard / high-mast in the panel, edit pole / height / arm / angle / light radius"
-              data-en="Street lamp"><i data-lucide="lightbulb"></i>路灯</button>
-            <button class="btn chip" data-dt="solarlamp"
-              title="太阳能路灯：点击放置；白天充电、夜景自动开灯并耗电，电量耗尽自动熄灭；红色指示灯闪烁，3D 点灯杆可开 / 关；右侧可改电量、充 / 放电速度与尺寸"
-              data-en-title="Solar street lamp: click to place; charges by day, auto-on and drains battery at night, switches off when empty; blinking red indicator, click pole in 3D to toggle; edit battery, charge / drain rates and size in the panel"
-              data-en="Solar lamp"><i data-lucide="sun"></i>太阳能路灯</button>
-            <button class="btn chip" data-dt="carport" title="电动车棚：两次点击对角点；默认 5000×3000、檐高 2500、柱径 100，3D 为钢柱 + 轻钢平顶"
-              data-en-title="Bike shed: click two opposite corners; 5000×3000, eave 2500, posts 100 by default; steel posts + flat roof in 3D"
-              data-en="Bike shed"><i data-lucide="warehouse"></i>电动车棚</button>
+            <button class="btn chip" data-dt="well2"
+              title="雨水井 / 检查井 / 化粪池：两次点击对角点；默认 700×700、深 900，2D 圆井盖加十字，3D 为井圈与井盖"
+              data-en-title="Drain well: click two opposite corners; 700×700, 900 deep by default; round cover + cross in 2D, ring + cover in 3D"
+              data-en="Drain well"><i data-lucide="circle-dot"></i>雨水井</button>
+            <button class="btn chip" data-dt="solar" title="太阳能热水器：两次点击对角点；默认 2000×1600，3D 为斜置集热板与水箱"
+              data-en-title="Solar heater: click two opposite corners; 2000×1600 by default; tilted collector + tank in 3D"
+              data-en="Solar"><i data-lucide="sun-medium"></i>太阳能</button>
+            <button class="btn chip" data-dt="equip" title="屋面设备基础：两次点击对角点；默认 1500×1000、基础厚 150、设备高 800，3D 为基础与机组体量"
+              data-en-title="Equipment base: click two opposite corners; 1500×1000, base 150 thick, unit 800 high by default; base + unit mass in 3D"
+              data-en="Base"><i data-lucide="warehouse"></i>设备基础</button>
           </div>
           <div class="dtg">
-            <div class="dth" data-en="Traffic">交通设施</div>
+            <div class="dth" data-en="Roads &amp; traffic">道路交通</div>
+            <button class="btn chip" data-dt="highway" title="高速公路：点起点、终点；默认双向四车道加中央分隔带，路宽 / 路面厚在右侧改"
+              data-en-title="Highway: click start then end; four lanes with a central median by default, edit width / thickness in the panel"
+              data-en="Highway"><i data-lucide="route"></i>高速公路</button>
+            <button class="btn chip" data-dt="road" title="公路：点起点、终点；双向两车道加黄色中心线，路宽可在右侧改"
+              data-en-title="Highway road: click start then end; two lanes with a yellow center line, width editable in the panel"
+              data-en="Road"><i data-lucide="road"></i>公路</button>
+            <button class="btn chip" data-dt="cityroad" title="城市道路：点起点、终点；双黄线与白色车道线，路宽可在右侧改"
+              data-en-title="City road: click start then end; double yellow center and white lane lines, width editable in the panel"
+              data-en="City road"><i data-lucide="map"></i>城市道路</button>
+            <button class="btn chip" data-dt="countryroad" title="乡村道路：点起点、终点；窄幅沥青路面，路宽可在右侧改"
+              data-en-title="Country road: click start then end; narrow asphalt surface, width editable in the panel"
+              data-en="Country road"><i data-lucide="waypoints"></i>乡村道路</button>
+            <button class="btn chip" data-dt="trail" title="小道：点起点、终点；碎石铺装带分格纹，路宽可在右侧改"
+              data-en-title="Footpath: click start then end; gravel surface with paving joints, width editable in the panel"
+              data-en="Footpath"><i data-lucide="footprints"></i>小道</button>
+            <button class="btn chip" data-dt="sidewalk" title="人行道：点起点、终点；铺装分格与两侧路缘，路宽可在右侧改"
+              data-en-title="Sidewalk: click start then end; paved surface with curbs, width editable in the panel"
+              data-en="Sidewalk"><i data-lucide="panels-top-left"></i>人行道</button>
             <button class="btn chip" data-dt="traflight"
               title="交通信号灯：点击放置；3D 点灯杆切换红 / 绿 / 黄，默认每 4 秒自动轮播（面板可关）；2D 俯视画灯箱与三灯状态点，右侧可改杆径 / 杆高 / 朝向 / 当前信号"
               data-en-title="Traffic light: click to place; click the pole in 3D to cycle red / green / yellow; auto-cycles every 4s (toggle in panel); 2D shows the head and status dots; edit pole / height / angle / signal"
@@ -3421,36 +3437,36 @@
             <button class="btn chip" data-dt="signboard" title="指路牌：点击放置；蓝底白字长条牌面（默认「主干道」），右侧可改牌面文字 / 杆高 / 板宽 / 朝向"
               data-en-title="Guide board: click to place; long blue face with white text (主干道 by default); edit text / height / width / angle in the panel"
               data-en="Guide board"><i data-lucide="signpost"></i>指路牌</button>
+            <button class="btn chip" data-dt="signbd" title="门头广告牌：沿店面外墙点起点、终点；默认板厚 120、高 800、标高 2800，3D 为竖向招牌板"
+              data-en-title="Sign board: click start and end along the shopfront wall; 120 thick × 800 high at 2800 by default; vertical board in 3D"
+              data-en="Sign board"><i data-lucide="gallery-horizontal"></i>门头广告牌</button>
+            <button class="btn chip" data-dt="barrier" title="路障：点击放置；右侧可切换交通锥 / 水马 / 铁马 / 石墩，改尺寸与朝向"
+              data-en-title="Barrier: click to place; switch between traffic cone / water-filled barrier / steel horse / concrete block in the panel"
+              data-en="Barrier"><i data-lucide="cone"></i>路障</button>
+            <button class="btn chip" data-dt="flag" title="旗杆：点击放置（默认杆径 120、高 6000），3D 为锥形杆 + 顶球 + 旗面，可拖动"
+              data-en-title="Flagpole: click to place (⌀120, 6000 high by default); tapered pole + finial + flag in 3D, draggable"
+              data-en="Flagpole"><i data-lucide="flag"></i>旗杆</button>
+            <button class="btn chip" data-dt="park" title="停车位：两次点击对角点；2D 画车位线、编号与车头朝向箭头，3D 为地面标线，朝向可改"
+              data-en-title="Parking: click two opposite corners; stall lines, number and direction arrow in 2D, ground marking in 3D, direction editable"
+              data-en="Parking"><i data-lucide="car"></i>停车位</button>
+            <button class="btn chip" data-dt="streetlamp"
+              title="路灯：点击放置；切换夜景自动开灯，3D 点灯杆可开 / 关；右侧可切换单臂 / 双臂 / 庭院灯 / 高杆灯，改杆径 / 杆高 / 悬臂长 / 朝向 / 照亮半径"
+              data-en-title="Street lamp: click to place; automatically switches on in night mode, click the pole in 3D to toggle; switch single-arm / double-arm / courtyard / high-mast in the panel, edit pole / height / arm / angle / light radius"
+              data-en="Street lamp"><i data-lucide="lightbulb"></i>路灯</button>
+            <button class="btn chip" data-dt="solarlamp"
+              title="太阳能路灯：点击放置；白天充电、夜景自动开灯并耗电，电量耗尽自动熄灭；红色指示灯闪烁，3D 点灯杆可开 / 关；右侧可改电量、充 / 放电速度与尺寸"
+              data-en-title="Solar street lamp: click to place; charges by day, auto-on and drains battery at night, switches off when empty; blinking red indicator, click pole in 3D to toggle; edit battery, charge / drain rates and size in the panel"
+              data-en="Solar lamp"><i data-lucide="sun"></i>太阳能路灯</button>
           </div>
           <div class="dtg">
-            <div class="dth" data-en="Details">结构细部</div>
-            <button class="btn chip" data-dt="tiecol" title="构造柱：点击墙端 / 墙交角放置（默认 240×240、通高 2800），长 / 宽 / 高度可在右侧改，2D 实心方块加叉，3D 为小方柱"
-              data-en-title="Tie column: click a wall end / corner (240×240, full height 2800 by default); edit length / width / height in the panel; solid square with cross in 2D, small column in 3D"
-              data-en="Tie column"><i data-lucide="columns-3"></i>构造柱</button>
-            <button class="btn chip" data-dt="lintel" title="过梁：沿门窗洞口上方点起点、终点；默认 240 宽 × 200 高、底标高 2100，3D 为洞口上方梁"
-              data-en-title="Lintel: click start and end above a door / window opening; 240 wide × 200 high, underside 2100 by default; beam above the opening in 3D"
-              data-en="Lintel"><i data-lucide="move-horizontal"></i>过梁</button>
-            <button class="btn chip" data-dt="seam" title="变形缝 / 沉降缝：点起点，再点终点；默认缝宽 40，2D 虚线缝带，3D 为地面窄缝"
-              data-en-title="Movement joint: click start then end; 40 wide by default; dashed band in 2D, narrow floor gap in 3D"
-              data-en="Joint"><i data-lucide="scan-line"></i>变形缝</button>
-            <button class="btn chip" data-dt="shaft" title="管道井 / 水井：两次点击对角点；默认井壁 120、井高 2800，2D 虚线内框加叉，3D 为四壁井道"
-              data-en-title="Service shaft: click two opposite corners; 120 walls, 2800 high by default; dashed inner frame + cross in 2D, four-wall shaft in 3D"
-              data-en="Shaft"><i data-lucide="container"></i>管道井</button>
-            <button class="btn chip" data-dt="eave" title="挑檐 / 封檐板：沿屋缘点起点、终点；默认挑出 600、板厚 120、标高 2800"
-              data-en-title="Eave / fascia: click start and end along the roof edge; 600 projection, 120 thick, at 2800 by default"
-              data-en="Eave"><i data-lucide="panel-top"></i>挑檐</button>
-            <button class="btn chip" data-dt="thresh" title="门槛石 / 挡水条：沿门口 / 卫生间门口点起点、终点；默认 60 宽 × 20 高，可调"
-              data-en-title="Threshold / water bar: click start and end across a doorway; 60 wide × 20 high by default, editable"
-              data-en="Threshold"><i data-lucide="square"></i>门槛石</button>
-            <button class="btn chip" data-dt="flash" title="泛水线 / 防水卷材带：沿屋面与外墙交界点起点、终点；默认 300 宽，2D 虚线带"
-              data-en-title="Flashing: click start and end along the roof–wall junction; 300 wide by default, dashed band in 2D"
-              data-en="Flashing"><i data-lucide="scan-line"></i>泛水线</button>
-            <button class="btn chip" data-dt="band" title="檐口线脚 / 腰线：沿外墙点起点、终点；默认 200 宽 × 150 高、标高 2000，3D 为墙面装饰横带"
-              data-en-title="Cornice / band: click start and end along the facade; 200 wide × 150 high at 2000 by default; decorative band in 3D"
-              data-en="Cornice"><i data-lucide="panel-right"></i>檐口线脚</button>
-          </div>
-          <div class="dtg">
-            <div class="dth" data-en="Landscape">室外景观</div>
+            <div class="dth" data-en="Landscape &amp; site">景观与室外</div>
+            <button class="btn chip" data-dt="balcony"
+              title="阳台：点击墙上的位置放置（默认沿墙 1500、进深 1200），自动贴住墙面，靠墙的一边不做栏板；板厚 / 底标高 / 栏板高 / 栏板样式与栏板边可在右侧改"
+              data-en-title="Balcony: click a wall (1500 wide, 1200 deep by default); snaps to the wall, no railing on the wall side; slab / underside / railing height & style editable"
+              data-en="Balcony"><i data-lucide="land-plot"></i>阳台</button>
+            <button class="btn chip" data-dt="planter" title="花坛 / 种植池：两次点击对角点；壁厚 / 高 / 底标高可改，3D 中带种植土并占位挡路"
+              data-en-title="Planter: click two opposite corners; wall / height / underside editable, soil in 3D, blocks walking"
+              data-en="Planter"><i data-lucide="sprout"></i>花坛</button>
             <button class="btn chip" data-dt="tree" title="景观树：点击放置（默认冠幅 900、树高 3000），2D 双层树冠，3D 为树干与球状树冠"
               data-en-title="Tree: click to place (canopy 900, height 3000 by default); two-ring canopy in 2D, trunk + rounded crown in 3D"
               data-en="Tree"><i data-lucide="tree-pine"></i>景观树</button>
@@ -3460,31 +3476,31 @@
             <button class="btn chip" data-dt="lawn" title="草坪 / 软景色块：两次点击对角点；2D 点状草纹，3D 为绿色草皮薄层"
               data-en-title="Lawn: click two opposite corners; dotted grass texture in 2D, thin green turf in 3D"
               data-en="Lawn"><i data-lucide="flower-2"></i>草坪</button>
-            <button class="btn chip" data-dt="well2"
-              title="雨水井 / 检查井 / 化粪池：两次点击对角点；默认 700×700、深 900，2D 圆井盖加十字，3D 为井圈与井盖"
-              data-en-title="Drain well: click two opposite corners; 700×700, 900 deep by default; round cover + cross in 2D, ring + cover in 3D"
-              data-en="Drain well"><i data-lucide="circle-dot"></i>雨水井</button>
-          </div>
-          <div class="dtg">
-            <div class="dth" data-en="Roads">道路</div>
-            <button class="btn chip" data-dt="highway" title="高速公路：点起点、终点；默认双向四车道加中央分隔带，路宽 / 路面厚在右侧改"
-              data-en-title="Highway: click start then end; four lanes with a central median by default, edit width / thickness in the panel"
-              data-en="Highway"><i data-lucide="route"></i>高速公路</button>
-            <button class="btn chip" data-dt="road" title="公路：点起点、终点；双向两车道加黄色中心线，路宽可在右侧改"
-              data-en-title="Highway road: click start then end; two lanes with a yellow center line, width editable in the panel"
-              data-en="Road"><i data-lucide="road"></i>公路</button>
-            <button class="btn chip" data-dt="cityroad" title="城市道路：点起点、终点；双黄线与白色车道线，路宽可在右侧改"
-              data-en-title="City road: click start then end; double yellow center and white lane lines, width editable in the panel"
-              data-en="City road"><i data-lucide="map"></i>城市道路</button>
-            <button class="btn chip" data-dt="countryroad" title="乡村道路：点起点、终点；窄幅沥青路面，路宽可在右侧改"
-              data-en-title="Country road: click start then end; narrow asphalt surface, width editable in the panel"
-              data-en="Country road"><i data-lucide="waypoints"></i>乡村道路</button>
-            <button class="btn chip" data-dt="trail" title="小道：点起点、终点；碎石铺装带分格纹，路宽可在右侧改"
-              data-en-title="Footpath: click start then end; gravel surface with paving joints, width editable in the panel"
-              data-en="Footpath"><i data-lucide="footprints"></i>小道</button>
-            <button class="btn chip" data-dt="sidewalk" title="人行道：点起点、终点；铺装分格与两侧路缘，路宽可在右侧改"
-              data-en-title="Sidewalk: click start then end; paved surface with curbs, width editable in the panel"
-              data-en="Sidewalk"><i data-lucide="panels-top-left"></i>人行道</button>
+            <button class="btn chip" data-dt="pavilion" title="凉亭：两次点击对角点；2D 画柱位与顶轮廓，3D 生成立柱 + 顶盖"
+              data-en-title="Pavilion: click two opposite corners; post positions and roof outline in 2D, posts + roof in 3D"
+              data-en="Pavilion"><i data-lucide="tent"></i>凉亭</button>
+            <button class="btn chip" data-dt="apron" title="散水 / 明沟：第一次点起点，第二次点终点；默认 600 宽，2D 画双线散水，3D 为沿墙坡面"
+              data-en-title="Apron: click start then end; 600 wide by default; double-line apron in 2D, sloped strip along the wall in 3D"
+              data-en="Apron"><i data-lucide="grip-horizontal"></i>散水</button>
+            <button class="btn chip" data-dt="carport" title="电动车棚：两次点击对角点；默认 5000×3000、檐高 2500、柱径 100，3D 为钢柱 + 轻钢平顶"
+              data-en-title="Bike shed: click two opposite corners; 5000×3000, eave 2500, posts 100 by default; steel posts + flat roof in 3D"
+              data-en="Bike shed"><i data-lucide="warehouse"></i>电动车棚</button>
+            <button class="btn chip" data-dt="fence" title="围墙：第一次点起点，第二次点终点；默认 200 厚 × 1800 高，带压顶与立柱，长度 / 厚 / 高可改"
+              data-en-title="Perimeter wall: click start then end; 200 thick × 1800 high with coping and posts by default; length / thickness / height editable"
+              data-en="Wall"><i data-lucide="fence"></i>围墙</button>
+            <button class="btn chip" data-dt="gate"
+              title="院门：第一次点门洞起点，第二次点终点；默认 1800 高、双扇外开 30°，立柱 / 门扇 / 竖梃自动生成，开启角度可改"
+              data-en-title="Gate: click start then end of the opening; 1800 high, double leaves opening outward 30° by default; posts / leaves / mullions generated, opening angle editable"
+              data-en="Gate"><i data-lucide="door-closed"></i>院门</button>
+            <button class="btn chip" data-dt="pergola" title="廊架 / 花架：两次点击对角点，默认柱 150、梁高 2600，3D 生成立柱 + 纵向梁 + 横向椽条"
+              data-en-title="Pergola: click two opposite corners; posts 150, beams at 2600 by default; posts + beams + rafters in 3D"
+              data-en="Pergola"><i data-lucide="grid-3x3"></i>廊架</button>
+            <button class="btn chip" data-dt="deck" title="露台 / 木平台：两次点击对角点，默认板厚 150、落地，3D 为木纹板 + 板缝"
+              data-en-title="Deck: click two opposite corners; 150 thick, on the ground by default; timber boards with gaps in 3D"
+              data-en="Deck"><i data-lucide="square"></i>露台</button>
+            <button class="btn chip" data-dt="pool" title="泳池：两次点击对角点，默认深 1500、池边石 300，3D 为下沉池体 + 水面 + 池边"
+              data-en-title="Pool: click two opposite corners; 1500 deep, 300 coping by default; sunk pool + water + coping in 3D"
+              data-en="Pool"><i data-lucide="waves"></i>泳池</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Security">安防监控</div>
@@ -3508,24 +3524,6 @@
               title="监控显示器：点击放置（默认 800×450、中心高 1500），3D 屏幕真实显示所连录像机的摄像机实时画面（多画面分割 + 通道 / 时间 OSD）"
               data-en-title="Monitor: click to place (800×450, center 400 by default); the 3D screen shows live feeds from the connected NVR's cameras with split-screen and channel/time OSD"
               data-en="Monitor"><i data-lucide="monitor"></i>监控显示器</button>
-          </div>
-          <div class="dtg">
-            <div class="dth" data-en="Roof Equipment">屋顶设备</div>
-            <button class="btn chip" data-dt="dormer" title="老虎窗：两次点击对角点；默认 1200×1500、屋面标高 2800、窗高 900，3D 生成窗箱与双坡小顶"
-              data-en-title="Dormer: click two opposite corners; 1200×1500 at roof level 2800, window 900 high by default; window box + gable in 3D"
-              data-en="Dormer"><i data-lucide="building-2"></i>老虎窗</button>
-            <button class="btn chip" data-dt="chimney" title="烟囱：点击放置（默认 400×400、出屋面 1200），3D 为方柱与压顶"
-              data-en-title="Chimney: click to place (400×400, 1200 above the roof by default); square stack with coping in 3D"
-              data-en="Chimney"><i data-lucide="factory"></i>烟囱</button>
-            <button class="btn chip" data-dt="hatch" title="屋面检修口：两次点击对角点；默认 700×700、翻边高 250，3D 为翻边与盖板"
-              data-en-title="Roof hatch: click two opposite corners; 700×700, upstand 250 high by default; upstand + cover in 3D"
-              data-en="Hatch"><i data-lucide="grid-2x2"></i>检修口</button>
-            <button class="btn chip" data-dt="solar" title="太阳能热水器：两次点击对角点；默认 2000×1600，3D 为斜置集热板与水箱"
-              data-en-title="Solar heater: click two opposite corners; 2000×1600 by default; tilted collector + tank in 3D"
-              data-en="Solar"><i data-lucide="sun-medium"></i>太阳能</button>
-            <button class="btn chip" data-dt="equip" title="屋面设备基础：两次点击对角点；默认 1500×1000、基础厚 150、设备高 800，3D 为基础与机组体量"
-              data-en-title="Equipment base: click two opposite corners; 1500×1000, base 150 thick, unit 800 high by default; base + unit mass in 3D"
-              data-en="Base"><i data-lucide="warehouse"></i>设备基础</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Annotations">标注</div>
@@ -3552,6 +3550,7 @@
               data-en="Section"><i data-lucide="milestone"></i>剖切符号</button>
           </div>
         </div>
+
     </aside>
 
     <main id="stage" class="loading">
@@ -4157,6 +4156,11 @@
       s.pergolas = Array.isArray(s.pergolas) ? s.pergolas : [];           // 廊架 / 花架
       s.gates = Array.isArray(s.gates) ? s.gates : [];                    // 院门
       s.extras = Array.isArray(s.extras) ? s.extras : [];                 // 洞口 / 设备平台 / 室外场地 / 屋面细节等扩展构件
+      // 折线道路旧数据的圆角可能缺失 / 为 null：统一补默认 3000，避免同一份方案里有的路有转弯、有的路是尖角；显式 0 仍保留尖角
+      s.extras.forEach(e => {
+        if (['highway', 'road', 'cityroad', 'countryroad', 'trail', 'sidewalk'].includes(e.type)
+          && Array.isArray(e.pts) && e.pts.length > 2 && e.fillet == null) e.fillet = 3000;
+      });
       s.leaders = Array.isArray(s.leaders) ? s.leaders : [];              // 引线标注 / 剖切符号
       s.lamps = Array.isArray(s.lamps) ? s.lamps : [];                    // 灯具 / 灯开关（缺了会导致删灯具等操作 TypeError）
       s.lamps.forEach(l => {
@@ -6366,6 +6370,8 @@
       trail: { w: 1800, h: 80, fill: '#bfb39a', edge: '#9d937f', grid: 600 },
       sidewalk: { w: 2400, h: 150, fill: '#d9d1c1', edge: '#aaa08e', grid: 600, curb: true }
     };
+    /* 道路是否可并成一条：类型相同 + 实际宽度相同。绘制、拖端点、插拐点共用这一条规则，避免连接方式前后不一致。 */
+    const sameRoadStyle = (a, b) => !!a && !!b && a.type === b.type && Math.abs((+a.w || 0) - (+b.w || 0)) < 1;
     /* 由构件当前宽度反推每条标线的横向偏移（单位 mm，正负两侧各一条）。
        改车道数时宽度重算到标准值；手动改路宽时 all 偏移按比例缩放，标线始终落在路面内。 */
     function roadLayout(e) {
@@ -6396,7 +6402,7 @@
         }
         return false;
       });
-      const nearTurn = Math.min(15000, Math.max(halfW * 3, (+e.fillet || 0) * 2));
+      const nearTurn = Math.max(300, halfW * .6);   // 只有末拐点几乎落进路口补丁才拉直；阈值过大会把靠近路口的正常转弯抹掉
       for (const end of [0, 1]) while (raw.length > 2) {             // 接口前的末拐点太近：圆角会卷进路口，渲染时拉直接入（不删原始点）
         const tip = end === 0 ? raw[0] : raw[raw.length - 1];
         if (!joinsOtherRoad(tip)) break;
@@ -6524,6 +6530,7 @@
                 if (Math.hypot(a[0] - q[0], a[1] - q[1]) < TOL && t > .001 && t < .999) {
                   const n = nodeAt(q[0], q[1]), l = Math.sqrt(L2);
                   addInc(n, rA, dirEnd(rA, ia)); addInc(n, rB, [dx / l, dy / l]);
+                  addInc(n, rB, [-dx / l, -dy / l]);              // 主路穿过路口（双向）：补反向，形成 T 字三向，边线才能在此交汇
                 }
               }
             }
@@ -6566,18 +6573,44 @@
         if (Math.abs(area) < 2000) continue;
         const dom = n.inc.reduce((m, i) => (i.w > m.w ? i : m), n.inc[0]);
         const lines = [];
-        if (n.inc.length === 3) {                                  // T 字口：主路背向支路的一侧边线连续通过，支路开口侧不画横线
+        if (n.inc.length === 3) {                                  // T 字口：路缘线要在路口内角交汇，不能各断一截
           for (let a = 0; a < 3 && !lines.length; a++) for (let b = a + 1; b < 3; b++) {
             const A = n.inc[a], B = n.inc[b], C = n.inc[3 - a - b];
-            if (A.dir[0] * B.dir[0] + A.dir[1] * B.dir[1] > -.9) continue;
-            const road = roads.find(r => r.id === (A.w >= B.w ? A : B).id), st = road && ROAD_STYLES[road.type];
-            if (!st || st.curb) break;
-            let dx = A.dir[0] - B.dir[0], dy = A.dir[1] - B.dir[1];
-            const dl = Math.hypot(dx, dy) || 1; dx /= dl; dy /= dl;
-            let nx = -dy, ny = dx;
-            if (nx * C.dir[0] + ny * C.dir[1] > 0) { nx = -nx; ny = -ny; }
-            const half = Math.max(A.half, B.half), off = Math.max(0, half - Math.min(150, half * .12)), reach = half + 100;
-            lines.push({ a: [n.x - dx * reach + nx * off, n.y - dy * reach + ny * off], b: [n.x + dx * reach + nx * off, n.y + dy * reach + ny * off], color: st.edge });
+            if (A.dir[0] * B.dir[0] + A.dir[1] * B.dir[1] > -.9) continue;   // A / B 反向 = 主路两侧，C = 支路
+            const main = A.w >= B.w ? A : B;
+            const road = roads.find(r => r.id === main.id), st = road && ROAD_STYLES[road.type];
+            const br = roads.find(r => r.id === C.id), bs = br && ROAD_STYLES[br.type];
+            if (!st || st.curb || !bs || bs.curb) break;
+            const ux = A.dir[0], uy = A.dir[1];                    // 主路切向
+            let mx = -uy, my = ux;                                 // 主路法线，翻到指向支路一侧
+            if (mx * C.dir[0] + my * C.dir[1] < 0) { mx = -mx; my = -my; }
+            const vx = C.dir[0], vy = C.dir[1], px = -vy, py = vx; // 支路切向 / 法向
+            const inset = h => Math.max(0, h - Math.min(150, h * .12));      // 路缘线相对半路宽的内缩（与 roadLine 渲染一致）
+            const offR = inset(Math.max(A.half, B.half)), offB = inset(C.half);
+            const reach = maxHalf + 400;                           // 补丁半径 + 余量：盖住补丁并接上原路缘线，不把线画到短路段外面
+            const line = (p, d, q, e) => lineX(p, d, q, e);
+            const cross = [];                                      // 主路朝支路侧边线 与 支路两侧边线 的交点（T 字内角）
+            [-1, 1].forEach(s => {
+              const X = line([n.x + mx * offR, n.y + my * offR], [ux, uy], [n.x + px * offB * s, n.y + py * offB * s], [vx, vy]);
+              if (X && Math.hypot(X[0] - n.x, X[1] - n.y) <= 2.5 * maxHalf) {
+                cross.push({ X, t: (X[0] - n.x) * ux + (X[1] - n.y) * uy });
+              }
+            });
+            // 主路背向支路侧：一条线连续通过；两侧边线：在支路开口处断开、两端接到内角；支路两边线：从内角向外延伸
+            lines.push({ a: [n.x - ux * reach - mx * offR, n.y - uy * reach - my * offR], b: [n.x + ux * reach - mx * offR, n.y + uy * reach - my * offR], color: st.edge });
+            const base = [n.x + mx * offR, n.y + my * offR];
+            if (cross.length === 2) {
+              cross.sort((p, q) => p.t - q.t);
+              lines.push({ a: [base[0] - ux * reach, base[1] - uy * reach], b: cross[0].X, color: st.edge });
+              lines.push({ a: cross[1].X, b: [base[0] + ux * reach, base[1] + uy * reach], color: st.edge });
+              cross.forEach(o => {                                // 支路线从内角沿 v 向外画到补丁边界外：补上「交点已走的路程」，短支路也不会画过头
+                const proj = (o.X[0] - n.x) * vx + (o.X[1] - n.y) * vy;   // 交点在支路方向上已距路口中心 proj
+                const len = Math.max(200, reach - proj);
+                lines.push({ a: o.X, b: [o.X[0] + vx * len, o.X[1] + vy * len], color: bs.edge });
+              });
+            } else {                                               // 斜交等退化：保留连续背侧边线，避免画出错误的连接
+              lines.push({ a: [base[0] - ux * reach, base[1] - uy * reach], b: [base[0] + ux * reach, base[1] + uy * reach], color: st.edge });
+            }
             break;
           }
         }
@@ -7640,7 +7673,11 @@
             if (pl) {
               s += `<polyline points="${it.pts.map(p => p.join(',')).join(' ')}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
               it.pts.forEach((pt, end) => {
-                s += `<circle data-handle="extraEnd" data-end="${end}" cx="${pt[0]}" cy="${pt[1]}" r="${9 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整拐点', 'Drag corner')}</title></circle>`;
+                const nodeEnd = end === 0 || end === it.pts.length - 1;   // 端点与中间拐点用同一套拖动，但端点只拖不删，避免双击误把转弯抹掉
+                const tip = nodeEnd
+                  ? tr('拖动端点 · 靠近其它道路自动对接', 'Drag endpoint · snaps to other roads')
+                  : tr('拖动拐点 · 双击删除', 'Drag corner · double-click to delete');
+                s += `<circle data-handle="extraEnd" data-end="${end}" data-role="${nodeEnd ? 'end' : 'corner'}" cx="${pt[0]}" cy="${pt[1]}" r="${(nodeEnd ? 10 : 9) * hs * k}" fill="${nodeEnd ? '#fff3dc' : '#fff'}" ${A} stroke-width="1.5"><title>${tip}</title></circle>`;
               });
               s += `<text x="${it.pts[Math.floor(it.pts.length / 2)][0]}" y="${it.pts[Math.floor(it.pts.length / 2)][1] - 14 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${Math.round(roadLen(it))} mm</text>`;
             } else {
@@ -7980,7 +8017,7 @@
                           : e.type === 'seam' ? tr('变形缝沿建筑断开处布置，2D 为虚线缝带，3D 为地面窄缝。', 'Movement joint: dashed seam in 2D, narrow gap in 3D.')
                             : e.type === 'eave' ? tr('挑檐 / 封檐板沿屋缘挑出，2D 为虚线带，3D 为出挑板。', 'Eave / fascia band along the roof edge.')
                               : e.type === 'sill' ? tr('窗台板贴窗洞外侧，2D 画窄板带，3D 为出挑台面板。', 'Window board under a window sill.')
-                                : isRoadType(e.type) ? tr(`道路：点起点、终点绘制，可切换高速公路 / 公路 / 城市道路 / 乡村道路 / 小道 / 人行道；车道数按每向 1~8 条编辑，路宽 = 车道数 × 单车道宽 + 中央分隔带 + 两侧路肩，2D / 3D 标线随车道数实时更新；端点手柄可改长度，右侧可改每向车道数、路宽与路面厚。`, 'Road: click start then end; switch among highway / road / city road / country road / footpath / sidewalk. Edit lanes per direction (1-8); width = lanes × lane width + median + shoulders, and 2D/3D markings follow. Drag end handles to resize; edit lanes, width and thickness in the panel.')
+                                : isRoadType(e.type) ? tr(`道路：点起点后单击或拖拽定拐点，双击 / Enter 结束；靠近已有路端点或路中自动对接，同类型同宽会并成一条。可切换高速公路 / 公路 / 城市道路 / 乡村道路 / 小道 / 人行道；车道数按每向 1~8 条编辑，路宽 = 车道数 × 单车道宽 + 中央分隔带 + 两侧路肩，2D / 3D 标线随车道数实时更新。选中后拖节点移动（端点浅色、拐点白色），双击路面加拐点、双击中间拐点删除，端点只拖不删；右侧可改每向车道数、路宽、圆角与路面厚。`, 'Road: click a start point, then click or drag to add corners; double-click / Enter to finish. Near another road endpoint or mid-span it snaps automatically, and same type + same width roads merge into one. Switch among highway / road / city road / country road / footpath / sidewalk. Edit lanes per direction (1-8); width = lanes × lane width + median + shoulders, and 2D/3D markings follow. Select it, then drag nodes to reshape (endpoints are light, corners white), double-click the road to add a corner and double-click a middle corner to remove it; endpoints are drag-only; edit lanes, width, corner radius and thickness in the panel.')
                                   : e.type === 'path' ? tr('园路 / 铺装带，2D 画双线与铺装分格，3D 为地面薄板。', 'Garden path with paving joints.')
                                     : e.type === 'shaft' ? tr('管道井贯通各层，2D 为虚线内框加叉，3D 为四壁井道。', 'Service shaft with walls in 3D.')
                                       : e.type === 'lawn' ? tr('草坪 / 软景色块，2D 点状草纹，3D 为绿色草皮薄层。', 'Lawn patch with turf in 3D.')
@@ -11649,7 +11686,41 @@
       roomPolySet(r.id, np); commit(b); renderAll();
       toast(tr('已删除节点 · Ctrl+Z 可撤销', 'Vertex removed · Ctrl+Z to undo'));
     }
-    // （双击改用手动判定，见 pointerdown 里 vtxClick / roomDbl；画布 setPointerCapture 下浏览器 dblclick 目标不可靠）
+    function roadRemoveVtx(end) {                               // 折线道路：双击手柄删除该拐点，前后两点自动连成一段
+      const it = (state.extras || []).find(x => x.id === ui.sel?.id);
+      if (!it || !Array.isArray(it.pts) || it.pts.length <= 2 || end <= 0 || end >= it.pts.length - 1) return;   // 只删中间拐点，端点只拖不删；至少保留 2 点
+      const b = snap(), np = it.pts.map(p => [...p]); np.splice(end, 1);
+      it.pts = np; it.a = [...np[0]]; it.b = [...np[np.length - 1]];
+      commit(b); renderAll();
+      toast(tr('已删除拐点 · Ctrl+Z 可撤销', 'Corner removed · Ctrl+Z to undo'));
+    }
+    function roadInsertVtx(id, x, y) {                          // 双击道路：把点击点投影到最近的线段处插入一个新拐点（两点路 / 折线通用）
+      const it = (state.extras || []).find(z => z.id === id);
+      if (!it || !isRoadType(it.type)) return;
+      const pts = roadPts(it);                                  // 两点式未设 pts 时用 a/b，折线用点列；这里已是新数组
+      let best = null;
+      for (let i = 0; i < pts.length - 1; i++) {                 // 找离点击点最近的线段及投影点
+        const a = pts[i], b = pts[i + 1], dx = b[0] - a[0], dy = b[1] - a[1];
+        const l2 = dx * dx + dy * dy || 1;
+        let t = ((x - a[0]) * dx + (y - a[1]) * dy) / l2; t = Math.max(0, Math.min(1, t));
+        const qx = a[0] + dx * t, qy = a[1] + dy * t, d = Math.hypot(x - qx, y - qy);
+        if (!best || d < best.d) best = { i, qx, qy, d };
+      }
+      if (!best) return;
+      const MIN = Math.max(60, (+it.w || 600) * .12);           // 离已有拐点太近不插，避免重合点让圆角 / 路口判断出错
+      if (Math.hypot(best.qx - pts[best.i][0], best.qy - pts[best.i][1]) < MIN ||
+          Math.hypot(best.qx - pts[best.i + 1][0], best.qy - pts[best.i + 1][1]) < MIN) {
+        toast(tr('离端点太近，未添加拐点', 'Too close to an endpoint — no corner added')); return;
+      }
+      const sv = roadVertexSnap({ x: best.qx, y: best.qy }, id);                 // 与绘制 / 拖端点共用同一套吸附：新增拐点也能对接其它路
+      const nv = sv ? [Math.round(sv[0] / 10) * 10, Math.round(sv[1] / 10) * 10]
+        : [Math.round(best.qx / 10) * 10, Math.round(best.qy / 10) * 10];       // 新拐点吸附到 10mm 网格，与房间节点一致
+      const before = snap(), np = pts.map(q => [...q]); np.splice(best.i + 1, 0, nv);
+      it.pts = np; it.a = [...np[0]]; it.b = [...np[np.length - 1]];
+      commit(before); renderAll();
+      toast(tr('已添加拐点 · Ctrl+Z 可撤销', 'Corner added · Ctrl+Z to undo'));
+    }
+    // （双击改用手动判定，见 pointerdown 里 vtxClick / exVtxClick / roomDbl；画布 setPointerCapture 下浏览器 dblclick 目标不可靠）
     // 原始户型门窗：id 'w0'/'d0'/'s0' = WINS / DOORS / SLIDES 下标；删除后进 state.removedB，改动进 state.bover
     const bopenRemoved = id => state.removedB.includes(id);
     const bov = id => state.bover[id] || {};
@@ -12196,14 +12267,13 @@
       if (d.kind === 'extraEnd' && d.pts0 && d.moved && !cancel) {   // 折线道路端点拖到同类道路端点：松手直接合并成一条路
         const q = (state.extras || []).find(x => x.id === d.id);
         const pt = q && (d.end === 0 || d.end === q.pts.length - 1) ? (d.end === 0 ? q.pts[0] : q.pts[q.pts.length - 1]) : null;
-        const t = pt && (state.extras || []).find(e => e.id !== q.id && isRoadType(e.type) && e.type === q.type
-          && Math.abs((+e.w || 0) - (+q.w || 0)) < 1
+        const t = pt && (state.extras || []).find(e => e.id !== q.id && isRoadType(e.type) && sameRoadStyle(q, e)
           && roadPts(e).some((pp, i) => (i === 0 || i === roadPts(e).length - 1) && Math.hypot(pp[0] - pt[0], pp[1] - pt[1]) < 12));
         if (t) {
           const src = q.pts.map(p => [...p]);
           let tid = null;
           mutate(() => {
-            const m = mergeRoadInto(src, d.id, e => e.type === q.type && Math.abs((+e.w || 0) - (+q.w || 0)) < 1);
+            const m = mergeRoadInto(src, d.id, e => sameRoadStyle(q, e));
             if (m) { tid = m.id; state.extras = (state.extras || []).filter(x => x.id !== d.id); }
           });
           if (tid) {
@@ -12576,7 +12646,7 @@
             ui.exA = q; ui.exCur = q; ui.exPts = [[Math.round(q.x / 10) * 10, Math.round(q.y / 10) * 10]]; ui.exClick = null;
             drag = { kind: 'roadDrag', sx: e.clientX, sy: e.clientY, moved: false, downQ: q };
             svg.setPointerCapture(e.pointerId);
-            toast(tr(`已定${extraName({ type: ui.drawTool })}起点 · 按住拖出一段路，或点拐点；双击 / Enter 结束`, 'Start set — drag to lay a segment or click corners; double-click / Enter to finish'));
+            toast(tr(`已定${extraName({ type: ui.drawTool })}起点 · 单击 / 拖拽定拐点，双击 / Enter 结束；靠近已有路自动对接`, 'Start set — click or drag to add corners; double-click / Enter to finish; snaps to nearby roads'));
             renderNotes(); return;
           }
           if (e.fake3d) {                                       // 3D 地面落点（合成事件无真实指针）：直接按点击确认
@@ -12938,7 +13008,20 @@
         if (it) drag = { kind: 'extraCorner', id: it.id, corner: h.dataset.corner, x0: it.x, y0: it.y, w0: it.w, d0: it.d, rot: extraRot(it), px: p.x, py: p.y, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
       } else if (h && ui.sel?.kind === 'extra' && h.dataset.handle === 'extraEnd') {
         const it = (state.extras || []).find(x => x.id === ui.sel.id);
-        if (it) drag = { kind: 'extraEnd', id: it.id, end: +h.dataset.end, a0: [...it.a], b0: [...it.b], pts0: it.pts ? it.pts.map(p => [...p]) : null, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
+        if (it) {
+          const end = +h.dataset.end, now = Date.now();
+          const mid = !!(it.pts && it.pts.length > 2 && end > 0 && end < it.pts.length - 1);
+          if (mid && ui.exVtxClick && ui.exVtxClick.id === it.id && ui.exVtxClick.end === end && now - ui.exVtxClick.t < 450) {
+            ui.exVtxClick = null; roadRemoveVtx(end); return;              // 只有中间拐点：双击删除（与房间顶点一致）
+          }
+          if (!mid && ui.exEndClick && ui.exEndClick.id === it.id && ui.exEndClick.end === end && now - ui.exEndClick.t < 450) {
+            ui.exEndClick = null;
+            toast(tr('端点只可拖动 · 双击路面可添加拐点', 'Endpoints can only be dragged · double-click the road to add a corner'));
+          }
+          ui.exVtxClick = mid ? { id: it.id, end, t: now } : null;
+          ui.exEndClick = mid ? null : { id: it.id, end, t: now };
+          drag = { kind: 'extraEnd', id: it.id, end, a0: [...it.a], b0: [...it.b], pts0: it.pts ? it.pts.map(p => [...p]) : null, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
+        }
       } else if (h && ui.sel?.kind === 'axgrid' && h.dataset.handle === 'axCorner') {
         const g0 = (state.axes || []).find(x => x.id === ui.sel.id);
         if (g0) drag = { kind: 'axCorner', id: ui.sel.id, corner: h.dataset.corner, x0: g0.x, y0: g0.y, w0: g0.w, d0: g0.d, px: p.x, py: p.y, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
@@ -13032,6 +13115,14 @@
       } else if (edit && t.closest('[data-extra]')) {
         const id = t.closest('[data-extra]').dataset.extra, e0 = (state.extras || []).find(x => x.id === id);
         if (!(ui.sel?.kind === 'extra' && ui.sel.id === id)) select({ kind: 'extra', id });
+        if (e0 && isRoadType(e0.type)) {                      // 双击道路本体：在点击处插入新拐点（与双击手柄删除配套）
+          const now = Date.now();
+          if (ui.exAddClick && ui.exAddClick.id === id && now - ui.exAddClick.t < 450 &&
+              Math.hypot(ui.exAddClick.x - p.x, ui.exAddClick.y - p.y) < 120) {
+            ui.exAddClick = null; roadInsertVtx(id, p.x, p.y); return;
+          }
+          ui.exAddClick = { id, x: p.x, y: p.y, t: now };
+        } else ui.exAddClick = null;
         if (e0) drag = isExtraLin(e0.type)
           ? { kind: 'extraMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...e0.a], b0: [...e0.b], pts0: e0.pts ? e0.pts.map(q => [...q]) : null, before: snap(), moved: false }
           : { kind: 'extraMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: e0.x, y0: e0.y, before: snap(), moved: false };
@@ -13156,7 +13247,7 @@
       const id = uid();
       let mergedId = null;
       mutate(() => {
-        const m = mergeRoadInto(pts, null, e => e.type === tool && Math.abs((+e.w || 0) - ROAD_STYLES[tool].w) < 1);
+        const m = mergeRoadInto(pts, null, e => sameRoadStyle({ type: tool, w: ROAD_STYLES[tool].w }, e));
         if (m) { mergedId = m.id; return; }
         (state.extras = state.extras || []).push({ ...extraDefaults(tool), id, pts, a: pts[0], b: pts[pts.length - 1], fillet: 3000 });
       });
@@ -19539,7 +19630,7 @@
         g.setAttribute('normal', new THREE.Float32BufferAttribute(nor, 3));
         const mesh = new THREE.Mesh(g, mat(pd.fill, { roughness: .95, side: THREE.DoubleSide }));
         mesh.receiveShadow = true; archUp.add(mesh);
-        (pd.lines || []).forEach(ln => {                          // T 字口主路远侧连续边线
+        (pd.lines || []).forEach(ln => {                          // T 字口路缘线：主路远侧连续线 + 近侧两段 + 支路两段，在路口内角交汇
           const ax = wx(ln.a[0]), az = wz(ln.a[1]), bx = wx(ln.b[0]), bz = wz(ln.b[1]);
           const dx = bx - ax, dz = bz - az, len = Math.hypot(dx, dz);
           if (len > .01) box(len, .008, .1, (ax + bx) / 2, y + .004, (az + bz) / 2, mat(ln.color, { roughness: .85 }), Math.atan2(-dz, dx));
