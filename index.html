@@ -17199,7 +17199,7 @@
         case 'tunnel': g.strokeStyle = INK; g.lineWidth = 16; g.beginPath(); g.arc(cx, 190, 74, Math.PI, 0); g.stroke(); g.beginPath(); g.moveTo(cx - 74, 190); g.lineTo(cx - 74, 214); g.moveTo(cx + 74, 190); g.lineTo(cx + 74, 214); g.stroke(); break;
         case 'construction': g.fillStyle = YEL; g.fillRect(96, 132, 64, 56); g.fillStyle = INK; for (let i = 0; i < 3; i++) g.fillRect(100 + i * 20, 188, 14, 12); text('施', cx, 102, 54, INK); break;
         case 'village': g.fillStyle = INK; g.fillRect(68, 128, 52, 60); g.fillRect(140, 112, 50, 76); g.fillStyle = YEL; g.fillRect(88, 154, 14, 34); g.fillRect(158, 144, 14, 44); break;
-        case 'slow': text('慢', cx, 150, 92, INK); break;
+        case 'slow': text('慢', cx, 170, 92, INK); break;
         // ---- 禁令 ----
         case 'noPass': break;                                  // 红圈空心即图案本身
         case 'noHorn': {                                       // 禁止鸣喇叭（GB 5768）：小号侧影＝左大喇叭口 + 中部 U 形回环弯管 + 右吹嘴 + 左上→右下红斜杠
@@ -17241,14 +17241,14 @@
         case 'heightLimit': g.fillStyle = '#141414'; g.font = 'bold 40px Arial'; g.textAlign = 'center'; g.fillText('限高', cx, 100); text(String(e.limit ?? def.def), cx, 156, 74, '#141414'); break;
         case 'weightLimit': g.fillStyle = '#141414'; g.font = 'bold 40px Arial'; g.textAlign = 'center'; g.fillText('限重', cx, 100); text(String(e.limit ?? def.def) + 't', cx, 158, 66, '#141414'); break;
         case 'noOvertake': carBody(104, 120, .8, INK); carBody(150, 176, .8, RED); slash(RED, true); break;
-        case 'meetYield': {                                    // 会车让行（GB 5768）：白底红圈，左黑箭头向上（对方先行）、右红箭头向下（我方让行）
+        case 'meetYield': {                                    // 会车让行：白底红圈，左黑箭头向下、右红箭头向上（按用户样图方向）
           g.save(); g.beginPath(); g.arc(cx, cy, W / 2 - 30, 0, 7); g.clip();
-          // 左：黑色向上——粗杆 + 大三角头
-          g.fillStyle = INK; g.fillRect(80, 118, 22, 62);
-          g.beginPath(); g.moveTo(91, 60); g.lineTo(58, 124); g.lineTo(124, 124); g.closePath(); g.fill();
-          // 右：红色向下——粗杆 + 大三角头
-          g.fillStyle = RED; g.fillRect(154, 76, 22, 62);
-          g.beginPath(); g.moveTo(165, 196); g.lineTo(132, 132); g.lineTo(198, 132); g.closePath(); g.fill();
+          // 左：黑色向下——粗杆 + 大三角头
+          g.fillStyle = INK; g.fillRect(80, 76, 22, 62);
+          g.beginPath(); g.moveTo(91, 196); g.lineTo(58, 132); g.lineTo(124, 132); g.closePath(); g.fill();
+          // 右：红色向上——细杆 + 小三角头（让行方箭头较细）
+          g.fillStyle = RED; g.fillRect(159, 118, 12, 62);
+          g.beginPath(); g.moveTo(165, 60); g.lineTo(145, 124); g.lineTo(185, 124); g.closePath(); g.fill();
           g.restore();
           break;
         }
@@ -17266,7 +17266,7 @@
           text(String(e.limit ?? def.def ?? 60), cx, cy, 124, INK);
           break;
         }
-        case 'yield': text('让', cx, 132, 92, INK); break;
+        case 'yield': text('让', cx, 100, 92, INK); break;
         // ---- 指示 ----
         case 'roundabout': {                                   // 环岛行驶：三个白色箭头首尾相接、逆时针绕环（GB 5768）
           const R = 62, lw = 16, span = 72 * Math.PI / 180;    // 三段各跨 72°、间隔 120°，留 48° 均匀间隙不连成闭环
