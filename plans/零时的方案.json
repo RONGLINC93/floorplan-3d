@@ -107,8 +107,8 @@
       "rot": 0,
       "d": 2000,
       "id": "fmwu80eeq148",
-      "x": 3740,
-      "y": -4670
+      "x": 2410,
+      "y": 6740
     },
     {
       "type": "facBarrierGate",
@@ -457,8 +457,8 @@
       "rot": 0,
       "d": 6000,
       "id": "fmwu9r5vb172",
-      "x": 22370,
-      "y": 8730
+      "x": 36220,
+      "y": 16740
     },
     {
       "type": "facRotaryPark",
@@ -475,7 +475,7 @@
       "w": 140,
       "h": 4500,
       "rot": 0,
-      "sig": "yellow",
+      "sig": "red",
       "auto": true,
       "id": "fmwubt7jh148",
       "x": 2110,
@@ -1041,10 +1041,16 @@
       "h": 1100,
       "rot": 0,
       "d": 450,
-      "on": false,
+      "on": true,
       "id": "fmwud7vfw148",
       "x": 29780,
-      "y": -4190
+      "y": -4190,
+      "binOpen": [
+        true,
+        true,
+        true,
+        true
+      ]
     },
     {
       "type": "sanLitterBin",
@@ -1052,10 +1058,10 @@
       "h": 950,
       "rot": 0,
       "d": 400,
-      "on": false,
+      "on": true,
       "id": "fmwud7x1u149",
-      "x": 31490,
-      "y": -4190
+      "x": 31170,
+      "y": -920
     },
     {
       "type": "sanCollectPoint",
@@ -1063,10 +1069,10 @@
       "h": 2400,
       "rot": 0,
       "d": 1200,
-      "on": false,
+      "on": true,
       "id": "fmwufgrxf148",
-      "x": 29400,
-      "y": -2450
+      "x": 28760,
+      "y": -930
     },
     {
       "type": "sanGarbageRoom",
@@ -1088,7 +1094,8 @@
       "on": false,
       "id": "fmwuflj5d148",
       "x": 25470,
-      "y": -7100
+      "y": -7100,
+      "doorOpen": true
     },
     {
       "type": "sanMobileToilet",
@@ -1099,7 +1106,8 @@
       "on": false,
       "id": "fmwufll7n149",
       "x": 28250,
-      "y": -11420
+      "y": -11420,
+      "doorOpen": false
     },
     {
       "type": "sanWashBasin",
@@ -1129,10 +1137,10 @@
       "h": 1100,
       "rot": 0,
       "d": 300,
-      "on": false,
+      "on": true,
       "id": "fmwuflpq9152",
-      "x": 36040,
-      "y": -11930
+      "x": 32850,
+      "y": -2110
     },
     {
       "type": "sanTransferStation",
@@ -1140,7 +1148,7 @@
       "h": 4500,
       "rot": 0,
       "d": 4000,
-      "on": true,
+      "on": false,
       "id": "fmwuflr9p153",
       "x": 32390,
       "y": -16680
@@ -1165,7 +1173,8 @@
       "on": false,
       "id": "fmwufluqh155",
       "x": 22310,
-      "y": 790
+      "y": 790,
+      "doorOpen": true
     }
   ],
   "leaders": [],
@@ -1293,8 +1302,8 @@
           "rot": 0,
           "d": 2000,
           "id": "fmwu80eeq148",
-          "x": 3740,
-          "y": -4670
+          "x": 2410,
+          "y": 6740
         },
         {
           "type": "facBarrierGate",
@@ -1643,8 +1652,8 @@
           "rot": 0,
           "d": 6000,
           "id": "fmwu9r5vb172",
-          "x": 22370,
-          "y": 8730
+          "x": 36220,
+          "y": 16740
         },
         {
           "type": "facRotaryPark",
@@ -1661,7 +1670,7 @@
           "w": 140,
           "h": 4500,
           "rot": 0,
-          "sig": "yellow",
+          "sig": "red",
           "auto": true,
           "id": "fmwubt7jh148",
           "x": 2110,
@@ -2227,10 +2236,16 @@
           "h": 1100,
           "rot": 0,
           "d": 450,
-          "on": false,
+          "on": true,
           "id": "fmwud7vfw148",
           "x": 29780,
-          "y": -4190
+          "y": -4190,
+          "binOpen": [
+            true,
+            true,
+            true,
+            true
+          ]
         },
         {
           "type": "sanLitterBin",
@@ -2238,10 +2253,10 @@
           "h": 950,
           "rot": 0,
           "d": 400,
-          "on": false,
+          "on": true,
           "id": "fmwud7x1u149",
-          "x": 31490,
-          "y": -4190
+          "x": 31170,
+          "y": -920
         },
         {
           "type": "sanCollectPoint",
@@ -2249,10 +2264,10 @@
           "h": 2400,
           "rot": 0,
           "d": 1200,
-          "on": false,
+          "on": true,
           "id": "fmwufgrxf148",
-          "x": 29400,
-          "y": -2450
+          "x": 28760,
+          "y": -930
         },
         {
           "type": "sanGarbageRoom",
@@ -2274,7 +2289,8 @@
           "on": false,
           "id": "fmwuflj5d148",
           "x": 25470,
-          "y": -7100
+          "y": -7100,
+          "doorOpen": true
         },
         {
           "type": "sanMobileToilet",
@@ -2285,7 +2301,8 @@
           "on": false,
           "id": "fmwufll7n149",
           "x": 28250,
-          "y": -11420
+          "y": -11420,
+          "doorOpen": false
         },
         {
           "type": "sanWashBasin",
@@ -2315,10 +2332,10 @@
           "h": 1100,
           "rot": 0,
           "d": 300,
-          "on": false,
+          "on": true,
           "id": "fmwuflpq9152",
-          "x": 36040,
-          "y": -11930
+          "x": 32850,
+          "y": -2110
         },
         {
           "type": "sanTransferStation",
@@ -2326,7 +2343,7 @@
           "h": 4500,
           "rot": 0,
           "d": 4000,
-          "on": true,
+          "on": false,
           "id": "fmwuflr9p153",
           "x": 32390,
           "y": -16680
@@ -2351,7 +2368,8 @@
           "on": false,
           "id": "fmwufluqh155",
           "x": 22310,
-          "y": 790
+          "y": 790,
+          "doorOpen": true
         }
       ],
       "leaders": [],
