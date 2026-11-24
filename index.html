@@ -3540,7 +3540,7 @@
             <button class="btn chip" data-dt="facPvCarport" title="光伏车棚：点击放置；3D 为钢柱 + 光伏顶棚，2D 画钢架与光伏分格；跨宽 / 进深 / 净高可改" data-en-title="PV carport: steel columns with solar canopy; edit span / depth / clear height" data-en="PV carport"><i data-lucide="sun"></i>光伏车棚</button>
             <button class="btn chip" data-dt="facDrain" title="排水沟：点击放置；3D 为沟槽 + 雨水篦子，2D 画双线与横篦条；沟长 / 沟宽 / 朝向可改" data-en-title="Drain channel: channel with grating; edit length / width / angle" data-en="Drain channel"><i data-lucide="droplets"></i>排水沟</button>
             <button class="btn chip" data-dt="facHydrant" title="消防栓：点击放置；3D 为红色栓体 + 出水口 + 顶帽，2D 画红点与十字；栓径 / 高可改" data-en-title="Fire hydrant: red body with nozzles and cap; edit diameter / height" data-en="Fire hydrant"><i data-lucide="flame"></i>消防栓</button>
-            <button class="btn chip" data-dt="facStackPark" title="升降横移车库：点击放置；3D 为钢架 + 多层载车板，层数 / 列数可设，2D 画库体与层列网格" data-en-title="Stack parking: steel frame with multi-level pallets; set levels and stalls per row" data-en="Stack parking"><i data-lucide="layers"></i>升降横移车库</button>
+            <button class="btn chip" data-dt="facStackPark" title="升降横移车库：点击放置；3D 为钢架 + 多层载车板，正面敞开进车（用朝向对准车道），层数 / 列数可设，点一格载车板可存 / 取车（漫游按 E），2D 画层 × 列网格、车形与进车方向" data-en-title="Stack parking: steel frame with multi-level pallets, open front for driving in; set levels and stalls, click a pallet to park or take a car" data-en="Stack parking"><i data-lucide="layers"></i>升降横移车库</button>
             <button class="btn chip" data-dt="facRotaryPark" title="垂直循环车库：点击放置；塔式循环停车，8~16 个载车板，占地约两个车位；总高 / 车位数可改" data-en-title="Rotary parking: tower with 8-16 pallets, footprint of about two stalls; edit height / stalls" data-en="Rotary parking"><i data-lucide="building-2"></i>垂直循环车库</button>
           </div>
           <div class="dtg">
@@ -6896,7 +6896,7 @@
         tip:['消防栓：红色室外消火栓，3D 为栓体 + 出水口 + 顶帽，2D 画红点与十字，按消防间距沿车道布置。','Fire hydrant: red outdoor hydrant with nozzles and cap.'] },
       facStackPark: { wl:['库宽','Width'], wmin:3000, wmax:9000, hl:['总高','Total height'], hmin:2400, hmax:6000, dl:['库深','Depth'], dmin:3000, dmax:8000,
         nums:[['lv','层数','Levels',2,4,1],['col','列数','Stalls',1,6,1]], def:{lv:2,col:3},
-        tip:['升降横移立体车库：钢结构 + 多层载车板，层数 / 列数可设；3D 按层高自动分层并带立柱与横梁，2D 画库体与层列网格。','Stack parking: steel frame with multi-level pallets; set levels and stalls per row.'] },
+        tip:['升降横移立体车库：钢结构 + 多层载车板，层数 / 列数可设；正面敞开进车（朝向 0° 时朝画面下方，用「朝向」把进车口转到车道一侧），点一格载车板可存 / 取车（上层板降到地面换车再升回），漫游按 E 同样生效；加层数时记得同步加大总高（每层约 1.8m）。','Stack parking: steel frame with multi-level pallets; the front (entry) side is open — rotate it towards the aisle. Click a pallet to park / take a car (upper pallets lower to the ground and back). Raise the total height when adding levels (about 1.8 m per level).'] },
       facRotaryPark: { wl:['库宽','Width'], wmin:1800, wmax:5000, hl:['总高','Total height'], hmin:4000, hmax:16000, dl:['库深','Depth'], dmin:3000, dmax:9000,
         nums:[['n','车位数','Stalls',4,16,1]], def:{n:8},
         tip:['垂直循环车库：塔式循环停车设备，占地两个车位、可停 8~16 辆；3D 为钢塔 + 双层挂架载车板，2D 画塔体与分层。','Rotary parking: tower-type circular lift with 8-16 pallets on two vertical chains.'] }
@@ -7029,12 +7029,29 @@
         });
         return o;
       }
-      if (e.type === 'facStackPark') {                        // 升降横移车库：库体 + 列分割 + 层线
+      if (e.type === 'facStackPark') {                        // 升降横移车库：层 × 列车位网格，有车的格子画俯视车形（与 3D 存车状态同源）
         const cl = Math.max(1, Math.round(e.col ?? 3)), lv = Math.max(2, Math.round(e.lv ?? 2));
-        let o = box(0, 0, W, D, '#c3cad1', .3);
-        for (let i = 1; i < cl; i++) o += seg(-W/2 + i*W/cl, -D/2, -W/2 + i*W/cl, D/2, '#7f8b96', 1.4);
-        o += seg(-W/2, 0, W/2, 0, '#7f8b96', 1.4);
-        return o + txt(0, D * .3, `P×${lv}`, '#3f5a70', Math.min(W * .18, D * .22));
+        const cw = W / cl, rh = D / lv, st = e.st || {}, gp = Math.min(320, W * .1);
+        let o = `<polygon points="${poly([[-W/2, -D/2], [W/2, -D/2], [W/2, D/2], [-W/2, D/2]])}" fill="#c3cad1" fill-opacity=".3" stroke="none"/>`;
+        o += seg(-W/2, -D/2, W/2, -D/2, col, on ? 2 : 1.2);          // 背侧
+        o += seg(-W/2, -D/2, -W/2, D/2, col, on ? 2 : 1.2);          // 左侧
+        o += seg(W/2, -D/2, W/2, D/2, col, on ? 2 : 1.2);            // 右侧
+        o += seg(-W/2, D/2, -W/2 + gp, D/2, col, on ? 2 : 1.2);      // 正面只留两端墙垛，中间敞开进车
+        o += seg(W/2 - gp, D/2, W/2, D/2, col, on ? 2 : 1.2);
+        o += seg(0, D/2 + 340, 0, D/2 + 40, '#8a9299', 1.4);         // 库前进车方向指示
+        o += seg(0, D/2 + 40, -110, D/2 + 190, '#8a9299', 1.4);
+        o += seg(0, D/2 + 40, 110, D/2 + 190, '#8a9299', 1.4);
+        for (let i = 1; i < cl; i++) o += seg(-W/2 + i*cw, -D/2, -W/2 + i*cw, D/2, '#7f8b96', 1.4);
+        for (let i = 1; i < lv; i++) o += seg(-W/2, -D/2 + i*rh, W/2, -D/2 + i*rh, '#7f8b96', 1.4);
+        for (let i = 1; i <= lv; i++) for (let j = 0; j < cl; j++) {
+          if (!st[i + '_' + j]) continue;
+          const cx2 = -W/2 + (j + .5) * cw, cy2 = D/2 - (i - .5) * rh;   // 1 层画在最下（车头朝库外），层数越大越靠上
+          const bl = Math.min(rh * .8, cw * 1.9), bw = Math.min(cw * .74, bl * .42);
+          o += `<polygon points="${poly([[cx2-bw/2,cy2-bl/2],[cx2+bw/2,cy2-bl/2],[cx2+bw/2,cy2+bl/2],[cx2-bw/2,cy2+bl/2]])}" fill="#8fa6ba" fill-opacity=".92" stroke="#42586b" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
+          o += seg(cx2 - bw/2, cy2 - bl*.14, cx2 + bw/2, cy2 - bl*.14, '#42586b', 1);      // 前风挡
+          o += seg(cx2 - bw/2, cy2 + bl*.18, cx2 + bw/2, cy2 + bl*.18, '#42586b', 1);      // 后风挡
+        }
+        return o + txt(0, -D/2 - 200, `P×${lv}`, '#3f5a70', Math.min(W * .13, 460));
       }
       if (e.type === 'facRotaryPark') {                       // 垂直循环车库：塔体 + 分层
         const n = Math.max(4, Math.round(e.n ?? 8));
@@ -15517,6 +15534,7 @@
     }
     const doors = [], gateArms = [], keys = {};   // gateArms：道闸机闸杆动画态（id/open/cur/a0/a1/pivot），loop 里插值 rotation.z
     const parkAnims = [], parkLamps = new Map();  // 停车场配套：parkAnims 升降柱 / 伸缩门的动画态（open/cur/apply），parkLamps 车位灯 / 充电桩灯（id → mesh）
+    const stackCells = new Map(), stackOps = [];  // 立体车库：stackCells 每格载车板（id_层_列 → {g,baseY,drop,cw,dep,car,target}），stackOps 单次升降取存车动画
 
     /* ======================= 初始化 ======================= */
     function init() {
@@ -15846,7 +15864,9 @@
             doorTip.textContent = ex.open === true ? tr('点击落下道闸 · 禁行', 'Click to lower barrier · stop') : tr('点击抬起道闸 · 放行', 'Click to raise barrier · go');
           } else if (h.park) {
             const k = h.park.kind;
-            doorTip.textContent = k === 'bollard' ? (ex.up ? tr('点击落下升降柱 · 放行', 'Click to lower bollard · go') : tr('点击升起升降柱 · 禁行', 'Click to raise bollard · stop'))
+            doorTip.textContent = k === 'stack'
+              ? (ex.st?.[h.park.cell] ? tr(`点击取车 · ${h.park.lv}F ${h.park.col} 号车位`, `Click to take the car · L${h.park.lv} no.${h.park.col}`) : tr(`点击存车 · ${h.park.lv}F ${h.park.col} 号车位`, `Click to park · L${h.park.lv} no.${h.park.col}`))
+              : k === 'bollard' ? (ex.up ? tr('点击落下升降柱 · 放行', 'Click to lower bollard · go') : tr('点击升起升降柱 · 禁行', 'Click to raise bollard · stop'))
               : k === 'gate' ? (ex.open ? tr('点击展开伸缩门 · 关闭', 'Click to unfold gate · close') : tr('点击收拢伸缩门 · 放行', 'Click to fold gate · open'))
                 : k === 'sensor' ? (ex.occ ? tr('点击切为空位 · 绿灯', 'Click to set free · green') : tr('点击切为有车 · 红灯', 'Click to set occupied · red'))
                   : (ex.busy ? tr('点击切为空闲 · 绿灯', 'Click to set idle · green') : tr('点击切为充电中 · 蓝灯', 'Click to set charging · blue'));
@@ -18288,6 +18308,45 @@
       if (sel) window.select?.({ kind: 'extra', id: e.id });
       toast(tr(`道闸已${e.open ? '抬起 · 放行' : '落下 · 禁行'}`, `Barrier ${e.open ? 'raised · go' : 'lowered · stop'}`));
     }
+    /* —— 升降横移车库交互：每格载车板存 / 取车（上层板降到地面换车再升回，地面层直接换车） —— */
+    function stackCar(cg, cw, dep, tag) {                          // 一格载车板上的简化轿车（车身 + 车顶 + 侧窗带 + 四轮），随载车板一起升降
+      const g = new THREE.Group();
+      const bw = Math.min(1.72, Math.max(.95, cw * .82)), bl = Math.min(4.45, Math.max(2.2, dep * .84)), bh = .56, ch = .44;
+      const bodyM = mat('#aebdc9', { metalness: .35, roughness: .45 }), glassM = mat('#2e3a44', { metalness: .4, roughness: .3 }), tyreM = mat('#2a2d30', { roughness: .95 });
+      const put = (geo, m, x, y2, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y2, z); o.castShadow = o.receiveShadow = true; o.userData.park = tag; g.add(o); return o; };
+      put(new THREE.BoxGeometry(bw, bh, bl), bodyM, 0, .3 + bh / 2, 0);                                  // 车身
+      put(new THREE.BoxGeometry(bw * .84, ch, bl * .44), bodyM, 0, .3 + bh + ch / 2 - .04, -bl * .02);   // 车顶
+      put(new THREE.BoxGeometry(bw * .86, .22, bl * .3), glassM, 0, .3 + bh + .13, -bl * .02);           // 侧窗带
+      [[-1, -1], [1, -1], [-1, 1], [1, 1]].forEach(([sx, sz]) => {
+        const w = new THREE.Mesh(new THREE.CylinderGeometry(.29, .29, .18, 12), tyreM);
+        w.rotation.z = Math.PI / 2; w.position.set(sx * (bw / 2), .29, sz * (bl / 2 - .72)); w.userData.park = tag; g.add(w);
+      });
+      g.position.y = .04; cg.add(g); return g;
+    }
+    function stackApply(op, k) {                                   // k 0~1：0→0.42 压到地面、0.42→0.62 地面停留换车、0.62→1 升回原位
+      const c = op.c;
+      const down = k < .42 ? 1 - Math.pow(1 - Math.min(1, k / .42), 2) : k < .62 ? 1 : 1 - Math.pow(Math.min(1, (k - .62) / .38), 2);
+      c.g.position.y = c.baseY - c.drop * down;
+      if (c.car) c.car.visible = c.target ? k >= .42 : k < .42;     // 存车：车在地面出现后随板升上去；取车：车随板落到地面后开走
+    }
+    function stackToggle(id, cell, sel) {                          // 点一格载车板：有车 → 取走，无车 → 存入
+      const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
+      if (!e.st || typeof e.st !== 'object') e.st = {};
+      const on = !e.st[cell];
+      if (on) e.st[cell] = true; else delete e.st[cell];
+      const key = String(id) + '_' + cell, c = stackCells.get(key), [lvs, cs] = String(cell).split('_');
+      if (c) {
+        if (on && !c.car) c.car = stackCar(c.g, c.cw, c.dep, { kind: 'stack', id: e.id, cell });
+        c.target = on;
+        const i = stackOps.findIndex(o => o.key === key); if (i >= 0) stackOps.splice(i, 1);
+        if (c.drop < .12) { if (c.car) { c.car.visible = on; c.g.position.y = c.baseY; } }        // 地面层没有可降空间，直接换车
+        else { const op = { key, c, t: 0, dur: 1.9 }; stackApply(op, 0); stackOps.push(op); }     // 上层：板压到地面换车再升回
+      }
+      markDirty();
+      if (typeof renderExtras2 === 'function') renderExtras2();    // 2D 该格车形同步
+      if (sel) window.select?.({ kind: 'extra', id: e.id });
+      toast(tr(`${lvs}F ${+cs + 1} 号车位${on ? '已存车' : '已取车'}`, `Level ${lvs} stall ${+cs + 1} ${on ? 'occupied' : 'cleared'}`));
+    }
     function applyParkVisual(id) {                                 // 停车场配套：按状态刷新灯色 + 动画目标（升降柱 / 伸缩门 / 车位灯 / 充电桩）
       const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
       const lamp = parkLamps.get('sensor' + e.id) || parkLamps.get('charger' + e.id);
@@ -18298,8 +18357,9 @@
       const a = parkAnims.find(x => String(x.id) === String(id));
       if (a) a.open = e.type === 'facRisingBollard' ? e.up === true : e.open === true;
     }
-    function togglePark(p, sel) {                                  // 点击升降柱 / 伸缩门 / 车位灯 / 充电桩：切状态 + 刷新 3D 动画 / 2D 符号
+    function togglePark(p, sel) {                                  // 点击升降柱 / 伸缩门 / 车位灯 / 充电桩 / 立体车库载车板：切状态 + 刷新 3D 动画 / 2D 符号
       if (!p) return;
+      if (p.kind === 'stack') { stackToggle(p.id, p.cell, sel); return; }   // 立体车库：按「格」存 / 取车，逻辑独立
       const e = (state.extras || []).find(x => String(x.id) === String(p.id)); if (!e) return;
       if (p.kind === 'bollard') e.up = e.up !== true;
       else if (p.kind === 'gate') e.open = e.open !== true;
@@ -19495,7 +19555,7 @@
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
       selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null;
-      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();
+      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); stackCells.clear(); stackOps.length = 0; colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();
       survRigs.forEach(r => r.rt && r.rt.dispose()); survRigs = []; survScreens = []; survScreenMeshes = []; survTexs.forEach(t => t.dispose()); survTexs = [];   // 安防监控：释放上一轮离屏渲染目标 / 屏幕纹理
       const top = opt.cut;
       allRooms().forEach(r => {
@@ -20002,18 +20062,25 @@
           foot(W * 1.9, W * 1.9, Math.min(h, 1.2));
           return;
         }
-        if (T3 === 'facStackPark') {                               // 升降横移车库：钢架 + 多层载车板
+        if (T3 === 'facStackPark') {                               // 升降横移车库：钢架 + 每格独立载车板（点击存 / 取车）
           const lv = Math.max(2, Math.round(e.lv ?? 2)), cl = Math.max(1, Math.round(e.col ?? 3)), lh = h / lv;
+          const cw = W / cl, st = e.st || {};
           [-1, 1].forEach(sx => [-1, 1].forEach(sz => P(new THREE.BoxGeometry(.14, h, .14), steel, sx * (W / 2 - .1), h / 2, sz * (D / 2 - .1))));
           for (let i = 1; i <= lv; i++) {
             const y = lh * i;
-            P(new THREE.BoxGeometry(W, .12, .14), steel, 0, y, -D / 2 + .1);
-            P(new THREE.BoxGeometry(W, .12, .14), steel, 0, y, D / 2 - .1);
-            P(new THREE.BoxGeometry(.14, .12, D), steel, -W / 2 + .1, y, 0);
-            P(new THREE.BoxGeometry(.14, .12, D), steel, W / 2 - .1, y, 0);
-            for (let j = 0; j < cl; j++) {
-              const cx2 = -W / 2 + (j + .5) * W / cl, y2 = i === 1 ? .12 : y - .06;
-              P(new THREE.BoxGeometry(W / cl - .16, .08, D - .34), mat('#b9c0c6', { metalness: .3, roughness: .6 }), cx2, y2 + .04, 0);
+            P(new THREE.BoxGeometry(W, .12, .14), steel, 0, y, -D / 2 + .1);                  // 背侧横梁
+            P(new THREE.BoxGeometry(.14, .12, D), steel, -W / 2 + .1, y, 0);                   // 左侧纵梁
+            P(new THREE.BoxGeometry(.14, .12, D), steel, W / 2 - .1, y, 0);                    // 右侧纵梁
+            if (i === lv) P(new THREE.BoxGeometry(W, .12, .14), steel, 0, y, D / 2 - .1);      // 正面只在顶部留一道门梁，下面各层敞开进车
+            for (let j = 0; j < cl; j++) {                          // 每格一块载车板：独立 Group 便于上下升降
+              const cx2 = -W / 2 + (j + .5) * cw, baseY = i === 1 ? .02 : lh * i - .04;   // 地面层压到地面齐平（6cm 板唇），车可直接开上去
+              const cg = new THREE.Group(); cg.position.set(cx2, baseY, 0); grp.add(cg);
+              const tag = { kind: 'stack', id: e.id, cell: i + '_' + j, lv: i, col: j + 1 };
+              const plate = new THREE.Mesh(new THREE.BoxGeometry(cw - .16, .08, D - .34), mat('#b9c0c6', { metalness: .3, roughness: .6 }));
+              plate.castShadow = plate.receiveShadow = true; plate.position.y = 0; plate.userData.park = tag; cg.add(plate);
+              const cell = { g: cg, baseY, drop: Math.max(0, baseY - .02), cw: cw - .3, dep: D - .7, car: null, target: !!st[i + '_' + j] };
+              stackCells.set(e.id + '_' + i + '_' + j, cell);
+              if (cell.target) { cell.car = stackCar(cg, cell.cw, cell.dep, tag); }
             }
           }
           foot(W, D, h);
@@ -22639,7 +22706,11 @@
           else if (ex.type === 'facBarrierGate') walkTip.textContent = ex.open === true ? (touchWalk ? tr('点按落下道闸 · 禁行', 'Tap to lower barrier · stop') : tr('E 落下道闸 · 禁行', 'Press E to lower barrier · stop')) : (touchWalk ? tr('点按抬起道闸 · 放行', 'Tap to raise barrier · go') : tr('E 抬起道闸 · 放行', 'Press E to raise barrier · go'));
           else if (h.park) {
             const k = h.park.kind, tap = touchWalk;
-            walkTip.textContent = k === 'bollard' ? (ex.up ? (tap ? tr('点按落下升降柱 · 放行', 'Tap to lower bollard · go') : tr('E 落下升降柱 · 放行', 'Press E to lower bollard · go')) : (tap ? tr('点按升起升降柱 · 禁行', 'Tap to raise bollard · stop') : tr('E 升起升降柱 · 禁行', 'Press E to raise bollard · stop')))
+            walkTip.textContent = k === 'stack'
+              ? (ex.st?.[h.park.cell]
+                ? (tap ? tr(`点按取车 · ${h.park.lv}F ${h.park.col} 号`, `Tap to take · L${h.park.lv} no.${h.park.col}`) : tr(`E 取车 · ${h.park.lv}F ${h.park.col} 号`, `Press E to take · L${h.park.lv} no.${h.park.col}`))
+                : (tap ? tr(`点按存车 · ${h.park.lv}F ${h.park.col} 号`, `Tap to park · L${h.park.lv} no.${h.park.col}`) : tr(`E 存车 · ${h.park.lv}F ${h.park.col} 号`, `Press E to park · L${h.park.lv} no.${h.park.col}`)))
+              : k === 'bollard' ? (ex.up ? (tap ? tr('点按落下升降柱 · 放行', 'Tap to lower bollard · go') : tr('E 落下升降柱 · 放行', 'Press E to lower bollard · go')) : (tap ? tr('点按升起升降柱 · 禁行', 'Tap to raise bollard · stop') : tr('E 升起升降柱 · 禁行', 'Press E to raise bollard · stop')))
               : k === 'gate' ? (ex.open ? (tap ? tr('点按展开伸缩门', 'Tap to unfold gate') : tr('E 展开伸缩门', 'Press E to unfold gate')) : (tap ? tr('点按收拢伸缩门', 'Tap to fold gate') : tr('E 收拢伸缩门', 'Press E to fold gate')))
                 : k === 'sensor' ? (ex.occ ? (tap ? tr('点按切为空位 · 绿灯', 'Tap to set free · green') : tr('E 切为空位 · 绿灯', 'Press E to set free · green')) : (tap ? tr('点按切为有车 · 红灯', 'Tap to set occupied · red') : tr('E 切为有车 · 红灯', 'Press E to set occupied · red')))
                   : (ex.busy ? (tap ? tr('点按切为空闲 · 绿灯', 'Tap to set idle · green') : tr('E 切为空闲 · 绿灯', 'Press E to set idle · green')) : (tap ? tr('点按切为充电中 · 蓝灯', 'Tap to set charging · blue') : tr('E 切为充电中 · 蓝灯', 'Press E to set charging · blue')));
@@ -22700,6 +22771,7 @@
       doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起
       gateArms.forEach(g => { const tg = g.open ? g.a1 : g.a0; g.cur += (tg - g.cur) * Math.min(1, dt * 4); if (g.pivot) g.pivot.rotation.z = g.cur; });   // 道闸机闸杆升降动画：落下 0 → 抬起 +1.35rad（向上）
       parkAnims.forEach(a => { const tg = a.open ? 1 : 0; a.cur += (tg - a.cur) * Math.min(1, dt * 5); a.apply(a.cur); });   // 停车场配套：升降柱上下 / 伸缩门收拢展开
+      for (let i = stackOps.length - 1; i >= 0; i--) { const o = stackOps[i]; o.t += dt; const k = Math.min(1, o.t / o.dur); stackApply(o, k); if (k >= 1) stackOps.splice(i, 1); }   // 立体车库：载车板下降换车再升回
       revolveSpins.forEach(g => { g.rotation.y += dt * .7; });   // 旋转门三翼持续匀速转动（约 9 秒一圈），鸟瞰 / 漫游均生效
       escSteps.forEach(st => {                                  // 自动扶梯梯级闭环循环（沿路径约 0.35 m/s 匀速）：骑行斜面梯面保持水平，两端沿圆弧回转翻转 180°沉入端部平台下方，斜面下方倒挂平行回程，形成真实连贯的循环转动；单跑 / 多跑每跑按各自闭环参数取位
         const e = st.userData.esc, t = ((e.i + .5) * e.pitch + (now * .00035) % e.pitch) % e.S;
