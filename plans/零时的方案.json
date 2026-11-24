@@ -475,7 +475,7 @@
       "w": 140,
       "h": 4500,
       "rot": 0,
-      "sig": "red",
+      "sig": "yellow",
       "auto": true,
       "id": "fmwubt7jh148",
       "x": 2110,
@@ -982,11 +982,11 @@
     {
       "type": "facHeightGate",
       "w": 6000,
-      "h": 4500,
+      "h": 5000,
       "rot": 0,
       "id": "fmwubwbl1198",
-      "x": 21280,
-      "y": -10330
+      "x": 23700,
+      "y": -11080
     },
     {
       "type": "facBollard",
@@ -1661,7 +1661,7 @@
           "w": 140,
           "h": 4500,
           "rot": 0,
-          "sig": "red",
+          "sig": "yellow",
           "auto": true,
           "id": "fmwubt7jh148",
           "x": 2110,
@@ -2168,11 +2168,11 @@
         {
           "type": "facHeightGate",
           "w": 6000,
-          "h": 4500,
+          "h": 5000,
           "rot": 0,
           "id": "fmwubwbl1198",
-          "x": 21280,
-          "y": -10330
+          "x": 23700,
+          "y": -11080
         },
         {
           "type": "facBollard",
