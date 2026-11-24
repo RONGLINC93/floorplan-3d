@@ -466,6 +466,35 @@
       ],
       "railSide": "left",
       "railLand": false
+    },
+    {
+      "id": "fmwuuf8q4197",
+      "x": 1990,
+      "y": -5970,
+      "w": 1000,
+      "len": 4000,
+      "dir": 0,
+      "rise": 2800,
+      "runs": 2
+    },
+    {
+      "id": "fmwuufac6198",
+      "x": 11920,
+      "y": -5510,
+      "w": 1000,
+      "len": 4400,
+      "dir": 0,
+      "rise": 2400,
+      "type": "esc"
+    },
+    {
+      "id": "fmwuufdfo199",
+      "x": 1530,
+      "y": -1900,
+      "w": 2100,
+      "dir": 0,
+      "rise": 4030,
+      "type": "spiral"
     }
   ],
   "wallH": {
@@ -1048,6 +1077,35 @@
           ],
           "railSide": "left",
           "railLand": false
+        },
+        {
+          "id": "fmwuuf8q4197",
+          "x": 1990,
+          "y": -5970,
+          "w": 1000,
+          "len": 4000,
+          "dir": 0,
+          "rise": 2800,
+          "runs": 2
+        },
+        {
+          "id": "fmwuufac6198",
+          "x": 11920,
+          "y": -5510,
+          "w": 1000,
+          "len": 4400,
+          "dir": 0,
+          "rise": 2400,
+          "type": "esc"
+        },
+        {
+          "id": "fmwuufdfo199",
+          "x": 1530,
+          "y": -1900,
+          "w": 2100,
+          "dir": 0,
+          "rise": 4030,
+          "type": "spiral"
         }
       ],
       "pillars": [],
@@ -1617,6 +1675,7 @@
     "axis": true,
     "bearing": false,
     "wallSnap": true,
-    "ghost": true
+    "ghost": true,
+    "slab": true
   }
 }
