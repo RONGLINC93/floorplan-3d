@@ -21192,7 +21192,8 @@
           const lm = lamp(P(new THREE.SphereGeometry(.09, 12, 8), oneMat(new THREE.MeshBasicMaterial({ color: 0xe8b44a })), 0, h*.7, D/2+.05), 0xe8b44a, 0x3cc46e);
           wseg(0, -D / 2, W, t, bh); wseg(-W / 2, 0, t, D, bh); wseg(W / 2, 0, t, D, bh);                  // 背 / 左 / 右墙碰撞
           if (segL > .01) { wseg(-(W + dw) / 4, D / 2, segL, t, bh); wseg((W + dw) / 4, D / 2, segL, t, bh); }   // 前墙开口两侧碰撞，开口处留空
-          tag(grp); foot(W, D, h);
+          wseg(0, hopZ, W * .94, hopD + .08, hopH); wseg(W * .22, D * .18, W * .3, D * .35, h * .5);       // 站内卸料斗列 / 压缩机碰撞：只挡设备、不整体占地，前墙开口可走进站内
+          tag(grp);
         } else if (T3 === 'sanRecycleStation') {                  // 再生资源回收站：四壁 + 前墙三真投递洞（各自翻盖、可见站内）+ 背墙双扇门 + 分类标识 + 招牌
           const t = .12, bh = h * .82, doorH = h * .72, dw = W * .46;
           const cols = ['#2f7fd0', '#cf4b42', '#3f9d5c'], names = ['可回收物', '有害垃圾', '厨余垃圾'];
@@ -23305,8 +23306,8 @@
     // 触屏漫游：左下虚拟摇杆移动，在画面上拖动转向（iPad 不支持鼠标指针锁定）
     const HINT_ORBIT = () => COARSE ? tr('单指旋转 · 双指缩放 / 平移 · 点选家具后可拖动摆放 · 点门开关', '1 finger orbits · 2 fingers zoom / pan · select furniture to drag it · tap doors to open')
       : tr('左键旋转 · 右键平移 · 滚轮缩放 · 选中家具后拖动可摆放 · 点击门开关', 'Left-drag orbits · right-drag pans · scroll zooms · select furniture to drag it · click doors to open');
-    const HINT_TOUCHWALK = () => tr('左下摇杆移动 · 拖动画面转向 · 点门开关', 'Joystick moves · drag to look · tap doors to open');
-    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 快走 · Ctrl 蹲下 · Z 切换趴下 · 空格跳跃 · E 开关门 · R 脱离卡死 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · Space jumps · E opens doors · R unstuck · Esc pauses');
+    const HINT_TOUCHWALK = () => tr('左下摇杆移动 · 推满跑动 · 拖动画面转向 · 点门开关', 'Joystick moves · push full to run · drag to look · tap doors to open');
+    const HINT_WALK = () => tr('WASD 移动 · 鼠标转向 · Shift 跑动 · Ctrl 蹲下 · Z 切换趴下 · 空格跳跃 · E 开关门 · R 脱离卡死 · Esc 暂停', 'WASD moves · mouse looks · Shift runs · Ctrl crouches · Z toggles prone · Space jumps · E opens doors · R unstuck · Esc pauses');
     function syncHint3d() { $('#hint3d').textContent = opt.mode === 'orbit' ? HINT_ORBIT() : touchWalk ? HINT_TOUCHWALK() : HINT_WALK(); }
     let touchWalk = false;
     const joy = { x: 0, y: 0, id: null }, eul = new THREE.Euler(0, 0, 0, 'YXZ');
@@ -23353,6 +23354,7 @@
         $('#sunPad').style.visibility = 'hidden';                      // 漫游中隐藏右上角日照滑杆
         syncHint3d();
       } else {
+        resetRunFx();                                              // 离开漫游：复位跑动 FOV / 起伏，鸟瞰相机不受残留视场角影响
         walkCtl.unlock(); stopTouchWalk(); orbit.enabled = true;
         $('#walkOverlay').style.display = 'none'; $('#cross').style.display = 'none';
         $('#tools').style.visibility = '';
@@ -23619,6 +23621,7 @@
     let crouchT = 0;                                             // 姿态插值：0 站立 ~ 1 全蹲 ~ 2 趴下（Ctrl/C 按住蹲下、Z 切换趴下）
     let ladderOn = null;                                         // 攀梯状态：正在攀爬的那架梯子（null = 未攀爬）
     let proneOn = false;                                         // 趴下开关状态（Z 键切换：再按一次起身）
+    let runAmt = 0, bobT = 0, bobY = 0;                          // 跑动效果：跑动强度 0~1（控 FOV 扩张与起伏幅度）/ 起伏相位 / 头部起伏高度（脚步节奏视感）
     const EYE_STAND = 1.6, EYE_CROUCH = .9, EYE_PRONE = .45;     // 站立视高 / 蹲下视高 / 趴下视高
     const HEAD_CROUCH = 1.15, HEAD_PRONE = .4;                   // 蹲下头顶高 / 趴下头顶高（站立头顶 1.6m）
     let eyeH = EYE_STAND, headH = EYE_STAND;                     // 当前视高 / 头顶高（随姿态插值，blocked() 判头高用）
@@ -23629,7 +23632,18 @@
     let stuckT = 0;                                              // 卡死计时：持续有移动输入但两轴试探都被挡的累计秒数（松开移动键即清零）
     let stuckTip = null;                                         // 准星下方「脱离卡死」提示条（stepWalk 检测到卡死时显示；触屏可直接点它脱离）
     let driveCar = null;                                         // 驾驶状态：{ id, grp, col, L, Wd, BH, ang, speed }（null = 未驾驶；非 null 时 stepWalk 改由 stepDrive 接管）
+    function syncRunFov(dt) {                                    // 跑动视野：FOV 随跑动强度扩张（走路 45° → 全速跑 52°），产生冲刺拉宽感
+      const tf = FOV + runAmt * 7;
+      camera.fov += (tf - camera.fov) * Math.min(1, dt * 5);
+      if (Math.abs(camera.fov - tf) < .05) camera.fov = tf;
+      camera.updateProjectionMatrix();
+    }
+    function resetRunFx() {                                      // 复位跑动视感：进出漫游 / 脱离卡死 / 下车时用，防止 FOV 或头部起伏残留
+      runAmt = 0; bobT = 0; bobY = 0;
+      if (Math.abs(camera.fov - FOV) > .05) { camera.fov = FOV; camera.updateProjectionMatrix(); }
+    }
     function walkRespawn() {                                     // 回到入户门出生点：进入漫游与脱离卡死共用同一位置与朝向；全楼层模式固定在 1F
+      resetRunFx();
       let eg = null, yOff = 0;
       const fs = state.floors || [];
       const first = fs.length ? fs.reduce((a, b) => ((b.z || 0) < (a.z || 0) ? b : a)) : null;   // 1F = 标高最低的楼层（与 isGroundFloor 同定义）
@@ -23689,6 +23703,7 @@
       const d = driveCar; if (!d) return;
       d.grp.updateMatrixWorld(true);
       driveCar = null;                                            // 先退出驾驶：blocked() 这才会把本车碰撞体算进去，避免把落点选进车身里导致下车卡死
+      resetRunFx();                                               // 复位驾驶 / 跑动的 FOV 与头部起伏残留
       if (driveExit) driveExit.style.display = 'none';
       if (walkTip) walkTip.classList.remove('open');
       fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND;
@@ -23729,10 +23744,15 @@
         d.col[0] = nx-hw; d.col[1] = nz-hd; d.col[2] = nx+hw; d.col[3] = nz+hd; }
       camera.position.copy(d.grp.localToWorld(new THREE.Vector3(-d.L*.05, d.y0 + 1.0, -d.Wd*.22)));
       if (d.ang !== oang) camera.rotateY(-(d.ang - oang));        // 视角随车身转向，同时保留 PointerLock 的鼠标环视
+      { const tf = FOV + Math.min(7, Math.abs(d.speed) * .9);     // 驾驶视野：车速越快 FOV 略拉宽（最高 +7°），提速更有冲刺感
+        camera.fov += (tf - camera.fov) * Math.min(1, dt * 5);
+        if (Math.abs(camera.fov - tf) < .05) camera.fov = tf;
+        camera.updateProjectionMatrix(); }
     }
     function unstickWalk() {                                     // 脱离卡死：先在附近环形找同层空位挪过去（半径逐档放大），找不到回入户门；重置跳跃 / 跌落 / 攀梯 / 趴下状态
       if (anim || opt.mode !== 'walk') return;
       if (driveCar) { exitCar(); return; }                        // 驾驶中按 R = 下车（顺便把车写回方案）
+      resetRunFx();
       const p = camera.position, foot = fallY === null ? 0 : fallY;
       let spot = null;
       for (const rad of [.5, .9, 1.4, 2.2, 3.2]) {
@@ -23787,7 +23807,7 @@
       } else ladderOn = null;
       if (keys.Space && crouchT < 1.2 && grounded && !climbing) jumpV = 3.1;   // 空格起跳（攀梯时禁跳；趴下时不能起跳，需先起身；按住落地自动连跳）
       if (jumpY > 0 || jumpV > 0) { jumpY += jumpV * dt; jumpV -= 9.5 * dt; if (jumpY <= 0) { jumpY = 0; jumpV = 0; } }
-      const gy = stairH(p.x, p.z, p.y - eyeH - jumpY);       // 此处的支撑高度（地面 / 楼梯踏步 / 平台）
+      const gy = stairH(p.x, p.z, p.y - eyeH - jumpY - bobY);       // 此处的支撑高度（地面 / 楼梯踏步 / 平台；剔除头部起伏，避免脚步视感干扰支撑面取样）
       if (fallY === null) fallY = gy;
       if (!climbing) {
         if (jumpY > 0 || jumpV > 0) {                          // 跳跃滞空：支撑高度暂不追，落回时再衔接
@@ -23797,22 +23817,33 @@
         } else fallY = gy;                                     // 贴地行走 / 上台阶
       }
       const footH = fallY + jumpY;
-      p.y = eyeH + footH;
+      p.y = eyeH + footH + bobY;                             // 视点 = 视高 + 支撑 + 跑动头部起伏
       escCarry(p, footH, dt);                                // 站在自动扶梯上被梯级带着上行（先于输入移动，行走速度可叠加）
-      if (climbing) return;                                  // 攀梯中：A / D 与前后移动全部忽略（W / S 已由攀爬接管），只沿梯上下
+      if (climbing) {                                        // 攀梯中：A / D 与前后移动全部忽略（W / S 已由攀爬接管），只沿梯上下；跑动视感快速收平
+        bobY *= Math.max(0, 1 - dt * 8); runAmt *= Math.max(0, 1 - dt * 5); syncRunFov(dt); return;
+      }
       const shift = keys.ShiftLeft || keys.ShiftRight;
-      const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : shift ? 2.6 : 1.4) * dt, mv = _wmv.set(0, 0, 0);   // 趴下最慢（Shift 爬行加速）、蹲下次之、Shift 快走；复用向量须先清零
+      const wantRun = (shift || (touchWalk && Math.hypot(joy.x, joy.y) > .92)) && crouchT < .5;   // 跑动意图：站立时按住 Shift；触屏摇杆推到底也算跑
+      const sp = (crouchT >= 1.5 ? (shift ? .8 : .35) : crouchT > .5 ? .7 : wantRun ? 4.2 : 1.4) * dt, mv = _wmv.set(0, 0, 0);   // 趴下最慢（Shift 爬行加速）、蹲下次之、站立 Shift 全速跑；复用向量须先清零
       const right = _wright.set(-fwd.z, 0, fwd.x);
       if (keys.KeyW || keys.ArrowUp) mv.add(fwd); if (keys.KeyS || keys.ArrowDown) mv.sub(fwd);
       if (keys.KeyD || keys.ArrowRight) mv.add(right); if (keys.KeyA || keys.ArrowLeft) mv.sub(right);
       if (touchWalk) { mv.addScaledVector(fwd, -joy.y).addScaledVector(right, joy.x); }
       const mag = Math.min(1, mv.length());        // 摇杆推得越远走得越快
-      if (mag < .05) { stuckT = 0; if (stuckTip) stuckTip.classList.remove('open'); return; }
+      runAmt += ((wantRun && mag > .5 ? 1 : 0) - runAmt) * Math.min(1, dt * 5);   // 跑动强度插值：控制 FOV 扩张与头部起伏幅度
+      if (mag < .05) {                                       // 静止：起伏快速归零，FOV 平滑回到走路视野
+        stuckT = 0; bobT += dt * (2.2 + runAmt * 3.4); bobY *= Math.max(0, 1 - dt * 8); syncRunFov(dt);
+        if (stuckTip) stuckTip.classList.remove('open'); return;
+      }
       mv.normalize().multiplyScalar(sp * mag);
       const px0 = p.x, pz0 = p.z;
       if (!blocked(p.x + mv.x, p.z, .22, footH)) p.x += mv.x;
       if (!blocked(p.x, p.z + mv.z, .22, footH)) p.z += mv.z;
-      stuckT = Math.hypot(p.x - px0, p.z - pz0) < sp * mag * .2 ? stuckT + dt : 0;   // 有输入但两轴都被挡、位移不到预期的两成：累计卡死时长；贴墙滑行（能挪动）不算
+      const moved = Math.hypot(p.x - px0, p.z - pz0);        // 实际位移（贴墙滑行会小于预期）：起伏相位跟随真实步伐
+      bobT += moved * (3.4 + runAmt * 2.4);                  // 步频：走约 3.4 rad/m，跑更密（脚步更快）
+      bobY = grounded ? Math.sin(bobT) * (.022 + runAmt * .033) * Math.min(1, moved / (sp * mag + 1e-6)) : bobY * Math.max(0, 1 - dt * 6);   // 落地才起伏：走 ±2.2cm、跑 ±5.5cm；跳跃滞空收平
+      syncRunFov(dt);
+      stuckT = moved < sp * mag * .2 ? stuckT + dt : 0;   // 有输入但两轴都被挡、位移不到预期的两成：累计卡死时长；贴墙滑行（能挪动）不算
       if (stuckTip) {
         if (stuckT > 1.5) {                                        // 卡死超过 1.5 秒：准星下方提示脱离（桌面按 R，触屏点提示条）
           stuckTip.textContent = touchWalk ? tr('卡住了？点此脱离', 'Stuck? Tap to break free') : tr('卡住了？按 R 脱离', 'Stuck? Press R to break free');
