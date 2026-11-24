@@ -1809,6 +1809,26 @@
       display: block
     }
 
+    /* 驾驶中「下车」按钮（准星下方，触屏可直接点；与键盘 E/F 同源） */
+    #driveExitBtn {
+      position: fixed;
+      left: 50%;
+      top: 50%;
+      z-index: 60;
+      display: none;
+      pointer-events: auto;
+      background: #b5653a;
+      color: #fff;
+      border: 0;
+      font-size: 12px;
+      padding: 6px 14px;
+      border-radius: 7px;
+      transform: translate(-50%, 92px);
+      white-space: nowrap;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(40, 30, 20, .3)
+    }
+
     #roomList small {
       color: var(--muted);
       font-variant-numeric: tabular-nums
@@ -7029,7 +7049,7 @@
               ['int','内饰样式','Interior',[['black','经典黑','Classic black'],['beige','米色','Beige'],['grey','浅灰','Light grey'],['brown','棕褐','Brown'],['red','运动红','Sport red']]]],
         chks:[['doorFL','左前门','Front left door'],['doorFR','右前门','Front right door'],['doorRL','左后门','Rear left door'],['doorRR','右后门','Rear right door'],['hood','前引擎盖','Hood'],['trunk','后备箱门','Trunk'],['lights','车灯','Headlights']],
         def:{color:'white',int:'black',doorFL:false,doorFR:false,doorRL:false,doorRR:false,hood:false,trunk:false,lights:true},
-        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门可各自独立开合——3D 设计态点击对应门盖（漫游按 E）即可开关，右侧属性面板也能勾选；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向；车灯可开关——点前照灯（漫游按 E）或勾选面板「车灯」切换前照灯聚光与尾灯亮灭，漫游中整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood and the trunk open independently — click each panel in 3D design mode (E in walk), or tick them in the property panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Headlights toggle on/off — click a headlamp (E in walk) or tick “Headlights” in the panel to switch the spot beam and tail lamps. Blocks walking in 3D.'] }
+        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门可各自独立开合——3D 设计态点击对应门盖（漫游按 E）即可开关，右侧属性面板也能勾选；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向；车灯可开关——点前照灯（漫游按 E）或勾选面板「车灯」切换前照灯聚光与尾灯亮灭；漫游中走近车身按 F / E 可上车驾驶——WASD 行驶转向、Shift 加速、空格刹车，E / F 或屏幕「下车」按钮退出，停稳后位置与朝向自动存回方案；整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood and the trunk open independently — click each panel in 3D design mode (E in walk), or tick them in the property panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Headlights toggle on/off — click a headlamp (E in walk) or tick “Headlights” in the panel to switch the spot beam and tail lamps. In walk mode press F / E near the body to get in and drive: WASD to steer and move, Shift to boost, Space to brake; press E / F or the on-screen Exit button to get out — the final position and heading are saved back to the plan. Blocks walking in 3D.'] }
     };
     const CAR_COLORS = { white:'#e9ecee', black:'#2b3035', silver:'#b8c0c6', grey:'#79848c', blue:'#2c4f78', red:'#ae3030' };   // 轿车车身色：2D 填充与 3D 车漆共用
     const CAR_INTERIORS = {                                                                  // 轿车内饰样式：座椅 / 仪表台 / 门板主色 + 地毯色
@@ -15883,7 +15903,7 @@
     let sigArch = '', sigFurn = '', sigLabels = '', sigStack = '', grow = 1, furnGrow = 1;
     let floorWorlds = [], extraGroups = [], skipLift3D = false;   // 全楼层漫游：其它楼层的完整几何 / 碰撞数据，以及是否跳过重复轿厢
     let activeDoors = [], activeLampGlowMats = [], activeEscSteps = [], activeRevolveSpins = [];   // 当前层的门 / 灯 / 动画对象（不含其它楼层合并进来的对象）
-    const normColsY = (arr, top) => (arr || []).map(c => c.length >= 6 ? c.slice() : [c[0], c[1], c[2], c[3], 0, top]);   // 4 元素旧式碰撞（墙等）补 y 区间 0~top（本层局部高度），防止跨层串挡
+    const normColsY = (arr, top) => (arr || []).map(c => { const n = c.length >= 6 ? c.slice() : [c[0], c[1], c[2], c[3], 0, top]; if (c.carId != null) n.carId = c.carId; return n; });   // 4 元素旧式碰撞（墙等）补 y 区间 0~top（本层局部高度），防止跨层串挡；保留整车碰撞的 carId（驾驶时跳过本车）
     let primaryCols = null;                                       // 整栋模式下当前层碰撞的 0~层高规范化副本；null = 单层模式直接用 colliders
     let primaryFP = null;                                         // 当前层足迹缓存：{ rooms:[多边形], rects:[地板 / 阳台 AABB] }（世界米）
     let stackDefaultFloors = false;                               // 整栋模式构建其它楼层时置真：无样式房间也按默认材质生成楼板 / 天花，上层仰视不再是空的
@@ -16228,7 +16248,8 @@
         const tap = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) <= TAP;
         if (look?.id === e.pointerId) {
           look = null;
-          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if (h?.carLamp && h.dist < 3.5) toggleCarLamp(h.carLamp); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 道闸 / 旗杆 / 灯具 / 路灯 / 信号灯（不选中，只动作）；点别处 = 射击
+          if (driveCar) return;                                   // 驾驶中画布点按不触发开门 / 射击（下车用 E / F 或屏幕按钮）
+          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if (h?.carLamp && h.dist < 3.5) toggleCarLamp(h.carLamp); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); else if (carIdFromHit(h) != null && h.dist < 3.5) enterCar(carIdFromHit(h)); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 车灯 / 道闸 / 旗杆 / 灯具 / 路灯 / 信号灯 / 车身（上车）；点别处 = 射击
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
@@ -21917,15 +21938,15 @@
             grp.add(spot); grp.add(spot.target);
             const beam = new THREE.Mesh(new THREE.ConeGeometry(1.9, 6, 16, 1, true), beamMat);
             beam.rotation.z = Math.PI / 2 - .08; beam.position.set(lx + 3, ly - .24, lz); beam.renderOrder = 2;
-            grp.add(beam);
+            beam.userData.driveBeam = true; grp.add(beam);
           });
           P(new THREE.BoxGeometry(.025,.085,Wd*.30), black, L*.5+.03, belt-.19, 0);                                        // 进气格栅收窄
           for (let i = 0; i < 2; i++) P(new THREE.BoxGeometry(.012,.008,Wd*.28), chrome, L*.5+.048, belt-.215+i*.05, 0);
           P(new THREE.BoxGeometry(.012,.085,Wd*.16), oneMat(new THREE.MeshBasicMaterial({color:0xf4f2e8})), L*.5+.05, y0+.12, 0);
           P(new THREE.BoxGeometry(.012,.085,Wd*.16), oneMat(new THREE.MeshBasicMaterial({color:0xf4f2e8})), -L*.5-.05, y0+.12, 0);
-          const ca = Math.cos(ang), sa = Math.sin(ang);                                                                   // 旋转后的足迹碰撞（整车挡人）
+          const ca = Math.cos(ang), sa = Math.sin(ang);                                                                   // 旋转后的足迹碰撞（整车挡人；驾驶中跳过本车）
           const hw = (L*Math.abs(ca)+Wd*Math.abs(sa))/2, hd = (L*Math.abs(sa)+Wd*Math.abs(ca))/2;
-          colliders.push([px-hw, pz-hd, px+hw, pz+hd, 0, BH]);
+          const carCol = [px-hw, pz-hd, px+hw, pz+hd, 0, BH]; carCol.carId = e.id; colliders.push(carCol);
         } else if (PARK_EXT[T3]) {                              // 停车场配套 19 件：车位标线 / 出入口设备 / 引导配套 / 机械停车
           buildPark3D(T3, e, { grp, P, colliders, doors, px, pz, ang, W, h, poleM, darkM });
         }
@@ -23318,6 +23339,7 @@
     }
     function setMode(m) {
       if (anim) return;
+      if (driveCar && m !== 'walk') exitCar();                  // 离开漫游（切鸟瞰 / 预览）时先下车并把车位置写回方案
       opt.mode = m; syncModeBtns();
       stuckT = 0; if (stuckTip) stuckTip.classList.remove('open');   // 切换模式时收起卡死提示
       if (m === 'walk') {
@@ -23359,7 +23381,9 @@
     }
     function blockedOne(x, z, r, footH, noPoultry, W) {
       const passByHeight = (y0, y1) => footH !== null && (footH + headH < y0 || footH > y1 || y1 <= footH + WALK_STEP_OVER);
-      for (const [x0, z0, x1, z1, y0 = -Infinity, y1 = Infinity] of W.colliders) {
+      for (const c of W.colliders) {
+        if (driveCar && c.carId === driveCar.id) continue;           // 驾驶中跳过本车整车碰撞，否则车一移动就把自己判为被挡
+        const [x0, z0, x1, z1, y0 = -Infinity, y1 = Infinity] = c;
         if (passByHeight(y0, y1)) continue;
         if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
       }
@@ -23604,6 +23628,7 @@
     }
     let stuckT = 0;                                              // 卡死计时：持续有移动输入但两轴试探都被挡的累计秒数（松开移动键即清零）
     let stuckTip = null;                                         // 准星下方「脱离卡死」提示条（stepWalk 检测到卡死时显示；触屏可直接点它脱离）
+    let driveCar = null;                                         // 驾驶状态：{ id, grp, col, L, Wd, BH, ang, speed }（null = 未驾驶；非 null 时 stepWalk 改由 stepDrive 接管）
     function walkRespawn() {                                     // 回到入户门出生点：进入漫游与脱离卡死共用同一位置与朝向；全楼层模式固定在 1F
       let eg = null, yOff = 0;
       const fs = state.floors || [];
@@ -23630,8 +23655,82 @@
         camera.position.set(wx(4200), yOff + 1.6, wz(8755)); camera.lookAt(wx(7000), yOff + 1.5, wz(8755));   // 兜底：原始入户门外
       }
     }
+    const carIdFromHit = h => {                                  // 从拾取结果里取出轿车 id（车身 / 车门 / 车灯任一命中都算），非轿车返回 null
+      if (!h) return null;
+      if (h.door?.kind === 'car' && h.door.carId != null) return h.door.carId;
+      if (h.carLamp != null) return h.carLamp;
+      if (h.kind === 'extra' && h.id != null && (state.extras || []).find(x => String(x.id) === String(h.id))?.type === 'carSedan') return h.id;
+      return null;
+    };
+    function carFootBlocked(cx, cz, ang, L, Wd) {                 // 驾驶碰撞：按旋转后的车身矩形足迹取中心 + 四角试探，避开墙 / 家具 / 其它车
+      const ca = Math.cos(ang), sa = Math.sin(ang);
+      const hw = (L*Math.abs(ca)+Wd*Math.abs(sa))/2, hd = (L*Math.abs(sa)+Wd*Math.abs(ca))/2;
+      for (const [sx, sz] of [[0,0],[-1,-1],[-1,1],[1,-1],[1,1]]) if (blocked(cx + sx*hw, cz + sz*hd, .1, 0)) return true;
+      return false;
+    }
+    function enterCar(id) {                                       // 上车：把相机移到左前驾驶位，登记 driveCar 后由 stepDrive 接管漫游物理
+      const e = (state.extras || []).find(x => String(x.id) === String(id) && x.type === 'carSedan'); if (!e) return false;
+      const grp = archUp.children.find(o => o.userData.pick3d?.kind === 'extra' && String(o.userData.pick3d.id) === String(e.id)); if (!grp) return false;
+      const col = colliders.find(c => c.carId === e.id);
+      const L = Math.max(2.5, M(e.w || 4600)), Wd = Math.max(1.2, M(e.d || 1800)), BH = Math.max(1.1, M(e.h || 1500));
+      const wr = Math.min(.33, BH*.22), y0 = wr*.82;
+      driveCar = { id:e.id, grp, col, L, Wd, y0, ang:((+e.rot||0)%360)*Math.PI/180, speed:0, cx:grp.position.x, cz:grp.position.z };
+      fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND; ladderOn = null; stuckT = 0;
+      if (stuckTip) stuckTip.classList.remove('open');
+      grp.updateMatrixWorld(true);
+      const eye = grp.localToWorld(new THREE.Vector3(0, y0 + 1.0, -Wd*.22));   // 驾驶位眼高（坐姿，低于站立 1.6m）
+      camera.position.copy(eye); camera.lookAt(eye.x + Math.cos(driveCar.ang), eye.y, eye.z + Math.sin(driveCar.ang));
+      if (driveExit) driveExit.style.display = 'block';
+      if (walkTip) { walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('E / F 下车 · WASD 驾驶 · Shift 加速 · 空格刹车', 'E / F exit · WASD drive · Shift boost · Space brake'); walkTip.classList.add('open'); }
+      toast(tr('已上车：WASD 驾驶，E / F 下车', 'In the car — WASD to drive, E / F to exit'));
+      return true;
+    }
+    function exitCar(silent) {                                    // 下车：先把相机放到驾驶座旁空位，再把车辆最终位置 / 朝向一次性写回方案（可撤销、2D / 3D 同步）
+      const d = driveCar; if (!d) return;
+      d.grp.updateMatrixWorld(true);
+      let spot = null;
+      for (const [lx, lz] of [[0,-d.Wd*.22-.75],[-d.L*.2,-d.Wd*.22-.75],[d.L*.2,-d.Wd*.22-.75],[0,d.Wd*.22+.75]]) {
+        const p = d.grp.localToWorld(new THREE.Vector3(lx, 0, lz));
+        if (!blocked(p.x, p.z, .22, 0)) { spot = p; break; }
+      }
+      driveCar = null;
+      if (driveExit) driveExit.style.display = 'none';
+      if (walkTip) walkTip.classList.remove('open');
+      fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND;
+      if (spot) camera.position.set(spot.x, EYE_STAND, spot.z); else walkRespawn();
+      const e = (state.extras || []).find(x => String(x.id) === String(d.id));
+      if (e) mutate(() => { e.x = Math.round(d.cx*1000 + OX); e.y = Math.round(d.cz*1000 + OY); e.rot = ((d.ang*180/Math.PI)%360+360)%360; });
+      if (!silent) toast(tr('已下车', 'Out of the car'));
+    }
+    function stepDrive(dt) {                                      // 驾驶：油门 / 刹车 / 转向驱动车辆，车身 3D 与碰撞体逐帧直改、相机跟随驾驶位；不在每帧写 state（下车才一次性提交）
+      const d = driveCar; if (!d) return;
+      const throttle = (keys.KeyW||keys.ArrowUp ? 1 : 0) - (keys.KeyS||keys.ArrowDown ? 1 : 0) - (touchWalk ? joy.y : 0);
+      const steer = (keys.KeyD||keys.ArrowRight ? 1 : 0) - (keys.KeyA||keys.ArrowLeft ? 1 : 0) + (touchWalk ? joy.x : 0);
+      const brake = keys.Space ? 1 : 0, maxF = (keys.ShiftLeft||keys.ShiftRight) ? 9 : 6, maxR = 3;
+      if (brake) d.speed *= Math.max(0, 1 - 8*dt);
+      else if (throttle > 0) d.speed += (d.speed < 0 ? 7 : 4.5) * throttle * dt;
+      else if (throttle < 0) d.speed += (d.speed > 0 ? 7 : 3.5) * throttle * dt;
+      else d.speed *= Math.max(0, 1 - 1.4*dt);
+      d.speed = Math.max(-maxR, Math.min(maxF, d.speed));
+      if (!throttle && !brake && Math.abs(d.speed) < .02) d.speed = 0;
+      const turn = steer * 1.5 * dt * Math.min(1, .35 + Math.abs(d.speed)/3) * (d.speed < 0 ? -1 : 1);
+      const oang = d.ang; d.ang += turn;
+      const nx0 = d.cx + Math.cos(d.ang)*d.speed*dt, nz0 = d.cz + Math.sin(d.ang)*d.speed*dt;
+      let nx = d.cx, nz = d.cz;
+      if (!carFootBlocked(nx0, nz, d.ang, d.L, d.Wd)) nx = nx0;
+      if (!carFootBlocked(nx, nz0, d.ang, d.L, d.Wd)) nz = nz0;
+      if (nx === d.cx && nz === d.cz && d.speed !== 0) d.speed = 0;
+      d.cx = nx; d.cz = nz;
+      d.grp.position.set(nx, 0, nz); d.grp.rotation.y = -d.ang; d.grp.updateMatrixWorld(true);
+      if (d.col) { const ca = Math.cos(d.ang), sa = Math.sin(d.ang);
+        const hw = (d.L*Math.abs(ca)+d.Wd*Math.abs(sa))/2, hd = (d.L*Math.abs(sa)+d.Wd*Math.abs(ca))/2;
+        d.col[0] = nx-hw; d.col[1] = nz-hd; d.col[2] = nx+hw; d.col[3] = nz+hd; }
+      camera.position.copy(d.grp.localToWorld(new THREE.Vector3(0, d.y0 + 1.0, -d.Wd*.22)));
+      if (d.ang !== oang) camera.rotateY(-(d.ang - oang));        // 视角随车身转向，同时保留 PointerLock 的鼠标环视
+    }
     function unstickWalk() {                                     // 脱离卡死：先在附近环形找同层空位挪过去（半径逐档放大），找不到回入户门；重置跳跃 / 跌落 / 攀梯 / 趴下状态
       if (anim || opt.mode !== 'walk') return;
+      if (driveCar) { exitCar(); return; }                        // 驾驶中按 R = 下车（顺便把车写回方案）
       const p = camera.position, foot = fallY === null ? 0 : fallY;
       let spot = null;
       for (const rad of [.5, .9, 1.4, 2.2, 3.2]) {
@@ -23925,7 +24024,12 @@
       if (opt.mode === 'walk' && e.code === 'KeyR') unstickWalk();         // R 脱离卡死：附近找空位，找不到回入户门
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
-      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if (h?.carLamp && h.dist < 2.5) toggleCarLamp(h.carLamp); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); }
+      if (opt.mode === 'walk' && e.code === 'KeyE') { if (driveCar) { exitCar(); return; } const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if (h?.carLamp && h.dist < 2.5) toggleCarLamp(h.carLamp); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); else if (carIdFromHit(h) != null && h.dist < 3.5) enterCar(carIdFromHit(h)); }   // 车门 / 车灯 / 其它设施动作优先，车身本身按 E = 上车
+    });
+    addEventListener('keydown', e => {                            // F：驾驶时下车；漫游瞄准轿车时上车（与 E 车身同源，独立按键避免与车门 / 车灯动作冲突）
+      if (opt.mode !== 'walk') return;
+      if (driveCar) { if (e.code === 'KeyF') { exitCar(); e.preventDefault(); } return; }
+      if (e.code === 'KeyF') { const h = pick(); const cid = carIdFromHit(h); if (cid != null && h.dist < 3.5) { enterCar(cid); e.preventDefault(); } }
     });
     addEventListener('keyup', e => keys[e.code] = false);
 
@@ -23985,6 +24089,8 @@
     const walkTip = document.createElement('div'); walkTip.id = 'walkDoorTip'; document.body.appendChild(walkTip);
     stuckTip = document.createElement('div'); stuckTip.id = 'walkStuckTip'; document.body.appendChild(stuckTip);
     stuckTip.onclick = () => unstickWalk();                     // 触屏无 R 键：直接点提示条脱离卡死
+    const driveExit = document.createElement('button'); driveExit.id = 'driveExitBtn'; driveExit.textContent = tr('下车', 'Exit car'); document.body.appendChild(driveExit);
+    driveExit.onclick = () => exitCar();                        // 驾驶中触屏下车（与键盘 E / F 同源）
     const applyCarVisual = id => {                                // 轿车六扇门盖：state → 运行时 doors[]，2D / 3D 同步
       const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
       doors.forEach(d => { if (d.kind === 'car' && String(d.carId) === String(id)) d.open = !!e[d.field]; });
@@ -24401,6 +24507,21 @@
           }
           walkTip.classList.add('open');
         } else { doorHiRef.removeFromParent(); doorHiRef.visible = false; walkTip.classList.remove('open'); }
+      } else if (carIdFromHit(h) != null && h.dist < 3.5 && doorHiRef) {   // 瞄准轿车车身（非门 / 灯）：整体高亮 + 上车提示
+        const car = (state.extras || []).find(x => String(x.id) === String(carIdFromHit(h)));
+        const gl = car && archUp.children.find(o => o.userData.pick3d?.kind === 'extra' && String(o.userData.pick3d.id) === String(car.id));
+        if (gl) {
+          const bb = _tipBB.makeEmpty();                             // 排除车灯光束（锥体向前伸出好几米，会把高亮框撑爆）
+          gl.children.forEach(c => { if (!c.userData.driveBeam && !c.isLight) bb.expandByObject(c); });
+          if (!bb.isEmpty()) {
+            const s = bb.getSize(_tipV);
+            doorHiRef.removeFromParent(); doorHiRef.visible = true;
+            doorHiRef.scale.set(Math.max(.05, s.x) * 1.04, Math.max(.05, s.y) * 1.04, Math.max(.05, s.z) * 1.04);
+            bb.getCenter(doorHiRef.position); scene.add(doorHiRef);
+          }
+        }
+        walkTip.textContent = touchWalk ? tr('点按上车', 'Tap to get in') : tr('E / F 上车', 'Press E / F to get in');
+        walkTip.classList.add('open');
       } else {
         if (doorHiRef) { doorHiRef.removeFromParent(); doorHiRef.visible = false; }
         walkTip.classList.remove('open');
@@ -24414,7 +24535,7 @@
       if (anim) { const t = clamp01((now - anim.t0) / anim.dur); anim.fn(t); if (t >= 1) { const r = anim.res; anim = null; r(); } }
       else if (fly) { const t = clamp01((now - fly.t0) / fly.dur); camTween(fly.A, fly.B, ease(t)); if (t >= 1) fly = null; }
       else if (opt.mode === 'orbit') orbit.update();
-      else if (!liftCarrying()) stepWalk(dt);                  // 乘梯运行中玩家随轿厢移动，暂不响应自由行走
+      else if (!liftCarrying()) { if (driveCar) stepDrive(dt); else stepWalk(dt); }   // 驾驶中由 stepDrive 接管（车动相机随），否则正常漫游
       doors.forEach(d => {                                   // 自动感应门：玩家 / 动物靠近自动滑开、离开关上（漫游态检测玩家，两种模式均检测漫步中的动物）
         if (!d.auto) return;
         const doff = d.yOff || 0;                               // 其它楼层自动门存局部高度，感应判定统一换算到世界高度
@@ -24505,8 +24626,9 @@
           p.legs[1].rotation.x = moving ? -Math.sin(p.gait) * .5 : 0;
         }
       });
-      if (opt.mode === 'walk') pushOutOfRevolve(camera.position, camera.position.y - eyeH, headH);   // 漫游时翼扫到玩家则推开，避免穿模
-      updateDoorWalkTip();
+      if (opt.mode === 'walk' && !driveCar) pushOutOfRevolve(camera.position, camera.position.y - eyeH, headH);   // 漫游时翼扫到玩家则推开，避免穿模（驾驶中相机在车内，不参与）
+      if (driveCar) { if (walkTip) { walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('WASD 驾驶 · Shift 加速 · 空格刹车 · E / F 下车', 'WASD drive · Shift boost · Space brake · E / F exit'); walkTip.classList.add('open'); } }
+      else updateDoorWalkTip();
       flagAnims.forEach((a, id) => {                             // 旗面升降：逐帧插值旗面高度；播完只写状态并入撤销栈，不走 buildArch 重建（否则门窗动画会被重置）
         const k = clamp01((now - a.t0) / a.dur), v = (a.from + (a.to - a.from) * ease(k)) / 1000;
         const fw = Math.max(.5, a.top / 10000), fh = fw * .62;   // a.top 是毫米，换算成米
