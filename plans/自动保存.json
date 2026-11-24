@@ -101,16 +101,15 @@
   "gates": [],
   "extras": [
     {
-      "type": "facCarWash",
-      "w": 9000,
-      "h": 3000,
+      "type": "carSedan",
+      "w": 4600,
+      "h": 1500,
       "rot": 0,
-      "d": 3600,
-      "dur": 60,
-      "id": "fmwuqn4n799",
-      "x": 5950,
-      "y": 5300,
-      "busy": true
+      "d": 1800,
+      "color": "white",
+      "id": "dbgcar",
+      "x": 6000,
+      "y": 6000
     }
   ],
   "leaders": [],
@@ -232,16 +231,15 @@
       "gates": [],
       "extras": [
         {
-          "type": "facCarWash",
-          "w": 9000,
-          "h": 3000,
+          "type": "carSedan",
+          "w": 4600,
+          "h": 1500,
           "rot": 0,
-          "d": 3600,
-          "dur": 60,
-          "id": "fmwuqn4n799",
-          "x": 5950,
-          "y": 5300,
-          "busy": true
+          "d": 1800,
+          "color": "white",
+          "id": "dbgcar",
+          "x": 6000,
+          "y": 6000
         }
       ],
       "leaders": [],

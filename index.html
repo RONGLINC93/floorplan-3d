@@ -3545,6 +3545,12 @@
             <button class="btn chip" data-dt="facRotaryPark" title="垂直循环车库：点击放置；塔式循环停车，8~16 个载车板，占地约两个车位；总高 / 车位数可改" data-en-title="Rotary parking: tower with 8-16 pallets, footprint of about two stalls; edit height / stalls" data-en="Rotary parking"><i data-lucide="building-2"></i>垂直循环车库</button>
           </div>
           <div class="dtg">
+            <div class="dth" data-en="Vehicles">车辆</div>
+            <button class="btn chip" data-dt="carSedan" title="轿车：点击放置；2D 俯视画车身 / 前后风挡 / 天窗 / 四轮 / 后视镜 / 前后灯，3D 为车身 + 玻璃座舱 + 轮毂 + 灯组 + 格栅；车头朝当前朝向，右侧可改车长 / 车宽 / 车高 / 车身色 / 朝向"
+              data-en-title="Sedan: click to place; 2D plan shows body, windshields, sunroof, wheels, mirrors and lamps; 3D builds a glazed cabin with rims, lights and grille; edit length / width / height / colour / angle"
+              data-en="Sedan"><i data-lucide="car"></i>轿车</button>
+          </div>
+          <div class="dtg">
             <div class="dth" data-en="Sanitation">环卫配套</div>
             <button class="btn chip" data-dt="sanSortBin" title="分类垃圾桶：点击放置；3D 四色空心桶，点任一桶身（漫游按 E）只开合该桶，四桶独立；宽 / 高 / 进深可改" data-en-title="Sorting bin: click to place; four hollow colour-coded bins, click any bin in 3D (E in walk) to toggle just that lid; edit size" data-en="Sorting bin"><i data-lucide="trash-2"></i>分类垃圾桶</button>
             <button class="btn chip" data-dt="sanLitterBin" title="果皮箱：点击放置；3D 单筒果皮箱带顶盖，点击（漫游按 E）开盖 / 合盖；宽 / 高 / 进深可改" data-en-title="Litter bin: single bin with lid, click to open / close in 3D (E in walk); edit size" data-en="Litter bin"><i data-lucide="trash"></i>果皮箱</button>
@@ -6894,7 +6900,9 @@
       wtMist:      { zh:'除臭喷淋',     en:'Deodorizing mist',    w:6000,  h:2500, d:600,  on:false },
       wtSump:      { zh:'污水收集池',   en:'Leachate sump',       w:3000,  h:600,  d:2000 },
       wtWash:      { zh:'洗车台',       en:'Truck wash platform', w:6000,  h:200,  d:3000 },
-      facCarWash:  { zh:'自动洗车机',   en:'Auto car wash',       w:9000,  h:3000, d:3600 }
+      facCarWash:  { zh:'自动洗车机',   en:'Auto car wash',       w:9000,  h:3000, d:3600 },
+      /* 车辆：w = 车长（沿朝向的本地 +x），d = 车宽，h = 车高 */
+      carSedan:    { zh:'轿车',         en:'Sedan',               w:4600,  h:1500, d:1800 }
     };
     const FACILITY_KEYS = Object.keys(FACILITY_DEFS);
     const isFacility = t => !!FACILITY_DEFS[t];
@@ -7014,8 +7022,12 @@
         tip:['洗车台：转运车出站冲洗平台，中间纵向通长格栅地沟 + 两侧立柱喷杆；位于地磅与出口之间。','Truck wash platform: central longitudinal grate trench with two spray-post arches for washing outgoing trucks.' ] },
       facCarWash: { wl:['机长','Length'], wmin:6000, wmax:15000, hl:['机高','Height'], hmin:2400, hmax:4000, dl:['轨道宽','Width'], dmin:3000, dmax:4500,
         nums:[['dur','清洗时长 (秒)','Wash duration',8,60,1]], def:{dur:14},
-        tip:['自动洗车机：龙门式洗车机，底板 + 两侧行走轨道 + 龙门架（双立柱 + 顶梁 + 侧滚刷 × 2 + 顶滚刷 + 喷头排 + 泡沫管 + 风干风道，全部随架移动）+ 进 / 出导向箭头 + 状态灯；3D 点击机体（漫游按 E）启动洗车流程——龙门自动走完 预湿 → 泡沫 → 滚刷往复清洗 → 冲净 → 风干回位，洗车中状态灯蓝色闪烁、地面湿地反光；清洗时长 8~60 秒可设（默认 14 秒），机长 / 机高 / 轨道宽可改。','Gantry car wash: base slab, travel rails and a portal frame carrying side brushes, top brush, spray bar, foam pipe and dryer ducts (all gantry-mounted); click it in 3D (E in walk) to run the cycle — the gantry sweeps through pre-rinse, foam, brush passes, rinse and dry; wash duration 8–60 s (default 14); edit length / height / width.' ] }
+        tip:['自动洗车机：龙门式洗车机，底板 + 两侧行走轨道 + 龙门架（双立柱 + 顶梁 + 侧滚刷 × 2 + 顶滚刷 + 喷头排 + 泡沫管 + 风干风道，全部随架移动）+ 进 / 出导向箭头 + 状态灯；3D 点击机体（漫游按 E）启动洗车流程——龙门自动走完 预湿 → 泡沫 → 滚刷往复清洗 → 冲净 → 风干回位，洗车中状态灯蓝色闪烁、地面湿地反光；清洗时长 8~60 秒可设（默认 14 秒），机长 / 机高 / 轨道宽可改。','Gantry car wash: base slab, travel rails and a portal frame carrying side brushes, top brush, spray bar, foam pipe and dryer ducts (all gantry-mounted); click it in 3D (E in walk) to run the cycle — the gantry sweeps through pre-rinse, foam, brush passes, rinse and dry; wash duration 8–60 s (default 14); edit length / height / width.' ] },
+      carSedan: { wl:['车长','Length'], wmin:3000, wmax:6500, hl:['车高','Height'], hmin:1200, hmax:2000, dl:['车宽','Width'], dmin:1400, dmax:2400,
+        sels:[['color','车身色','Colour',[['white','珍珠白','Pearl white'],['black','曜石黑','Obsidian black'],['silver','银灰','Silver'],['grey','钛空灰','Titanium grey'],['blue','深海蓝','Deep blue'],['red','中国红','Red']]]], def:{color:'white'},
+        tip:['轿车：点击放置的三厢小客车，2D 俯视画车身轮廓、前后风挡、车顶天窗、四轮、后视镜与前照 / 尾灯，3D 为车身 + 玻璃座舱 + 轮毂 + 灯组 + 进气格栅的整车模型；车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色与朝向，漫游中整车挡人。','Sedan: click to place a three-box passenger car. The 2D plan shows the body silhouette, windshields, sunroof, four wheels, mirrors and lamps; the 3D model adds a glazed cabin, wheel rims, light groups and a front grille. The nose points along the heading (0° = screen right); edit length / width / height, colour and angle. Blocks walking in 3D.'] }
     };
+    const CAR_COLORS = { white:'#e9ecee', black:'#2b3035', silver:'#b8c0c6', grey:'#79848c', blue:'#2c4f78', red:'#ae3030' };   // 轿车车身色：2D 填充与 3D 车漆共用
     function parkRows(e) {                                                       // 停车场配套的通用属性行（尺寸 / 参数 / 开关 / 朝向 / 位置）
       const p = PARK_EXT[e.type]; if (!p) return '';
       const num = (id, v, mn, mx, st) => `<input type="number" id="${id}" value="${Math.round(v)}" min="${mn}" max="${mx}" step="${st}">`;
@@ -7076,7 +7088,7 @@
     const TRAFFIC_SIGNS_ZH = { red: '红灯', green: '绿灯', yellow: '黄灯' };
     const isExtraLin = t => isRoadType(t) || ['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path', 'thresh', 'flash', 'band', 'signbd'].includes(t);
     const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(t) || isTraffic(t) || isSecurity(t) || isFacility(t);
-    const extraRot = e => e && e.type === 'park' ? ((+e.rot || 0) % 360) : 0;                 // 仅停车位支持整车旋转
+    const extraRot = e => e && (e.type === 'park' || e.type === 'carSedan') ? ((+e.rot || 0) % 360) : 0;   // 停车位 / 轿车：整车随朝向旋转（包围盒 / 手柄同步）
     function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
       if (!deg) return { x, y };
       const a = deg * Math.PI / 180, c = Math.cos(-a), s = Math.sin(-a), dx = x - cx, dy = y - cy;
@@ -7700,6 +7712,42 @@
               inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(45,R*.5)}" fill="${col}" fill-opacity=".5" stroke="none"/>
                 <circle cx="${e.x-uy*R*.7}" cy="${e.y+ux*R*.7}" r="${Math.max(22,R*.3)}" fill="#ffc233"><animate attributeName="opacity" values="1;.15;1" dur=".8s" repeatCount="indefinite"/></circle>
                 <circle cx="${e.x+uy*R*.7}" cy="${e.y-ux*R*.7}" r="${Math.max(22,R*.3)}" fill="#ffc233"><animate attributeName="opacity" values=".15;1;.15" dur=".8s" repeatCount="indefinite"/></circle>`;
+            } else if (e.type === 'carSedan') {                 // 轿车俯视：三厢车身 + 前后风挡 / 车顶天窗 / 四轮 / 后视镜 / 前后灯（本地 +x 为车头）
+              const L = Math.max(3000, +e.w || 4600), Wd = Math.max(1400, +e.d || 1800), L2 = L / 2, W2 = Wd / 2;
+              const c = Math.cos(a), s2 = Math.sin(a);
+              const Pxy = (lx, ly) => [e.x + lx * c - ly * s2, e.y + lx * s2 + ly * c];
+              const Pt = (lx, ly) => Pxy(lx, ly).map(v => v.toFixed(1)).join(',');
+              const face = (pts, fill, fo, stroke, sw) => `<polygon points="${pts.map(([x, y]) => Pt(x, y)).join(' ')}" fill="${fill}" fill-opacity="${fo}"${stroke ? ` stroke="${stroke}" stroke-width="${sw || 1}"` : ''} vector-effect="non-scaling-stroke"/>`;
+              const rect = (cx, cy, ww, dd, fill, fo, stroke, sw) => face([[cx-ww/2,cy-dd/2],[cx+ww/2,cy-dd/2],[cx+ww/2,cy+dd/2],[cx-ww/2,cy+dd/2]], fill, fo, stroke, sw);
+              const line = (x1, y1, x2, y2, stroke, sw, op) => { const A0 = Pxy(x1, y1), B0 = Pxy(x2, y2);
+                return `<line x1="${A0[0].toFixed(1)}" y1="${A0[1].toFixed(1)}" x2="${B0[0].toFixed(1)}" y2="${B0[1].toFixed(1)}" stroke="${stroke}" stroke-width="${sw}"${op != null ? ` stroke-opacity="${op}"` : ''} vector-effect="non-scaling-stroke"/>`; };
+              const paint = CAR_COLORS[e.color] || CAR_COLORS.white, glass = '#3d5b73';
+              inner = face([[-L2-160,-W2-160],[L2+160,-W2-160],[L2+160,W2+160],[-L2-160,W2+160]], 'transparent', 0, null)   // 透明命中带
+                + face([[-L2+70,-W2+90],[L2+70,-W2+90],[L2+70,W2+90],[-L2+70,W2+90]], '#000', .10, null);              // 落影
+              inner += face([[-L2+Wd*.12,-W2],[L2-Wd*.22,-W2],[L2-Wd*.06,-W2*.86],[L2,-W2*.56],[L2,W2*.56],[L2-Wd*.06,W2*.86],[L2-Wd*.22,W2],[-L2+Wd*.12,W2],[-L2,W2*.70],[-L2,-W2*.70]], paint, .96, on ? '#b5653a' : '#4b565e', on ? 2 : 1.3);
+              inner += line(L*.24, -W2*.84, L*.24, W2*.84, '#4b565e', 1.2, .8) + line(-L*.42, -W2*.82, -L*.42, W2*.82, '#4b565e', 1.2, .8)   // 机器盖 / 行李厢盖分缝
+                + line(L*.27, -W2*.44, L*.46, -W2*.44, '#4b565e', 1, .55) + line(L*.27, W2*.44, L*.46, W2*.44, '#4b565e', 1, .55)             // 盖筋
+                + line(L*.02, -W2*.96, L*.02, W2*.96, '#4b565e', 1, .55) + line(-L*.20, -W2*.96, -L*.20, W2*.96, '#4b565e', 1, .55);            // 车门缝
+              inner += face([[-L*.42,-W2*.82],[L*.24,-W2*.84],[L*.14,-W2*.78],[L*.04,-W2*.62],[-L*.34,-W2*.60],[-L*.34,W2*.60],[-L*.04,W2*.62],[L*.04,W2*.62],[L*.14,W2*.78],[L*.24,W2*.84],[-L*.42,W2*.82]], glass, .72, '#6f8696', 1);   // 前后风挡 + 侧窗
+              inner += face([[-L*.30,-W2*.58],[L*.02,-W2*.60],[L*.02,W2*.60],[-L*.30,W2*.58]], paint, 1, '#5c6870', 1)                          // 车顶（车身色）
+                + rect(-L*.14, 0, L*.16, Wd*.46, '#253b4b', .9, '#8fa8b8', 1)                                                                    // 天窗
+                + rect(-L*.15, 0, L*.014, Wd*1.20, paint, 1, '#5c6870', 1);                                                                      // B 柱
+              [-1, 1].forEach(sx => [-1, 1].forEach(sy => {                                                                                       // 四轮：轮胎 + 轮毂
+                const wx = sx * L * .32, wy = sy * (W2 - Wd * .045);
+                inner += rect(wx, wy, L*.15, Wd*.17, '#191c1f', 1, '#454d53', 1) + rect(wx, wy, L*.085, Wd*.095, '#a9b2b8', .95, '#6c757b', 1);
+              }));
+              [-1, 1].forEach(sy => {                                                                                                             // 后视镜 / 门把手 / 前后灯
+                inner += line(L*.14, sy*(W2-Wd*.02), L*.17, sy*(W2+Wd*.04), '#4b565e', 2)
+                  + rect(L*.17, sy*(W2+Wd*.055), L*.055, Wd*.10, paint, 1, '#4b565e', 1)
+                  + rect(L*.04, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
+                  + rect(-L*.20, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
+                  + rect(L2-Wd*.045, sy*W2*.56, Wd*.10, Wd*.22, '#fff4d2', .98, '#c9a86b', 1)
+                  + rect(-L2+Wd*.05, sy*W2*.56, Wd*.10, Wd*.24, '#c42b2b', .98, '#7c1b1b', 1);
+              });
+              inner += rect(L2-Wd*.02, 0, Wd*.06, Wd*.52, '#3a4045', .95, null)                                                                  // 前进气格栅
+                + rect(L2+Wd*.005, 0, Wd*.05, Wd*.26, '#f2f2e8', .98, '#6c757b', 1)                                                              // 前车牌
+                + rect(-L2-Wd*.005, 0, Wd*.05, Wd*.26, '#f2f2e8', .98, '#6c757b', 1)                                                             // 后车牌
+                + line(L*.22, -W2*.62, L*.26, -W2*.10, '#2f383f', 1.3, .85) + line(L*.22, W2*.62, L*.26, W2*.10, '#2f383f', 1.3, .85);          // 雨刷
             } else if (PARK_EXT[e.type]) {                      // 停车场配套 19 件：车位标线 / 出入口设备 / 引导配套 / 机械停车
               inner = park2D(e, a, ux, uy, R, col, on, T);
             } else {                                            // 凸面镜：杆点 + 圆盘
@@ -8524,7 +8572,7 @@
             });
             s += `<text x="${(it.a[0] + it.b[0]) / 2}" y="${(it.a[1] + it.b[1]) / 2 - 14 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${Math.round(Math.hypot(it.b[0] - it.a[0], it.b[1] - it.a[1]))} mm</text>`;
             }
-          } else if (isExtraPt(it.type)) {
+          } else if (isExtraPt(it.type) && it.type !== 'carSedan') {   // 轿车按旋转矩形走下面的四角手柄分支（与「车位」一致）
             const r = Math.max(60, (+it.w || 100) / 2);
             s += `<circle cx="${it.x}" cy="${it.y}" r="${r}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
             if (isStreetLamp(it.type)) {                           // 路灯：高亮圈覆盖悬臂，并画一个端点手柄指示朝向
@@ -8535,7 +8583,7 @@
             }
           } else {
             const w = Math.max(100, it.w || 0), d = Math.max(100, it.d || 0), x0 = it.x - w / 2, y0 = it.y - d / 2, x1 = it.x + w / 2, y1 = it.y + d / 2;
-            const rot = it.type === 'park' ? ((+it.rot || 0) % 360) : 0;   // 旋转的停车位：选中框 / 手柄一起转，手柄 data-corner 不变
+            const rot = extraRot(it);   // 旋转的车位 / 轿车：选中框 / 手柄一起转，手柄 data-corner 不变
             let box = `<rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
             [['nw', x0, y0], ['ne', x1, y0], ['sw', x0, y1], ['se', x1, y1]].forEach(([corner, hx, hy]) => {
               box += `<rect data-handle="extraCorner" data-corner="${corner}" x="${hx - 6 * hs * k}" y="${hy - 6 * hs * k}" width="${12 * hs * k}" height="${12 * hs * k}" fill="#fff" ${A} stroke-width="1.5"><title>${tr('拖动调整尺寸（对角固定）', 'Drag to resize (opposite corner fixed)')}</title></rect>`;
@@ -15259,6 +15307,7 @@
       else if (dt === 'facLoopDetector') toast(tr('地感线圈：点击放置；贴地矩形检测线圈（不挡人），右侧可改宽 / 进深 / 朝向', 'Loop detector: click to place; ground detection loop (walk-through); edit width / depth / angle in the panel'));
       else if (dt === 'facPayMachine') toast(tr('收费/刷卡机：点击放置；立柱机箱 + 操作屏，右侧可改机身宽 / 高 / 朝向', 'Payment machine: click to place; pedestal box with screen; edit width / height / angle in the panel'));
       else if (dt === 'facCarWash') toast(tr('自动洗车机：点击放置；放好后按 Esc 退出放置工具，再在 3D 点击机体（漫游按 E）启动洗车流程——预湿 / 泡沫 / 滚刷 / 冲净 / 风干；清洗时长 8~60 秒可在右侧面板设置，机长 / 机高 / 轨道宽可改', 'Auto car wash: click to place, press Esc to leave placement mode, then click it in 3D (E in walk) to run the wash cycle — pre-rinse / foam / brushes / rinse / dry; wash duration 8–60 s in the panel; edit size too'));
+      else if (dt === 'carSedan') toast(tr('轿车：点击放置；车头朝当前「朝向」（0° 指向画面右方），右侧可改车长 / 车宽 / 车高 / 车身色 / 朝向，按 R 或拖动四角手柄调整', 'Sedan: click to place; the nose follows the heading (0° = screen right); edit length / width / height / colour / angle in the panel, press R or drag corner handles'));
       else if (PARK_EXT[dt]) toast(tr(`${FACILITY_DEFS[dt].zh}：点击放置；右侧可改尺寸 / 参数 / 朝向${PARK_EXT[dt].chks ? '，状态可在 3D 点击（漫游按 E）切换' : ''}`, `${FACILITY_DEFS[dt].en}: click to place; edit size / parameters / angle in the panel${PARK_EXT[dt].chks ? ', toggle its state in 3D (E in walk)' : ''}`));
       else if (isFacility(dt)) toast(tr(`${extraName({ type: dt })}：点击放置；3D 单独建模，右侧可改尺寸 / 朝向`, `${extraName({ type: dt })}: click to place; dedicated 3D model, edit size / angle in the panel`));
       if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；长 / 宽 / 高度在右侧改', 'Tie column: click a wall end or corner; edit length / width / height in the panel'));
@@ -21737,6 +21786,72 @@
           });
           updateLaneLightVisual(e.id);
           colliders.push([px - .12, pz - .12, px + .12, pz + .12, 0, Math.min(h, 2.2)]);
+        } else if (T3 === 'carSedan') {                         // 轿车：按侧视轮廓整体挤出车身（轮拱 / 车顶 / A·C 柱同源），再贴玻璃与细节
+          const L = Math.max(2.5, W), Wd = Math.max(1.2, M(e.d || 1800)), BH = Math.max(1.1, h);
+          const paintHex = CAR_COLORS[e.color] || CAR_COLORS.white;
+          const paint = mat(paintHex, { metalness:.35, roughness:.32 }), paintDim = mat(paintHex, { metalness:.28, roughness:.45 });
+          const glass = oneMat(new THREE.MeshPhysicalMaterial({ color:0x35536b, transparent:true, opacity:.72, roughness:.12, metalness:.08, side:THREE.DoubleSide }));
+          const chrome = mat('#c6ced5', { metalness:.85, roughness:.18 }), black = mat('#20242a', { roughness:.9 });
+          const tire = mat('#171a1d', { roughness:.98 }), rimM = mat('#adb6bd', { metalness:.82, roughness:.28 });
+          const wr = Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + .60), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46;
+          const sil = [[-L * .5, y0]];
+          [-L * .31, L * .31].forEach(cx => { for (let i = 0; i <= 10; i++) { const t = Math.PI - i * Math.PI / 10; sil.push([cx + Math.cos(t) * ar, y0 + Math.sin(t) * ar]); } });
+          sil.push([L*.5,y0], [L*.5,belt-.10], [L*.47,belt+.01], [L*.20,belt+.05], [L*.09,top-.06], [L*.04,top], [-L*.17,top], [-L*.23,top-.06], [-L*.35,belt+.05], [-L*.47,belt+.01], [-L*.5,belt-.10]);
+          const outline = new THREE.Shape();
+          sil.forEach(([x, y], i) => i ? outline.lineTo(x, y) : outline.moveTo(x, y)); outline.closePath();
+          const body = new THREE.Mesh(new THREE.ExtrudeGeometry(outline, { depth:halfW*2, bevelEnabled:true, bevelThickness:.02, bevelSize:.02, bevelSegments:2, curveSegments:4 }), paint);
+          body.position.z = -halfW; body.castShadow = body.receiveShadow = true; grp.add(body);                             // 整体车身：车头 / 引擎盖 / 风挡斜坡 / 车顶 / 后风挡 / 行李厢 / 轮拱一次成型
+          P(new THREE.BoxGeometry(L*1.01,.012,Wd*1.01), oneMat(new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2,depthWrite:false})),0,.008,0);
+          const win = new THREE.Shape();
+          win.moveTo(-L*.325, belt+.07); win.lineTo(L*.175, belt+.07); win.lineTo(L*.065, top-.07); win.lineTo(-L*.205, top-.07); win.closePath();
+          [-1, 1].forEach(sd => {
+            const w = new THREE.Mesh(new THREE.ExtrudeGeometry(win, { depth:.012, bevelEnabled:false }), glass);
+            w.position.z = sd > 0 ? halfW + .012 : -halfW - .024; grp.add(w);                                              // 侧窗玻璃：梯形贴合 A/C 柱斜边
+            P(new THREE.BoxGeometry(.035, (top-belt)*.78, .05), paint, -L*.07, (belt+top)/2, sd*(halfW+.03));              // B 柱
+            P(new THREE.BoxGeometry(L*.90, .016, .02), chrome, 0, belt-.04, sd*(halfW+.018));                              // 腰线镀铬
+          });
+          const slant = (x1, y1, x2, y2, wd, m) => { const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||.01;
+            const o = new THREE.Mesh(new THREE.BoxGeometry(len,.025,wd), m); o.position.set((x1+x2)/2,(y1+y2)/2,0); o.rotation.z=Math.atan2(dy,dx);
+            o.castShadow = o.receiveShadow = true; grp.add(o); return o; };
+          slant(L*.20, belt+.05, L*.09, top-.06, Wd*.78, glass);                                                           // 前风挡
+          slant(-L*.35, belt+.05, -L*.23, top-.06, Wd*.76, glass);                                                         // 后风挡
+          P(new THREE.BoxGeometry(L*.14, .012, Wd*.36), glass, -L*.07, top+.03, 0);                                        // 天窗
+          [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：轮胎 + 轮毂 + 中心盖（轮拱已由车身轮廓切出）
+            const wx = sx * L * .31;
+            const wh = P(new THREE.CylinderGeometry(wr,wr,.20,20), tire, wx, wr, sd*(halfW-.02)); wh.rotation.x = Math.PI/2;
+            const rl = P(new THREE.CylinderGeometry(wr*.67,wr*.67,.205,16), rimM, wx, wr, sd*(halfW-.02)); rl.rotation.x = Math.PI/2; rl.castShadow = false;
+            const hb = P(new THREE.CylinderGeometry(wr*.2,wr*.2,.21,12), chrome, wx, wr, sd*(halfW-.02)); hb.rotation.x = Math.PI/2; hb.castShadow = false;
+          }));
+          [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 门把手 / 雨刷
+            P(new THREE.BoxGeometry(.09,.14,Wd*.90), paintDim, sd*(L*.5+.02), y0+.12, 0);
+            P(new THREE.BoxGeometry(.10,.03,Wd*.90), black, sd*(L*.5+.04), y0+.04, 0);
+            [-1, 1].forEach(sl => {                                                                                       // 前后各两只灯：sd 管前后，sl 管左右（不能混用）
+              P(new THREE.BoxGeometry(.035,.13,Wd*.23), chrome, sd*(L*.5+.02), belt-.13, sl*Wd*.30);
+              const lamp = P(new THREE.BoxGeometry(.025,.10,Wd*.19), oneMat(new THREE.MeshBasicMaterial({color:sd>0?0xfff0c8:0xd43838})), sd*(L*.5+.045), belt-.13, sl*Wd*.30); lamp.castShadow = false;
+            });
+            P(new THREE.BoxGeometry(.04,.03,.10), black, L*.16, belt+.06, sd*(halfW+.04));
+            P(new THREE.BoxGeometry(.12,.07,.05), paintDim, L*.16, belt+.08, sd*(halfW+.09));
+            P(new THREE.BoxGeometry(.10,.016,.026), chrome, L*.02, belt-.10, sd*(halfW+.014));
+            P(new THREE.BoxGeometry(.10,.016,.026), chrome, -L*.16, belt-.10, sd*(halfW+.014));
+            P(new THREE.BoxGeometry(.018,.012,Wd*.28), black, L*.19, belt+.065, sd*Wd*.19);                                // 雨刷贴前风挡根部
+          });
+          const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:.13, depthWrite:false, side:THREE.DoubleSide }));
+          [-1, 1].forEach(sl => {                                                                                         // 前照灯：真实聚光照明 + 可见光束，随车朝向照向前方地面
+            const lx = L*.5 + .06, ly = belt - .13, lz = sl * Wd * .30;
+            const spot = new THREE.SpotLight(0xfff2cf, 42, 11, .34, .5, 1.6);
+            spot.position.set(lx, ly, lz); spot.target.position.set(lx + 9, -.35, lz + sl * .5);
+            grp.add(spot); grp.add(spot.target);
+            const beam = new THREE.Mesh(new THREE.ConeGeometry(1.9, 6, 16, 1, true), beamMat);
+            beam.rotation.z = Math.PI / 2 - .08; beam.position.set(lx + 3, ly - .24, lz); beam.renderOrder = 2;
+            grp.add(beam);
+          });
+          P(new THREE.BoxGeometry(.025,.11,Wd*.38), black, L*.5+.03, belt-.19, 0);                                         // 进气格栅
+          for (let i = 0; i < 2; i++) P(new THREE.BoxGeometry(.012,.01,Wd*.35), chrome, L*.5+.048, belt-.22+i*.055, 0);
+          P(new THREE.BoxGeometry(.012,.085,Wd*.16), oneMat(new THREE.MeshBasicMaterial({color:0xf4f2e8})), L*.5+.05, y0+.12, 0);
+          P(new THREE.BoxGeometry(.012,.085,Wd*.16), oneMat(new THREE.MeshBasicMaterial({color:0xf4f2e8})), -L*.5-.05, y0+.12, 0);
+          const ca = Math.cos(ang), sa = Math.sin(ang);                                                                   // 旋转后的足迹碰撞（整车挡人）
+          const hw = (L*Math.abs(ca)+Wd*Math.abs(sa))/2, hd = (L*Math.abs(sa)+Wd*Math.abs(ca))/2;
+          colliders.push([px-hw, pz-hd, px+hw, pz+hd, 0, BH]);
         } else if (PARK_EXT[T3]) {                              // 停车场配套 19 件：车位标线 / 出入口设备 / 引导配套 / 机械停车
           buildPark3D(T3, e, { grp, P, colliders, doors, px, pz, ang, W, h, poleM, darkM });
         }
