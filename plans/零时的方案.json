@@ -1161,8 +1161,8 @@
       "d": 2200,
       "on": false,
       "id": "fmwufltgp154",
-      "x": 38090,
-      "y": -2510
+      "x": 39170,
+      "y": 3810
     },
     {
       "type": "sanRestRoom",
@@ -1175,6 +1175,96 @@
       "x": 22310,
       "y": 790,
       "doorOpen": true
+    },
+    {
+      "type": "wtStation",
+      "w": 12000,
+      "h": 5500,
+      "rot": 0,
+      "d": 8000,
+      "ton": 60,
+      "on": false,
+      "id": "fmwup153s148",
+      "x": 45190,
+      "y": -19140
+    },
+    {
+      "type": "wtHopper",
+      "w": 5000,
+      "h": 1800,
+      "rot": 0,
+      "d": 3000,
+      "id": "fmwup5ele148",
+      "x": 42500,
+      "y": -6440,
+      "on": true
+    },
+    {
+      "type": "wtCompactor",
+      "w": 6000,
+      "h": 2200,
+      "rot": 0,
+      "d": 2500,
+      "on": false,
+      "id": "fmwup5ijb149",
+      "x": 66440,
+      "y": -3400
+    },
+    {
+      "type": "wtBox",
+      "w": 4000,
+      "h": 2000,
+      "rot": 0,
+      "d": 2400,
+      "style": "green",
+      "cap": 15,
+      "on": false,
+      "id": "fmwup5krf150",
+      "x": 60460,
+      "y": -18020
+    },
+    {
+      "type": "wtScale",
+      "w": 18000,
+      "h": 150,
+      "rot": 0,
+      "d": 3500,
+      "id": "fmwup5mf7151",
+      "x": 59910,
+      "y": -11520
+    },
+    {
+      "type": "wtMist",
+      "w": 6000,
+      "h": 2500,
+      "rot": 0,
+      "d": 600,
+      "r": 3,
+      "on": true,
+      "id": "fmwup68nb148",
+      "x": 54460,
+      "y": -4960
+    },
+    {
+      "type": "wtSump",
+      "w": 3000,
+      "h": 600,
+      "rot": 0,
+      "d": 2000,
+      "id": "fmwup6aem149",
+      "x": 57540,
+      "y": 170,
+      "on": true
+    },
+    {
+      "type": "wtWash",
+      "w": 6000,
+      "h": 200,
+      "rot": 0,
+      "d": 3000,
+      "id": "fmwup6bmx150",
+      "x": 48240,
+      "y": 1000
     }
   ],
   "leaders": [],
@@ -2356,8 +2446,8 @@
           "d": 2200,
           "on": false,
           "id": "fmwufltgp154",
-          "x": 38090,
-          "y": -2510
+          "x": 39170,
+          "y": 3810
         },
         {
           "type": "sanRestRoom",
@@ -2370,6 +2460,96 @@
           "x": 22310,
           "y": 790,
           "doorOpen": true
+        },
+        {
+          "type": "wtStation",
+          "w": 12000,
+          "h": 5500,
+          "rot": 0,
+          "d": 8000,
+          "ton": 60,
+          "on": false,
+          "id": "fmwup153s148",
+          "x": 45190,
+          "y": -19140
+        },
+        {
+          "type": "wtHopper",
+          "w": 5000,
+          "h": 1800,
+          "rot": 0,
+          "d": 3000,
+          "id": "fmwup5ele148",
+          "x": 42500,
+          "y": -6440,
+          "on": true
+        },
+        {
+          "type": "wtCompactor",
+          "w": 6000,
+          "h": 2200,
+          "rot": 0,
+          "d": 2500,
+          "on": false,
+          "id": "fmwup5ijb149",
+          "x": 66440,
+          "y": -3400
+        },
+        {
+          "type": "wtBox",
+          "w": 4000,
+          "h": 2000,
+          "rot": 0,
+          "d": 2400,
+          "style": "green",
+          "cap": 15,
+          "on": false,
+          "id": "fmwup5krf150",
+          "x": 60460,
+          "y": -18020
+        },
+        {
+          "type": "wtScale",
+          "w": 18000,
+          "h": 150,
+          "rot": 0,
+          "d": 3500,
+          "id": "fmwup5mf7151",
+          "x": 59910,
+          "y": -11520
+        },
+        {
+          "type": "wtMist",
+          "w": 6000,
+          "h": 2500,
+          "rot": 0,
+          "d": 600,
+          "r": 3,
+          "on": true,
+          "id": "fmwup68nb148",
+          "x": 54460,
+          "y": -4960
+        },
+        {
+          "type": "wtSump",
+          "w": 3000,
+          "h": 600,
+          "rot": 0,
+          "d": 2000,
+          "id": "fmwup6aem149",
+          "x": 57540,
+          "y": 170,
+          "on": true
+        },
+        {
+          "type": "wtWash",
+          "w": 6000,
+          "h": 200,
+          "rot": 0,
+          "d": 3000,
+          "id": "fmwup6bmx150",
+          "x": 48240,
+          "y": 1000
         }
       ],
       "leaders": [],

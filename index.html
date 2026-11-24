@@ -3559,6 +3559,17 @@
             <button class="btn chip" data-dt="sanRestRoom" title="环卫休息室：点击放置；3D 前墙留门洞漫游可进入，室内吸顶灯随门边开关亮灭；点击门扇（漫游按 E）开关门、点击门边开关（漫游按 E）开关灯，点房体只选中不切灯；宽 / 深 / 高可改" data-en-title="Rest room: walk-in rest room with openable door and a ceiling lamp controlled by a wall switch (click the switch / E in walk; clicking the body only selects)" data-en="Rest room"><i data-lucide="lamp"></i>环卫休息室</button>
           </div>
           <div class="dtg">
+            <div class="dth" data-en="Waste transfer station">垃圾转运站</div>
+            <button class="btn chip" data-dt="wtStation" title="转运车间：点击放置；转运站主体，大跨度车间 + 卷帘门（3D 点击 / 漫游 E 开关门）+ 双坡屋顶 + 站牌，室内漫游可进入；宽 / 进深 / 檐高 / 日转运量可改" data-en-title="Transfer hall: main building with roll-up door (click / E in walk to toggle), twin-slope roof and signboard; walk inside; edit width / depth / height / throughput" data-en="Transfer hall"><i data-lucide="factory"></i>转运车间</button>
+            <button class="btn chip" data-dt="wtHopper" title="卸料槽：点击放置；抬高受料平台 + 挡料墙 + 中心投料口，垃圾车倒料区；槽宽 / 进深 / 挡墙高可改" data-en-title="Tip hopper: raised receiving platform with retaining wall and feed opening; edit width / depth / height" data-en="Tip hopper"><i data-lucide="trash-2"></i>卸料槽</button>
+            <button class="btn chip" data-dt="wtCompactor" title="垃圾压缩机：点击放置；水平压缩主机带进料斗与液压推杆，运行中推杆往复运动（3D 点击 / 漫游 E 切换）；机身长 / 宽 / 高可改" data-en-title="Refuse compactor: horizontal compactor, the ram reciprocates when running (click / E in walk to toggle); edit size" data-en="Refuse compactor"><i data-lucide="zap"></i>垃圾压缩机</button>
+            <button class="btn chip" data-dt="wtBox" title="勾臂转运箱：点击放置；压缩垃圾集装箱带顶盖（3D 点击 / 漫游 E 开盖），容量与箱体色可改，侧板显示容量" data-en-title="Roll-off container: flip the top lid (click / E in walk); capacity and colour editable" data-en="Roll-off container"><i data-lucide="container"></i>勾臂转运箱</button>
+            <button class="btn chip" data-dt="wtScale" title="汽车地磅：点击放置；称重平台 + 黄黑警示边 + 两端引坡 + 侧立显示柱，不挡人；台面长 / 宽 / 厚可改" data-en-title="Truck scale: weighbridge with hazard edges, ramps and a display pillar; edit size" data-en="Truck scale"><i data-lucide="gauge"></i>汽车地磅</button>
+            <button class="btn chip" data-dt="wtMist" title="除臭喷淋：点击放置；架空喷淋管道下挂喷头，开启后喷出水雾（3D 点击泵体 / 漫游 E 切换）；管长 / 管高 / 喷雾半径可改" data-en-title="Deodorizing mist: overhead pipe with nozzles, translucent spray when on (click / E in walk to toggle); edit length / height / radius" data-en="Deodorizing mist"><i data-lucide="waves"></i>除臭喷淋</button>
+            <button class="btn chip" data-dt="wtSump" title="污水收集池：点击放置；混凝土敞口池 + 深色水面 + 半幅格栅盖板 + 潜污泵；池宽 / 进深 / 池壁高可改" data-en-title="Leachate sump: open concrete basin with dark water, half grate cover and pump; edit size" data-en="Leachate sump"><i data-lucide="droplet"></i>污水收集池</button>
+            <button class="btn chip" data-dt="wtWash" title="洗车台：点击放置；中间通长格栅地沟 + 两侧立柱喷杆，不挡人；台长 / 宽 / 厚可改" data-en-title="Truck wash platform: central grate trench with spray posts; edit size" data-en="Truck wash"><i data-lucide="droplets"></i>洗车台</button>
+          </div>
+          <div class="dtg">
             <div class="dth" data-en="Landscape &amp; site">景观与室外</div>
             <button class="btn chip" data-dt="balcony"
               title="阳台：点击墙上的位置放置（默认沿墙 1500、进深 1200），自动贴住墙面，靠墙的一边不做栏板；板厚 / 底标高 / 栏板高 / 栏板样式与栏板边可在右侧改"
@@ -6872,7 +6883,16 @@
       sanWaterPoint:   { zh:'洒水取水点',   en:'Water point',       w:300,  h:1100, d:300,  on:false },
       sanTransferStation:{zh:'垃圾转运站',  en:'Transfer station',  w:6000, h:4500, d:4000, on:false },
       sanRecycleStation:{ zh:'再生资源回收站',en:'Recycling station',w:3600, h:3000, d:2200, on:false },
-      sanRestRoom:     { zh:'环卫休息室',   en:'Rest room',         w:3000, h:3000, d:2400, on:false }
+      sanRestRoom:     { zh:'环卫休息室',   en:'Rest room',         w:3000, h:3000, d:2400, on:false },
+      /* 垃圾转运站 8 件：主体车间 + 附属设备，状态字段 on（开门 / 运行 / 开盖 / 喷淋），3D 点击或漫游 E 切换 */
+      wtStation:   { zh:'转运车间',     en:'Transfer hall',       w:12000, h:5500, d:8000, on:false },
+      wtHopper:    { zh:'卸料槽',       en:'Tip hopper',          w:5000,  h:1800, d:3000 },
+      wtCompactor: { zh:'垃圾压缩机',   en:'Refuse compactor',    w:6000,  h:2200, d:2500, on:false },
+      wtBox:       { zh:'勾臂转运箱',   en:'Roll-off container',  w:4000,  h:2000, d:2400, on:false },
+      wtScale:     { zh:'汽车地磅',     en:'Truck scale',         w:18000, h:150,  d:3500 },
+      wtMist:      { zh:'除臭喷淋',     en:'Deodorizing mist',    w:6000,  h:2500, d:600,  on:false },
+      wtSump:      { zh:'污水收集池',   en:'Leachate sump',       w:3000,  h:600,  d:2000 },
+      wtWash:      { zh:'洗车台',       en:'Truck wash platform', w:6000,  h:200,  d:3000 }
     };
     const FACILITY_KEYS = Object.keys(FACILITY_DEFS);
     const isFacility = t => !!FACILITY_DEFS[t];
@@ -6964,7 +6984,32 @@
         tip:['再生资源回收站：三个分类投放口可各自点击开 / 合（蓝 / 红 / 绿），背墙双扇门点门扇开 / 关；漫游按 E 同样生效，2D 俯视同步；宽 / 深 / 高可改。','Recycling station: three sorted drop ports (blue/red/green) each open independently; click the back door to toggle. 2D synced.' ] },
       sanRestRoom: { wl:['室宽','Width'], wmin:2200, wmax:6000, hl:['室高','Height'], hmin:2400, hmax:4000, dl:['室进深','Depth'], dmin:1800, dmax:5000,
         chks:[['on','开灯（点击门边开关 / 漫游 E 切灯）','Light on (click wall switch / E in walk)'],['doorOpen','门敞开（点击门扇切换）','Door open (click the leaf to toggle)']], def:{on:false},
-        tip:['环卫休息室：环卫工人休息用房，前墙留门洞漫游可进入；室内顶装吸顶灯（随开关亮灭），门边墙上有独立开关；3D 点击门扇（漫游按 E）开 / 关门，点击门边开关（漫游按 E）开 / 关灯，点房体只选中不切灯；2D 俯视同步；宽 / 深 / 高可改。','Rest room: staff rest room with a walk-in doorway, a ceiling lamp and a wall switch by the door; click the leaf (E in walk) to open / close the door, click the wall switch (E in walk) to toggle the light; clicking the body only selects it.' ] }
+        tip:['环卫休息室：环卫工人休息用房，前墙留门洞漫游可进入；室内顶装吸顶灯（随开关亮灭），门边墙上有独立开关；3D 点击门扇（漫游按 E）开 / 关门，点击门边开关（漫游按 E）开 / 关灯，点房体只选中不切灯；2D 俯视同步；宽 / 深 / 高可改。','Rest room: staff rest room with a walk-in doorway, a ceiling lamp and a wall switch by the door; click the leaf (E in walk) to open / close the door, click the wall switch (E in walk) to toggle the light; clicking the body only selects it.' ] },
+      /* ===== 垃圾转运站 8 件：主体车间 + 附属设备，可交互件带 on 开关（3D 点击 / 漫游 E） ===== */
+      wtStation: { wl:['车间宽','Hall width'], wmin:6000, wmax:20000, hl:['檐高','Eave height'], hmin:3500, hmax:8000, dl:['车间进深','Depth'], dmin:4000, dmax:12000,
+        nums:[['ton','日转运量 (t/日)','Throughput',10,1000,10]],
+        chks:[['on','卷帘门打开（点击站体 / 漫游 E 切换）','Rolling door open (click / E to toggle)']], def:{ton:60,on:false},
+        tip:['转运车间：垃圾转运站主体，大跨度车间 + 山墙面电动卷帘门（3D 点击 / 漫游 E 开关门）+ 双坡彩钢屋顶 + 站牌（显示日转运量）；室内净空漫游可进入；宽 / 进深 / 檐高 / 日转运量可改。','Transfer hall: the main building with a roll-up door (click / E to toggle), twin-slope steel roof and a signboard showing daily throughput; walk inside in 3D.' ] },
+      wtHopper: { wl:['槽宽','Width'], wmin:2000, wmax:8000, hl:['挡墙高','Wall height'], hmin:1200, hmax:3000, dl:['槽进深','Depth'], dmin:1500, dmax:5000,
+        tip:['卸料槽：垃圾车倒料的抬高受料平台，钢柱 + 混凝土台面 + 后侧挡料墙 + 中心投料口；与转运车间背墙对齐布置。','Tip hopper: raised receiving platform with steel legs, a concrete deck, a back retaining wall and a central feed opening.' ] },
+      wtCompactor: { wl:['机身长','Length'], wmin:3000, wmax:9000, hl:['机身高','Height'], hmin:1500, hmax:3000, dl:['机身宽','Body width'], dmin:1500, dmax:4000,
+        chks:[['on','压缩运行（点击机身 / 漫游 E 切换）','Compacting (click / E to toggle)']], def:{on:false},
+        tip:['垃圾压缩机：水平式压缩主机，进料斗 + 压缩头 + 液压推杆；运行中推杆往复运动、状态灯转绿（3D 点击 / 漫游 E 切换）；机身长 / 宽 / 高可改。','Refuse compactor: horizontal compactor with a feed hopper and hydraulic ram; the ram reciprocates and the status lamp turns green when running (click / E to toggle).' ] },
+      wtBox: { wl:['箱长','Length'], wmin:2500, wmax:6000, hl:['箱高','Height'], hmin:1500, hmax:2800, dl:['箱宽','Width'], dmin:1500, dmax:3000,
+        sels:[['style','箱体色','Colour',[['green','绿色','Green'],['blue','蓝色','Blue'],['grey','灰色','Grey']]]],
+        nums:[['cap','容量 (m³)','Capacity',5,30,5]],
+        chks:[['on','箱盖打开（点击箱体 / 漫游 E 切换）','Lid open (click / E to toggle)']], def:{style:'green',cap:15,on:false},
+        tip:['勾臂转运箱：压缩垃圾集装箱，两侧加强筋 + 前端钩臂槽 + 尾端滚轮，顶盖可翻开（3D 点击 / 漫游 E 切换）；容量与箱体色可改，侧板显示容量。','Roll-off container: ribbed container with hook bars and rear rollers; flip the top lid (click / E); capacity and colour editable, capacity shown on the side.' ] },
+      wtScale: { wl:['台面长','Length'], wmin:8000, wmax:24000, hl:['台面厚','Thickness'], hmin:100, hmax:400, dl:['台面宽','Width'], dmin:2500, dmax:5000,
+        tip:['汽车地磅：出入口称重平台，花纹钢台面 + 黄黑警示边框 + 两端引坡 + 侧立显示柱；转运车进出口各设一台。','Truck scale: weighbridge platform with checker plate, hazard-striped edges, approach ramps and a side display pillar.' ] },
+      wtMist: { wl:['管长','Pipe length'], wmin:2000, wmax:12000, hl:['管高','Pipe height'], hmin:1800, hmax:4000, dl:['进深','Depth'], dmin:300, dmax:1500,
+        nums:[['r','喷雾半径 (m)','Spray radius',1,6,1]],
+        chks:[['on','喷淋开启（点击泵体 / 漫游 E 切换）','Misting (click / E to toggle)']], def:{r:3,on:false},
+        tip:['除臭喷淋：两立柱架空的雾化喷淋管道，下挂一排喷头；开启后喷出半透明水雾（3D 点击泵体 / 漫游 E 切换），管长 / 管高 / 喷雾半径可改。','Deodorizing mist: overhead pipe on two posts with a row of nozzles; translucent spray when on (click the pump / E in walk).' ] },
+      wtSump: { wl:['池宽','Width'], wmin:1500, wmax:6000, hl:['池壁高','Rim height'], hmin:300, hmax:1200, dl:['池进深','Depth'], dmin:1000, dmax:4000,
+        tip:['污水收集池：收集卸料与冲洗渗滤液的敞口池，混凝土池壁 + 深色水面 + 半幅格栅盖板 + 潜污泵；卸料槽旁布置。','Leachate sump: open concrete basin with dark water, a half grated cover and a submersible pump.' ] },
+      wtWash: { wl:['台长','Length'], wmin:3000, wmax:12000, hl:['台面厚','Thickness'], hmin:100, hmax:400, dl:['台宽','Width'], dmin:1500, dmax:5000,
+        tip:['洗车台：转运车出站冲洗平台，中间纵向通长格栅地沟 + 两侧立柱喷杆；位于地磅与出口之间。','Truck wash platform: central longitudinal grate trench with two spray-post arches for washing outgoing trucks.' ] }
     };
     function parkRows(e) {                                                       // 停车场配套的通用属性行（尺寸 / 参数 / 开关 / 朝向 / 位置）
       const p = PARK_EXT[e.type]; if (!p) return '';
@@ -7258,7 +7303,7 @@
         let o = box(0, 0, W, D, '#c3cad1', .5);
         const n = Math.max(2, Math.round(W / 1800));
         for (let i = 0; i < n; i++) o += box(-W / 2 + W * (i + .5) / n, -D * .28, W / n * .5, D * .26, '#8d949c', .85);
-        o += seg(-W * .3, D * .1, W * .3, D * .1, '#6f7c86', 2);
+        o += box(W * .22, D * .18, W * .3, D * .35, '#6f7c86', .85);   // 压缩机（与 3D 站内位置一致）
         return o + sanDot(0, D * .3, Math.max(30, W * .02), e.on ? '#3cc46e' : '#e8b44a', '#fff') + txt(0, -D * .28, '中转', '#4a5058', Math.min(W, D) * .12);
       }
       if (e.type === 'sanRecycleStation') {                  // 再生资源回收站：站体 + 三色投放口各自开合 + 背墙门
@@ -7285,6 +7330,72 @@
         [[-1, -1], [-1, 1]].forEach(([sx, sy]) => { o += seg(sx * W * .3, sy * D * .5, sx * W * .3, sy * D * .26, '#8fa6b2', 2); });   // 窗：固定窗框色，不再随灯变色
         o += sanDot(W * .04, -D * .05, Math.max(16, W * .07), e.on ? '#f4d98a' : '#8a9299', '#5a6068');                                  // 室内顶灯状态点（开暖黄 / 关灰）
         return o + txt(0, -D * .1, '休', '#5a6068', Math.min(W, D) * .16);
+      }
+      /* —— 垃圾转运站 8 件 2D 俯视：状态 on 用门 / 盖开合、推杆伸出 / 喷雾表示 —— */
+      if (e.type === 'wtStation') {                          // 转运车间：车间轮廓 + 双坡屋脊虚线 + 前墙卷帘门（开=退入门顶厚线 / 关=贴墙深色带）+ 站名
+        const dw = Math.min(W * .5, 4000);
+        let o = box(0, 0, W, D, '#c8c2b4', .5);
+        o += seg(-W * .3, -D / 2, -W * .3, D / 2, '#9a938a', 1, false, '260 180');
+        o += seg(W * .3, -D / 2, W * .3, D / 2, '#9a938a', 1, false, '260 180');
+        o += seg(-W / 2, 0, W / 2, 0, '#9a938a', 1.2, false, '260 180');                       // 屋脊分水线
+        o += e.on ? seg(0, D / 2 - 60, 0, D / 2 - 320, '#5f7d94', 6)                            // 开：门帘卷入门顶
+                  : box(0, D / 2, Math.max(200, dw), 150, '#5f7d94', .95);                      // 关：门帘贴前墙
+        o += box(-W / 2 + 240, -D / 4, 200, D * .5, '#8f8a7e', .9);                             // 侧墙检修门示意
+        return o + txt(0, -D * .05, '转运', '#4a5058', Math.min(W, D) * .13);
+      }
+      if (e.type === 'wtHopper') {                           // 卸料槽：台面 + 后侧挡料墙（加厚）+ 中心投料口（深色）
+        let o = box(0, 0, W, D, '#c9c4b6', .8);
+        o += box(0, -D / 2 + Math.max(150, D * .08), W, Math.max(220, D * .14), '#8f8a7e', .95);   // 挡料墙
+        o += box(0, D * .1, W * .42, D * .4, '#33393f', .9);                                       // 中心投料口
+        return o + txt(0, -D * .18, '卸', '#5a6068', Math.min(W, D) * .2);
+      }
+      if (e.type === 'wtCompactor') {                        // 压缩机：机身 + 进料斗（左侧深色口）+ 推杆（运行时伸出）+ 状态灯
+        let o = box(0, 0, W, D, '#5f7d94', .9);
+        o += box(-W * .3, 0, W * .22, D * .7, '#33393f', .9);                                      // 进料斗
+        o += seg(W * .2, 0, e.on ? W / 2 + 260 : W / 2 - 120, 0, '#c9ced3', 5, true);              // 液压推杆
+        return o + sanDot(W * .32, -D * .3, Math.max(30, D * .1), e.on ? '#3cc46e' : '#e8b44a', '#fff') + txt(0, D * .2, '压', '#fff', Math.min(W, D) * .18);
+      }
+      if (e.type === 'wtBox') {                              // 转运箱：箱体（随 style 着色）+ 钩臂槽 + 尾端滚轮 + 容量字，开盖露深色内腔
+        const cols = { green:'#3f9d5c', blue:'#2f7fd0', grey:'#8a9299' }, cc = cols[e.style] || cols.green;
+        let o = box(0, 0, W * .94, D * .9, cc, .9);
+        o += box(0, -D * .42, W * .8, Math.max(90, D * .07), '#5a6068', .95);                      // 前端钩臂槽
+        o += sanDot(W * .5 - 90, D * .25, Math.max(40, W * .03), '#33393f', cc);                   // 尾端滚轮
+        o += e.on ? box(0, 0, W * .8, D * .66, '#33393f', .92)                                     // 开盖：露深色内腔
+                  : box(0, 0, W * .8, D * .66, cc, 1);                                             // 合盖
+        return o + txt(0, 0, `${Math.round(e.cap || 15)}m³`, e.on ? '#fff' : '#fff', Math.min(W * .2, D * .3));
+      }
+      if (e.type === 'wtScale') {                            // 地磅：台面 + 纵向分格 + 黄黑警示端头 + 显示柱点
+        let o = box(0, 0, W, D, '#b9bfc4', .95);
+        const n = Math.max(4, Math.round(W / 1500));
+        for (let i = 1; i < n; i++) o += seg(-W/2 + i*W/n, -D/2, -W/2 + i*W/n, D/2, '#9aa1a8', 1);
+        o += box(-W / 2 + 140, 0, 180, D * .96, '#e8b44a', .95) + box(W / 2 - 140, 0, 180, D * .96, '#e8b44a', .95);
+        return o + txt(0, 0, '磅', '#4a5058', Math.min(W * .1, D * .34)) + sanDot(-W * .28, D / 2 + 150, Math.max(30, W * .012), '#2f7a45', '#fff');
+      }
+      if (e.type === 'wtMist') {                             // 除臭喷淋：管道线 + 喷头点，开启时喷头下画淡蓝水雾圈
+        let o = seg(-W / 2, 0, W / 2, 0, '#8d979e', 4);
+        const n = Math.max(3, Math.round(W / 900)), rr = Math.max(120, (+e.r || 3) * 320);
+        for (let i = 0; i < n; i++) {
+          const t = -W / 2 + W * (i + .5) / n;
+          o += sanDot(t, 0, Math.max(24, W * .012), '#8d979e', '#fff');
+          if (e.on) o += `<circle cx="${(e.x + t*c).toFixed(1)}" cy="${(e.y + t*s).toFixed(1)}" r="${rr}" fill="#9ed4f0" fill-opacity=".25" stroke="none"/>`;
+        }
+        return o + sanDot(-W / 2 - 180, 0, Math.max(40, W * .02), e.on ? '#3cc46e' : '#8a9299', '#fff');
+      }
+      if (e.type === 'wtSump') {                             // 污水池：池壁双线 + 深色水面 + 半幅格栅（斜纹）
+        let o = box(0, 0, W, D, '#33393f', .92);
+        o += box(0, 0, W, D, 'none', 0) + box(0, 0, W, D, 'none', 0);
+        const gy = D * .25, gn = Math.max(3, Math.round(W / 500));
+        for (let i = 0; i < gn; i++) o += seg(-W/2 + (i+.5)*W/gn, gy, -W/2 + (i+.5)*W/gn, D/2, '#8d979e', 2);
+        o += sanDot(W * .3, -D * .28, Math.max(26, D * .08), '#2f7a45', '#fff');                   // 潜污泵
+        return o;
+      }
+      if (e.type === 'wtWash') {                             // 洗车台：台面 + 中央通长地沟 + 格栅横条 + 两侧喷杆柱
+        let o = box(0, 0, W, D, '#c9c4b6', .75);
+        o += box(0, 0, W * .8, D * .3, '#3f464c', .95);
+        const n = Math.max(4, Math.round(W / 700));
+        for (let i = 0; i < n; i++) o += seg(-W*.4 + (i+.5)*W*.8/n, -D*.15, -W*.4 + (i+.5)*W*.8/n, D*.15, '#7a848c', 1.4);
+        [[-1], [1]].forEach(([sd]) => o += sanDot(sd * W * .3, -D * .5 + 120, Math.max(36, W * .015), '#8d979e', '#fff'));
+        return o;
       }
       return box(0, 0, W, D, '#dcd8cc', .9);
     }
@@ -15745,6 +15856,7 @@
     const parkAnims = [], parkLamps = new Map();  // 停车场配套：parkAnims 升降柱 / 伸缩门的动画态（open/cur/apply），parkLamps 车位灯 / 充电桩灯（id → mesh）
     const stackCells = new Map(), stackOps = [];  // 立体车库：stackCells 每格载车板（id_层_列 → {g,baseY,drop,cw,dep,car,target}），stackOps 单次升降取存车动画
     const sanVisuals = new Map();                 // 环卫配套 12 件：id → { lamps, doors, water, binAnims, cpAnims, portAnims }，按 on / binOpen / cpOpen / ports 状态统一刷新
+    const wtVisuals = new Map(), wtRuns = [];     // 垃圾转运站：id → { lamps, lids, mists, runs }；wtRuns 压缩机推杆等运行动画（loop 里每帧驱动）
     const sanBinStates = e => Array.isArray(e?.binOpen) && e.binOpen.length === 4 ? e.binOpen : [e?.on === true, e?.on === true, e?.on === true, e?.on === true];   // 分类垃圾桶四桶状态；旧方案无 binOpen 时按 on 全部展开
     const cpBinStates = (e, n) => Array.isArray(e?.cpOpen) && e.cpOpen.length === n ? e.cpOpen : new Array(n).fill(false);   // 垃圾收集点各桶盖状态（桶数随宽度变）；旧方案无 cpOpen 时全合盖
     const BIN_SIGN_TEX = new Map();                  // 垃圾桶桶身图标贴图缓存（四分类 + 果皮箱，五张复用）
@@ -15798,6 +15910,12 @@
       sanTransferStation:[ '垃圾转运站：压缩中 · 绿灯', '垃圾转运站：待机 · 黄灯', 'Transfer station: compacting · green', 'Transfer station: standby · amber' ],
       sanRecycleStation:[ '再生资源回收站：门已打开', '再生资源回收站：门已关闭', 'Recycling station: door opened', 'Recycling station: door closed' ],
       sanRestRoom:[ '环卫休息室：灯已打开', '环卫休息室：灯已关闭', 'Rest room: light on', 'Rest room: light off' ]
+    };
+    const WT_TOAST = {                            // 垃圾转运站：各件开(on)/关(off)状态提示，顺序 [中开, 中关, 英开, 英关]
+      wtStation:[ '转运车间：卷帘门已打开', '转运车间：卷帘门已关闭', 'Transfer hall: door opened', 'Transfer hall: door closed' ],
+      wtCompactor:[ '垃圾压缩机：已启动 · 运行中', '垃圾压缩机：已停止', 'Compactor: running', 'Compactor: stopped' ],
+      wtBox:[ '勾臂转运箱：箱盖已打开', '勾臂转运箱：箱盖已合上', 'Container: lid opened', 'Container: lid closed' ],
+      wtMist:[ '除臭喷淋：已开启 · 喷雾中', '除臭喷淋：已关闭', 'Misting: on', 'Misting: off' ]
     };
 
     /* ======================= 初始化 ======================= */
@@ -16151,6 +16269,10 @@
                         return tr(`点击${open ? '合上' : '打开'}${CN[part]}色投放口`, `Click to ${open ? 'close' : 'open'} the ${EN[part]} port`);
                       }
                       const S = SAN_TOAST[ex.type] || ['开启', '关闭', 'On', 'Off'];
+                      return tr(`点击${ex.on ? S[1] : S[0]}`, `Click to ${ex.on ? S[3] : S[2]}`);
+                    })()
+                  : k === 'wt' ? (() => {
+                      const S = WT_TOAST[ex.type] || ['开启', '关闭', 'On', 'Off'];
                       return tr(`点击${ex.on ? S[1] : S[0]}`, `Click to ${ex.on ? S[3] : S[2]}`);
                     })()
                   : k === 'sanSwitch' ? (ex.on ? tr('点击关灯（门边开关）', 'Click to turn off (wall switch)') : tr('点击开灯（门边开关）', 'Click to turn on (wall switch)'))
@@ -18726,7 +18848,7 @@
         if (e.type === 'facStallSensor') lamp.material.color.setHex(e.occ ? 0xe5484d : 0x3cc46e);
         else lamp.material.color.setHex(e.busy ? 0x3f8fe0 : 0x3cc46e);
       }
-      const a = parkAnims.find(x => String(x.id) === String(id));
+      const a = parkAnims.find(x => String(x.id) === String(id) && x.kind !== 'wt');   // 转运站动画由 wtVisuals.lids 统一按 on 刷，避免这里误置为 e.open
       if (a) a.open = e.type === 'facRisingBollard' ? e.up === true : e.open === true;
       const sv = sanVisuals.get(String(id));                    // 环卫配套：按 on / binOpen 刷灯色 / 开合动画 / 水流
       if (sv) {
@@ -18745,6 +18867,13 @@
         }
         (sv.doors || []).forEach(d => { if (d.a) d.a.open = e.on === true; });
         (sv.water || []).forEach(w => { if (w) w.visible = e.on === true; });
+      }
+      const wv = wtVisuals.get(String(id));                     // 垃圾转运站：按 on 刷状态灯 / 盖门动画 / 水雾 / 推杆运行
+      if (wv) {
+        wv.lamps.forEach(l => { if (l.mesh?.material?.color?.setHex) l.mesh.material.color.setHex(e.on ? l.onHex : l.offHex); });
+        wv.lids.forEach(a2 => { a2.open = e.on === true; });
+        (wv.mists || []).forEach(m2 => { if (m2) m2.visible = e.on === true; });
+        (wv.runs || []).forEach(r2 => { r2.on = e.on === true; });
       }
       doors.forEach(d => { if (d.sandoor != null && String(d.sandoor) === String(id)) d.open = e.doorOpen !== false; });   // 公厕 / 移动厕所门扇：按 doorOpen 单独开关，与 on 切灯互不干扰
       doors.forEach(d => { if (d.sancab != null && String(d.sancab) === String(id)) d.open = e.cabOpen === true; });       // 洗手台柜门：按 cabOpen 单独开合，与出水 / 停水互不干扰
@@ -18779,6 +18908,7 @@
       else if (p.kind === 'sandoor') e.doorOpen = e.doorOpen === false;   // 公厕门扇：开↔关（默认开，首次点关闭）
       else if (p.kind === 'sancab') e.cabOpen = e.cabOpen !== true;       // 洗手台柜门：开↔关（默认关，首次点打开）
       else if (p.kind === 'sanSwitch') e.on = e.on !== true;            // 环卫休息室门边开关：开↔关灯（独立于房体点击）
+      else if (p.kind === 'wt') e.on = e.on !== true;                   // 垃圾转运站：卷帘门 / 压缩机 / 箱盖 / 喷淋统一切 on
       applyParkVisual(e.id); markDirty();
       if (typeof renderExtras2 === 'function') renderExtras2();    // 2D 俯视状态同步
       if (sel) window.select?.({ kind: 'extra', id: e.id });
@@ -18800,6 +18930,9 @@
           const S = SAN_TOAST[e.type] || ['已切换', 'Toggled'];
           zh = e.on ? S[0] : S[1]; en = e.on ? S[2] : S[3];
         }
+      } else if (p.kind === 'wt') {
+        const S = WT_TOAST[e.type] || ['已开启', '已关闭', 'On', 'Off'];
+        zh = e.on ? S[0] : S[1]; en = e.on ? S[2] : S[3];
       } else if (p.kind === 'sandoor') {
         zh = e.doorOpen === false ? '门已关闭' : '门已打开'; en = e.doorOpen === false ? 'Door closed' : 'Door opened';
       } else if (p.kind === 'sancab') {
@@ -19993,7 +20126,7 @@
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
       selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null;
-      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); stackCells.clear(); stackOps.length = 0; sanVisuals.clear(); colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();
+      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); stackCells.clear(); stackOps.length = 0; sanVisuals.clear(); wtVisuals.clear(); wtRuns.length = 0; colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();
       survRigs.forEach(r => r.rt && r.rt.dispose()); survRigs = []; survScreens = []; survScreenMeshes = []; survTexs.forEach(t => t.dispose()); survTexs = [];   // 安防监控：释放上一轮离屏渲染目标 / 屏幕纹理
       const top = opt.cut;
       allRooms().forEach(r => {
@@ -20273,6 +20406,8 @@
          升降柱 / 伸缩门 / 车位灯 / 充电桩可交互，动画态进 parkAnims，灯色由 applyParkVisual 统一刷新。 */
       const SAN_KEYS = ['sanSortBin','sanLitterBin','sanCollectPoint','sanGarbageRoom','sanToilet','sanMobileToilet','sanWashBasin','sanToolCabinet','sanWaterPoint','sanTransferStation','sanRecycleStation','sanRestRoom'];
       const isSan = t => SAN_KEYS.includes(t);
+      const WT_KEYS = ['wtStation','wtHopper','wtCompactor','wtBox','wtScale','wtMist','wtSump','wtWash'];
+      const isWt = t => WT_KEYS.includes(t);
       const parkTexCache = new Map();
       function parkTex(key, wmm, dmm, draw) {                     // 画布贴图（按宽高比生成，key 相同的复用）
         let t = parkTexCache.get(key);
@@ -20551,6 +20686,7 @@
            全部可交互：主体打 userData.park={kind:'san',id}，状态部件登记到 sanVisuals，
            由 applyParkVisual 统一刷灯色 / 盖门开合 / 水流；开合动画进 parkAnims。 */
         if (isSan(T3)) { buildSan3D(T3, e, ctx, sanVisuals, parkAnims, oneMat, mat); return; }
+        if (isWt(T3)) { buildWt3D(T3, e, ctx, wtVisuals, wtRuns, parkAnims, oneMat, mat, parkTex, txtTex); return; }
       }
       /* 环卫配套 12 件 3D 建模：统一在主体打 park 标记；开盖 / 开门 / 水流进 parkAnims 动画，
          状态灯进 sanVisuals.lamps，由 applyParkVisual 按 e.on 刷色。ctx 提供 grp/P/colliders/W/h 等。 */
@@ -20574,7 +20710,6 @@
           const a = { id: e.id, kind: 'san', open: on, cur: on ? 1 : 0, apply: applyFn };
           anims.push(a); a.apply(a.cur); return a;
         };
-        const boxRoom = (w2, hh, d2, x, y, z, col) => P(new THREE.BoxGeometry(w2, hh, d2), mat(col, { roughness: .82 }), x, y, z);
 
         if (T3 === 'sanSortBin') {                              // 分类垃圾桶：蓝红绿灰四色空心桶，四个桶盖各自独立开合
           const cols = ['#2f7fd0', '#cf4b42', '#3f9d5c', '#8a9299'], bw = W / 4 * .88, gap = W / 4;
@@ -20863,12 +20998,24 @@
           wm.position.set(0, h*.28, D*.65); wm.visible = on; grp.add(wm); vis.water = [wm];
           const lm = lamp(P(new THREE.SphereGeometry(.04, 10, 8), oneMat(new THREE.MeshBasicMaterial({ color: 0xcf4b42 })), 0, h*.9, 0), 0xcf4b42, 0x3cc46e);
           tag(grp); small(0, 0, Math.max(W, D)/2, Math.min(h, 1.4));
-        } else if (T3 === 'sanTransferStation') {                 // 垃圾转运站：站体 + 卸料口 + 压缩箱 + 状态灯
-          boxRoom(W, h * .8, D, 0, h * .4, 0, '#c3cad1');
-          P(new THREE.BoxGeometry(W + .3, .14, D + .3), mat('#8d949c'), 0, h * .82, 0);
-          const n = Math.max(2, Math.round(W / 1.8)), bw = W / n * .62, hopH = h * .3, hopD = D * .32, hopZ = D * .34;
+        } else if (T3 === 'sanTransferStation') {                 // 垃圾转运站：空心站体（前墙大开口看进站内）+ 卸料斗列 + 压缩机 + 状态灯
+          const bh = h * .8, t = .12, dw = Math.min(W * .5, 3), doorH = Math.min(bh * .72, 2.8);
+          const wallM = mat('#c3cad1', { roughness: .82 });
+          const wseg = (lx, lz, w2, d2, y1) => {                 // 墙段碰撞：按本地中心 + 尺寸登记 AABB，前墙开口处留空可进
+            const q = wp(lx, lz), ww = (w2 * Math.abs(ca) + d2 * Math.abs(sa)) / 2, dd = (w2 * Math.abs(sa) + d2 * Math.abs(ca)) / 2;
+            colliders.push([q[0] - ww, q[1] - dd, q[0] + ww, q[1] + dd, 0, y1]);
+          };
+          P(new THREE.BoxGeometry(W - .1, .08, D - .1), mat('#9aa1a8', { roughness: .95 }), 0, .04, 0);   // 站内混凝土地坪
+          P(new THREE.BoxGeometry(W, bh, t), wallM, 0, bh / 2, -D / 2);                                    // 背墙
+          P(new THREE.BoxGeometry(t, bh, D), wallM, -W / 2, bh / 2, 0);                                   // 左墙
+          P(new THREE.BoxGeometry(t, bh, D), wallM, W / 2, bh / 2, 0);                                    // 右墙
+          const segL = (W - dw) / 2;                                                                       // 前墙大开口：两侧墙垛 + 门楣
+          if (segL > .01) { P(new THREE.BoxGeometry(segL, bh, t), wallM, -(W + dw) / 4, bh / 2, D / 2); P(new THREE.BoxGeometry(segL, bh, t), wallM, (W + dw) / 4, bh / 2, D / 2); }
+          if (bh > doorH + .05) P(new THREE.BoxGeometry(dw, bh - doorH, t), wallM, 0, doorH + (bh - doorH) / 2, D / 2);
+          P(new THREE.BoxGeometry(W + .3, .14, D + .3), mat('#8d949c'), 0, h * .82, 0);                    // 屋顶
+          const n = Math.max(2, Math.round(W / 1.8)), bw = W / n * .62, hopH = h * .3, hopD = D * .32, hopZ = -D * .26;
           const hopM = mat('#b9c4cd', { roughness: .72 }), hopIn = mat('#5b6772', { roughness: .9 });
-          for (let i = 0; i < n; i++) {                                                   // 三个上开口卸料斗：浅色斗壁 + 深色内腔 + 半高前挡板 + 黄警示条，看得出是倒垃圾的口而非实心黑块
+          for (let i = 0; i < n; i++) {                                                                   // 卸料斗列靠背墙：浅色斗壁 + 深色内腔 + 半高前挡板 + 黄警示条，看得出是倒垃圾的口
             const bx = -W / 2 + W * (i + .5) / n;
             P(new THREE.BoxGeometry(bw, .05, hopD), hopIn, bx, .03, hopZ);                 // 斗底（深色内腔）
             P(new THREE.BoxGeometry(.05, hopH, hopD), hopM, bx - bw / 2, hopH / 2, hopZ);  // 左斗壁
@@ -20877,8 +21024,10 @@
             P(new THREE.BoxGeometry(bw, hopH * .42, .05), hopM, bx, hopH * .21, hopZ + hopD / 2); // 半高前挡板，露出斗内
             P(new THREE.BoxGeometry(bw + .06, .06, .08), mat('#e8b44a'), bx, hopH + .03, hopZ - hopD / 2); // 上沿黄警示条
           }
-          P(new THREE.BoxGeometry(W*.3, h*.5, D*.35), mat('#6f7c86', { metalness: .3 }), W*.22, h*.25, -D*.2);
+          P(new THREE.BoxGeometry(W*.3, h*.5, D*.35), mat('#6f7c86', { metalness: .3 }), W*.22, h*.25, D*.18);   // 压缩机：站内前部开口一侧，透过开口可见
           const lm = lamp(P(new THREE.SphereGeometry(.09, 12, 8), oneMat(new THREE.MeshBasicMaterial({ color: 0xe8b44a })), 0, h*.7, D/2+.05), 0xe8b44a, 0x3cc46e);
+          wseg(0, -D / 2, W, t, bh); wseg(-W / 2, 0, t, D, bh); wseg(W / 2, 0, t, D, bh);                  // 背 / 左 / 右墙碰撞
+          if (segL > .01) { wseg(-(W + dw) / 4, D / 2, segL, t, bh); wseg((W + dw) / 4, D / 2, segL, t, bh); }   // 前墙开口两侧碰撞，开口处留空
           tag(grp); foot(W, D, h);
         } else if (T3 === 'sanRecycleStation') {                  // 再生资源回收站：四壁 + 前墙三真投递洞（各自翻盖、可见站内）+ 背墙双扇门 + 分类标识 + 招牌
           const t = .12, bh = h * .82, doorH = h * .72, dw = W * .46;
@@ -21036,6 +21185,185 @@
           if (segL > .01) wseg(-W / 2 + segL / 2, D / 2, segL, t, bh);                             // 前墙门洞左段碰撞
           if (segR > .01) wseg(W / 2 - segR / 2, D / 2, segR, t, bh);                              // 前墙门洞右段碰撞
           // 不调用 tag(grp)：房体（墙 / 屋顶 / 窗）不带 park 标记，点击只经 grp 的 pick3d 选中，不再切灯；切灯只走门边开关
+        }
+      }
+      /* 垃圾转运站 8 件 3D 建模：主体车间（卷帘门开合）+ 卸料槽 / 压缩机（运行推杆）/ 勾臂转运箱（开盖）/
+         汽车地磅 / 除臭喷淋（水雾开关）/ 污水收集池 / 洗车台。可交互件整体打 park={kind:'wt'} 标记，
+         动画态进 parkAnims / wtRuns，灯色与水雾由 applyParkVisual 按 e.on 统一刷新。 */
+      function buildWt3D(T3, e, ctx, visuals, runs, anims, oneMat, mat, parkTex, txtTex) {
+        const { grp, P, colliders, px, pz, ang, W, h, poleM, darkM } = ctx;
+        const D = Math.max(.2, M(e.d || 1200)), on = e.on === true;
+        const ca = Math.cos(ang), sa = Math.sin(ang), wp = (lx, lz) => [px + lx * ca - lz * sa, pz + lx * sa + lz * ca];
+        const foot = (w2, d2, y1) => { const ww = (w2 * Math.abs(ca) + d2 * Math.abs(sa)) / 2, dd = (w2 * Math.abs(sa) + d2 * Math.abs(ca)) / 2; colliders.push([px - ww, pz - dd, px + ww, pz + dd, 0, y1]); };
+        const small = (lx, lz, r, y1) => { const q = wp(lx, lz); colliders.push([q[0] - r, q[1] - r, q[0] + r, q[1] + r, 0, y1]); };
+        const steelM = mat('#9aa1a8', { metalness: .5, roughness: .5 });
+        const vis = { kind: T3, lamps: [], lids: [], mists: [], runs: [] };
+        visuals.set(String(e.id), vis);
+        const tag = o => { o.traverse(x => { if (x.isMesh) x.userData.park = { kind: 'wt', id: e.id }; }); return o; };
+        const lamp = (mesh, offHex, onHex) => {
+          mesh.material = oneMat(new THREE.MeshBasicMaterial({ color: on ? onHex : offHex }));
+          vis.lamps.push({ mesh, onHex, offHex }); return mesh;
+        };
+        const anim = applyFn => {
+          const a = { id: e.id, kind: 'wt', open: on, cur: on ? 1 : 0, apply: applyFn };
+          anims.push(a); a.apply(a.cur); return a;
+        };
+
+        if (T3 === 'wtStation') {                               // 转运车间：砖墙 + 前墙卷帘门洞（门帘整体开合动画）+ 双坡彩钢屋顶 + 山墙 + 站牌
+          const bh = h, t = .15, dw = Math.min(W * .5, 4), doorH = Math.min(bh * .72, 4.5);
+          const wallM = mat('#c8c2b4', { roughness: .82 });
+          const wseg = (lx, lz, w2, d2, y1) => {
+            const q = wp(lx, lz), ww = (w2 * Math.abs(ca) + d2 * Math.abs(sa)) / 2, dd = (w2 * Math.abs(sa) + d2 * Math.abs(ca)) / 2;
+            colliders.push([q[0] - ww, q[1] - dd, q[0] + ww, q[1] + dd, 0, y1]);
+          };
+          P(new THREE.BoxGeometry(W - .1, .08, D - .1), mat('#9a948a', { roughness: .95 }), 0, .04, 0);   // 室内混凝土地坪
+          P(new THREE.BoxGeometry(W, bh, t), wallM, 0, bh / 2, -D / 2);                                    // 背墙
+          P(new THREE.BoxGeometry(t, bh, D), wallM, -W / 2, bh / 2, 0);                                   // 左墙
+          P(new THREE.BoxGeometry(t, bh, D), wallM, W / 2, bh / 2, 0);                                    // 右墙
+          const segL = (W - dw) / 2;                                                                       // 前墙门洞两侧墙垛 + 门楣
+          if (segL > .01) { P(new THREE.BoxGeometry(segL, bh, t), wallM, -(W + dw) / 4, bh / 2, D / 2); P(new THREE.BoxGeometry(segL, bh, t), wallM, (W + dw) / 4, bh / 2, D / 2); }
+          if (bh > doorH + .05) P(new THREE.BoxGeometry(dw, bh - doorH, t), wallM, 0, doorH + (bh - doorH) / 2, D / 2);
+          // 双坡彩钢屋顶：屋脊沿车间纵向，两侧坡面下探到檐口
+          const rise = Math.min(1.8, D * .22), sl = Math.hypot(D / 2, rise), ra = Math.atan2(rise, D / 2);
+          [-1, 1].forEach(sd => {
+            const r = P(new THREE.BoxGeometry(W + .3, .1, sl + .15), mat('#7f97ab', { roughness: .5, metalness: .25 }), 0, bh + rise / 2 + .05, sd * D / 4);
+            r.rotation.x = sd * ra;
+          });
+          // 山墙三角封檐（两端）
+          [-1, 1].forEach(sd => {
+            const sh = new THREE.Shape(); sh.moveTo(-D / 2, 0); sh.lineTo(D / 2, 0); sh.lineTo(0, rise); sh.closePath();
+            const g = new THREE.Mesh(new THREE.ExtrudeGeometry(sh, { depth: t, bevelEnabled: false }), wallM);
+            g.rotation.y = -Math.PI / 2; g.position.set(sd > 0 ? W / 2 - t : -W / 2, bh, 0);
+            g.castShadow = g.receiveShadow = true; grp.add(g);
+          });
+          // 电动卷帘门：分条门帘沿门洞整幅升降
+          const doorG = new THREE.Group(); doorG.position.set(0, 0, D / 2 - t / 2 - .04); grp.add(doorG);
+          const slats = Math.max(6, Math.round(doorH / .35)), sh2 = doorH / slats;
+          for (let i = 0; i < slats; i++) {
+            const sl = new THREE.Mesh(new THREE.BoxGeometry(dw - .06, sh2 - .02, .06), mat(i % 2 ? '#9fb2c2' : '#8fa3b4', { metalness: .3, roughness: .5 }));
+            sl.position.set(0, sh2 * (i + .5), 0); sl.castShadow = true; doorG.add(sl);
+          }
+          doorG.traverse(x => { if (x.isMesh) x.userData.park = { kind: 'wt', id: e.id }; });
+          vis.lids.push(anim(k => { doorG.position.y = k * (doorH - .04); }));
+          // 站牌：山墙正面 Canvas 贴图（站名 + 日转运量），面板改转运量重建后同步
+          const ton = Math.round(e.ton || 60), signW = Math.min(4.5, W * .42), signH = signW * .26;
+          P(new THREE.BoxGeometry(signW + .12, signH + .12, .08), mat('#1e5c38', { roughness: .6 }), 0, bh + rise * .45, D / 2 + t / 2 + .02);
+          const face = new THREE.Mesh(new THREE.PlaneGeometry(signW, signH), oneMat(new THREE.MeshBasicMaterial({ map: txtTex('wtSign' + e.id + '_' + ton, Math.round(signW * 1000), Math.round(signH * 1000), `垃圾转运站 ${ton} t/日`, '#1e5c38', '#ffffff'), toneMapped: false })));
+          face.position.set(0, bh + rise * .45, D / 2 + t / 2 + .07); face.castShadow = false; grp.add(face);
+          wseg(0, -D / 2, W, t, bh); wseg(-W / 2, 0, t, D, bh); wseg(W / 2, 0, t, D, bh);                 // 背 / 左 / 右墙碰撞
+          if (segL > .01) { wseg(-(W + dw) / 4, D / 2, segL, t, bh); wseg((W + dw) / 4, D / 2, segL, t, bh); }   // 前墙门洞两侧碰撞，门洞留空可进出
+          tag(grp);                                                                                         // 站体整体可点击：点击任意部位切卷帘门
+        } else if (T3 === 'wtHopper') {                         // 卸料槽：钢柱 + 抬高台面 + 后挡料墙 + 侧壁 + 中心投料口 + 前引坡
+          const deckH = Math.max(.6, h * .8);
+          [[-1, -1], [1, -1], [1, 1], [-1, 1]].forEach(([sx, sz]) => P(new THREE.BoxGeometry(.16, deckH, .16), steelM, sx * (W / 2 - .15), deckH / 2, sz * (D / 2 - .15)));
+          P(new THREE.BoxGeometry(W, .18, D), mat('#b5b0a3', { roughness: .95 }), 0, deckH + .09, 0);      // 混凝土台面
+          P(new THREE.BoxGeometry(W, h, .22), mat('#a8a294', { roughness: .9 }), 0, deckH + h / 2, -D / 2 + .11);   // 后挡料墙
+          [-1, 1].forEach(sd => P(new THREE.BoxGeometry(.18, h * .6, D), mat('#a8a294', { roughness: .9 }), sd * (W / 2 - .09), deckH + h * .3, 0));   // 侧壁
+          P(new THREE.BoxGeometry(W * .42, .05, D * .4), darkM, 0, deckH + .19, D * .08);                  // 中心投料口（深色）
+          const run = D * .45, rl = Math.hypot(deckH, run);
+          const ramp = P(new THREE.BoxGeometry(W * .8, .08, rl), mat('#9a948a', { roughness: .9 }), 0, deckH / 2, D / 2 + run / 2);
+          ramp.rotation.x = Math.atan2(deckH, run);                                                        // 前引坡：台面斜下到地面
+          foot(W, D, deckH + h);
+          tag(grp);
+        } else if (T3 === 'wtCompactor') {                      // 压缩机：机身 + 进料斗 + 液压推杆（运行中往复）+ 状态灯 + 控制柜
+          const hopL = W * .38, bodyL = W - hopL;
+          P(new THREE.BoxGeometry(bodyL, h, D), mat('#5f7d94', { metalness: .3, roughness: .6 }), -W / 2 + hopL + bodyL / 2, h / 2, 0);   // 机身
+          P(new THREE.BoxGeometry(hopL, h * .55, D), mat('#4d6a80', { metalness: .3, roughness: .6 }), -W / 2 + hopL / 2, h * .28, 0);    // 进料斗下箱
+          P(new THREE.BoxGeometry(hopL, .1, D * .8), darkM, -W / 2 + hopL / 2, h * .78, 0);               // 进料斗口
+          P(new THREE.BoxGeometry(.5, .8, .35), mat('#3f5a6e', { metalness: .3 }), W * .2, .4, D / 2 + .2);   // 控制柜
+          const pl = P(new THREE.SphereGeometry(.08, 12, 8), oneMat(new THREE.MeshBasicMaterial({ color: 0xe8b44a })), -W / 2 + hopL + bodyL * .78, h + .1, -D * .28);
+          lamp(pl, 0xe8b44a, 0x3cc46e);                                                                    // 状态灯：待机黄 / 运行绿
+          const ram = new THREE.Group(); ram.position.set(-W / 2 + hopL + .25, h * .6, 0); grp.add(ram);
+          const cyl = new THREE.Mesh(new THREE.CylinderGeometry(.16, .16, Math.max(.6, bodyL * .55), 14), mat('#c9ced3', { metalness: .8, roughness: .25 }));
+          cyl.rotation.z = Math.PI / 2; cyl.position.x = -Math.max(.3, bodyL * .27) / 2; cyl.castShadow = true; ram.add(cyl);
+          const plate = new THREE.Mesh(new THREE.BoxGeometry(.12, h * .55, D * .82), mat('#7a94a8', { metalness: .4, roughness: .5 }));
+          plate.castShadow = true; ram.add(plate);
+          const rr = { g: ram, x0: -W / 2 + hopL + .25, range: Math.max(.6, Math.min(W * .3, bodyL * .5)), on };
+          vis.runs.push(rr); runs.push(rr);                                                                 // 运行中推杆往复（loop 驱动）
+          foot(W, D + .4, h);
+          tag(grp);
+        } else if (T3 === 'wtBox') {                            // 勾臂转运箱：空心箱体 + 加强筋 + 钩臂槽 + 尾端滚轮 + 容量牌 + 翻盖
+          const cols = { green: '#3f9d5c', blue: '#2f7fd0', grey: '#8a9299' };
+          const cm = mat(cols[e.style] || cols.green, { metalness: .2, roughness: .6 }), bh = h * .8, t2 = .06;
+          P(new THREE.BoxGeometry(W, bh, t2), cm, 0, bh / 2, -D / 2);
+          P(new THREE.BoxGeometry(W, bh, t2), cm, 0, bh / 2, D / 2);
+          P(new THREE.BoxGeometry(t2, bh, D), cm, -W / 2, bh / 2, 0);
+          P(new THREE.BoxGeometry(t2, bh, D), cm, W / 2, bh / 2, 0);
+          P(new THREE.BoxGeometry(W - t2 * 2, .08, D - t2 * 2), darkM, 0, .04, 0);                        // 箱底 / 内腔
+          [.25, .5, .75].forEach(k => [-1, 1].forEach(sd => P(new THREE.BoxGeometry(.05, .08, D * .96), steelM, sd * (W / 2 + .02), bh * k, 0)));   // 两侧加强筋
+          P(new THREE.BoxGeometry(W * .8, .12, .12), steelM, 0, bh + .06, -D / 2);                        // 前端钩臂槽
+          [-1, 1].forEach(sd => { const r = P(new THREE.CylinderGeometry(.14, .14, .1, 12), darkM, sd * W * .3, .14, D / 2 + .08); r.rotation.x = Math.PI / 2; });   // 尾端滚轮
+          const cap = Math.round(e.cap || 15);
+          const pl = new THREE.Mesh(new THREE.PlaneGeometry(Math.min(1.4, W * .35), Math.min(.5, bh * .3)), oneMat(new THREE.MeshBasicMaterial({ map: txtTex('wtCap' + e.id + '_' + cap, 700, 250, `${cap} m³`, '#f4f4ef', '#1f2a33'), transparent: true, toneMapped: false })));
+          pl.position.set(W / 2 + .01, bh * .55, 0); pl.rotation.y = Math.PI / 2; pl.castShadow = false; grp.add(pl);   // 侧板容量
+          const hinge = new THREE.Group(); hinge.position.set(0, bh, -D / 2); grp.add(hinge);
+          const lid = new THREE.Mesh(new THREE.BoxGeometry(W * .96, .06, D * .96), mat(cols[e.style] || cols.green, { metalness: .2, roughness: .55 }));
+          lid.position.set(0, .03, D * .5); lid.castShadow = true; hinge.add(lid);
+          hinge.traverse(x => { if (x.isMesh) x.userData.park = { kind: 'wt', id: e.id }; });
+          vis.lids.push(anim(k => { hinge.rotation.x = -k * 1.15; }));                                     // 盖绕前端上翻
+          foot(W, D, bh + .3);
+          tag(grp);
+        } else if (T3 === 'wtScale') {                          // 汽车地磅：花纹台面 + 黄黑警示端头 + 两端引坡 + 侧立显示柱（不挡人）
+          const th = Math.max(.05, M(e.h || 150));
+          P(new THREE.BoxGeometry(W, th, D), mat('#8d959c', { metalness: .5, roughness: .45 }), 0, th / 2, 0);
+          const n = Math.max(4, Math.round(W / 1.2));
+          for (let i = 1; i < n; i++) P(new THREE.BoxGeometry(.05, .02, D * .98), mat('#6f7c86'), -W / 2 + i * W / n, th + .01, 0);   // 台面分格
+          [-1, 1].forEach(sd => P(new THREE.BoxGeometry(.16, .04, D), mat('#e8b44a'), sd * (W / 2 - .08), th + .02, 0));   // 黄黑警示边
+          [-1, 1].forEach(sd => {
+            const run = Math.min(1.2, W * .12);
+            const rp = P(new THREE.BoxGeometry(run, .04, D), mat('#9aa1a8', { metalness: .4, roughness: .5 }), sd * (W / 2 + run / 2), th / 2, 0);
+            rp.rotation.z = -sd * Math.atan2(th, run);                                                   // 两端引坡
+          });
+          const px0 = -W * .28, pz0 = D / 2 + .35;
+          P(new THREE.CylinderGeometry(.05, .07, 1.55, 10), poleM, px0, .78, pz0);                        // 显示柱
+          P(new THREE.BoxGeometry(.8, .42, .06), mat('#101a20'), px0, 1.66, pz0);
+          const scr = new THREE.Mesh(new THREE.PlaneGeometry(.7, .32), oneMat(new THREE.MeshBasicMaterial({ map: txtTex('wtSc' + e.id, 700, 320, '电子汽车衡', '#101a20', '#4ef08a'), toneMapped: false })));
+          scr.position.set(px0, 1.66, pz0 + .04); scr.castShadow = false; grp.add(scr);
+        } else if (T3 === 'wtMist') {                           // 除臭喷淋：双立柱 + 架空管 + 喷头列 + 泵体状态灯 + 水雾（按 on 显示）
+          const pipeY = h;
+          [-1, 1].forEach(sd => P(new THREE.CylinderGeometry(.06, .08, pipeY, 10), steelM, sd * (W / 2 - .1), pipeY / 2, 0));
+          const pipe = P(new THREE.CylinderGeometry(.045, .045, W, 12), steelM, 0, pipeY, 0);
+          pipe.rotation.z = Math.PI / 2;
+          P(new THREE.BoxGeometry(.5, .6, .4), mat('#3f6f8f', { metalness: .3 }), -W / 2 - .35, .3, 0);   // 泵体
+          const pl = P(new THREE.SphereGeometry(.06, 12, 8), oneMat(new THREE.MeshBasicMaterial({ color: 0xe8b44a })), -W / 2 - .35, .66, .21);
+          lamp(pl, 0xe8b44a, 0x3cc46e);
+          const n = Math.max(3, Math.round(W / .9)), r = Math.max(1, +e.r || 3);
+          const mist = new THREE.Group(); mist.visible = on; grp.add(mist);
+          vis.mists.push(mist);
+          for (let i = 0; i < n; i++) {
+            const t = -W / 2 + W * (i + .5) / n;
+            P(new THREE.CylinderGeometry(.02, .05, .12, 8), mat('#c9ced3', { metalness: .6 }), t, pipeY - .06, 0);   // 喷头
+            const cone = new THREE.Mesh(new THREE.CylinderGeometry(r * .35, .02, r * .9, 10, 1, true), oneMat(new THREE.MeshBasicMaterial({ color: 0xcfe9f7, transparent: true, opacity: .16, side: THREE.DoubleSide, depthWrite: false })));
+            cone.position.set(t, pipeY - r * .45, 0); mist.add(cone);                                     // 倒锥水雾
+          }
+          small(-W / 2 - .1, 0, .18, pipeY); small(W / 2 - .1, 0, .18, pipeY);
+          tag(grp);
+        } else if (T3 === 'wtSump') {                           // 污水收集池：混凝土池壁 + 深色水面 + 半幅格栅盖板 + 潜污泵
+          const rh = Math.max(.2, h), wt2 = .18;
+          P(new THREE.BoxGeometry(W, rh, wt2), mat('#b5b0a3', { roughness: .9 }), 0, rh / 2, -D / 2);
+          P(new THREE.BoxGeometry(W, rh, wt2), mat('#b5b0a3', { roughness: .9 }), 0, rh / 2, D / 2);
+          P(new THREE.BoxGeometry(wt2, rh, D), mat('#b5b0a3', { roughness: .9 }), -W / 2, rh / 2, 0);
+          P(new THREE.BoxGeometry(wt2, rh, D), mat('#b5b0a3', { roughness: .9 }), W / 2, rh / 2, 0);
+          const wtr = new THREE.Mesh(new THREE.BoxGeometry(W - wt2 * 2, .04, D - wt2 * 2), oneMat(new THREE.MeshPhysicalMaterial({ color: 0x2e4a3a, roughness: .25, transparent: true, opacity: .82 })));
+          wtr.position.y = .04; grp.add(wtr);                                                             // 渗滤液水面
+          const gn = Math.max(4, Math.round(W / .5));
+          for (let i = 0; i < gn; i++) P(new THREE.BoxGeometry(Math.max(.04, W / gn * .55), .05, D * .45), mat('#7a848c', { metalness: .5 }), -W / 2 + (i + .5) * W / gn, rh + .01, D * .27);   // 半幅格栅
+          P(new THREE.CylinderGeometry(.12, .15, Math.max(.22, rh * .6), 10), darkM, W * .3, Math.max(.11, rh * .3), -D * .28);   // 潜污泵
+          small(0, 0, Math.max(W, D) / 2 + .05, Math.max(rh, .5));
+          tag(grp);
+        } else if (T3 === 'wtWash') {                           // 洗车台：台面 + 中央通长格栅地沟 + 两侧立柱喷杆（不挡人）
+          const th = Math.max(.05, M(e.h || 200));
+          P(new THREE.BoxGeometry(W, th, D), mat('#b5b0a3', { roughness: .9 }), 0, th / 2, 0);
+          P(new THREE.BoxGeometry(W * .8, .02, D * .3), mat('#3f464c'), 0, th + .01, 0);                  // 地沟底色
+          const gn = Math.max(5, Math.round(W * .8 / .5));
+          for (let i = 0; i < gn; i++) P(new THREE.BoxGeometry(.05, .03, D * .3), mat('#7a848c', { metalness: .5 }), -W * .4 + (i + .5) * W * .8 / gn, th + .025, 0);   // 格栅条
+          [-1, 1].forEach(sd => {
+            const bx = sd * W * .3;
+            P(new THREE.CylinderGeometry(.06, .08, 2.2, 10), steelM, bx, 1.1, -D / 2 + .15);             // 喷杆立柱
+            const arm = P(new THREE.CylinderGeometry(.05, .05, .9, 10), steelM, bx, 2.2, -D / 2 + .6);
+            arm.rotation.x = Math.PI / 2;                                                                // 顶横臂（伸向地沟上方）
+            P(new THREE.CylinderGeometry(.03, .05, .1, 8), mat('#c9ced3', { metalness: .6 }), bx, 2.12, -D / 2 + .98);   // 喷头
+          });
         }
       }
       /* 非标志类道路设施 3D：凸面镜 / 限高杆 / 道口标柱 / 太阳能爆闪灯 / 公交站牌 / 减速带。
@@ -23703,6 +24031,9 @@
                         }
                         const S = SAN_TOAST[ex.type] || ['开启', '关闭', 'On', 'Off']; const zh = ex.on ? S[1] : S[0], en2 = ex.on ? S[3] : S[2]; return tap ? tr(`点按${zh}`, `Tap: ${en2}`) : tr(`E ${zh}`, `E: ${en2}`);
                       })()
+                    : k === 'wt' ? (() => {
+                        const S = WT_TOAST[ex.type] || ['开启', '关闭', 'On', 'Off']; const zh = ex.on ? S[1] : S[0], en2 = ex.on ? S[3] : S[2]; return tap ? tr(`点按${zh}`, `Tap: ${en2}`) : tr(`E ${zh}`, `E: ${en2}`);
+                      })()
                       : (ex.busy ? (tap ? tr('点按切为空闲 · 绿灯', 'Tap to set idle · green') : tr('E 切为空闲 · 绿灯', 'Press E to set idle · green')) : (tap ? tr('点按切为充电中 · 蓝灯', 'Tap to set charging · blue') : tr('E 切为充电中 · 蓝灯', 'Press E to set charging · blue')));
           }
           else {
@@ -23761,6 +24092,7 @@
       doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起
       gateArms.forEach(g => { const tg = g.open ? g.a1 : g.a0; g.cur += (tg - g.cur) * Math.min(1, dt * 4); if (g.pivot) g.pivot.rotation.z = g.cur; });   // 道闸机闸杆升降动画：落下 0 → 抬起 +1.35rad（向上）
       parkAnims.forEach(a => { const tg = a.open ? 1 : 0; a.cur += (tg - a.cur) * Math.min(1, dt * 5); a.apply(a.cur); });   // 停车场配套：升降柱上下 / 伸缩门收拢展开
+      wtRuns.forEach(r => { if (r.g) r.g.position.x = r.on ? r.x0 + Math.abs(Math.sin(now * .0035)) * r.range : r.x0; });   // 垃圾转运站：压缩机运行中推杆往复，停止时复位
       for (let i = stackOps.length - 1; i >= 0; i--) { const o = stackOps[i]; o.t += dt; const k = Math.min(1, o.t / o.dur); stackApply(o, k); if (k >= 1) stackOps.splice(i, 1); }   // 立体车库：载车板下降换车再升回
       revolveSpins.forEach(g => { g.rotation.y += dt * .7; });   // 旋转门三翼持续匀速转动（约 9 秒一圈），鸟瞰 / 漫游均生效
       escSteps.forEach(st => {                                  // 自动扶梯梯级闭环循环（沿路径约 0.35 m/s 匀速）：骑行斜面梯面保持水平，两端沿圆弧回转翻转 180°沉入端部平台下方，斜面下方倒挂平行回程，形成真实连贯的循环转动；单跑 / 多跑每跑按各自闭环参数取位
