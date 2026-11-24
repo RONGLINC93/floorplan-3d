@@ -106,9 +106,11 @@
       "h": 3000,
       "rot": 0,
       "d": 3600,
-      "id": "fmwuqjl6u99",
+      "dur": 60,
+      "id": "fmwuqn4n799",
       "x": 5950,
-      "y": 5300
+      "y": 5300,
+      "busy": true
     }
   ],
   "leaders": [],
@@ -235,9 +237,11 @@
           "h": 3000,
           "rot": 0,
           "d": 3600,
-          "id": "fmwuqjl6u99",
+          "dur": 60,
+          "id": "fmwuqn4n799",
           "x": 5950,
-          "y": 5300
+          "y": 5300,
+          "busy": true
         }
       ],
       "leaders": [],

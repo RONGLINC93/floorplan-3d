@@ -3537,7 +3537,7 @@
             <button class="btn chip" data-dt="facZoneScreen" title="分区引导屏：点击放置；屏上显示「分区字母 + 余位数」，字母与数字可改；屏宽 / 杆高 / 朝向可改" data-en-title="Zone display: screen showing zone letter + vacancies; editable letter and number" data-en="Zone display"><i data-lucide="layout-panel-top"></i>分区引导屏</button>
             <button class="btn chip" data-dt="facFindKiosk" title="反向寻车机：点击放置；3D 为立柜 + 触摸屏，常用于电梯厅 / 出口；机宽 / 机高 / 厚度可改" data-en-title="Find-my-car kiosk: cabinet with touch screen; edit width / height / depth" data-en="Find-my-car kiosk"><i data-lucide="search"></i>反向寻车机</button>
             <button class="btn chip" data-dt="facEvCharger" title="充电桩：点击放置；3D 带屏幕 / 充电枪 / 状态灯，点击机箱（漫游按 E）切「充电中 / 空闲」；可改宽 / 高 / 厚" data-en-title="EV charger: screen, gun and status lamp; click it in 3D to toggle charging / idle; edit size" data-en="EV charger"><i data-lucide="battery-charging"></i>充电桩</button>
-            <button class="btn chip" data-dt="facCarWash" title="自动洗车机：点击放置；龙门式洗车机，3D 点击机体（漫游按 E）启动洗车流程——预湿 / 泡沫 / 滚刷清洗 / 冲净 / 风干回位，约 14 秒；机长 / 机高 / 轨道宽可改" data-en-title="Auto car wash: gantry wash; click it in 3D (E in walk) to run the cycle — pre-rinse / foam / brushes / rinse / dry, about 14 s; edit length / height / width" data-en="Auto car wash"><i data-lucide="droplets"></i>自动洗车机</button>
+            <button class="btn chip" data-dt="facCarWash" title="自动洗车机：点击放置；龙门式洗车机，3D 点击机体（漫游按 E）启动洗车流程——预湿 / 泡沫 / 滚刷清洗 / 冲净 / 风干回位；清洗时长 8~60 秒可设，机长 / 机高 / 轨道宽可改" data-en-title="Auto car wash: gantry wash; click it in 3D (E in walk) to run the cycle — pre-rinse / foam / brushes / rinse / dry; wash duration 8–60 s, edit length / height / width" data-en="Auto car wash"><i data-lucide="droplets"></i>自动洗车机</button>
             <button class="btn chip" data-dt="facPvCarport" title="光伏车棚：点击放置；3D 为钢柱 + 光伏顶棚，2D 画钢架与光伏分格；跨宽 / 进深 / 净高可改" data-en-title="PV carport: steel columns with solar canopy; edit span / depth / clear height" data-en="PV carport"><i data-lucide="sun"></i>光伏车棚</button>
             <button class="btn chip" data-dt="facDrain" title="排水沟：点击放置；3D 为沟槽 + 雨水篦子，2D 画双线与横篦条；沟长 / 沟宽 / 朝向可改" data-en-title="Drain channel: channel with grating; edit length / width / angle" data-en="Drain channel"><i data-lucide="droplets"></i>排水沟</button>
             <button class="btn chip" data-dt="facHydrant" title="消防栓：点击放置；3D 为红色栓体 + 出水口 + 顶帽，2D 画红点与十字；栓径 / 高可改" data-en-title="Fire hydrant: red body with nozzles and cap; edit diameter / height" data-en="Fire hydrant"><i data-lucide="flame"></i>消防栓</button>
@@ -7013,7 +7013,8 @@
       wtWash: { wl:['台长','Length'], wmin:3000, wmax:12000, hl:['台面厚','Thickness'], hmin:100, hmax:400, dl:['台宽','Width'], dmin:1500, dmax:5000,
         tip:['洗车台：转运车出站冲洗平台，中间纵向通长格栅地沟 + 两侧立柱喷杆；位于地磅与出口之间。','Truck wash platform: central longitudinal grate trench with two spray-post arches for washing outgoing trucks.' ] },
       facCarWash: { wl:['机长','Length'], wmin:6000, wmax:15000, hl:['机高','Height'], hmin:2400, hmax:4000, dl:['轨道宽','Width'], dmin:3000, dmax:4500,
-        tip:['自动洗车机：龙门式洗车机，底板 + 两侧行走轨道 + 龙门架（双立柱 + 顶梁 + 侧滚刷 × 2 + 顶滚刷 + 喷头排 + 泡沫管 + 风干风道，全部随架移动）+ 进 / 出导向箭头 + 状态灯；3D 点击机体（漫游按 E）启动洗车流程——龙门自动走完 预湿 → 泡沫 → 滚刷往复清洗 → 冲净 → 风干回位，全程约 14 秒，洗车中状态灯蓝色闪烁、地面湿地反光；机长 / 机高 / 轨道宽可改。','Gantry car wash: base slab, travel rails and a portal frame carrying side brushes, top brush, spray bar, foam pipe and dryer ducts (all gantry-mounted); click it in 3D (E in walk) to run the cycle — the gantry sweeps through pre-rinse, foam, brush passes, rinse and dry, about 14 s; edit length / height / width.' ] }
+        nums:[['dur','清洗时长 (秒)','Wash duration',8,60,1]], def:{dur:14},
+        tip:['自动洗车机：龙门式洗车机，底板 + 两侧行走轨道 + 龙门架（双立柱 + 顶梁 + 侧滚刷 × 2 + 顶滚刷 + 喷头排 + 泡沫管 + 风干风道，全部随架移动）+ 进 / 出导向箭头 + 状态灯；3D 点击机体（漫游按 E）启动洗车流程——龙门自动走完 预湿 → 泡沫 → 滚刷往复清洗 → 冲净 → 风干回位，洗车中状态灯蓝色闪烁、地面湿地反光；清洗时长 8~60 秒可设（默认 14 秒），机长 / 机高 / 轨道宽可改。','Gantry car wash: base slab, travel rails and a portal frame carrying side brushes, top brush, spray bar, foam pipe and dryer ducts (all gantry-mounted); click it in 3D (E in walk) to run the cycle — the gantry sweeps through pre-rinse, foam, brush passes, rinse and dry; wash duration 8–60 s (default 14); edit length / height / width.' ] }
     };
     function parkRows(e) {                                                       // 停车场配套的通用属性行（尺寸 / 参数 / 开关 / 朝向 / 位置）
       const p = PARK_EXT[e.type]; if (!p) return '';
@@ -15257,7 +15258,7 @@
       else if (dt === 'facPlateCam') toast(tr('车牌识别：点击放置；立杆 + 摄像机，右侧可改杆径 / 杆高 / 朝向', 'License plate cam: click to place; pole with camera; edit pole / height / angle in the panel'));
       else if (dt === 'facLoopDetector') toast(tr('地感线圈：点击放置；贴地矩形检测线圈（不挡人），右侧可改宽 / 进深 / 朝向', 'Loop detector: click to place; ground detection loop (walk-through); edit width / depth / angle in the panel'));
       else if (dt === 'facPayMachine') toast(tr('收费/刷卡机：点击放置；立柱机箱 + 操作屏，右侧可改机身宽 / 高 / 朝向', 'Payment machine: click to place; pedestal box with screen; edit width / height / angle in the panel'));
-      else if (dt === 'facCarWash') toast(tr('自动洗车机：点击放置；放好后按 Esc 退出放置工具，再在 3D 点击机体（漫游按 E）启动洗车流程——预湿 / 泡沫 / 滚刷 / 冲净 / 风干；机长 / 机高 / 轨道宽可改', 'Auto car wash: click to place, press Esc to leave placement mode, then click it in 3D (E in walk) to run the wash cycle — pre-rinse / foam / brushes / rinse / dry; edit size in the panel'));
+      else if (dt === 'facCarWash') toast(tr('自动洗车机：点击放置；放好后按 Esc 退出放置工具，再在 3D 点击机体（漫游按 E）启动洗车流程——预湿 / 泡沫 / 滚刷 / 冲净 / 风干；清洗时长 8~60 秒可在右侧面板设置，机长 / 机高 / 轨道宽可改', 'Auto car wash: click to place, press Esc to leave placement mode, then click it in 3D (E in walk) to run the wash cycle — pre-rinse / foam / brushes / rinse / dry; wash duration 8–60 s in the panel; edit size too'));
       else if (PARK_EXT[dt]) toast(tr(`${FACILITY_DEFS[dt].zh}：点击放置；右侧可改尺寸 / 参数 / 朝向${PARK_EXT[dt].chks ? '，状态可在 3D 点击（漫游按 E）切换' : ''}`, `${FACILITY_DEFS[dt].en}: click to place; edit size / parameters / angle in the panel${PARK_EXT[dt].chks ? ', toggle its state in 3D (E in walk)' : ''}`));
       else if (isFacility(dt)) toast(tr(`${extraName({ type: dt })}：点击放置；3D 单独建模，右侧可改尺寸 / 朝向`, `${extraName({ type: dt })}: click to place; dedicated 3D model, edit size / angle in the panel`));
       if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；长 / 宽 / 高度在右侧改', 'Tie column: click a wall end or corner; edit length / width / height in the panel'));
@@ -15878,11 +15879,11 @@
     const wtVisuals = new Map(), wtRuns = [];     // 垃圾转运站：id → { lamps, lids, mists, runs }；wtRuns 压缩机推杆等运行动画（loop 里每帧驱动）
     const washVisuals = new Map(), washRuns = new Map();   // 自动洗车机：id → 机体网格集；washRuns 进行中的洗车流程（start 时刻，loop 里按时间轴驱动）
 
-    function startWash(id) {                      // 登记一次洗车流程（约 14 秒），重建场景后按方案 busy 状态续播
+    function startWash(id, durS) {                // 登记一次洗车流程（时长 e.dur 秒，默认 14），重建场景后按方案 busy 状态续播
       const k = String(id);
-      if (!washRuns.has(k)) washRuns.set(k, { start: performance.now() });
+      if (!washRuns.has(k)) washRuns.set(k, { start: performance.now(), dur: Math.max(8, (+durS || 14)) * 1000 });
     }
-    function carWashStep(now, dt) {               // 洗车时间轴（龙门自己走完全程，无示范车）：预湿(0-2.5) → 泡沫(2.5-5) → 正刷(5-8) → 回刷(8-11) → 冲净(11-12.5) → 风干回位(12.5-14)
+    function carWashStep(now, dt) {               // 洗车时间轴（龙门自己走完全程，无示范车）：预湿(0-.18) → 泡沫(.18-.36) → 正刷(.36-.57) → 回刷(.57-.79) → 冲净(.79-.89) → 风干回位(.89-1)，按清洗时长等比缩放
       washRuns.forEach((run, id) => {
         const sv = washVisuals.get(id);
         if (!sv || !sv.gantry) {                             // 场景重建 / 构件刚删：保留流程等下一帧，别把 busy 卡死
@@ -15890,22 +15891,23 @@
           if (!e2 || e2.busy !== true) washRuns.delete(id);
           return;
         }
-        const W = sv.W, home = -W / 2 + .9, p1 = W * .3, p2 = -W * .2, t = (now - run.start) / 1000;
-        const seg = (a, b) => Math.min(1, Math.max(0, (t - a) / (b - a))), lp = (a, b, x0, x1) => x0 + (x1 - x0) * seg(a, b);
-        sv.gantry.position.x = t < 2.5 ? lp(0, 2.5, home, 0)
-          : t < 5 ? lp(2.5, 5, 0, p1)
-          : t < 8 ? lp(5, 8, p1, p2)
-          : t < 11 ? lp(8, 11, p2, p1)
-          : t < 12.5 ? lp(11, 12.5, p1, 0)
-          : lp(12.5, 14, 0, home);
-        sv.sprayCones.visible = t < 2.5 || (t >= 11 && t < 12.5);   // 只显隐水帘 / 泡沫 / 气流，喷头与风道常驻
-        sv.foamCones.visible = t >= 2.5 && t < 5;
-        sv.wet.visible = t < 14;
-        sv.blowCones.visible = t >= 12.5 && t < 14;
-        const spin = t >= 5 && t < 11;
-        (sv.brushes || []).forEach(b => { b.rotation.y += dt * (spin ? (b.userData.top ? 12 : 9) : 0); });
+        const W = sv.W, home = -W / 2 + .9, p1 = W * .3, p2 = -W * .2, u = Math.min(1, (now - run.start) / run.dur);   // u = 归一化进度 0→1
+        const a = .18, b = .36, c = .57, d2 = .79, e1 = .89;               // 各阶段分界（14 秒基准等比）
+        const seg = (x0, x1) => Math.min(1, Math.max(0, (u - x0) / (x1 - x0))), lp = (x0, x1, s0, s1) => s0 + (s1 - s0) * seg(x0, x1);
+        sv.gantry.position.x = u < a ? lp(0, a, home, 0)
+          : u < b ? lp(a, b, 0, p1)
+          : u < c ? lp(b, c, p1, p2)
+          : u < d2 ? lp(c, d2, p2, p1)
+          : u < e1 ? lp(d2, e1, p1, 0)
+          : lp(e1, 1, 0, home);
+        sv.sprayCones.visible = u < a || (u >= d2 && u < e1);   // 只显隐水帘 / 泡沫 / 气流，喷头与风道常驻
+        sv.foamCones.visible = u >= a && u < b;
+        sv.wet.visible = u < 1;
+        sv.blowCones.visible = u >= e1 && u < 1;
+        const spin = u >= b && u < d2;
+        (sv.brushes || []).forEach(bb => { bb.rotation.y += dt * (spin ? (bb.userData.top ? 12 : 9) : 0); });
         if (sv.lamp?.material?.color) sv.lamp.material.color.setHex(Math.sin(now * .012) > 0 ? 0x3f8fe0 : 0x9cc8ee);   // 洗车中蓝灯闪烁
-        if (t >= 14) {
+        if (u >= 1) {
           sv.sprayCones.visible = sv.foamCones.visible = sv.wet.visible = sv.blowCones.visible = false;
           sv.gantry.position.x = home;
           washRuns.delete(id);
@@ -18973,7 +18975,7 @@
       else if (p.kind === 'wt') e.on = e.on !== true;                   // 垃圾转运站：卷帘门 / 压缩机 / 箱盖 / 喷淋统一切 on
       else if (p.kind === 'wash') {                                     // 自动洗车机：空闲点击启动洗车流程，洗车中再点只提示
         if (e.busy === true) e.busy = true;
-        else { e.busy = true; startWash(e.id); washBegan = true; }
+        else { e.busy = true; startWash(e.id, e.dur); washBegan = true; }
       }
       applyParkVisual(e.id); markDirty();
       if (typeof renderExtras2 === 'function') renderExtras2();    // 2D 俯视状态同步
@@ -19000,8 +19002,8 @@
         const S = WT_TOAST[e.type] || ['已开启', '已关闭', 'On', 'Off'];
         zh = e.on ? S[0] : S[1]; en = e.on ? S[2] : S[3];
       } else if (p.kind === 'wash') {
-        zh = washBegan ? '自动洗车机：开始洗车 · 全程约 14 秒' : '自动洗车机：洗车进行中 · 请稍候';
-        en = washBegan ? 'Car wash: started · about 14 s' : 'Car wash: in progress · please wait';
+        zh = washBegan ? `自动洗车机：开始洗车 · 全程 ${e.dur || 14} 秒` : '自动洗车机：洗车进行中 · 请稍候';
+        en = washBegan ? `Car wash: started · about ${e.dur || 14} s` : 'Car wash: in progress · please wait';
       } else if (p.kind === 'sandoor') {
         zh = e.doorOpen === false ? '门已关闭' : '门已打开'; en = e.doorOpen === false ? 'Door closed' : 'Door opened';
       } else if (p.kind === 'sancab') {
@@ -21505,7 +21507,7 @@
         const wet = new THREE.Mesh(new THREE.BoxGeometry(W * .55, .012, D * .85), oneMat(new THREE.MeshBasicMaterial({ color: 0x3a4a55, transparent: true, opacity: .35, depthWrite: false })));
         wet.position.set(0, .075, 0); wet.visible = false; grp.add(wet); vis.wet = wet;
         tag(grp);
-        if (on) startWash(e.id);                       // 方案里洗车中：重建后自动续播到结束
+        if (on) startWash(e.id, e.dur);                // 方案里洗车中：重建后自动续播到结束
       }
       /* 非标志类道路设施 3D：凸面镜 / 限高杆 / 道口标柱 / 太阳能爆闪灯 / 公交站牌 / 减速带。
          px/pz 为世界坐标（m），h 为标高，ang 为朝向；统一 tagPick 为普通构件可点选。 */
