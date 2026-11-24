@@ -475,7 +475,7 @@
       "w": 140,
       "h": 4500,
       "rot": 0,
-      "sig": "red",
+      "sig": "yellow",
       "auto": true,
       "id": "fmwubt7jh148",
       "x": 2110,
@@ -1265,6 +1265,17 @@
       "id": "fmwup6bmx150",
       "x": 48240,
       "y": 1000
+    },
+    {
+      "type": "facCarWash",
+      "w": 9000,
+      "h": 3000,
+      "rot": 0,
+      "d": 3600,
+      "id": "fmwupqe8w148",
+      "x": 24440,
+      "y": 8290,
+      "busy": true
     }
   ],
   "leaders": [],
@@ -1760,7 +1771,7 @@
           "w": 140,
           "h": 4500,
           "rot": 0,
-          "sig": "red",
+          "sig": "yellow",
           "auto": true,
           "id": "fmwubt7jh148",
           "x": 2110,
@@ -2550,6 +2561,17 @@
           "id": "fmwup6bmx150",
           "x": 48240,
           "y": 1000
+        },
+        {
+          "type": "facCarWash",
+          "w": 9000,
+          "h": 3000,
+          "rot": 0,
+          "d": 3600,
+          "id": "fmwupqe8w148",
+          "x": 24440,
+          "y": 8290,
+          "busy": true
         }
       ],
       "leaders": [],
