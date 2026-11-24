@@ -106,10 +106,17 @@
       "h": 1500,
       "rot": 0,
       "d": 1800,
-      "color": "white",
+      "color": "red",
+      "doorFL": false,
+      "doorFR": false,
+      "doorRL": false,
+      "doorRR": false,
+      "hood": false,
+      "trunk": false,
       "id": "dbgcar",
-      "x": 6000,
-      "y": 6000
+      "x": 0,
+      "y": 0,
+      "int": "beige"
     }
   ],
   "leaders": [],
@@ -236,10 +243,17 @@
           "h": 1500,
           "rot": 0,
           "d": 1800,
-          "color": "white",
+          "color": "red",
+          "doorFL": false,
+          "doorFR": false,
+          "doorRL": false,
+          "doorRR": false,
+          "hood": false,
+          "trunk": false,
           "id": "dbgcar",
-          "x": 6000,
-          "y": 6000
+          "x": 0,
+          "y": 0,
+          "int": "beige"
         }
       ],
       "leaders": [],

@@ -4276,6 +4276,7 @@
       s.extras = Array.isArray(s.extras) ? s.extras : [];                 // 洞口 / 设备平台 / 室外场地 / 屋面细节等扩展构件
       // 折线道路旧数据的圆角可能缺失 / 为 null：统一补默认 3000，避免同一份方案里有的路有转弯、有的路是尖角；显式 0 仍保留尖角
       s.extras.forEach(e => {
+        if (e.type === 'carSedan') ['doorFL','doorFR','doorRL','doorRR','hood','trunk'].forEach(k => { e[k] = !!e[k]; });   // 轿车六扇门盖：旧存档补默认关闭
         if (['highway', 'road', 'cityroad', 'countryroad', 'trail', 'sidewalk'].includes(e.type)
           && Array.isArray(e.pts) && e.pts.length > 2 && e.fillet == null) e.fillet = 3000;
       });
@@ -7024,10 +7025,17 @@
         nums:[['dur','清洗时长 (秒)','Wash duration',8,60,1]], def:{dur:14},
         tip:['自动洗车机：龙门式洗车机，底板 + 两侧行走轨道 + 龙门架（双立柱 + 顶梁 + 侧滚刷 × 2 + 顶滚刷 + 喷头排 + 泡沫管 + 风干风道，全部随架移动）+ 进 / 出导向箭头 + 状态灯；3D 点击机体（漫游按 E）启动洗车流程——龙门自动走完 预湿 → 泡沫 → 滚刷往复清洗 → 冲净 → 风干回位，洗车中状态灯蓝色闪烁、地面湿地反光；清洗时长 8~60 秒可设（默认 14 秒），机长 / 机高 / 轨道宽可改。','Gantry car wash: base slab, travel rails and a portal frame carrying side brushes, top brush, spray bar, foam pipe and dryer ducts (all gantry-mounted); click it in 3D (E in walk) to run the cycle — the gantry sweeps through pre-rinse, foam, brush passes, rinse and dry; wash duration 8–60 s (default 14); edit length / height / width.' ] },
       carSedan: { wl:['车长','Length'], wmin:3000, wmax:6500, hl:['车高','Height'], hmin:1200, hmax:2000, dl:['车宽','Width'], dmin:1400, dmax:2400,
-        sels:[['color','车身色','Colour',[['white','珍珠白','Pearl white'],['black','曜石黑','Obsidian black'],['silver','银灰','Silver'],['grey','钛空灰','Titanium grey'],['blue','深海蓝','Deep blue'],['red','中国红','Red']]]], def:{color:'white'},
-        tip:['轿车：点击放置的三厢小客车，2D 俯视画车身轮廓、前后风挡、车顶天窗、四轮、后视镜与前照 / 尾灯，3D 为车身 + 玻璃座舱 + 轮毂 + 灯组 + 进气格栅的整车模型；车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色与朝向，漫游中整车挡人。','Sedan: click to place a three-box passenger car. The 2D plan shows the body silhouette, windshields, sunroof, four wheels, mirrors and lamps; the 3D model adds a glazed cabin, wheel rims, light groups and a front grille. The nose points along the heading (0° = screen right); edit length / width / height, colour and angle. Blocks walking in 3D.'] }
+        sels:[['color','车身色','Colour',[['white','珍珠白','Pearl white'],['black','曜石黑','Obsidian black'],['silver','银灰','Silver'],['grey','钛空灰','Titanium grey'],['blue','深海蓝','Deep blue'],['red','中国红','Red']]],
+              ['int','内饰样式','Interior',[['black','经典黑','Classic black'],['beige','米色','Beige'],['grey','浅灰','Light grey'],['brown','棕褐','Brown'],['red','运动红','Sport red']]]],
+        chks:[['doorFL','左前门','Front left door'],['doorFR','右前门','Front right door'],['doorRL','左后门','Rear left door'],['doorRR','右后门','Rear right door'],['hood','前引擎盖','Hood'],['trunk','后备箱门','Trunk']],
+        def:{color:'white',int:'black',doorFL:false,doorFR:false,doorRL:false,doorRR:false,hood:false,trunk:false},
+        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门可各自独立开合——3D 设计态点击对应门盖（漫游按 E）即可开关，右侧属性面板也能勾选；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向，漫游中整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood and the trunk open independently — click each panel in 3D design mode (E in walk), or tick them in the property panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Blocks walking in 3D.'] }
     };
     const CAR_COLORS = { white:'#e9ecee', black:'#2b3035', silver:'#b8c0c6', grey:'#79848c', blue:'#2c4f78', red:'#ae3030' };   // 轿车车身色：2D 填充与 3D 车漆共用
+    const CAR_INTERIORS = {                                                                  // 轿车内饰样式：座椅 / 仪表台 / 门板主色 + 地毯色
+      black:{ seat:'#3b4249', carpet:'#252a2f' }, beige:{ seat:'#b9aa91', carpet:'#8f8270' },
+      grey:{ seat:'#8b9196', carpet:'#666c71' }, brown:{ seat:'#7a5a44', carpet:'#513c2e' }, red:{ seat:'#7e3036', carpet:'#522127' }
+    };
     function parkRows(e) {                                                       // 停车场配套的通用属性行（尺寸 / 参数 / 开关 / 朝向 / 位置）
       const p = PARK_EXT[e.type]; if (!p) return '';
       const num = (id, v, mn, mx, st) => `<input type="number" id="${id}" value="${Math.round(v)}" min="${mn}" max="${mx}" step="${st}">`;
@@ -7070,7 +7078,7 @@
         const pm = /^port([0-2])$/.exec(k);                                                  // 回收站三口：勾选框写回 e.ports[i]（分类垃圾桶 binOpen 见下）
         if (pm) { const ports = (Array.isArray(e.ports) ? e.ports : [e.on === true, e.on === true, e.on === true]).slice(); ports[+pm[1]] = el.checked; e.ports = ports; }
         else { e[k] = el.checked; if (e.type === 'sanSortBin' && k === 'on') e.binOpen = [el.checked, el.checked, el.checked, el.checked]; if (e.type === 'sanRecycleStation' && k === 'on') e.ports = [el.checked, el.checked, el.checked]; }
-      } }); window.applyParkVisual?.(id); }; });
+      } }); window.applyParkVisual?.(id); window.applyCarVisual?.(id); }; });
     }
     /* 2D 俯视配色 / 字形：旧标志保留动态值，新标志读配置表。 */
     const SIGN_2D = Object.assign({
@@ -7748,6 +7756,14 @@
                 + rect(L2+Wd*.005, 0, Wd*.05, Wd*.26, '#f2f2e8', .98, '#6c757b', 1)                                                              // 前车牌
                 + rect(-L2-Wd*.005, 0, Wd*.05, Wd*.26, '#f2f2e8', .98, '#6c757b', 1)                                                             // 后车牌
                 + line(L*.22, -W2*.62, L*.26, -W2*.10, '#2f383f', 1.3, .85) + line(L*.22, W2*.62, L*.26, W2*.10, '#2f383f', 1.3, .85);          // 雨刷
+              const carOpen = k => !!e[k], hinge = (hx, hy) => { const p = Pxy(hx, hy); return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="70" fill="#b5653a" stroke="#fff" stroke-width="12" vector-effect="non-scaling-stroke"/>`; };
+              [[L*.19, L*.23, 'doorFL', 'doorFR'], [-L*.06, L*.24, 'doorRL', 'doorRR']].forEach(([hx, dw, fL, fR]) => {                         // 四门开启：铰链点 + 向外张开的门扇线
+                [-1, 1].forEach(sy => { if (!carOpen(sy < 0 ? fL : fR)) return;
+                  inner += line(hx, sy*W2, hx - dw*Math.cos(1.15), sy*(W2 + dw*Math.sin(1.15)*.85), '#b5653a', 3, .95) + hinge(hx, sy*W2);
+                });
+              });
+              if (carOpen('hood'))   [-1, 1].forEach(sy => inner += line(L*.20, sy*W2*.86, L*.20 + L*.17, sy*(W2*.86 + Wd*.45), '#b5653a', 3, .9));    // 引擎盖掀起投影
+              if (carOpen('trunk')) [-1, 1].forEach(sy => inner += line(-L*.35, sy*W2*.86, -L*.35 - L*.14, sy*(W2*.86 + Wd*.45), '#b5653a', 3, .9));  // 后备箱盖掀起投影
             } else if (PARK_EXT[e.type]) {                      // 停车场配套 19 件：车位标线 / 出入口设备 / 引导配套 / 机械停车
               inner = park2D(e, a, ux, uy, R, col, on, T);
             } else {                                            // 凸面镜：杆点 + 圆盘
@@ -16298,14 +16314,18 @@
           doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
         } else if (h?.door && h.mesh) {
           if (doorHover !== h.mesh) {                                    // 换门：把高亮层挂到新门扇（随开门动画一起转）
-            const p = h.mesh.geometry.parameters;
             doorHi.removeFromParent(); doorHi.visible = true;
-            doorHi.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+            const p = h.mesh.geometry.parameters;                        // 车门玻璃是 BufferGeometry 没有 parameters：用世界包围盒兜底
+            if (p) doorHi.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+            else { const bb = new THREE.Box3().setFromObject(h.mesh), sz = bb.getSize(new THREE.Vector3());
+              bb.getCenter(doorHi.position); doorHi.scale.set(Math.max(.05,sz.x)*1.05, Math.max(.05,sz.y)*1.05, Math.max(.02,sz.z)+.06); }
             h.mesh.add(doorHi);
             doorHover = h.mesh;
           }
           cv.style.cursor = baseCur;                              // 光标服从当前工具：选择=原鼠标，移动=四箭头，绘制=十字
-          doorTip.textContent = h.door.win
+          doorTip.textContent = h.door.kind === 'car'
+            ? tr(`点击${h.door.open ? '关上' : '打开'}${h.door.label[0]}`, `Click to ${h.door.open ? 'close' : 'open'} ${h.door.label[1]}`)
+            : h.door.win
             ? (h.door.open ? tr('点击关窗', 'Click to close') : tr('点击开窗', 'Click to open'))
             : (h.door.open ? tr('点击关门', 'Click to close') : tr('点击开门', 'Click to open'));
           doorTip.classList.add('open');
@@ -21786,54 +21806,104 @@
           });
           updateLaneLightVisual(e.id);
           colliders.push([px - .12, pz - .12, px + .12, pz + .12, 0, Math.min(h, 2.2)]);
-        } else if (T3 === 'carSedan') {                         // 轿车：按侧视轮廓整体挤出车身（轮拱 / 车顶 / A·C 柱同源），再贴玻璃与细节
+        } else if (T3 === 'carSedan') {                         // 轿车：连续壳体（侧板自带门窗框，门板与车身共面）+ 内饰 + 机舱 / 行李厢空腔
           const L = Math.max(2.5, W), Wd = Math.max(1.2, M(e.d || 1800)), BH = Math.max(1.1, h);
           const paintHex = CAR_COLORS[e.color] || CAR_COLORS.white;
           const paint = mat(paintHex, { metalness:.35, roughness:.32 }), paintDim = mat(paintHex, { metalness:.28, roughness:.45 });
-          const glass = oneMat(new THREE.MeshPhysicalMaterial({ color:0x35536b, transparent:true, opacity:.72, roughness:.12, metalness:.08, side:THREE.DoubleSide }));
+          const glass = oneMat(new THREE.MeshPhysicalMaterial({ color:0x3b5568, transparent:true, opacity:.62, roughness:.1, metalness:.06, side:THREE.DoubleSide }));
+          const doorGlass = oneMat(new THREE.MeshPhysicalMaterial({ color:0x22384a, transparent:true, opacity:.9, roughness:.14, metalness:.08, side:THREE.DoubleSide }));   // 四门侧窗：深色贴膜不透视，风挡 / 天窗仍用较透的玻璃
           const chrome = mat('#c6ced5', { metalness:.85, roughness:.18 }), black = mat('#20242a', { roughness:.9 });
           const tire = mat('#171a1d', { roughness:.98 }), rimM = mat('#adb6bd', { metalness:.82, roughness:.28 });
-          const wr = Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + .60), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46;
-          const sil = [[-L * .5, y0]];
-          [-L * .31, L * .31].forEach(cx => { for (let i = 0; i <= 10; i++) { const t = Math.PI - i * Math.PI / 10; sil.push([cx + Math.cos(t) * ar, y0 + Math.sin(t) * ar]); } });
-          sil.push([L*.5,y0], [L*.5,belt-.10], [L*.47,belt+.01], [L*.20,belt+.05], [L*.09,top-.06], [L*.04,top], [-L*.17,top], [-L*.23,top-.06], [-L*.35,belt+.05], [-L*.47,belt+.01], [-L*.5,belt-.10]);
-          const outline = new THREE.Shape();
-          sil.forEach(([x, y], i) => i ? outline.lineTo(x, y) : outline.moveTo(x, y)); outline.closePath();
-          const body = new THREE.Mesh(new THREE.ExtrudeGeometry(outline, { depth:halfW*2, bevelEnabled:true, bevelThickness:.02, bevelSize:.02, bevelSegments:2, curveSegments:4 }), paint);
-          body.position.z = -halfW; body.castShadow = body.receiveShadow = true; grp.add(body);                             // 整体车身：车头 / 引擎盖 / 风挡斜坡 / 车顶 / 后风挡 / 行李厢 / 轮拱一次成型
+          const it = CAR_INTERIORS[e.int] || CAR_INTERIORS.black;
+          const innerM = mat(it.seat, { roughness:.94 }), carpetM = mat(it.carpet, { roughness:1 }), engineM = mat('#5b646b', { metalness:.55, roughness:.5 });
+          const wr = Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + .60), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46, wall = .07;
+          const sil = [[-L*.5,y0]];
+          [-L*.31,L*.31].forEach(cx=>{for(let i=0;i<=10;i++){const t=Math.PI-i*Math.PI/10;sil.push([cx+Math.cos(t)*ar,y0+Math.sin(t)*ar]);}});
+          sil.push([L*.5,y0],[L*.5,belt-.09],[L*.20,belt-.09],[L*.09,top-.06],[L*.04,top],[-L*.17,top],[-L*.23,top-.06],[-L*.35,belt-.09],[-L*.5,belt-.09],[-L*.5,y0]);
+          const sideShape = new THREE.Shape();
+          sil.forEach(([x,y],i)=> i?sideShape.lineTo(x,y):sideShape.moveTo(x,y)); sideShape.closePath();
+          const cutHole = pts => { const h=new THREE.Path(); pts.forEach(([x,y],i)=> i?h.lineTo(x,y):h.moveTo(x,y)); h.closePath(); sideShape.holes.push(h); };
+          cutHole([[-L*.04,y0+.03],[L*.19,y0+.03],[L*.19,belt],[L*.08,top-.07],[-L*.04,top-.07]]);                          // 前门洞+前侧窗洞合并：belt 处不再有白色洞缘横杆
+          const rcx=-L*.31, rEnd=Math.acos(Math.min(1,(-L*.30-rcx)/ar)), rearBot=[[-L*.06,y0+.03]];
+          for(let i=0;i<=10;i++){const t=i/10*rEnd;rearBot.push([rcx+ar*Math.cos(t),y0+ar*Math.sin(t)+.03]);}
+          cutHole([...rearBot,[-L*.30,belt],[-L*.22,top-.07],[-L*.06,top-.07]]);                                            // 后门洞+后侧窗洞合并：同样消除白色横杆
+          [-1,1].forEach(sd => { const s=new THREE.Mesh(new THREE.ExtrudeGeometry(sideShape,{depth:wall,bevelEnabled:false,curveSegments:4}),paint);
+            s.position.z = sd>0 ? halfW-wall : -halfW; s.castShadow=s.receiveShadow=true; grp.add(s); });                    // 侧板挖出门窗洞，洞缘自身就是门框 / 窗框，无拼接缝
           P(new THREE.BoxGeometry(L*1.01,.012,Wd*1.01), oneMat(new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2,depthWrite:false})),0,.008,0);
-          const win = new THREE.Shape();
-          win.moveTo(-L*.325, belt+.07); win.lineTo(L*.175, belt+.07); win.lineTo(L*.065, top-.07); win.lineTo(-L*.205, top-.07); win.closePath();
-          [-1, 1].forEach(sd => {
-            const w = new THREE.Mesh(new THREE.ExtrudeGeometry(win, { depth:.012, bevelEnabled:false }), glass);
-            w.position.z = sd > 0 ? halfW + .012 : -halfW - .024; grp.add(w);                                              // 侧窗玻璃：梯形贴合 A/C 柱斜边
-            P(new THREE.BoxGeometry(.035, (top-belt)*.78, .05), paint, -L*.07, (belt+top)/2, sd*(halfW+.03));              // B 柱
-            P(new THREE.BoxGeometry(L*.90, .016, .02), chrome, 0, belt-.04, sd*(halfW+.018));                              // 腰线镀铬
+          P(new THREE.BoxGeometry(L*.98,.06,Wd*.92), paintDim, 0, y0+.03, 0);                                              // 地板
+          P(new THREE.BoxGeometry(L*.32,.06,halfW*2), paint, -L*.07, top+.005, 0);                                         // 车顶：前后正好接到风挡上沿
+          P(new THREE.BoxGeometry(.05,belt-y0,Wd*.90), paintDim, L*.19, (y0+belt)/2, 0);                                   // 前围防火墙
+          P(new THREE.BoxGeometry(.05,belt-y0,Wd*.90), paintDim, -L*.35, (y0+belt)/2, 0);                                  // 后围板
+          P(new THREE.BoxGeometry(.06,belt-y0-.10,Wd*.92), paintDim, L*.49, (y0+belt-.10)/2, 0);                           // 车头 / 车尾围板
+          P(new THREE.BoxGeometry(.06,belt-y0-.10,Wd*.92), paintDim, -L*.49, (y0+belt-.10)/2, 0);
+          const quad = (pts, m, z1, z2, parent) => { const g = new THREE.BufferGeometry(); const v = [];
+            for (let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];v.push(...a,z1,...b,z1,...b,z2,...a,z1,...b,z2,...a,z2);}
+            g.setAttribute('position', new THREE.Float32BufferAttribute(v,3)); g.computeVertexNormals();
+            const o = new THREE.Mesh(g,m); o.castShadow=o.receiveShadow=true; (parent||grp).add(o); return o; };
+          quad([[L*.20,belt-.09],[L*.09,top-.06],[L*.09,top+.005],[L*.20,belt]], glass, -halfW+.02, halfW-.02);            // 前风挡
+          quad([[-L*.35,belt-.09],[-L*.23,top-.06],[-L*.23,top+.005],[-L*.35,belt]], glass, -halfW+.02, halfW-.02);        // 后风挡
+          P(new THREE.BoxGeometry(L*.14,.012,Wd*.36), glass, -L*.07, top+.04, 0);                                          // 天窗
+          P(new THREE.BoxGeometry(L*.52,.02,Wd*.80), carpetM, -L*.05, y0+.075, 0);                                         // 座舱地毯
+          [-1, 1].forEach(sd => [L*.00, -L*.18].forEach(sx => {                                                            // 四座：前排略后移，留出腿部空间
+            P(new THREE.BoxGeometry(.44,.10,.44), innerM, sx, y0+.30, sd*Wd*.22);
+            const back = P(new THREE.BoxGeometry(.12,.40,.44), innerM, sx-.17, y0+.52, sd*Wd*.22); back.rotation.z = -.14;
+            P(new THREE.BoxGeometry(.12,.12,.20), innerM, sx-.17, y0+.80, sd*Wd*.22);
+          }));
+          P(new THREE.BoxGeometry(.28,.16,Wd*.78), innerM, L*.15, y0+.52, 0);                                              // 仪表台
+          P(new THREE.BoxGeometry(.50,.10,.18), innerM, -L*.02, y0+.20, 0);                                                // 中央通道
+          const swX=L*.07, swY=y0+.62, swZ=-Wd*.22;                                                                       // 方向盘：轮毂 + 转向柱接入仪表台，不再悬空
+          const sw = P(new THREE.TorusGeometry(.15,.022,8,18), black, swX, swY, swZ); sw.rotation.y = Math.PI/2;
+          const hub = P(new THREE.CylinderGeometry(.05,.05,.03,16), black, swX, swY, swZ); hub.rotation.z = Math.PI/2;
+          const swA = new THREE.Vector3(swX,swY,swZ), swB = new THREE.Vector3(L*.15-.08, y0+.55, swZ), swDir = swB.clone().sub(swA);
+          const col = P(new THREE.CylinderGeometry(.035,.045,swDir.length(),12), black, (swX+swB.x)/2, (swY+swB.y)/2, swZ);
+          col.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0), swDir.normalize());
+          P(new THREE.BoxGeometry(.72,.36,.62), engineM, L*.33, belt-.34, 0);                                              // 发动机本体（低于机盖，不穿出）
+          P(new THREE.BoxGeometry(.26,.20,.22), black, L*.44, belt-.36, Wd*.26);                                           // 蓄电池
+          [-1,1].forEach(sd => P(new THREE.BoxGeometry(.16,.16,.16), engineM, L*.28, belt-.20, sd*Wd*.30));                // 减震塔顶
+          const spare = P(new THREE.CylinderGeometry(.26,.26,.14,16), black, -L*.42, y0+.20, 0); spare.castShadow = false;  // 行李厢：备胎 + 隔板
+          P(new THREE.BoxGeometry(L*.12,.03,Wd*.80), innerM, -L*.42, belt-.20, 0);
+          const doorH = belt - y0 - .03, doorCy = (y0 + belt) / 2 - .015;
+          const CAR_PART_LABEL = { doorFL:['左前门','front left door'], doorFR:['右前门','front right door'], doorRL:['左后门','rear left door'], doorRR:['右后门','rear right door'], hood:['前引擎盖','the hood'], trunk:['后备箱门','the trunk'] };
+          const regCarPart = (part, pivot, a1, axis, label) => {
+            const d = { kind:'car', carId:e.id, part, field:part, axis, open:!!e[part], cur:e[part]?1:0, a0:0, a1, pivot, label:CAR_PART_LABEL[part] || [label, label] };
+            pivot.traverse(o => { if (o.isMesh) { o.userData.door = d; o.userData.pick3d = {kind:'extra', id:e.id}; } });
+            doors.push(d);
+          };
+          [-1, 1].forEach(sd => {                                                                                         // 左右两侧各前后两扇车门（铰链在前缘，门板与侧板共面）
+            [[L*.19, L*.23, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.19,belt],[L*.08,top-.07],[-L*.04,top-.07],[-L*.04,belt]]],
+             [-L*.06, L*.24, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt],[-L*.06,top-.07],[-L*.22,top-.07],[-L*.30,belt]]]].forEach(([x0, dw, fL, fR, zhL, enL, zhR, enR, winPts]) => {
+              const pivot = new THREE.Group(); pivot.position.set(x0, 0, sd*(halfW-wall));
+              const panel = new THREE.Mesh(new THREE.BoxGeometry(dw, doorH, wall), paint); panel.position.set(-dw/2, doorCy, sd*wall/2); pivot.add(panel);
+              const inner = new THREE.Mesh(new THREE.BoxGeometry(dw*.92, doorH*.90, .014), innerM); inner.position.set(-dw/2, doorCy, -sd*(wall/2+.006)); pivot.add(inner);
+              quad(winPts.map(([px,py])=>[px-x0,py]), doorGlass, sd*.004, sd*.016, pivot);                                   // 侧窗玻璃随门转动，深色贴膜
+              const hd = new THREE.Mesh(new THREE.BoxGeometry(.10,.016,.02), chrome); hd.position.set(-dw*.72, belt-.12, sd*(wall+.012)); pivot.add(hd);
+              grp.add(pivot); regCarPart(sd<0?fL:fR, pivot, sd*1.15, 'y', sd<0?zhL:zhR);
+            });
           });
-          const slant = (x1, y1, x2, y2, wd, m) => { const dx=x2-x1, dy=y2-y1, len=Math.hypot(dx,dy)||.01;
-            const o = new THREE.Mesh(new THREE.BoxGeometry(len,.025,wd), m); o.position.set((x1+x2)/2,(y1+y2)/2,0); o.rotation.z=Math.atan2(dy,dx);
-            o.castShadow = o.receiveShadow = true; grp.add(o); return o; };
-          slant(L*.20, belt+.05, L*.09, top-.06, Wd*.78, glass);                                                           // 前风挡
-          slant(-L*.35, belt+.05, -L*.23, top-.06, Wd*.76, glass);                                                         // 后风挡
-          P(new THREE.BoxGeometry(L*.14, .012, Wd*.36), glass, -L*.07, top+.03, 0);                                        // 天窗
+          const hoodPivot = new THREE.Group(); hoodPivot.position.set(L*.20, belt-.09, 0);
+          const hp = new THREE.Mesh(new THREE.BoxGeometry(L*.30,.04,halfW*2), paint); hp.position.set(L*.15,0,0); hoodPivot.add(hp);                        // 机盖延伸到车头前缘，与侧板机盖平台齐平无缝
+          [-1,1].forEach(sl => { const ln = new THREE.Mesh(new THREE.BoxGeometry(L*.27,.008,.018), paintDim); ln.position.set(L*.15,.006,sl*Wd*.22); hoodPivot.add(ln); });
+          grp.add(hoodPivot); regCarPart('hood', hoodPivot, .95, 'z', '前引擎盖');
+          const trunkPivot = new THREE.Group(); trunkPivot.position.set(-L*.35, belt-.09, 0);
+          const tp = new THREE.Mesh(new THREE.BoxGeometry(L*.15,.04,halfW*2), paint); tp.position.set(-L*.075,0,0); trunkPivot.add(tp);                      // 尾门与侧板外沿齐平
+          [-1,1].forEach(sl => { const tl = new THREE.Mesh(new THREE.BoxGeometry(L*.13,.008,.018), paintDim); tl.position.set(-L*.075,.006,sl*Wd*.22); trunkPivot.add(tl); });
+          grp.add(trunkPivot); regCarPart('trunk', trunkPivot, -.95, 'z', '后备箱门');
           [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：轮胎 + 轮毂 + 中心盖（轮拱已由车身轮廓切出）
             const wx = sx * L * .31;
             const wh = P(new THREE.CylinderGeometry(wr,wr,.20,20), tire, wx, wr, sd*(halfW-.02)); wh.rotation.x = Math.PI/2;
             const rl = P(new THREE.CylinderGeometry(wr*.67,wr*.67,.205,16), rimM, wx, wr, sd*(halfW-.02)); rl.rotation.x = Math.PI/2; rl.castShadow = false;
             const hb = P(new THREE.CylinderGeometry(wr*.2,wr*.2,.21,12), chrome, wx, wr, sd*(halfW-.02)); hb.rotation.x = Math.PI/2; hb.castShadow = false;
           }));
-          [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 门把手 / 雨刷
-            P(new THREE.BoxGeometry(.09,.14,Wd*.90), paintDim, sd*(L*.5+.02), y0+.12, 0);
-            P(new THREE.BoxGeometry(.10,.03,Wd*.90), black, sd*(L*.5+.04), y0+.04, 0);
+          [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 雨刷
+            P(new THREE.BoxGeometry(.08,.11,Wd*.90), paintDim, sd*(L*.5+.02), y0+.10, 0);                                 // 保险杠收薄，车头不再像方柜
+            P(new THREE.BoxGeometry(.09,.025,Wd*.90), black, sd*(L*.5+.04), y0+.04, 0);
             [-1, 1].forEach(sl => {                                                                                       // 前后各两只灯：sd 管前后，sl 管左右（不能混用）
-              P(new THREE.BoxGeometry(.035,.13,Wd*.23), chrome, sd*(L*.5+.02), belt-.13, sl*Wd*.30);
-              const lamp = P(new THREE.BoxGeometry(.025,.10,Wd*.19), oneMat(new THREE.MeshBasicMaterial({color:sd>0?0xfff0c8:0xd43838})), sd*(L*.5+.045), belt-.13, sl*Wd*.30); lamp.castShadow = false;
+              P(new THREE.BoxGeometry(.035,.10,Wd*.18), chrome, sd*(L*.5+.02), belt-.13, sl*Wd*.30);
+              const lamp = P(new THREE.BoxGeometry(.025,.075,Wd*.15), oneMat(new THREE.MeshBasicMaterial({color:sd>0?0xfff0c8:0xd43838})), sd*(L*.5+.045), belt-.13, sl*Wd*.30); lamp.castShadow = false;
             });
             P(new THREE.BoxGeometry(.04,.03,.10), black, L*.16, belt+.06, sd*(halfW+.04));
             P(new THREE.BoxGeometry(.12,.07,.05), paintDim, L*.16, belt+.08, sd*(halfW+.09));
-            P(new THREE.BoxGeometry(.10,.016,.026), chrome, L*.02, belt-.10, sd*(halfW+.014));
-            P(new THREE.BoxGeometry(.10,.016,.026), chrome, -L*.16, belt-.10, sd*(halfW+.014));
-            P(new THREE.BoxGeometry(.018,.012,Wd*.28), black, L*.19, belt+.065, sd*Wd*.19);                                // 雨刷贴前风挡根部
+            P(new THREE.BoxGeometry(.018,.012,Wd*.28), black, L*.19, belt-.05, sd*Wd*.19);                                 // 雨刷贴前风挡根部（门把手已随四门一起运动）
           });
           const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:.13, depthWrite:false, side:THREE.DoubleSide }));
           [-1, 1].forEach(sl => {                                                                                         // 前照灯：真实聚光照明 + 可见光束，随车朝向照向前方地面
@@ -21845,8 +21915,8 @@
             beam.rotation.z = Math.PI / 2 - .08; beam.position.set(lx + 3, ly - .24, lz); beam.renderOrder = 2;
             grp.add(beam);
           });
-          P(new THREE.BoxGeometry(.025,.11,Wd*.38), black, L*.5+.03, belt-.19, 0);                                         // 进气格栅
-          for (let i = 0; i < 2; i++) P(new THREE.BoxGeometry(.012,.01,Wd*.35), chrome, L*.5+.048, belt-.22+i*.055, 0);
+          P(new THREE.BoxGeometry(.025,.085,Wd*.30), black, L*.5+.03, belt-.19, 0);                                        // 进气格栅收窄
+          for (let i = 0; i < 2; i++) P(new THREE.BoxGeometry(.012,.008,Wd*.28), chrome, L*.5+.048, belt-.215+i*.05, 0);
           P(new THREE.BoxGeometry(.012,.085,Wd*.16), oneMat(new THREE.MeshBasicMaterial({color:0xf4f2e8})), L*.5+.05, y0+.12, 0);
           P(new THREE.BoxGeometry(.012,.085,Wd*.16), oneMat(new THREE.MeshBasicMaterial({color:0xf4f2e8})), -L*.5-.05, y0+.12, 0);
           const ca = Math.cos(ang), sa = Math.sin(ang);                                                                   // 旋转后的足迹碰撞（整车挡人）
@@ -23910,7 +23980,21 @@
     const walkTip = document.createElement('div'); walkTip.id = 'walkDoorTip'; document.body.appendChild(walkTip);
     stuckTip = document.createElement('div'); stuckTip.id = 'walkStuckTip'; document.body.appendChild(stuckTip);
     stuckTip.onclick = () => unstickWalk();                     // 触屏无 R 键：直接点提示条脱离卡死
+    const applyCarVisual = id => {                                // 轿车六扇门盖：state → 运行时 doors[]，2D / 3D 同步
+      const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
+      doors.forEach(d => { if (d.kind === 'car' && String(d.carId) === String(id)) d.open = !!e[d.field]; });
+      renderExtras2();
+    };
+    window.applyCarVisual = applyCarVisual;
+    const toggleCarDoor = (carId, part) => {                       // 轿车门盖开合：写回 state + 撤销历史 + 同步面板 / 2D
+      const e = (state.extras || []).find(x => String(x.id) === String(carId)); if (!e) return;
+      mutate(() => { e[part] = !e[part]; }); applyCarVisual(carId);
+      const d = doors.find(x => x.kind === 'car' && String(x.carId) === String(carId) && x.part === part);
+      const lb = d?.label || ['车门','car panel'];
+      toast(tr(`${lb[0]}已${e[part] ? '打开' : '关闭'}`, `${lb[1]} ${e[part] ? 'opened' : 'closed'}`));
+    };
     const toggleDoor = d => {                                     // 普通门手动开合入口：电梯门（带 liftId）只由呼叫面板控制，这里一律忽略
+      if (d.kind === 'car') { toggleCarDoor(d.carId, d.part); return; }   // 轿车四门 / 机盖 / 尾门：写回 state，进撤销栈
       if (d.lift && d.liftId != null) return;
       d.open = !d.open;
       if (d.peer && d.open) d.peer.open = false;                  // 推拉窗：推开一边时对扇自动退回（同一洞口只有一边打开）
@@ -24191,12 +24275,16 @@
         walkTip.classList.add('open');
       } else if (h?.door && h.dist < 2.5 && doorHiRef) {
         if (doorHiRef.parent !== h.mesh) {                          // 高亮挂到瞄准的门扇（随开门动画一起转）
-          const p = h.mesh.geometry.parameters;
           doorHiRef.removeFromParent(); doorHiRef.visible = true;
-          doorHiRef.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+          const p = h.mesh.geometry.parameters;                      // BufferGeometry 门玻璃无 parameters：包围盒兜底
+          if (p) doorHiRef.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+          else { const bb = _tipBB.setFromObject(h.mesh), sz = bb.getSize(_tipV);
+            bb.getCenter(doorHiRef.position); doorHiRef.scale.set(Math.max(.05,sz.x)*1.05, Math.max(.05,sz.y)*1.05, Math.max(.02,sz.z)+.06); }
           h.mesh.add(doorHiRef);
         }
-        walkTip.textContent = h.door.auto ? tr('自动感应门（走近自动开合）', 'Automatic door (opens as you approach)')
+        walkTip.textContent = h.door.kind === 'car'
+          ? (touchWalk ? tr(`点按${h.door.open?'关上':'打开'}${h.door.label[0]}`, `Tap to ${h.door.open?'close':'open'} ${h.door.label[1]}`) : tr(`E ${h.door.open?'关上':'打开'}${h.door.label[0]}`, `E to ${h.door.open?'close':'open'} ${h.door.label[1]}`))
+          : h.door.auto ? tr('自动感应门（走近自动开合）', 'Automatic door (opens as you approach)')
           : h.door.lift ? (touchWalk ? tr('点电梯门开关（稍后自动关）', 'Tap elevator door; auto-closes') : tr('点 / E 开电梯门（稍后自动关）', 'Tap / E to open; auto-closes'))
             : touchWalk ? (h.door.win ? tr('点窗开关', 'Tap to toggle') : tr('点门开关', 'Tap to toggle')) : (h.door.win ? tr('E 开关窗', 'Press E to toggle') : tr('E 开关门', 'Press E to toggle'));
         walkTip.classList.add('open');
@@ -24348,7 +24436,7 @@
           toast(tr('门口有人，电梯门已重新打开', 'Door blocked — lift door reopened'));
         }
       });
-      doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation.y = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起
+      doors.forEach(d => { const tg = d.open ? (d.a1 ?? 1) : (d.a0 ?? 0); d.cur += (tg - d.cur) * Math.min(1, dt * 6); if (d.slide) d.pivots.forEach(p => p.g.position.set(p.px + p.ax * p.dist * d.cur, 0, p.pz + p.az * p.dist * d.cur)); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation[d.axis || 'y'] = d.cur; });   // slide = 电梯门双扇同步平移 / slat = 卷帘门向上卷收 / fold = 折叠门折起 / axis:z = 轿车机盖与尾门绕横轴掀起
       gateArms.forEach(g => { const tg = g.open ? g.a1 : g.a0; g.cur += (tg - g.cur) * Math.min(1, dt * 4); if (g.pivot) g.pivot.rotation.z = g.cur; });   // 道闸机闸杆升降动画：落下 0 → 抬起 +1.35rad（向上）
       parkAnims.forEach(a => { const tg = a.open ? 1 : 0; a.cur += (tg - a.cur) * Math.min(1, dt * 5); a.apply(a.cur); });   // 停车场配套：升降柱上下 / 伸缩门收拢展开
       wtRuns.forEach(r => { if (r.g) r.g.position.x = r.on ? r.x0 + Math.abs(Math.sin(now * .0035)) * r.range : r.x0; });   // 垃圾转运站：压缩机运行中推杆往复，停止时复位
