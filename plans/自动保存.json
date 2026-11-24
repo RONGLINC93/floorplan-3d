@@ -116,7 +116,8 @@
       "id": "dbgcar",
       "x": 0,
       "y": 0,
-      "int": "beige"
+      "int": "beige",
+      "on": false
     }
   ],
   "leaders": [],
@@ -253,7 +254,8 @@
           "id": "dbgcar",
           "x": 0,
           "y": 0,
-          "int": "beige"
+          "int": "beige",
+          "on": false
         }
       ],
       "leaders": [],

@@ -7027,9 +7027,9 @@
       carSedan: { wl:['车长','Length'], wmin:3000, wmax:6500, hl:['车高','Height'], hmin:1200, hmax:2000, dl:['车宽','Width'], dmin:1400, dmax:2400,
         sels:[['color','车身色','Colour',[['white','珍珠白','Pearl white'],['black','曜石黑','Obsidian black'],['silver','银灰','Silver'],['grey','钛空灰','Titanium grey'],['blue','深海蓝','Deep blue'],['red','中国红','Red']]],
               ['int','内饰样式','Interior',[['black','经典黑','Classic black'],['beige','米色','Beige'],['grey','浅灰','Light grey'],['brown','棕褐','Brown'],['red','运动红','Sport red']]]],
-        chks:[['doorFL','左前门','Front left door'],['doorFR','右前门','Front right door'],['doorRL','左后门','Rear left door'],['doorRR','右后门','Rear right door'],['hood','前引擎盖','Hood'],['trunk','后备箱门','Trunk']],
-        def:{color:'white',int:'black',doorFL:false,doorFR:false,doorRL:false,doorRR:false,hood:false,trunk:false},
-        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门可各自独立开合——3D 设计态点击对应门盖（漫游按 E）即可开关，右侧属性面板也能勾选；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向，漫游中整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood and the trunk open independently — click each panel in 3D design mode (E in walk), or tick them in the property panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Blocks walking in 3D.'] }
+        chks:[['doorFL','左前门','Front left door'],['doorFR','右前门','Front right door'],['doorRL','左后门','Rear left door'],['doorRR','右后门','Rear right door'],['hood','前引擎盖','Hood'],['trunk','后备箱门','Trunk'],['lights','车灯','Headlights']],
+        def:{color:'white',int:'black',doorFL:false,doorFR:false,doorRL:false,doorRR:false,hood:false,trunk:false,lights:true},
+        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门可各自独立开合——3D 设计态点击对应门盖（漫游按 E）即可开关，右侧属性面板也能勾选；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向；车灯可开关——点前照灯（漫游按 E）或勾选面板「车灯」切换前照灯聚光与尾灯亮灭，漫游中整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood and the trunk open independently — click each panel in 3D design mode (E in walk), or tick them in the property panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Headlights toggle on/off — click a headlamp (E in walk) or tick “Headlights” in the panel to switch the spot beam and tail lamps. Blocks walking in 3D.'] }
     };
     const CAR_COLORS = { white:'#e9ecee', black:'#2b3035', silver:'#b8c0c6', grey:'#79848c', blue:'#2c4f78', red:'#ae3030' };   // 轿车车身色：2D 填充与 3D 车漆共用
     const CAR_INTERIORS = {                                                                  // 轿车内饰样式：座椅 / 仪表台 / 门板主色 + 地毯色
@@ -7049,7 +7049,7 @@
       (p.texts || []).forEach(([k, zh, en, dv, ml]) => r += `<label>${tr(zh, en)}<input type="text" id="fx_${k}" value="${esc(e[k] ?? dv)}" maxlength="${ml}"></label>`);
       (p.chks || []).forEach(([k, zh, en]) => {
         const pm = /^port([0-2])$/.exec(k);                                                  // 回收站三口：勾选框读 e.ports[i]
-        const checked = pm ? (Array.isArray(e.ports) ? e.ports[+pm[1]] === true : e.on === true) : (k === 'doorOpen' ? e[k] !== false : e[k]);
+        const checked = pm ? (Array.isArray(e.ports) ? e.ports[+pm[1]] === true : e.on === true) : ((k === 'doorOpen' || k === 'lights') ? e[k] !== false : e[k]);
         r += `<label class="chk"><input type="checkbox" id="fx_${k}" ${checked ? 'checked' : ''}> ${tr(zh, en)}</label>`;
       });
       r += `<label>${tr('朝向', 'Angle')} (°)${num('exRot', ((+e.rot || 0) % 360 + 360) % 360, -360, 360, 15)}</label>
@@ -7749,8 +7749,8 @@
                   + rect(L*.17, sy*(W2+Wd*.055), L*.055, Wd*.10, paint, 1, '#4b565e', 1)
                   + rect(L*.04, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
                   + rect(-L*.20, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
-                  + rect(L2-Wd*.045, sy*W2*.56, Wd*.10, Wd*.22, '#fff4d2', .98, '#c9a86b', 1)
-                  + rect(-L2+Wd*.05, sy*W2*.56, Wd*.10, Wd*.24, '#c42b2b', .98, '#7c1b1b', 1);
+                  + rect(L2-Wd*.045, sy*W2*.56, Wd*.10, Wd*.22, e.lights!==false?'#fff4d2':'#8a8272', .98, '#c9a86b', 1)
+                  + rect(-L2+Wd*.05, sy*W2*.56, Wd*.10, Wd*.24, e.lights!==false?'#c42b2b':'#6f3a3a', .98, '#7c1b1b', 1);
               });
               inner += rect(L2-Wd*.02, 0, Wd*.06, Wd*.52, '#3a4045', .95, null)                                                                  // 前进气格栅
                 + rect(L2+Wd*.005, 0, Wd*.05, Wd*.26, '#f2f2e8', .98, '#6c757b', 1)                                                              // 前车牌
@@ -16228,7 +16228,7 @@
         const tap = downAt && Math.hypot(e.clientX - downAt[0], e.clientY - downAt[1]) <= TAP;
         if (look?.id === e.pointerId) {
           look = null;
-          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 道闸 / 旗杆 / 灯具 / 路灯 / 信号灯（不选中，只动作）；点别处 = 射击
+          if (tap) { const h = pick(e); if (h?.liftBtn && h.dist < 3.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 3.5) toggleDoor(h.door); else if (h?.carLamp && h.dist < 3.5) toggleCarLamp(h.carLamp); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 3.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); else shoot(e); }   // 漫游时点电梯按钮 / 门开关 / 道闸 / 旗杆 / 灯具 / 路灯 / 信号灯（不选中，只动作）；点别处 = 射击
           return;
         }
         if (anim || opt.mode !== 'orbit' || !tap) return;
@@ -16240,6 +16240,7 @@
         if (m3dPreview) {                                                 // 3D 预览：门窗可点开合 / 房间可查看，家具不可选编辑
           if (h?.park) togglePark(h.park);                                // 预览态：停车场设备只动作不选中
           else if (h?.gateArm) toggleGateArm(h.gateArm);                   // 预览态：道闸只动作不选中
+          else if (h?.carLamp) toggleCarLamp(h.carLamp);                   // 预览态：车灯只动作不选中
           else if (h?.liftBtn) liftBtnAct(h.liftBtn);                     // 预览态也支持电梯楼层 / 开关门按钮
           else if (h?.door) h.door.open = !h.door.open;
           else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
@@ -16252,6 +16253,7 @@
         }
         if (h?.park) togglePark(h.park, true);   // 停车场设备：动作 + 选中
         else if (h?.gateArm) toggleGateArm(h.gateArm, true);   // 道闸机：点击机箱 / 闸杆升降 + 选中
+        else if (h?.carLamp) { toggleCarLamp(h.carLamp); window.select({ kind: 'extra', id: h.carLamp }); }   // 车灯：开关 + 选中车辆
         else if (h?.liftBtn) { liftBtnAct(h.liftBtn); window.select({ kind: 'lift', id: h.liftBtn.id }); }   // 呼叫面板按钮：执行后选中电梯（属性面板可继续设置楼层）
         else if (h?.door) {                                               // 门 / 窗：开合的同时选中它（属性面板可改尺寸 / 材质 / 开启方向）
           h.door.open = !h.door.open;
@@ -21894,21 +21896,23 @@
             const rl = P(new THREE.CylinderGeometry(wr*.67,wr*.67,.205,16), rimM, wx, wr, sd*(halfW-.02)); rl.rotation.x = Math.PI/2; rl.castShadow = false;
             const hb = P(new THREE.CylinderGeometry(wr*.2,wr*.2,.21,12), chrome, wx, wr, sd*(halfW-.02)); hb.rotation.x = Math.PI/2; hb.castShadow = false;
           }));
+          const lightsOn = e.lights !== false;                                                                           // 车灯开关：旧方案未设按开灯处理
           [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 雨刷
             P(new THREE.BoxGeometry(.08,.11,Wd*.90), paintDim, sd*(L*.5+.02), y0+.10, 0);                                 // 保险杠收薄，车头不再像方柜
             P(new THREE.BoxGeometry(.09,.025,Wd*.90), black, sd*(L*.5+.04), y0+.04, 0);
             [-1, 1].forEach(sl => {                                                                                       // 前后各两只灯：sd 管前后，sl 管左右（不能混用）
               P(new THREE.BoxGeometry(.035,.10,Wd*.18), chrome, sd*(L*.5+.02), belt-.13, sl*Wd*.30);
-              const lamp = P(new THREE.BoxGeometry(.025,.075,Wd*.15), oneMat(new THREE.MeshBasicMaterial({color:sd>0?0xfff0c8:0xd43838})), sd*(L*.5+.045), belt-.13, sl*Wd*.30); lamp.castShadow = false;
+              const lamp = P(new THREE.BoxGeometry(.025,.075,Wd*.15), oneMat(new THREE.MeshBasicMaterial({color: sd>0 ? (lightsOn?0xfff0c8:0x6b6658) : (lightsOn?0xd43838:0x5c2a2a)})), sd*(L*.5+.045), belt-.13, sl*Wd*.30); lamp.castShadow = false;
+              if (sd>0) lamp.userData.carLamp = e.id;                                                                     // 前照灯登记点击切换
             });
             P(new THREE.BoxGeometry(.04,.03,.10), black, L*.16, belt+.06, sd*(halfW+.04));
             P(new THREE.BoxGeometry(.12,.07,.05), paintDim, L*.16, belt+.08, sd*(halfW+.09));
             P(new THREE.BoxGeometry(.018,.012,Wd*.28), black, L*.19, belt-.05, sd*Wd*.19);                                 // 雨刷贴前风挡根部（门把手已随四门一起运动）
           });
-          const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:.13, depthWrite:false, side:THREE.DoubleSide }));
-          [-1, 1].forEach(sl => {                                                                                         // 前照灯：真实聚光照明 + 可见光束，随车朝向照向前方地面
+          const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:lightsOn?.13:0, depthWrite:false, side:THREE.DoubleSide }));
+          [-1, 1].forEach(sl => {                                                                                         // 前照灯：真实聚光照明 + 可见光束，随车朝向照向前方地面（关灯时熄灭）
             const lx = L*.5 + .06, ly = belt - .13, lz = sl * Wd * .30;
-            const spot = new THREE.SpotLight(0xfff2cf, 42, 11, .34, .5, 1.6);
+            const spot = new THREE.SpotLight(0xfff2cf, lightsOn?42:0, 11, .34, .5, 1.6);
             spot.position.set(lx, ly, lz); spot.target.position.set(lx + 9, -.35, lz + sl * .5);
             grp.add(spot); grp.add(spot.target);
             const beam = new THREE.Mesh(new THREE.ConeGeometry(1.9, 6, 16, 1, true), beamMat);
@@ -23223,6 +23227,7 @@
           if (p.userData.fid) { sel = { fid: p.userData.fid }; break; }
         }
         if (o.userData.gateArm) return { gateArm: o.userData.gateArm, dist: h.distance, mesh: o, ...(sel || {}) };   // 道闸机机箱 / 闸杆：点击升降
+        if (o.userData.carLamp) return { carLamp: o.userData.carLamp, dist: h.distance, mesh: o, ...(sel || {}) };   // 轿车前照灯：点击开关车灯
         if (o.userData.park) return { park: o.userData.park, dist: h.distance, mesh: o, id: o.userData.park.id, ...(sel || {}) };   // 停车场设备：升降柱 / 伸缩门 / 车位灯 / 充电桩
         if (o.userData.liftBtn) return { liftBtn: o.userData.liftBtn, dist: h.distance, mesh: o, ...(sel || {}) };   // 电梯呼叫面板按钮：楼层直达 / 开 / 关门
         if (o.userData.door) return { door: o.userData.door, dist: h.distance, mesh: o, ...(sel || {}) };   // 门扇：开合同时带回所属门窗 / 电梯 / 院门，供选中
@@ -23920,7 +23925,7 @@
       if (opt.mode === 'walk' && e.code === 'KeyR') unstickWalk();         // R 脱离卡死：附近找空位，找不到回入户门
       if (opt.mode === 'walk' && (e.ctrlKey || e.metaKey) && /^(Key[WASD]|Arrow)/.test(e.code)) e.preventDefault();   // 漫游下蹲时按 WASD 移动：尽力阻止触发浏览器快捷键
       keys[e.code] = true;
-      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); }
+      if (opt.mode === 'walk' && e.code === 'KeyE') { const h = pick(); if (h?.liftBtn && h.dist < 2.5) liftBtnAct(h.liftBtn); else if (h?.door && h.dist < 2.5) toggleDoor(h.door); else if (h?.carLamp && h.dist < 2.5) toggleCarLamp(h.carLamp); else if (h?.gateArm && h.dist < 3.5) toggleGateArm(h.gateArm); else if (h?.park && h.dist < 3.5) togglePark(h.park); else if ((h?.flagSel || h?.flagHandle) && h.dist < 2.5) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle))); else if (h?.kind === 'lamp' && h.dist < 2.5) toggleLamp(h.id, h.gang); else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp') && h.dist < 3.5) toggleStreetLamp(h.id, false); else if (h?.kind === 'traflight' && h.dist < 3.5) cycleTrafficLight(h.id); else if (h?.kind === 'facLaneLight' && h.dist < 3.5) cycleLaneLight(h.id); }
     });
     addEventListener('keyup', e => keys[e.code] = false);
 
@@ -23992,6 +23997,11 @@
       const d = doors.find(x => x.kind === 'car' && String(x.carId) === String(carId) && x.part === part);
       const lb = d?.label || ['车门','car panel'];
       toast(tr(`${lb[0]}已${e[part] ? '打开' : '关闭'}`, `${lb[1]} ${e[part] ? 'opened' : 'closed'}`));
+    };
+    const toggleCarLamp = carId => {                              // 轿车车灯开关：写回 state + 撤销历史 + 3D / 2D 同步重建
+      const e = (state.extras || []).find(x => String(x.id) === String(carId)); if (!e) return;
+      mutate(() => { e.lights = e.lights === false; });
+      toast(tr(`车灯已${e.lights ? '打开' : '关闭'}`, `Headlights ${e.lights ? 'on' : 'off'}`));
     };
     const toggleDoor = d => {                                     // 普通门手动开合入口：电梯门（带 liftId）只由呼叫面板控制，这里一律忽略
       if (d.kind === 'car') { toggleCarDoor(d.carId, d.part); return; }   // 轿车四门 / 机盖 / 尾门：写回 state，进撤销栈
