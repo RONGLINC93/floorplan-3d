@@ -5743,6 +5743,24 @@
       }
       /* 非标志类道路设施 3D：凸面镜 / 限高杆 / 道口标柱 / 太阳能爆闪灯 / 公交站牌 / 减速带。
          px/pz 为世界坐标（m），h 为标高，ang 为朝向；统一 tagPick 为普通构件可点选。 */
+    /* 三种车共用：真实分叉镂空轮毂（10 组 Y 形辐条 + 亮银轮辋 + 中心盖螺栓孔）。整组挂 driveWheel 标记，驾驶时绕轮轴整体旋转，辐条不会各自变形 */
+    function buildCarWheel(parent, cx, cy, cz, wr, ww, mats) {
+      const wg = new THREE.Group(); wg.position.set(cx, cy, cz); wg.userData.driveWheel = wr; parent.add(wg);
+      const side = cz >= 0 ? 1 : -1, zf = side * ww * .46;
+      const add = (geo, m, x, y, z, rz, rx) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.set(rx || 0, 0, rz || 0); o.castShadow = o.receiveShadow = true; wg.add(o); return o; };
+      add(new THREE.CylinderGeometry(wr, wr, ww, 28), mats.tire, 0, 0, 0, 0, Math.PI/2);                       // 轮胎
+      add(new THREE.CylinderGeometry(wr*.72, wr*.72, ww*.30, 24), mats.dark, 0, 0, 0, 0, Math.PI/2);          // 深色内盘：镂空处透出阴影
+      add(new THREE.TorusGeometry(wr*.76, wr*.04, 8, 28), mats.rim, 0, 0, zf);                                // 亮银轮辋外圈（收紧，露出更多胎面）
+      for (let k = 0; k < 10; k++) {                                                                            // 10 组分叉 Y 辐条
+        const a = k * Math.PI / 5;
+        add(new THREE.BoxGeometry(wr*.42, wr*.085, ww*.10), mats.rim, Math.cos(a)*wr*.32, Math.sin(a)*wr*.32, zf, a, 0);   // 主辐
+        [-1, 1].forEach(s => { const a2 = a + s*.16;                                                             // 末端两叉撑到轮辋，中间留镂空
+          add(new THREE.BoxGeometry(wr*.36, wr*.05, ww*.10), mats.rim, Math.cos(a2)*wr*.58, Math.sin(a2)*wr*.58, zf, a2 + s*.42, 0); });
+      }
+      add(new THREE.CylinderGeometry(wr*.14, wr*.14, ww*.22, 16), mats.chrome, 0, 0, zf, 0, Math.PI/2);         // 中心盖
+      for (let k = 0; k < 5; k++) { const a = k*Math.PI*2/5;                                                    // 五孔螺栓
+        add(new THREE.CylinderGeometry(wr*.026, wr*.026, ww*.24, 8), mats.dark, Math.cos(a)*wr*.20, Math.sin(a)*wr*.20, zf, 0, Math.PI/2); }
+    }
       function buildFacility3D(T3, e, px, pz, h, part, colliders) {
         const ang = ((+e.rot || 0) % 360) * Math.PI / 180;
         const grp = new THREE.Group(); grp.position.set(px, 0, pz); grp.rotation.y = -ang; archUp.add(grp);
@@ -6066,8 +6084,8 @@
             });
           }
           [-1,1].forEach(sd => P(new THREE.BoxGeometry(.04,.22,Wd*.18), tailM, -L*.5-.035, floorY-.22, sd*Wd*.34));       // 尾灯：降到货箱下角（约 0.83m），真卡车灯组高度
-          const mkWheel = (wx, zoff) => { const wh = P(new THREE.CylinderGeometry(wr,wr,.26,18), tire, wx, wr, zoff); wh.rotation.x = Math.PI/2;
-            const rl = P(new THREE.CylinderGeometry(wr*.6,wr*.6,.28,12), rimM, wx, wr, zoff); rl.rotation.x = Math.PI/2; };
+          const wheelMats = { tire, rim:rimM, chrome, dark:mat('#2a2f34',{roughness:.9}) };
+          const mkWheel = (wx, zoff) => buildCarWheel(grp, wx, wr, zoff, wr, .26, wheelMats);   // 六轮统一真实分叉轮毂
           const axF = L*.5 - cabL*.42, rearAxles = L >= 5.2 ? [-L*.5+.95, -L*.5+1.75] : [-L*.5+.95];
           [axF, ...rearAxles].forEach(ax => {                                                                           // 每根轴：贯通桥壳横穿左右轮心 + 悬架座把桥壳顶到纵梁
             P(new THREE.BoxGeometry(.14,.14,Wd*.98), frameM, ax, wr, 0);
@@ -6091,7 +6109,7 @@
           const tire = mat('#171a1d', { roughness:.98 }), rimM = mat('#adb6bd', { metalness:.82, roughness:.28 });
           const it = CAR_INTERIORS[e.int] || CAR_INTERIORS.black;
           const innerM = mat(it.seat, { roughness:.94 }), carpetM = mat(it.carpet, { roughness:1 }), engineM = mat('#5b646b', { metalness:.55, roughness:.5 });
-          const wr = suv ? Math.min(.40, BH * .24) : Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + (suv ? .78 : .60)), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46, wall = .07;
+          const wr = suv ? Math.min(.42, BH * .25) : Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + (suv ? .78 : .60)), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46, wall = .07;   // 越野车大轮胎；轮拱半径 ar 随轮半径同步放大
           const sunL = Math.max(.30, Math.min(L*.28, M(e.sunL || L*140))), sunW = Math.max(.30, Math.min(Wd*.80, M(e.sunW || Wd*360)));  // 天窗玻璃长 / 宽（米）：只控制玻璃开口，车顶棚随开口重新拼装
           const sunX = -L*.07, sunFront = sunX + sunL/2, sunRear = sunX - sunL/2;                                          // 天窗开口中心 / 前后沿
           const sunDist = suv                                                                                              // 越野车平顶加长：滑开行程加大（玻璃抬升越过行李架横杆，后沿推到行李架后横杆前停住，不顶到车尾）
@@ -6253,18 +6271,17 @@
           doors.push({ kind:'car', carId:e.id, part:'sunroof', field:'sunroof', slide:true, open:!!e.sunroof, cur:e.sunroof?1:0,   // 滑动式天窗：关闭时嵌在开口内，打开先整块升出顶棚、再沿车顶向后推（真车同款两段式行程）
             pivots:[{ g:sunSlide, px:0, pz:0, ax:-1, az:0, dist:sunDist, ay:suv ? .075 : .04, tph:true }], label:CAR_PART_LABEL.sunroof });   // 越野车抬升量加大：玻璃整体从车顶行李架横杆上方越过，全程不再穿杆
           sunGlass.userData.door = doors[doors.length-1]; sunGlass.userData.pick3d = { kind:'extra', id:e.id };
-          [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：越野车轮胎更宽更大（轮拱已由车身轮廓切出）
-            const wx = sx * L * (suv ? .33 : .31), ww = suv ? .24 : .20, rim = suv ? .72 : .67;
-            const wh = P(new THREE.CylinderGeometry(wr,wr,ww,20), tire, wx, wr, sd*(halfW-.02)); wh.rotation.x = Math.PI/2;
-            const rl = P(new THREE.CylinderGeometry(wr*rim,wr*rim,ww+.005,16), rimM, wx, wr, sd*(halfW-.02)); rl.rotation.x = Math.PI/2; rl.castShadow = false;
-            const hb = P(new THREE.CylinderGeometry(wr*.2,wr*.2,ww+.01,12), chrome, wx, wr, sd*(halfW-.02)); hb.rotation.x = Math.PI/2; hb.castShadow = false;
+          const wheelMats2 = { tire, rim:rimM, chrome, dark:mat('#2a2f34',{roughness:.9}) };
+          [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：轮心 x 必须与车身轮廓的轮拱中心 ±L*.31 对齐，否则轮子和轮拱缺口错开
+            const wx = sx * L * .31, ww = suv ? .24 : .20;   // 越野车宽胎
+            buildCarWheel(grp, wx, wr, sd*(halfW-.02), wr, ww, wheelMats2);
           }));
           const lightsOn = e.lights !== false;                                                                           // 车灯开关：旧方案未设按开灯处理
           if (suv) {                                                                                                       // 越野车专属：车顶行李架 + 射灯 + 侧踏板（备胎已在尾门上）
             [-1,1].forEach(sd => { const rail = new THREE.Mesh(new THREE.BoxGeometry(L*.56,.045,.055), black); rail.position.set(-L*.09, top+.055, sd*halfW*.72); rail.castShadow = true; grp.add(rail); });
             [-L*.32, L*.16].forEach(rx => { const bar = new THREE.Mesh(new THREE.BoxGeometry(.045,.04,halfW*1.44), black); bar.position.set(rx, top+.038, 0); bar.castShadow = true; grp.add(bar); });
             [-1,1].forEach(sd => { const rlamp = new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.035,14), oneMat(new THREE.MeshBasicMaterial({ color: lightsOn ? 0xfff0c8 : 0x6b6658 }))); rlamp.rotation.x = Math.PI/2; rlamp.position.set(L*.18, top+.10, sd*halfW*.60); rlamp.castShadow = false; grp.add(rlamp); });
-            [-1,1].forEach(sd => { const step = new THREE.Mesh(new THREE.BoxGeometry(L*.58,.05,.11), black); step.position.set(-L*.02, y0-.02, sd*(halfW+.09)); step.castShadow = true; grp.add(step); });
+            [-1,1].forEach(sd => { const step = new THREE.Mesh(new THREE.BoxGeometry(L*.36,.05,.11), black); step.position.set(0, y0-.04, sd*(halfW+.09)); step.castShadow = true; grp.add(step); });   // 侧踏板居中于两轮之间（两端距轮内侧还留约 20cm），不再偏左压住后轮
           }
           [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 雨刷
             P(new THREE.BoxGeometry(.08,.11,Wd*.90), paintDim, sd*(L*.5+.02), y0+.10, 0);                                 // 保险杠收薄，车头不再像方柜
@@ -7641,11 +7658,11 @@
     const _selCtr = new THREE.Vector3();
     function alignedSelBox(o) {                                   // 选中车辆：贴合车身、随车旋转的包围框（BoxHelper 是轴对齐的，车一斜框就虚胖穿到别的对象上）
       const rx = o.rotation.x, ry = o.rotation.y, rz = o.rotation.z;
-      o.rotation.set(0, 0, 0); o.updateWorldMatrix(true, false);
+      o.rotation.set(0, 0, 0); o.updateMatrixWorld(true);          // 第二参数必须强制重算子级：子网格矩阵不更新时量到的是旋转中的车（斜置对角框）
       const box = new THREE.Box3();                                // 手动展开包围盒：排除车灯光束锥（向前伸出 7m，会把框拉到车头外）与灯光本体
       o.traverse(c => { if (c.isMesh && !c.userData.driveBeam) box.expandByObject(c); });   // 只展开 mesh 叶节点：expandByObject 会递归子级，对整组调用会把光束又算回来
       const ctrLocal = o.worldToLocal(box.getCenter(new THREE.Vector3())), size = box.getSize(new THREE.Vector3());   // Box3 给的是世界坐标，必须转回车体本地系，否则 localToWorld 会把车位置叠加两次
-      o.rotation.set(rx, ry, rz); o.updateWorldMatrix(true, false);
+      o.rotation.set(rx, ry, rz); o.updateMatrixWorld(true);
       const line = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x, size.y, size.z)), new THREE.LineBasicMaterial({ color: 0xb5653a }));
       line.position.copy(o.localToWorld(ctrLocal.clone())); line.rotation.y = ry; scene.add(line);
       line.update = () => {                                       // 车被开走 / 转向时选中框逐帧跟随
@@ -8076,9 +8093,9 @@
       const col = colliders.find(c => c.carId === e.id);
       const def = FACILITY_DEFS[e.type];
       const L = Math.max(2.5, M(e.w || def.w)), Wd = Math.max(1.2, M(e.d || def.d)), BH = Math.max(1.1, M(e.h || def.h));
-      const wr = e.type === 'carTruck' ? Math.min(.52, Math.max(.36, BH*.15)) : e.type === 'carSuv' ? Math.min(.40, BH*.24) : Math.min(.33, BH*.22), y0 = e.type === 'carTruck' ? wr*2 + .12 : wr*.82;   // 卡车驾驶位地板与 3D 模型同高
+      const wr = e.type === 'carTruck' ? Math.min(.52, Math.max(.36, BH*.15)) : e.type === 'carSuv' ? Math.min(.42, BH*.25) : Math.min(.33, BH*.22), y0 = e.type === 'carTruck' ? wr*2 + .12 : wr*.82;   // 驾驶位地板与 3D 模型同高（越野车大轮胎同步抬高）
       const cabL = Math.max(1.5, Math.min(L*.3, 2.3));
-      driveCar = { id:e.id, grp, col, L, Wd, y0, ang:((+e.rot||0)%360)*Math.PI/180, speed:0, cx:grp.position.x, cz:grp.position.z, tipAt:performance.now(),
+      driveCar = { id:e.id, grp, col, L, Wd, y0, ang:((+e.rot||0)%360)*Math.PI/180, speed:0, cx:grp.position.x, cz:grp.position.z, tipAt:performance.now(), cam3p:true,
         sx: e.type === 'carTruck' ? L*.5 - cabL/2 : -L*.05, sy: y0 + (e.type === 'carTruck' ? 1.45 : 1.0), sz: e.type === 'carTruck' ? -Wd*.23 : -Wd*.22 };   // 驾驶座本地坐标：卡车驾驶室在车头、眼位约 2.5m；tipAt 供驾驶提示限时显示
       fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND; ladderOn = null; stuckT = 0;
       if (stuckTip) stuckTip.classList.remove('open');
@@ -8087,7 +8104,8 @@
       const eye = grp.localToWorld(new THREE.Vector3(driveCar.sx, driveCar.sy, driveCar.sz));   // 驾驶位眼高（卡车高座椅眼位约 2.25m），相机在座椅略靠后；卡车驾驶室在车头
       camera.position.copy(eye); camera.lookAt(eye.x + Math.cos(driveCar.ang), eye.y, eye.z + Math.sin(driveCar.ang));
       if (driveExit) driveExit.style.display = 'block';
-      if (walkTip) { walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('E / F 下车 · WASD 驾驶 · Shift 加速 · 空格刹车', 'E / F exit · WASD drive · Shift boost · Space brake'); walkTip.classList.add('open'); }
+      if (driveCamBtn) { driveCamBtn.style.display = 'block'; driveCamBtn.textContent = tr('第一人称', '1st person'); }   // 默认第三人称上车，按钮显示切换目标
+      if (walkTip) { walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('E / F 下车 · WASD 驾驶 · Shift 加速 · 空格刹车 · C 视角', 'E / F exit · WASD drive · Shift boost · Space brake · C view'); walkTip.classList.add('open'); }
       toast(tr('已上车：WASD 驾驶，E / F 下车', 'In the car — WASD to drive, E / F to exit'));
       return true;
     }
@@ -8097,6 +8115,7 @@
       driveCar = null;                                            // 先退出驾驶：blocked() 这才会把本车碰撞体算进去，避免把落点选进车身里导致下车卡死
       resetRunFx();                                               // 复位驾驶 / 跑动的 FOV 与头部起伏残留
       if (driveExit) driveExit.style.display = 'none';
+      if (driveCamBtn) driveCamBtn.style.display = 'none';
       if (walkTip) walkTip.classList.remove('open');
       fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND;
       let spot = null;
@@ -8111,6 +8130,8 @@
       if (e) mutate(() => { e.x = Math.round(d.cx*1000 + OX); e.y = Math.round(d.cz*1000 + OY); e.rot = ((d.ang*180/Math.PI)%360+360)%360; });
       if (!silent) toast(tr('已下车', 'Out of the car'));
     }
+    const _cam3pV = new THREE.Vector3();                          // 第三人称相机目标点复用（避免每帧分配）
+    const _wq = new THREE.Quaternion(), _wAxis = new THREE.Vector3();   // 车轮滚动四元数 / 轮轴复用
     function stepDrive(dt) {                                      // 驾驶：油门 / 刹车 / 转向驱动车辆，车身 3D 与碰撞体逐帧直改、相机跟随驾驶位；不在每帧写 state（下车才一次性提交）
       const d = driveCar; if (!d) return;
       const throttle = (keys.KeyW||keys.ArrowUp ? 1 : 0) - (keys.KeyS||keys.ArrowDown ? 1 : 0) - (touchWalk ? joy.y : 0);
@@ -8132,14 +8153,23 @@
         const now = performance.now(); if (!d.stuckAt || now - d.stuckAt > 3500) { d.stuckAt = now; toast(tr('被障碍挡住：倒车（S）或转向绕开', 'Blocked — reverse (S) or steer around')); } }
       d.cx = nx; d.cz = nz;
       d.grp.position.set(nx, 0, nz); d.grp.rotation.y = -d.ang; d.grp.updateMatrixWorld(true);
+      if (d.speed) {                                              // 车轮滚动：按本帧行驶距离绕轮轴（车身横轴 z）转轮胎 / 轮毂 / 轮芯（负号：前进时轮顶朝车头转）
+        const dist = d.speed * dt;
+        d.grp.traverse(o => { const r = o.userData.driveWheel; if (r) { _wq.setFromAxisAngle(_wAxis.set(0, 0, 1), -dist / r); o.quaternion.premultiply(_wq); } });
+      }
       if (d.col) { const ca = Math.cos(d.ang), sa = Math.sin(d.ang);
         const hw = (d.L*Math.abs(ca)+d.Wd*Math.abs(sa))/2, hd = (d.L*Math.abs(sa)+d.Wd*Math.abs(ca))/2;
         d.col[0] = nx-hw; d.col[1] = nz-hd; d.col[2] = nx+hw; d.col[3] = nz+hd; }
+      if (d.cam3p) {                                              // 第三人称追尾视角：车后上方平滑跟随，注视车头前方
+        camera.position.lerp(d.grp.localToWorld(_cam3pV.set(-d.L * .55 - 4.5, d.y0 + 4.6, 0)), 1 - Math.pow(.002, dt));   // 更远更高：俯视追车
+        camera.lookAt(d.grp.localToWorld(_cam3pV.set(d.L * .4, d.y0 + 1.05, 0)));
+      } else {
       camera.position.copy(d.grp.localToWorld(new THREE.Vector3(d.sx, d.sy, d.sz)));   // 驾驶中相机锁定在驾驶座眼位
       if (d.ang !== oang) {                                       // 视角随车身转向：改世界 yaw 而非本地 rotateY（本地 Y 在带俯仰时会歪、roll 越积越大）
         const eu = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
         eu.y -= (d.ang - oang); eu.z = 0;
         camera.quaternion.setFromEuler(eu);
+      }
       }
       { const tf = FOV + Math.min(7, Math.abs(d.speed) * .9);     // 驾驶视野：车速越快 FOV 略拉宽（最高 +7°），提速更有冲刺感
         camera.fov += (tf - camera.fov) * Math.min(1, dt * 5);
@@ -8458,7 +8488,7 @@
     });
     addEventListener('keydown', e => {                            // F：驾驶时下车；漫游瞄准轿车时上车（与 E 车身同源，独立按键避免与车门 / 车灯动作冲突）
       if (opt.mode !== 'walk') return;
-      if (driveCar) { if (e.code === 'KeyF') { exitCar(); e.preventDefault(); } return; }
+      if (driveCar) { if (e.code === 'KeyF') { exitCar(); e.preventDefault(); } else if (e.code === 'KeyC') { driveCar.cam3p = !driveCar.cam3p; e.preventDefault(); } return; }
       if (e.code === 'KeyF') { const h = pick(); const cid = carIdFromHit(h); if (cid != null && h.dist < 3.5) { enterCar(cid); e.preventDefault(); } }
     });
     addEventListener('keyup', e => keys[e.code] = false);
@@ -8522,6 +8552,8 @@
     stuckTip.onclick = () => unstickWalk();                     // 触屏无 R 键：直接点提示条脱离卡死
     const driveExit = document.createElement('button'); driveExit.id = 'driveExitBtn'; driveExit.textContent = tr('下车', 'Exit car'); document.body.appendChild(driveExit);
     driveExit.onclick = () => exitCar();                        // 驾驶中触屏下车（与键盘 E / F 同源）
+    const driveCamBtn = document.createElement('button'); driveCamBtn.id = 'driveCamBtn'; driveCamBtn.textContent = tr('第三人称', '3rd person'); document.body.appendChild(driveCamBtn);
+    driveCamBtn.onclick = () => { if (!driveCar) return; driveCar.cam3p = !driveCar.cam3p; driveCamBtn.textContent = driveCar.cam3p ? tr('第一人称', '1st person') : tr('第三人称', '3rd person'); };   // 触屏切换视角（与键盘 C 同源）
     const applyCarVisual = id => {                                // 轿车门盖 / 天窗：state → 运行时 doors[]，2D / 3D 同步
       const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
       doors.forEach(d => { if ((d.kind === 'car' || d.kind === 'carWin') && String(d.carId) === String(id)) d.open = !!e[d.field]; });
@@ -9071,8 +9103,9 @@
       if (opt.mode === 'walk' && !driveCar) pushOutOfRevolve(camera.position, camera.position.y - eyeH, headH);   // 漫游时翼扫到玩家则推开，避免穿模（驾驶中相机在车内，不参与）
       if (driveCar) { if (doorHiRef && doorHiRef.visible) { doorHiRef.removeFromParent(); doorHiRef.visible = false; }   // 驾驶中兜底：任何残留的瞄准高亮都不显示
         if (driveExit) driveExit.style.display = opt.mode === 'walk' && (touchWalk || now - driveCar.tipAt < 4000) ? 'block' : 'none';   // 桌面 4 秒后收起，切出漫游也收起；触屏保留
+        if (driveCamBtn) driveCamBtn.style.display = driveExit.style.display;                                            // 视角按钮与下车按钮同步显隐
         if (walkTip) { walkTip.classList.toggle('open', now - driveCar.tipAt < 4000);                                   // 驾驶提示只在上车后 4 秒内显示，不再常驻屏幕中间
-          if (walkTip.classList.contains('open')) walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('WASD 驾驶 · Shift 加速 · 空格刹车 · E / F 下车', 'WASD drive · Shift boost · Space brake · E / F exit'); } }
+          if (walkTip.classList.contains('open')) walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('WASD 驾驶 · Shift 加速 · 空格刹车 · C 视角 · E / F 下车', 'WASD drive · Shift boost · Space brake · C view · E / F exit'); } }
       else updateDoorWalkTip();
       flagAnims.forEach((a, id) => {                             // 旗面升降：逐帧插值旗面高度；播完只写状态并入撤销栈，不走 buildArch 重建（否则门窗动画会被重置）
         const k = clamp01((now - a.t0) / a.dur), v = (a.from + (a.to - a.from) * ease(k)) / 1000;
