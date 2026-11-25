@@ -3571,6 +3571,9 @@
             <button class="btn chip" data-dt="carSedan" title="轿车：点击放置；2D 俯视画车身 / 前后风挡 / 天窗 / 四轮 / 后视镜 / 前后灯，3D 为车身 + 玻璃座舱 + 轮毂 + 灯组 + 格栅；车头朝当前朝向，右侧可改车长 / 车宽 / 车高 / 天窗玻璃长宽 / 车身色 / 朝向"
               data-en-title="Sedan: click to place; 2D plan shows body, windshields, sunroof, wheels, mirrors and lamps; 3D builds a glazed cabin with rims, lights and grille; edit length / width / height / sunroof glass size / colour / angle"
               data-en="Sedan"><i data-lucide="car"></i>轿车</button>
+            <button class="btn chip" data-dt="carSuv" title="越野车：点击放置；2D 俯视画方盒车身 / 行李架 / 侧踏板 / 尾门备胎 / 大轮 / 前后灯，3D 为高顶车身 + 车顶行李架 + 越野轮胎 + 备胎 + 车顶射灯；四门 / 机盖 / 尾门 / 天窗 / 车灯与轿车同款交互，可上车驾驶"
+              data-en-title="SUV / off-road vehicle: click to place; 2D plan shows boxy body, roof rack, side steps, tailgate spare and large wheels; 3D builds a tall cabin with luggage rails, off-road tyres, spare wheel and roof lamps; same door / hood / trunk / sunroof / light and driving interactions as the sedan"
+              data-en="SUV"><i data-lucide="truck"></i>越野车</button>
           </div>
           <div class="dtg">
             <div class="dth" data-en="Sanitation">环卫配套</div>
@@ -4298,7 +4301,7 @@
       s.extras = Array.isArray(s.extras) ? s.extras : [];                 // 洞口 / 设备平台 / 室外场地 / 屋面细节等扩展构件
       // 折线道路旧数据的圆角可能缺失 / 为 null：统一补默认 3000，避免同一份方案里有的路有转弯、有的路是尖角；显式 0 仍保留尖角
       s.extras.forEach(e => {
-        if (e.type === 'carSedan') { ['doorFL','doorFR','doorRL','doorRR','hood','trunk','sunroof'].forEach(k => { e[k] = !!e[k]; });   // 轿车门盖 + 天窗：旧存档补默认关闭
+        if (e.type === 'carSedan' || e.type === 'carSuv') { ['doorFL','doorFR','doorRL','doorRR','hood','trunk','sunroof'].forEach(k => { e[k] = !!e[k]; });   // 轿车 / 越野车门盖 + 天窗：旧存档补默认关闭（此处在 isCar 定义前执行，直接写类型）
           if (e.sunL == null) e.sunL = 740;                                                                                       // 旧方案补默认天窗玻璃长 740mm
           if (e.sunW == null) e.sunW = 1100;                                                                                      // 旧方案补默认天窗玻璃宽 1100mm
           if (e.opDoor == null) e.opDoor = 90; if (e.opFront == null) e.opFront = 16;                                            // 旧方案补默认玻璃不透明度（%）
@@ -6933,10 +6936,12 @@
       wtWash:      { zh:'洗车台',       en:'Truck wash platform', w:6000,  h:200,  d:3000 },
       facCarWash:  { zh:'自动洗车机',   en:'Auto car wash',       w:9000,  h:3000, d:3600 },
       /* 车辆：w = 车长（沿朝向的本地 +x），d = 车宽，h = 车高 */
-      carSedan:    { zh:'轿车',         en:'Sedan',               w:4600,  h:1500, d:1800 }
+      carSedan:    { zh:'轿车',         en:'Sedan',               w:4600,  h:1500, d:1800 },
+      carSuv:      { zh:'越野车',       en:'SUV',                 w:4800,  h:1850, d:1950 }
     };
     const FACILITY_KEYS = Object.keys(FACILITY_DEFS);
     const isFacility = t => !!FACILITY_DEFS[t];
+    const isCar = t => t === 'carSedan' || t === 'carSuv';   // 轿车 / 越野车：共用门盖 / 车灯 / 车窗 / 驾驶整套交互
     /* 停车场配套 19 件的面板元数据：标签 / 范围 / 可选参数 / 提示。
        FACILITY_DEFS 只登记名称与默认尺寸，样式类字段（style / side / n / lv…）的默认值放在 def。 */
     const PARK_EXT = {
@@ -7062,7 +7067,16 @@
               ['int','内饰样式','Interior',[['black','经典黑','Classic black'],['beige','米色','Beige'],['grey','浅灰','Light grey'],['brown','棕褐','Brown'],['red','运动红','Sport red']]]],
         chks:[['doorFL','左前门','Front left door'],['doorFR','右前门','Front right door'],['doorRL','左后门','Rear left door'],['doorRR','右后门','Rear right door'],['hood','前引擎盖','Hood'],['trunk','后备箱门','Trunk'],['sunroof','天窗','Sunroof'],['winFL','左车窗降下','Front left window down'],['winFR','右车窗降下','Front right window down'],['winRL','左后窗降下','Rear left window down'],['winRR','右后窗降下','Rear right window down'],['lights','车灯','Headlights']],
         def:{color:'white',int:'black',doorFL:false,doorFR:false,doorRL:false,doorRR:false,hood:false,trunk:false,sunroof:false,winFL:false,winFR:false,winRL:false,winRR:false,sunL:740,sunW:1100,opDoor:90,opFront:16,opRear:16,opSun:16,lights:true},
-        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门 / 天窗可各自独立开合——3D 设计态点击车门内 / 外侧门把手开关四门（漫游瞄准把手按 E），机盖 / 尾门 / 天窗点本体即可，门内侧玻璃升降按钮可单独降下 / 升起该车窗，右侧属性面板也能勾选；天窗打开时玻璃后端上翘通风；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车顶天窗玻璃的长 / 宽（默认长 740mm × 宽 1100mm，只改玻璃开口、不含整块车顶棚）、四门 / 前挡 / 后挡 / 天窗玻璃的不透明度可分别设置（5%~100%，越大越不透明）、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向；车灯可开关——点前照灯（漫游按 E）或勾选面板「车灯」切换前照灯聚光与尾灯亮灭；漫游中走近车身按 F / E 可上车驾驶——WASD 行驶转向、Shift 加速、空格刹车，E / F 或屏幕「下车」按钮退出，停稳后位置与朝向自动存回方案；整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood, the trunk and the sunroof open independently — click either the inside or outside door handle in 3D design mode (E on the handle in walk); the hood / trunk / sunroof open by clicking the panel itself; the inside switch lowers / raises the window of that door; or tick them in the property panel. The open sunroof slides back along the roof as a clear glass panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, sunroof glass length / width (default 740×1100 mm — the glass opening only, not the whole roof), independent opacity for door / front / rear / sunroof glass (5–100%, higher = more opaque), body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Headlights toggle on/off — click a headlamp (E in walk) or tick “Headlights” in the panel to switch the spot beam and tail lamps. In walk mode press F / E near the body to get in and drive: WASD to steer and move, Shift to boost, Space to brake; press E / F or the on-screen Exit button to get out — the final position and heading are saved back to the plan. Blocks walking in 3D.'] }
+        tip:['轿车：点击放置的三厢小客车，四扇车门 / 前引擎盖 / 后备箱门 / 天窗可各自独立开合——3D 设计态点击车门内 / 外侧门把手开关四门（漫游瞄准把手按 E），机盖 / 尾门 / 天窗点本体即可，门内侧玻璃升降按钮可单独降下 / 升起该车窗，右侧属性面板也能勾选；天窗打开时玻璃后端上翘通风；前照灯带聚光照明，夜间照向前方；2D 俯视同步显示开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高、车顶天窗玻璃的长 / 宽（默认长 740mm × 宽 1100mm，只改玻璃开口、不含整块车顶棚）、四门 / 前挡 / 后挡 / 天窗玻璃的不透明度可分别设置（5%~100%，越大越不透明）、车身色、内饰样式（经典黑 / 米色 / 浅灰 / 棕褐 / 运动红，影响座椅 / 地毯 / 仪表台 / 门内饰板）与朝向；车灯可开关——点前照灯（漫游按 E）或勾选面板「车灯」切换前照灯聚光与尾灯亮灭；漫游中走近车身按 F / E 可上车驾驶——WASD 行驶转向、Shift 加速、空格刹车，E / F 或屏幕「下车」按钮退出，停稳后位置与朝向自动存回方案；整车挡人。','Sedan: click to place a three-box passenger car. All four doors, the hood, the trunk and the sunroof open independently — click either the inside or outside door handle in 3D design mode (E on the handle in walk); the hood / trunk / sunroof open by clicking the panel itself; the inside switch lowers / raises the window of that door; or tick them in the property panel. The open sunroof slides back along the roof as a clear glass panel. Headlights cast a real spotlight ahead. The 2D plan mirrors open panels. The nose follows the heading (0° = screen right); edit length / width / height, sunroof glass length / width (default 740×1100 mm — the glass opening only, not the whole roof), independent opacity for door / front / rear / sunroof glass (5–100%, higher = more opaque), body colour, interior style (classic black / beige / light grey / brown / sport red — seats, carpet, dashboard and door panels) and angle. Headlights toggle on/off — click a headlamp (E in walk) or tick “Headlights” in the panel to switch the spot beam and tail lamps. In walk mode press F / E near the body to get in and drive: WASD to steer and move, Shift to boost, Space to brake; press E / F or the on-screen Exit button to get out — the final position and heading are saved back to the plan. Blocks walking in 3D.'] },
+      carSuv: { wl:['车长','Length'], wmin:3800, wmax:7000, hl:['车高','Height'], hmin:1500, hmax:2500, dl:['车宽','Width'], dmin:1600, dmax:2600,
+        nums:[['sunL','天窗玻璃长 (mm)','Sunroof glass length',300,1400,10],['sunW','天窗玻璃宽 (mm)','Sunroof glass width',300,1300,10],
+              ['opDoor','四门玻璃不透明度 (%)','Door glass opacity',5,100,5],['opFront','前挡玻璃不透明度 (%)','Front windshield opacity',5,100,5],
+              ['opRear','后挡玻璃不透明度 (%)','Rear windshield opacity',5,100,5],['opSun','天窗玻璃不透明度 (%)','Sunroof glass opacity',5,100,5]],
+        sels:[['color','车身色','Colour',[['white','珍珠白','Pearl white'],['black','曜石黑','Obsidian black'],['silver','银灰','Silver'],['grey','钛空灰','Titanium grey'],['blue','深海蓝','Deep blue'],['red','中国红','Red']]],
+              ['int','内饰样式','Interior',[['black','经典黑','Classic black'],['beige','米色','Beige'],['grey','浅灰','Light grey'],['brown','棕褐','Brown'],['red','运动红','Sport red']]]],
+        chks:[['doorFL','左前门','Front left door'],['doorFR','右前门','Front right door'],['doorRL','左后门','Rear left door'],['doorRR','右后门','Rear right door'],['hood','前引擎盖','Hood'],['trunk','后备箱门','Trunk'],['sunroof','天窗','Sunroof'],['winFL','左车窗降下','Front left window down'],['winFR','右车窗降下','Front right window down'],['winRL','左后窗降下','Rear left window down'],['winRR','右后窗降下','Rear right window down'],['lights','车灯','Headlights']],
+        def:{color:'white',int:'black',doorFL:false,doorFR:false,doorRL:false,doorRR:false,hood:false,trunk:false,sunroof:false,winFL:false,winFR:false,winRL:false,winRR:false,sunL:900,sunW:1100,opDoor:90,opFront:16,opRear:16,opSun:16,lights:true},
+        tip:['越野车：点击放置的高顶四驱车，共用轿车的全套交互——四扇车门 / 前引擎盖 / 后备箱门 / 天窗各自独立开合（3D 点门把手 / 本体或漫游按 E，也可勾选面板），门内侧按钮单独升降车窗，前照灯聚光可开关，漫游走近按 F / E 上车驾驶（WASD 行驶、Shift 加速、空格刹车、E / F 下车，位置与朝向写回方案）。2D 俯视与 3D 均为方盒高顶车身：大尺寸越野轮胎、车顶行李架与射灯、侧踏板、尾门外挂备胎、较平直的前后风挡；2D 随朝向整体旋转并画出开启的门盖。车头朝本地朝向（0° 指向画面右方），可改车长 / 车宽 / 车高（默认 4800×1950×1850mm）、天窗玻璃长宽（默认 900×1100mm）、四组玻璃不透明度、车身色、内饰样式与朝向；整车挡人。','SUV / off-road vehicle: click to place a tall four-wheel-drive vehicle sharing all sedan interactions — four doors, hood, tailgate and sunroof open independently (click the handles / panel in 3D or press E in walk), inside buttons lower each window, headlights cast a spotlight, and F / E near the body gets in to drive (WASD, Shift boost, Space brake, E / F to exit; final position and heading are saved back). Both views show a boxy tall body: large off-road tyres, roof rack with spot lamps, side steps, a tailgate-mounted spare wheel and upright windshields. The nose follows the heading (0° = screen right); edit length / width / height (default 4800×1950×1850 mm), sunroof glass size (default 900×1100 mm), four glass opacities, body colour, interior and angle. Blocks walking in 3D.'] }
     };
     const CAR_COLORS = { white:'#e9ecee', black:'#2b3035', silver:'#b8c0c6', grey:'#79848c', blue:'#2c4f78', red:'#ae3030' };   // 轿车车身色：2D 填充与 3D 车漆共用
     const CAR_INTERIORS = {                                                                  // 轿车内饰样式：座椅 / 仪表台 / 门板主色 + 地毯色
@@ -7129,7 +7143,7 @@
     const TRAFFIC_SIGNS_ZH = { red: '红灯', green: '绿灯', yellow: '黄灯' };
     const isExtraLin = t => isRoadType(t) || ['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path', 'thresh', 'flash', 'band', 'signbd'].includes(t);
     const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(t) || isTraffic(t) || isSecurity(t) || isFacility(t);
-    const extraRot = e => e && (e.type === 'park' || e.type === 'carSedan') ? ((+e.rot || 0) % 360) : 0;   // 停车位 / 轿车：整车随朝向旋转（包围盒 / 手柄同步）
+    const extraRot = e => e && (e.type === 'park' || isCar(e.type)) ? ((+e.rot || 0) % 360) : 0;   // 停车位 / 轿车 / 越野车：整车随朝向旋转（包围盒 / 手柄同步）
     function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
       if (!deg) return { x, y };
       const a = deg * Math.PI / 180, c = Math.cos(-a), s = Math.sin(-a), dx = x - cx, dy = y - cy;
@@ -7753,8 +7767,8 @@
               inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(45,R*.5)}" fill="${col}" fill-opacity=".5" stroke="none"/>
                 <circle cx="${e.x-uy*R*.7}" cy="${e.y+ux*R*.7}" r="${Math.max(22,R*.3)}" fill="#ffc233"><animate attributeName="opacity" values="1;.15;1" dur=".8s" repeatCount="indefinite"/></circle>
                 <circle cx="${e.x+uy*R*.7}" cy="${e.y-ux*R*.7}" r="${Math.max(22,R*.3)}" fill="#ffc233"><animate attributeName="opacity" values=".15;1;.15" dur=".8s" repeatCount="indefinite"/></circle>`;
-            } else if (e.type === 'carSedan') {                 // 轿车俯视：三厢车身 + 前后风挡 / 车顶天窗 / 四轮 / 后视镜 / 前后灯（本地 +x 为车头）
-              const L = Math.max(3000, +e.w || 4600), Wd = Math.max(1400, +e.d || 1800), L2 = L / 2, W2 = Wd / 2;
+            } else if (isCar(e.type)) {                 // 车辆俯视：轿车三厢 / 越野车方盒高顶 + 前后风挡 / 天窗 / 四轮 / 行李架 / 备胎 / 前后灯（本地 +x 为车头）
+              const suv = e.type === 'carSuv', L = Math.max(3000, +e.w || (suv ? 4800 : 4600)), Wd = Math.max(1400, +e.d || (suv ? 1950 : 1800)), L2 = L / 2, W2 = Wd / 2;
               const c = Math.cos(a), s2 = Math.sin(a);
               const Pxy = (lx, ly) => [e.x + lx * c - ly * s2, e.y + lx * s2 + ly * c];
               const Pt = (lx, ly) => Pxy(lx, ly).map(v => v.toFixed(1)).join(',');
@@ -7765,26 +7779,52 @@
               const paint = CAR_COLORS[e.color] || CAR_COLORS.white, glass = '#3d5b73';
               const sunL2 = Math.max(300, Math.min(L*.28, +e.sunL || L*.14)), sunW2 = Math.max(300, Math.min(Wd*.80, +e.sunW || Wd*.36)), sunX2 = -L*.07, sunD2 = Math.max(L*.015, Math.min(sunL2*.6, L*.16 - sunL2/2));   // 2D 天窗玻璃尺寸（mm），与 3D 同一组参数
               const sunOp2 = Math.min(1, .42 + .58 * Math.max(.05, Math.min(1, (+e.opSun || 16) / 100)));                        // 2D 天窗玻璃随不透明度同步深浅
+              const edge = on ? '#b5653a' : '#4b565e', ew = on ? 2 : 1.3;
               inner = face([[-L2-160,-W2-160],[L2+160,-W2-160],[L2+160,W2+160],[-L2-160,W2+160]], 'transparent', 0, null)   // 透明命中带
                 + face([[-L2+70,-W2+90],[L2+70,-W2+90],[L2+70,W2+90],[-L2+70,W2+90]], '#000', .10, null);              // 落影
-              inner += face([[-L2+Wd*.12,-W2],[L2-Wd*.22,-W2],[L2-Wd*.06,-W2*.86],[L2,-W2*.56],[L2,W2*.56],[L2-Wd*.06,W2*.86],[L2-Wd*.22,W2],[-L2+Wd*.12,W2],[-L2,W2*.70],[-L2,-W2*.70]], paint, .96, on ? '#b5653a' : '#4b565e', on ? 2 : 1.3);
-              inner += line(L*.24, -W2*.84, L*.24, W2*.84, '#4b565e', 1.2, .8) + line(-L*.42, -W2*.82, -L*.42, W2*.82, '#4b565e', 1.2, .8)   // 机器盖 / 行李厢盖分缝
-                + line(L*.27, -W2*.44, L*.46, -W2*.44, '#4b565e', 1, .55) + line(L*.27, W2*.44, L*.46, W2*.44, '#4b565e', 1, .55)             // 盖筋
-                + line(L*.02, -W2*.96, L*.02, W2*.96, '#4b565e', 1, .55) + line(-L*.20, -W2*.96, -L*.20, W2*.96, '#4b565e', 1, .55);            // 车门缝
-              inner += face([[-L*.42,-W2*.82],[L*.24,-W2*.84],[L*.14,-W2*.78],[L*.04,-W2*.62],[-L*.34,-W2*.60],[-L*.34,W2*.60],[-L*.04,W2*.62],[L*.04,W2*.62],[L*.14,W2*.78],[L*.24,W2*.84],[-L*.42,W2*.82]], glass, .72, '#6f8696', 1);   // 前后风挡 + 侧窗
-              inner += face([[-L*.30,-W2*.58],[L*.02,-W2*.60],[L*.02,W2*.60],[-L*.30,W2*.58]], paint, 1, '#5c6870', 1)                          // 车顶（车身色）
+              inner += suv
+                ? face([[-L2+Wd*.10,-W2],[L2-Wd*.10,-W2],[L2,-W2*.86],[L2,W2*.86],[L2-Wd*.10,W2],[-L2+Wd*.10,W2],[-L2,W2*.86],[-L2,-W2*.86]], paint, .96, edge, ew)   // 越野车：平直方盒车身
+                : face([[-L2+Wd*.12,-W2],[L2-Wd*.22,-W2],[L2-Wd*.06,-W2*.86],[L2,-W2*.56],[L2,W2*.56],[L2-Wd*.06,W2*.86],[L2-Wd*.22,W2],[-L2+Wd*.12,W2],[-L2,W2*.70],[-L2,-W2*.70]], paint, .96, edge, ew);
+              inner += (suv
+                ? line(L*.28, -W2*.86, L*.28, W2*.86, '#4b565e', 1.2, .8) + line(-L*.40, -W2*.86, -L*.40, W2*.86, '#4b565e', 1.2, .8)
+                : line(L*.24, -W2*.84, L*.24, W2*.84, '#4b565e', 1.2, .8) + line(-L*.42, -W2*.82, -L*.42, W2*.82, '#4b565e', 1.2, .8))   // 机器盖 / 尾门盖分缝
+                + line(L*.27, -W2*.44, L*.46, -W2*.44, '#4b565e', 1, .55) + line(L*.27, W2*.44, L*.46, W2*.44, '#4b565e', 1, .55)          // 盖筋
+                + line(L*.02, -W2*.96, L*.02, W2*.96, '#4b565e', 1, .55) + line(suv ? -L*.12 : -L*.20, -W2*.96, suv ? -L*.12 : -L*.20, W2*.96, '#4b565e', 1, .55);   // 车门缝
+              inner += (suv
+                ? face([[-L*.40,-W2*.84],[L*.22,-W2*.86],[L*.17,-W2*.80],[L*.10,-W2*.62],[-L*.38,-W2*.62],[-L*.38,W2*.62],[L*.10,W2*.62],[L*.17,W2*.80],[L*.22,W2*.86],[-L*.40,W2*.84]], glass, .72, '#6f8696', 1)
+                : face([[-L*.42,-W2*.82],[L*.24,-W2*.84],[L*.14,-W2*.78],[L*.04,-W2*.62],[-L*.34,-W2*.60],[-L*.34,W2*.60],[-L*.04,W2*.62],[L*.04,W2*.62],[L*.14,W2*.78],[L*.24,W2*.84],[-L*.42,W2*.82]], glass, .72, '#6f8696', 1));   // 前后风挡 + 侧窗
+              inner += (suv
+                ? face([[-L*.38,-W2*.60],[L*.20,-W2*.60],[L*.20,W2*.60],[-L*.38,W2*.60]], paint, 1, '#5c6870', 1)
+                : face([[-L*.30,-W2*.58],[L*.02,-W2*.60],[L*.02,W2*.60],[-L*.30,W2*.58]], paint, 1, '#5c6870', 1))                  // 车顶（车身色）
                 + rect(sunX2, 0, sunL2, sunW2, '#253b4b', .9, '#8fa8b8', 1)                                                                      // 天窗开口（暗色内衬常显，推开后露出）
                 + (e.sunroof ? rect(sunX2 - sunD2, 0, sunL2, sunW2, glass, sunOp2, '#8fa8b8', 1) : rect(sunX2, 0, sunL2, sunW2, glass, sunOp2, '#8fa8b8', 1))   // 天窗玻璃：关闭时盖在开口上，打开时整块向后滑到车顶后部
-                + rect(-L*.15, 0, L*.014, Wd*1.20, paint, 1, '#5c6870', 1);                                                                      // B 柱
-              [-1, 1].forEach(sx => [-1, 1].forEach(sy => {                                                                                       // 四轮：轮胎 + 轮毂
-                const wx = sx * L * .32, wy = sy * (W2 - Wd * .045);
-                inner += rect(wx, wy, L*.15, Wd*.17, '#191c1f', 1, '#454d53', 1) + rect(wx, wy, L*.085, Wd*.095, '#a9b2b8', .95, '#6c757b', 1);
+                + rect(suv ? -L*.12 : -L*.15, 0, L*.014, Wd*1.20, paint, 1, '#5c6870', 1);                                                      // B 柱
+              if (suv) {                                                                                                                          // 越野车专属：行李架 / 侧踏板 / 尾门备胎
+                [-1, 1].forEach(sy => inner += line(-L*.36, sy*W2*.62, L*.18, sy*W2*.62, '#30363b', 3, .95));
+                [-L*.32, L*.16].forEach(rx => inner += line(rx, -W2*.62, rx, W2*.62, '#30363b', 2, .8));
+                [-1, 1].forEach(sy => inner += line(-L*.32, sy*(W2+Wd*.01), L*.14, sy*(W2+Wd*.01), '#575f65', 2, .85));
+                const spareX = e.trunk ? -L*.46 : -L*.44;                                            // 备胎画在尾门范围内，尾门开启时随门后移，不再悬在车尾保险杠外
+                inner += rect(spareX, 0, Wd*.10, Wd*.34, '#191c1f', 1, '#454d53', 1) + rect(spareX, 0, Wd*.055, Wd*.20, '#a9b2b8', .9, '#6c757b', 1);
+              }
+              [-1, 1].forEach(sx => [-1, 1].forEach(sy => {                                                                                       // 四轮：越野车轮胎 / 轮毂更大
+                const wx = sx * L * (suv ? .33 : .32), wy = sy * (W2 - Wd * .045), wl = suv ? L*.18 : L*.15, ww = suv ? Wd*.20 : Wd*.17;
+                inner += rect(wx, wy, wl, ww, '#191c1f', 1, '#454d53', 1) + rect(wx, wy, wl*.57, ww*.56, '#a9b2b8', .95, '#6c757b', 1);
               }));
               [-1, 1].forEach(sy => {                                                                                                             // 后视镜 / 门把手 / 前后灯
-                inner += line(L*.14, sy*(W2-Wd*.02), L*.17, sy*(W2+Wd*.04), '#4b565e', 2)
-                  + rect(L*.17, sy*(W2+Wd*.055), L*.055, Wd*.10, paint, 1, '#4b565e', 1)
-                  + rect(L*.04, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
-                  + rect(-L*.20, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
+                const mx = suv ? L*.23 : L*.14, mEnd = suv ? L*.26 : L*.17;                                                                      // 越野车后视镜跟前门 / A 柱一起前移，不再画在座舱中段
+                if (suv) {                                                                                                                        // 越野车：圆角镜壳 + 细镜柄 + 朝车尾的镜面，不再是一块方片
+                  const mc = [mEnd, sy*(W2+Wd*.07)], hx = L*.020, hy = Wd*.085;
+                  const mpts = [[mc[0]-hx*.55,mc[1]-hy],[mc[0]+hx*.55,mc[1]-hy],[mc[0]+hx,mc[1]-hy*.6],[mc[0]+hx,mc[1]+hy*.6],[mc[0]+hx*.55,mc[1]+hy],[mc[0]-hx*.55,mc[1]+hy],[mc[0]-hx,mc[1]+hy*.6],[mc[0]-hx,mc[1]-hy*.6]];
+                  inner += line(mx, sy*(W2-Wd*.02), mc[0]-hx*.35, sy*(W2+Wd*.02), '#4b565e', 2.4)
+                    + face(mpts, paint, 1, '#4b565e', 1.4)
+                    + line(mc[0]-hx*.72, mc[1]-hy*.55, mc[0]-hx*.72, mc[1]+hy*.55, '#2a3138', 2.2, .95)
+                    + line(mc[0]-hx*.48, mc[1]-hy*.42, mc[0]-hx*.48, mc[1]+hy*.42, '#9fb8c6', 1.2, .9);
+                } else {
+                  inner += line(mx, sy*(W2-Wd*.02), mEnd, sy*(W2+Wd*.04), '#4b565e', 2)
+                    + rect(mEnd, sy*(W2+Wd*.055), L*.055, Wd*.10, paint, 1, '#4b565e', 1);
+                }
+                inner += rect(L*.04, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
+                  + rect(suv ? -L*.24 : -L*.20, sy*(W2-Wd*.035), L*.075, Wd*.022, '#c5ced4', .95, null)
                   + rect(L2-Wd*.045, sy*W2*.56, Wd*.10, Wd*.22, e.lights!==false?'#fff4d2':'#8a8272', .98, '#c9a86b', 1)
                   + rect(-L2+Wd*.05, sy*W2*.56, Wd*.10, Wd*.24, e.lights!==false?'#c42b2b':'#6f3a3a', .98, '#7c1b1b', 1);
               });
@@ -7793,13 +7833,13 @@
                 + rect(-L2-Wd*.005, 0, Wd*.05, Wd*.26, '#f2f2e8', .98, '#6c757b', 1)                                                             // 后车牌
                 + line(L*.22, -W2*.62, L*.26, -W2*.10, '#2f383f', 1.3, .85) + line(L*.22, W2*.62, L*.26, W2*.10, '#2f383f', 1.3, .85);          // 雨刷
               const carOpen = k => !!e[k], hinge = (hx, hy) => { const p = Pxy(hx, hy); return `<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="70" fill="#b5653a" stroke="#fff" stroke-width="12" vector-effect="non-scaling-stroke"/>`; };
-              [[L*.19, L*.23, 'doorFL', 'doorFR'], [-L*.06, L*.24, 'doorRL', 'doorRR']].forEach(([hx, dw, fL, fR]) => {                         // 四门开启：铰链点 + 向外张开的门扇线
+              [[suv ? L*.23 : L*.19, suv ? L*.27 : L*.23, 'doorFL', 'doorFR'], [-L*.06, suv ? L*.34 : L*.24, 'doorRL', 'doorRR']].forEach(([hx, dw, fL, fR]) => {   // 四门开启：铰链点 + 向外张开的门扇线
                 [-1, 1].forEach(sy => { if (!carOpen(sy < 0 ? fL : fR)) return;
                   inner += line(hx, sy*W2, hx - dw*Math.cos(1.15), sy*(W2 + dw*Math.sin(1.15)*.85), '#b5653a', 3, .95) + hinge(hx, sy*W2);
                 });
               });
-              if (carOpen('hood'))   [-1, 1].forEach(sy => inner += line(L*.20, sy*W2*.86, L*.20 + L*.17, sy*(W2*.86 + Wd*.45), '#b5653a', 3, .9));    // 引擎盖掀起投影
-              if (carOpen('trunk')) [-1, 1].forEach(sy => inner += line(-L*.35, sy*W2*.86, -L*.35 - L*.14, sy*(W2*.86 + Wd*.45), '#b5653a', 3, .9));  // 后备箱盖掀起投影
+              if (carOpen('hood'))   [-1, 1].forEach(sy => { const hx = suv ? L*.28 : L*.20; inner += line(hx, sy*W2*.86, hx + L*.17, sy*(W2*.86 + Wd*.45), '#b5653a', 3, .9); });    // 引擎盖掀起投影
+              if (carOpen('trunk')) [-1, 1].forEach(sy => { const tx = suv ? -L*.40 : -L*.35; inner += line(tx, sy*W2*.86, tx - L*.14, sy*(W2*.86 + Wd*.45), '#b5653a', 3, .9); });  // 后备箱盖掀起投影
               if (carOpen('sunroof')) inner += line(-L*.14, 0, -L*.225, 0, '#8fa8b8', 1.4, .8);   // 天窗滑轨指示：开口中心 → 滑开后的玻璃中心
             } else if (PARK_EXT[e.type]) {                      // 停车场配套 19 件：车位标线 / 出入口设备 / 引导配套 / 机械停车
               inner = park2D(e, a, ux, uy, R, col, on, T);
@@ -8625,7 +8665,7 @@
             });
             s += `<text x="${(it.a[0] + it.b[0]) / 2}" y="${(it.a[1] + it.b[1]) / 2 - 14 * k}" font-size="${12 * k}" text-anchor="middle" fill="#b5653a" font-weight="600" pointer-events="none" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${Math.round(Math.hypot(it.b[0] - it.a[0], it.b[1] - it.a[1]))} mm</text>`;
             }
-          } else if (isExtraPt(it.type) && it.type !== 'carSedan') {   // 轿车按旋转矩形走下面的四角手柄分支（与「车位」一致）
+          } else if (isExtraPt(it.type) && !isCar(it.type)) {   // 轿车 / 越野车按旋转矩形走下面的四角手柄分支（与「车位」一致）
             const r = Math.max(60, (+it.w || 100) / 2);
             s += `<circle cx="${it.x}" cy="${it.y}" r="${r}" fill="none" ${A} stroke-width="1.5" stroke-dasharray="5 3" pointer-events="none"/>`;
             if (isStreetLamp(it.type)) {                           // 路灯：高亮圈覆盖悬臂，并画一个端点手柄指示朝向
@@ -15361,6 +15401,7 @@
       else if (dt === 'facPayMachine') toast(tr('收费/刷卡机：点击放置；立柱机箱 + 操作屏，右侧可改机身宽 / 高 / 朝向', 'Payment machine: click to place; pedestal box with screen; edit width / height / angle in the panel'));
       else if (dt === 'facCarWash') toast(tr('自动洗车机：点击放置；放好后按 Esc 退出放置工具，再在 3D 点击机体（漫游按 E）启动洗车流程——预湿 / 泡沫 / 滚刷 / 冲净 / 风干；清洗时长 8~60 秒可在右侧面板设置，机长 / 机高 / 轨道宽可改', 'Auto car wash: click to place, press Esc to leave placement mode, then click it in 3D (E in walk) to run the wash cycle — pre-rinse / foam / brushes / rinse / dry; wash duration 8–60 s in the panel; edit size too'));
       else if (dt === 'carSedan') toast(tr('轿车：点击放置；车头朝当前「朝向」（0° 指向画面右方），右侧可改车长 / 车宽 / 车高 / 车身色 / 朝向，按 R 或拖动四角手柄调整', 'Sedan: click to place; the nose follows the heading (0° = screen right); edit length / width / height / colour / angle in the panel, press R or drag corner handles'));
+      else if (dt === 'carSuv') toast(tr('越野车：点击放置；车头朝当前「朝向」（0° 指向画面右方），右侧可改车长 / 车宽 / 车高 / 天窗玻璃 / 车身色 / 朝向，按 R 或拖动四角手柄调整', 'SUV: click to place; the nose follows the heading (0° = screen right); edit length / width / height / sunroof / colour / angle in the panel, press R or drag corner handles'));
       else if (PARK_EXT[dt]) toast(tr(`${FACILITY_DEFS[dt].zh}：点击放置；右侧可改尺寸 / 参数 / 朝向${PARK_EXT[dt].chks ? '，状态可在 3D 点击（漫游按 E）切换' : ''}`, `${FACILITY_DEFS[dt].en}: click to place; edit size / parameters / angle in the panel${PARK_EXT[dt].chks ? ', toggle its state in 3D (E in walk)' : ''}`));
       else if (isFacility(dt)) toast(tr(`${extraName({ type: dt })}：点击放置；3D 单独建模，右侧可改尺寸 / 朝向`, `${extraName({ type: dt })}: click to place; dedicated 3D model, edit size / angle in the panel`));
       if (dt === 'tiecol') toast(tr('构造柱：点击墙端 / 墙角放置；长 / 宽 / 高度在右侧改', 'Tie column: click a wall end or corner; edit length / width / height in the panel'));
@@ -21861,8 +21902,8 @@
           });
           updateLaneLightVisual(e.id);
           colliders.push([px - .12, pz - .12, px + .12, pz + .12, 0, Math.min(h, 2.2)]);
-        } else if (T3 === 'carSedan') {                         // 轿车：连续壳体（侧板自带门窗框，门板与车身共面）+ 内饰 + 机舱 / 行李厢空腔
-          const L = Math.max(2.5, W), Wd = Math.max(1.2, M(e.d || 1800)), BH = Math.max(1.1, h);
+        } else if (isCar(T3)) {                                 // 轿车 / 越野车：连续壳体（侧板自带门窗框，门板与车身共面）+ 内饰 + 机舱 / 行李厢空腔
+          const L = Math.max(2.5, W), Wd = Math.max(1.2, M(e.d || FACILITY_DEFS[T3].d)), BH = Math.max(1.1, h), suv = T3 === 'carSuv';
           const paintHex = CAR_COLORS[e.color] || CAR_COLORS.white;
           const paint = mat(paintHex, { metalness:.35, roughness:.32 }), paintDim = mat(paintHex, { metalness:.28, roughness:.45 });
           const glassOp = k => Math.max(.05, Math.min(1, (+e[k] || 16) / 100));                                               // 各块玻璃独立不透明度（面板百分比，越大越不透明）
@@ -21874,29 +21915,32 @@
           const tire = mat('#171a1d', { roughness:.98 }), rimM = mat('#adb6bd', { metalness:.82, roughness:.28 });
           const it = CAR_INTERIORS[e.int] || CAR_INTERIORS.black;
           const innerM = mat(it.seat, { roughness:.94 }), carpetM = mat(it.carpet, { roughness:1 }), engineM = mat('#5b646b', { metalness:.55, roughness:.5 });
-          const wr = Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + .60), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46, wall = .07;
+          const wr = suv ? Math.min(.40, BH * .24) : Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + (suv ? .78 : .60)), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46, wall = .07;
           const sunL = Math.max(.30, Math.min(L*.28, M(e.sunL || L*140))), sunW = Math.max(.30, Math.min(Wd*.80, M(e.sunW || Wd*360)));  // 天窗玻璃长 / 宽（米）：只控制玻璃开口，车顶棚随开口重新拼装
           const sunX = -L*.07, sunFront = sunX + sunL/2, sunRear = sunX - sunL/2;                                          // 天窗开口中心 / 前后沿
           const sunDist = Math.max(L*.015, Math.min(sunL*.6, L*.16 - sunL/2));                                            // 滑开行程：玻璃后沿不越出车顶后段
           const sil = [[-L*.5,y0]];
           [-L*.31,L*.31].forEach(cx=>{for(let i=0;i<=10;i++){const t=Math.PI-i*Math.PI/10;sil.push([cx+Math.cos(t)*ar,y0+Math.sin(t)*ar]);}});
-          sil.push([L*.5,y0],[L*.5,belt-.09],[L*.20,belt-.09],[L*.09,top-.06],[L*.04,top],[-L*.17,top],[-L*.23,top-.06],[-L*.35,belt-.09],[-L*.5,belt-.09],[-L*.5,y0]);
+          sil.push([L*.5,y0],[L*.5,belt-.09],...(suv
+            ? [[L*.28,belt-.09],[L*.22,top-.06],[L*.20,top],[-L*.38,top],[-L*.42,top-.06],[-L*.46,belt-.09]]
+            : [[L*.20,belt-.09],[L*.09,top-.06],[L*.04,top],[-L*.17,top],[-L*.23,top-.06],[-L*.35,belt-.09]]),[-L*.5,belt-.09],[-L*.5,y0]);
           const sideShape = new THREE.Shape();
           sil.forEach(([x,y],i)=> i?sideShape.lineTo(x,y):sideShape.moveTo(x,y)); sideShape.closePath();
           const cutHole = pts => { const h=new THREE.Path(); pts.forEach(([x,y],i)=> i?h.lineTo(x,y):h.moveTo(x,y)); h.closePath(); sideShape.holes.push(h); };
-          cutHole([[-L*.04,y0+.03],[L*.19,y0+.03],[L*.19,belt],[L*.08,top-.07],[-L*.04,top-.07]]);                          // 前门洞+前侧窗洞合并：belt 处不再有白色洞缘横杆
+          cutHole(suv ? [[-L*.04,y0+.03],[L*.23,y0+.03],[L*.23,belt],[L*.20,top-.07],[-L*.04,top-.07]] : [[-L*.04,y0+.03],[L*.19,y0+.03],[L*.19,belt],[L*.08,top-.07],[-L*.04,top-.07]]);   // 前门洞+前侧窗洞合并：belt 处不再有白色洞缘横杆
           const rcx=-L*.31, rEnd=Math.acos(Math.min(1,(-L*.30-rcx)/ar)), rearBot=[[-L*.06,y0+.03]];
           for(let i=0;i<=10;i++){const t=i/10*rEnd;rearBot.push([rcx+ar*Math.cos(t),y0+ar*Math.sin(t)+.03]);}
-          cutHole([...rearBot,[-L*.30,belt],[-L*.22,top-.07],[-L*.06,top-.07]]);                                            // 后门洞+后侧窗洞合并：同样消除白色横杆
+          cutHole([...rearBot, ...(suv ? [[-L*.40,belt],[-L*.38,top-.07],[-L*.06,top-.07]] : [[-L*.30,belt],[-L*.22,top-.07],[-L*.06,top-.07]])]);   // 后门洞+后侧窗洞合并：越野车 C 柱更靠后、后侧窗加长
           [-1,1].forEach(sd => { const s=new THREE.Mesh(new THREE.ExtrudeGeometry(sideShape,{depth:wall,bevelEnabled:false,curveSegments:4}),paint);
             s.position.z = sd>0 ? halfW-wall : -halfW; s.castShadow=s.receiveShadow=true; grp.add(s); });                    // 侧板挖出门窗洞，洞缘自身就是门框 / 窗框，无拼接缝
           P(new THREE.BoxGeometry(L*1.01,.012,Wd*1.01), oneMat(new THREE.MeshBasicMaterial({color:0x000000,transparent:true,opacity:.2,depthWrite:false})),0,.008,0);
           P(new THREE.BoxGeometry(L*.98,.06,Wd*.92), paintDim, 0, y0+.03, 0);                                              // 地板
-          P(new THREE.BoxGeometry(L*.09-sunFront,.06,halfW*2), paint, (sunFront+L*.09)/2, top+.005, 0);                     // 车顶前段：前接风挡上沿、后接天窗玻璃开口
-          P(new THREE.BoxGeometry(sunRear+L*.23,.06,halfW*2), paint, (sunRear-L*.23)/2, top+.005, 0);                      // 车顶后段（滑开的玻璃压在这段上面）
+          const fTop = suv ? L*.22 : L*.09, rTop = suv ? -L*.38 : -L*.23;                                                   // 车顶前后沿：越野车平顶加长
+          P(new THREE.BoxGeometry(fTop-sunFront,.06,halfW*2), paint, (sunFront+fTop)/2, top+.005, 0);                       // 车顶前段：前接风挡上沿、后接天窗玻璃开口
+          P(new THREE.BoxGeometry(sunRear-rTop,.06,halfW*2), paint, (sunRear+rTop)/2, top+.005, 0);                         // 车顶后段（滑开的玻璃压在这段上面）
           [-1,1].forEach(sd => P(new THREE.BoxGeometry(sunL,.06,halfW-sunW/2), paint, sunX, top+.005, sd*(halfW+sunW/2)/2)); // 车顶左右段：中间留出天窗开口，可透视座舱
-          P(new THREE.BoxGeometry(.05,belt-y0,Wd*.90), paintDim, L*.19, (y0+belt)/2, 0);                                   // 前围防火墙
-          P(new THREE.BoxGeometry(.05,belt-y0,Wd*.90), paintDim, -L*.35, (y0+belt)/2, 0);                                  // 后围板
+          P(new THREE.BoxGeometry(.05,belt-y0,Wd*.90), paintDim, suv?L*.23:L*.19, (y0+belt)/2, 0);                         // 前围防火墙
+          P(new THREE.BoxGeometry(.05,belt-y0,Wd*.90), paintDim, suv?-L*.40:-L*.35, (y0+belt)/2, 0);                       // 后围板
           P(new THREE.BoxGeometry(.06,belt-y0-.10,Wd*.92), paintDim, L*.49, (y0+belt-.10)/2, 0);                           // 车头 / 车尾围板
           P(new THREE.BoxGeometry(.06,belt-y0-.10,Wd*.92), paintDim, -L*.49, (y0+belt-.10)/2, 0);
           const quad = (pts, m, z1, z2, parent) => { const g = new THREE.BufferGeometry(); const v = [];
@@ -21908,8 +21952,8 @@
             g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals();
             const o = new THREE.Mesh(g, m); o.castShadow = false; o.receiveShadow = true; (parent || grp).add(o); return o; };
           const glassZ = halfW - wall;                                                                                    // 风挡只铺到两侧板内表面，不再伸进 A/C 柱厚度里造成穿模
-          quad([[L*.20,belt-.09],[L*.09,top-.06],[L*.09,top+.005],[L*.20,belt]], frontGlass, -glassZ, glassZ);             // 前风挡：独立不透明度
-          quad([[-L*.35,belt-.09],[-L*.23,top-.06],[-L*.23,top+.005],[-L*.35,belt]], rearGlass, -glassZ, glassZ);         // 后风挡：独立不透明度
+          quad(suv ? [[L*.28,belt-.09],[L*.22,top-.06],[L*.22,top+.005],[L*.28,belt]] : [[L*.20,belt-.09],[L*.09,top-.06],[L*.09,top+.005],[L*.20,belt]], frontGlass, -glassZ, glassZ);         // 前风挡：越野车 A 柱更直立
+          quad(suv ? [[-L*.46,belt-.09],[-L*.38,top-.06],[-L*.38,top+.005],[-L*.46,belt]] : [[-L*.35,belt-.09],[-L*.23,top-.06],[-L*.23,top+.005],[-L*.35,belt]], rearGlass, -glassZ, glassZ);     // 后风挡：越野车尾门更垂直
           P(new THREE.BoxGeometry(L*.52,.02,Wd*.80), carpetM, -L*.05, y0+.075, 0);                                         // 座舱地毯
           [-1, 1].forEach(sd => [L*.00, -L*.18].forEach(sx => {                                                            // 四座：前排略后移，留出腿部空间
             P(new THREE.BoxGeometry(.44,.10,.44), innerM, sx, y0+.30, sd*Wd*.22);
@@ -21944,10 +21988,16 @@
               s.lineTo(rcx + ar * Math.cos(t) - x0, Math.max(y0 + ar * Math.sin(t) + .03, yb)); }
             s.closePath(); return s;
           };
+          const frontDoorPivots = {};                                                                                     // 前门枢轴：后视镜挂到前门上，开门时随门转，不再与门板穿模
           [-1, 1].forEach(sd => {                                                                                         // 左右两侧各前后两扇车门（铰链在前缘，门板外沿略突出侧板 2mm）
-            [[L*.19, L*.23, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.19,belt-.012],[L*.08,top-.07],[-L*.04,top-.07],[-L*.04,belt-.012]]],
-             [-L*.06, L*.24, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt-.012],[-L*.06,top-.07],[-L*.22,top-.07],[-L*.30,belt-.012]]]].forEach(([x0, dw, fL, fR, zhL, enL, zhR, enR, winPts]) => {
+            [(suv
+              ? [L*.23, L*.27, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.23,belt-.012],[L*.20,top-.07],[-L*.04,top-.07],[-L*.04,belt-.012]]]
+              : [L*.19, L*.23, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.19,belt-.012],[L*.08,top-.07],[-L*.04,top-.07],[-L*.04,belt-.012]]]),
+             (suv
+              ? [-L*.06, L*.34, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt-.012],[-L*.06,top-.07],[-L*.38,top-.07],[-L*.40,belt-.012]]]
+              : [-L*.06, L*.24, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt-.012],[-L*.06,top-.07],[-L*.22,top-.07],[-L*.30,belt-.012]]])].forEach(([x0, dw, fL, fR, zhL, enL, zhR, enR, winPts]) => {
               const pivot = new THREE.Group(); pivot.position.set(x0, 0, sd*(halfW-wall));
+              if (fL.startsWith('doorF')) frontDoorPivots[sd] = pivot;
               const isRear = fL === 'doorRL';                                                                            // 后门与后轮拱相交：门板 / 内饰板都要切出轮拱缺口，不再盖住轮胎
               const panelGeo = isRear
                 ? new THREE.ExtrudeGeometry(rearDoorShape(x0, dw, .004, -dw-.004, y0, belt), { depth: wall, bevelEnabled: false, curveSegments: 4 })
@@ -21977,13 +22027,20 @@
               grp.add(pivot); regCarPart(sd<0?fL:fR, pivot, sd*1.15, 'y', sd<0?zhL:zhR, true);
             });
           });
-          const hoodPivot = new THREE.Group(); hoodPivot.position.set(L*.20, belt-.09, 0);
-          const hp = new THREE.Mesh(new THREE.BoxGeometry(L*.30,.04,halfW*2), paint); hp.position.set(L*.15,0,0); hoodPivot.add(hp);                        // 机盖延伸到车头前缘，与侧板机盖平台齐平无缝
-          [-1,1].forEach(sl => { const ln = new THREE.Mesh(new THREE.BoxGeometry(L*.27,.008,.018), paintDim); ln.position.set(L*.15,.006,sl*Wd*.22); hoodPivot.add(ln); });
+          const hoodX = suv ? L*.28 : L*.20, hoodLen = suv ? L*.22 : L*.30;
+          const hoodPivot = new THREE.Group(); hoodPivot.position.set(hoodX, belt-.09, 0);
+          const hp = new THREE.Mesh(new THREE.BoxGeometry(hoodLen,.04,halfW*2), paint); hp.position.set(hoodLen/2,0,0); hoodPivot.add(hp);                    // 机盖延伸到车头前缘，与侧板机盖平台齐平无缝
+          [-1,1].forEach(sl => { const ln = new THREE.Mesh(new THREE.BoxGeometry(hoodLen*.9,.008,.018), paintDim); ln.position.set(hoodLen/2,.006,sl*Wd*.22); hoodPivot.add(ln); });
           grp.add(hoodPivot); regCarPart('hood', hoodPivot, .95, 'z', '前引擎盖');
-          const trunkPivot = new THREE.Group(); trunkPivot.position.set(-L*.35, belt-.09, 0);
-          const tp = new THREE.Mesh(new THREE.BoxGeometry(L*.15,.04,halfW*2), paint); tp.position.set(-L*.075,0,0); trunkPivot.add(tp);                      // 尾门与侧板外沿齐平
-          [-1,1].forEach(sl => { const tl = new THREE.Mesh(new THREE.BoxGeometry(L*.13,.008,.018), paintDim); tl.position.set(-L*.075,.006,sl*Wd*.22); trunkPivot.add(tl); });
+          const trunkX = suv ? L*.40 : L*.35, trunkLen = suv ? L*.10 : L*.15;
+          const trunkPivot = new THREE.Group(); trunkPivot.position.set(-trunkX, belt-.09, 0);
+          const tp = new THREE.Mesh(new THREE.BoxGeometry(trunkLen,.04,halfW*2), paint); tp.position.set(-trunkLen/2,0,0); trunkPivot.add(tp);                 // 尾门与侧板外沿齐平
+          [-1,1].forEach(sl => { const tl = new THREE.Mesh(new THREE.BoxGeometry(trunkLen*.87,.008,.018), paintDim); tl.position.set(-trunkLen/2,.006,sl*Wd*.22); trunkPivot.add(tl); });
+          if (suv) {                                                                                                         // 越野车备胎挂在尾门外侧（不写死在车身上）：尾门开合时随门一起掀起
+            const spareR = Math.min(.34, wr*1.02);
+            const rearSpare = new THREE.Mesh(new THREE.CylinderGeometry(spareR,spareR,.13,20), tire); rearSpare.rotation.z = Math.PI/2; rearSpare.position.set(-trunkLen-.055, .10, 0); rearSpare.castShadow = true; trunkPivot.add(rearSpare);
+            const rearHub = new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.14,16), chrome); rearHub.rotation.z = Math.PI/2; rearHub.position.copy(rearSpare.position); trunkPivot.add(rearHub);
+          }
           grp.add(trunkPivot); regCarPart('trunk', trunkPivot, -.95, 'z', '后备箱门');
           const sunBase = new THREE.Group(); sunBase.position.set(0, top+.024, 0); grp.add(sunBase);                       // 天窗玻璃内嵌在顶棚开口里（顶面下沉约 5mm，与车顶齐平无外框）
           const sunSlide = new THREE.Group(); sunBase.add(sunSlide);
@@ -21993,13 +22050,19 @@
           doors.push({ kind:'car', carId:e.id, part:'sunroof', field:'sunroof', slide:true, open:!!e.sunroof, cur:e.sunroof?1:0,   // 滑动式天窗：关闭时嵌在开口内，打开先整块升出顶棚、再沿车顶向后推（真车同款两段式行程）
             pivots:[{ g:sunSlide, px:0, pz:0, ax:-1, az:0, dist:sunDist, ay:.04, tph:true }], label:CAR_PART_LABEL.sunroof });
           sunGlass.userData.door = doors[doors.length-1]; sunGlass.userData.pick3d = { kind:'extra', id:e.id };
-          [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：轮胎 + 轮毂 + 中心盖（轮拱已由车身轮廓切出）
-            const wx = sx * L * .31;
-            const wh = P(new THREE.CylinderGeometry(wr,wr,.20,20), tire, wx, wr, sd*(halfW-.02)); wh.rotation.x = Math.PI/2;
-            const rl = P(new THREE.CylinderGeometry(wr*.67,wr*.67,.205,16), rimM, wx, wr, sd*(halfW-.02)); rl.rotation.x = Math.PI/2; rl.castShadow = false;
-            const hb = P(new THREE.CylinderGeometry(wr*.2,wr*.2,.21,12), chrome, wx, wr, sd*(halfW-.02)); hb.rotation.x = Math.PI/2; hb.castShadow = false;
+          [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：越野车轮胎更宽更大（轮拱已由车身轮廓切出）
+            const wx = sx * L * (suv ? .33 : .31), ww = suv ? .24 : .20, rim = suv ? .72 : .67;
+            const wh = P(new THREE.CylinderGeometry(wr,wr,ww,20), tire, wx, wr, sd*(halfW-.02)); wh.rotation.x = Math.PI/2;
+            const rl = P(new THREE.CylinderGeometry(wr*rim,wr*rim,ww+.005,16), rimM, wx, wr, sd*(halfW-.02)); rl.rotation.x = Math.PI/2; rl.castShadow = false;
+            const hb = P(new THREE.CylinderGeometry(wr*.2,wr*.2,ww+.01,12), chrome, wx, wr, sd*(halfW-.02)); hb.rotation.x = Math.PI/2; hb.castShadow = false;
           }));
           const lightsOn = e.lights !== false;                                                                           // 车灯开关：旧方案未设按开灯处理
+          if (suv) {                                                                                                       // 越野车专属：车顶行李架 + 射灯 + 侧踏板（备胎已在尾门上）
+            [-1,1].forEach(sd => { const rail = new THREE.Mesh(new THREE.BoxGeometry(L*.56,.045,.055), black); rail.position.set(-L*.09, top+.055, sd*halfW*.72); rail.castShadow = true; grp.add(rail); });
+            [-L*.32, L*.16].forEach(rx => { const bar = new THREE.Mesh(new THREE.BoxGeometry(.045,.04,halfW*1.44), black); bar.position.set(rx, top+.038, 0); bar.castShadow = true; grp.add(bar); });
+            [-1,1].forEach(sd => { const rlamp = new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.035,14), oneMat(new THREE.MeshBasicMaterial({ color: lightsOn ? 0xfff0c8 : 0x6b6658 }))); rlamp.rotation.x = Math.PI/2; rlamp.position.set(L*.18, top+.10, sd*halfW*.60); rlamp.castShadow = false; grp.add(rlamp); });
+            [-1,1].forEach(sd => { const step = new THREE.Mesh(new THREE.BoxGeometry(L*.58,.05,.11), black); step.position.set(-L*.02, y0-.02, sd*(halfW+.09)); step.castShadow = true; grp.add(step); });
+          }
           [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 雨刷
             P(new THREE.BoxGeometry(.08,.11,Wd*.90), paintDim, sd*(L*.5+.02), y0+.10, 0);                                 // 保险杠收薄，车头不再像方柜
             P(new THREE.BoxGeometry(.09,.025,Wd*.90), black, sd*(L*.5+.04), y0+.04, 0);
@@ -22008,8 +22071,21 @@
               const lamp = P(new THREE.BoxGeometry(.025,.075,Wd*.15), oneMat(new THREE.MeshBasicMaterial({color: sd>0 ? (lightsOn?0xfff0c8:0x6b6658) : (lightsOn?0xd43838:0x5c2a2a)})), sd*(L*.5+.045), belt-.13, sl*Wd*.30); lamp.castShadow = false;
               if (sd>0) lamp.userData.carLamp = e.id;                                                                     // 前照灯登记点击切换
             });
-            P(new THREE.BoxGeometry(.04,.03,.10), black, L*.16, belt+.06, sd*(halfW+.04));
-            P(new THREE.BoxGeometry(.12,.07,.05), paintDim, L*.16, belt+.08, sd*(halfW+.09));
+            const mirX = suv ? L*.23 : L*.16, mirZ = sd*(halfW+(suv?.10:.09));
+            if (frontDoorPivots[sd]) {                                                                                       // 后视镜挂在前门上：开门随门旋转，不再与门板穿模（轿车 / 越野车一致）
+              const par = frontDoorPivots[sd], lx = mirX - par.position.x, lz = mirZ - par.position.z;
+              const add = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo,m); o.position.set(x,y,z); o.castShadow = o.receiveShadow = true; par.add(o); return o; };
+              if (suv) {
+                add(new THREE.BoxGeometry(.035,.03,.12), black, lx, belt+.06, lz - sd*.05);                                  // 镜柄
+                const shell = add(new THREE.SphereGeometry(1,16,12), paintDim, lx, belt+.09, lz); shell.scale.set(.055,.10,.115);
+                add(new THREE.BoxGeometry(.012,.084,.112), black, lx-.057, belt+.09, lz);                                    // 镜面底圈
+                const mirror = add(new THREE.BoxGeometry(.008,.074,.10), oneMat(new THREE.MeshBasicMaterial({color:0x8fa8b8})), lx-.065, belt+.09, lz);
+                mirror.castShadow = false;
+              } else {
+                add(new THREE.BoxGeometry(.04,.03,.10), black, lx, belt+.06, lz - sd*.05);
+                add(new THREE.BoxGeometry(.12,.07,.05), paintDim, lx, belt+.08, lz);
+              }
+            }
             P(new THREE.BoxGeometry(.018,.012,Wd*.28), black, L*.19, belt-.05, sd*Wd*.19);                                 // 雨刷贴前风挡根部（门把手已随四门一起运动）
           });
           const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:lightsOn?.13:0, depthWrite:false, side:THREE.DoubleSide }));
@@ -23751,11 +23827,11 @@
         camera.position.set(wx(4200), yOff + 1.6, wz(8755)); camera.lookAt(wx(7000), yOff + 1.5, wz(8755));   // 兜底：原始入户门外
       }
     }
-    const carIdFromHit = h => {                                  // 从拾取结果里取出轿车 id（车身 / 车门 / 车灯任一命中都算），非轿车返回 null
+    const carIdFromHit = h => {                                  // 从拾取结果里取出车辆 id（轿车 / 越野车车身 / 车门 / 车灯任一命中都算），非车辆返回 null
       if (!h) return null;
       if (h.door?.kind === 'car' && h.door.carId != null) return h.door.carId;
       if (h.carLamp != null) return h.carLamp;
-      if (h.kind === 'extra' && h.id != null && (state.extras || []).find(x => String(x.id) === String(h.id))?.type === 'carSedan') return h.id;
+      if (h.kind === 'extra' && h.id != null && isCar((state.extras || []).find(x => String(x.id) === String(h.id))?.type)) return h.id;
       return null;
     };
     function carFootBlocked(cx, cz, ang, L, Wd) {                 // 驾驶碰撞：按旋转后的车身矩形足迹取中心 + 四角试探，避开墙 / 家具 / 其它车
@@ -23765,11 +23841,12 @@
       return false;
     }
     function enterCar(id) {                                       // 上车：把相机移到左前驾驶位，登记 driveCar 后由 stepDrive 接管漫游物理
-      const e = (state.extras || []).find(x => String(x.id) === String(id) && x.type === 'carSedan'); if (!e) return false;
+      const e = (state.extras || []).find(x => String(x.id) === String(id) && isCar(x.type)); if (!e) return false;
       const grp = archUp.children.find(o => o.userData.pick3d?.kind === 'extra' && String(o.userData.pick3d.id) === String(e.id)); if (!grp) return false;
       const col = colliders.find(c => c.carId === e.id);
-      const L = Math.max(2.5, M(e.w || 4600)), Wd = Math.max(1.2, M(e.d || 1800)), BH = Math.max(1.1, M(e.h || 1500));
-      const wr = Math.min(.33, BH*.22), y0 = wr*.82;
+      const def = FACILITY_DEFS[e.type];
+      const L = Math.max(2.5, M(e.w || def.w)), Wd = Math.max(1.2, M(e.d || def.d)), BH = Math.max(1.1, M(e.h || def.h));
+      const wr = e.type === 'carSuv' ? Math.min(.40, BH*.24) : Math.min(.33, BH*.22), y0 = wr*.82;
       driveCar = { id:e.id, grp, col, L, Wd, y0, ang:((+e.rot||0)%360)*Math.PI/180, speed:0, cx:grp.position.x, cz:grp.position.z };
       fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND; ladderOn = null; stuckT = 0;
       if (stuckTip) stuckTip.classList.remove('open');
