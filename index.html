@@ -21904,21 +21904,22 @@
           [-1,1].forEach(sd => P(new THREE.BoxGeometry(.16,.16,.16), engineM, L*.28, belt-.20, sd*Wd*.30));                // 减震塔顶
           const spare = P(new THREE.CylinderGeometry(.26,.26,.14,16), black, -L*.42, y0+.20, 0); spare.castShadow = false;  // 行李厢：备胎 + 隔板
           P(new THREE.BoxGeometry(L*.12,.03,Wd*.80), innerM, -L*.42, belt-.20, 0);
-          const doorH = belt - y0 - .03, doorCy = (y0 + belt) / 2 - .015;
+          const doorH = belt - y0 + .012, doorCy = (y0 + belt) / 2 + .006;                                            // 门板上沿抬过腰线、与玻璃下缘搭接，腰线处不再透空成缝
           const CAR_PART_LABEL = { doorFL:['左前门','front left door'], doorFR:['右前门','front right door'], doorRL:['左后门','rear left door'], doorRR:['右后门','rear right door'], hood:['前引擎盖','the hood'], trunk:['后备箱门','the trunk'], sunroof:['天窗','the sunroof'] };
           const regCarPart = (part, pivot, a1, axis, label) => {
             const d = { kind:'car', carId:e.id, part, field:part, axis, open:!!e[part], cur:e[part]?1:0, a0:0, a1, pivot, label:CAR_PART_LABEL[part] || [label, label] };
             pivot.traverse(o => { if (o.isMesh) { o.userData.door = d; o.userData.pick3d = {kind:'extra', id:e.id}; } });
             doors.push(d);
           };
-          [-1, 1].forEach(sd => {                                                                                         // 左右两侧各前后两扇车门（铰链在前缘，门板与侧板共面）
-            [[L*.19, L*.23, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.19,belt],[L*.08,top-.07],[-L*.04,top-.07],[-L*.04,belt]]],
-             [-L*.06, L*.24, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt],[-L*.06,top-.07],[-L*.22,top-.07],[-L*.30,belt]]]].forEach(([x0, dw, fL, fR, zhL, enL, zhR, enR, winPts]) => {
+          [-1, 1].forEach(sd => {                                                                                         // 左右两侧各前后两扇车门（铰链在前缘，门板外沿略突出侧板 2mm）
+            [[L*.19, L*.23, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.19,belt-.012],[L*.08,top-.07],[-L*.04,top-.07],[-L*.04,belt-.012]]],
+             [-L*.06, L*.24, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt-.012],[-L*.06,top-.07],[-L*.22,top-.07],[-L*.30,belt-.012]]]].forEach(([x0, dw, fL, fR, zhL, enL, zhR, enR, winPts]) => {
               const pivot = new THREE.Group(); pivot.position.set(x0, 0, sd*(halfW-wall));
-              const panel = new THREE.Mesh(new THREE.BoxGeometry(dw, doorH, wall), paint); panel.position.set(-dw/2, doorCy, sd*wall/2); pivot.add(panel);
-              const inner = new THREE.Mesh(new THREE.BoxGeometry(dw*.92, doorH*.90, .014), innerM); inner.position.set(-dw/2, doorCy, -sd*(wall/2+.006)); pivot.add(inner);
-              quad(winPts.map(([px,py])=>[px-x0,py]), doorGlass, sd*.004, sd*.016, pivot);                                   // 侧窗玻璃边框（随门转动）
-              pane(winPts.map(([px,py])=>[px-x0,py]), doorGlass, sd*(wall-.006), pivot);                                    // 四门侧窗深色贴膜玻璃面：填满窗洞、随门一起开合
+              const panel = new THREE.Mesh(new THREE.BoxGeometry(dw+.008, doorH, wall), paint); panel.position.set(-dw/2, doorCy, sd*(wall/2+.002)); pivot.add(panel);   // 门板略宽于洞、外沿突出 2mm：盖住洞缘，不与侧板共面闪烁
+              const inner = new THREE.Mesh(new THREE.BoxGeometry(dw*.92, doorH*.90, .014), innerM); inner.position.set(-dw/2, doorCy, -sd*.005); pivot.add(inner);          // 内饰板紧贴门板内表面，中间不再留 3~4cm 空腔
+              const wpts = winPts.map(([px,py])=>[px-x0,py]);
+              pane(wpts, doorGlass, sd*(wall-.006), pivot);                                    // 四门侧窗深色贴膜玻璃面：下缘压过腰线、填满窗洞、随门一起开合
+              quad(wpts, doorGlass, sd*(wall-.016), sd*(wall-.002), pivot);                    // 玻璃边框与玻璃面同深度（原来分置门板内外两侧，斜看是一道 5cm 空缝）
               const hd = new THREE.Mesh(new THREE.BoxGeometry(.10,.016,.02), chrome); hd.position.set(-dw*.72, belt-.12, sd*(wall+.012)); pivot.add(hd);
               grp.add(pivot); regCarPart(sd<0?fL:fR, pivot, sd*1.15, 'y', sd<0?zhL:zhR);
             });
