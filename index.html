@@ -21972,18 +21972,18 @@
           const wallT = .05, plyM = mat('#b98a5c', { roughness:.92 }), trimM = mat('#2f363c', { roughness:.85 });
           const frameM = mat('#3a4148',{metalness:.4,roughness:.6});
           P(new THREE.BoxGeometry(L*.97, floorY-wr+.07, Wd*.40), frameM, 0, (floorY+wr-.07)/2, 0);                        // 中央大梁：底包住桥壳、顶托货箱底与驾驶室地板
-          P(new THREE.BoxGeometry(boxL-.04,.12,Wd*.86), frameM, boxCx, floorY-.06, 0);                                   // 货箱副车架：托住货箱底，连到大梁
-          P(new THREE.BoxGeometry(boxL-.04, .05, Wd*.88), plyM, boxCx, floorY+.025, 0);                                   // 货箱木地板（开门见内部）
-          P(new THREE.BoxGeometry(boxL, .05, Wd*.98), boxM, boxCx, floorY+boxH-.025, 0);                                  // 货箱顶板
-          [-1,1].forEach(sd => P(new THREE.BoxGeometry(boxL, boxH-.10, wallT), boxM, boxCx, floorY+boxH/2+.05, sd*(Wd*.5-wallT/2)));   // 货箱侧壁（空腔：后门打开能看到内衬）
-          P(new THREE.BoxGeometry(wallT, boxH-.10, Wd*.98-2*wallT), boxM, boxX1-wallT/2, floorY+boxH/2+.05, 0);            // 货箱前壁
-          [-1,1].forEach(sd => { for (let rx = boxX1-.45; rx > -L*.5+.45; rx -= .85) P(new THREE.BoxGeometry(.018, boxH*.9, .012), boxDim, rx, floorY+boxH/2+.02, sd*(Wd*.491)); });   // 货箱侧面瓦楞筋
-          [-1,1].forEach(sd => P(new THREE.BoxGeometry(.06, boxH-.10, .06), boxDim, -L*.5+.03, floorY+boxH/2+.05, sd*(Wd*.5-wallT/2)));   // 后开口立柱
-          P(new THREE.BoxGeometry(.06,.05,Wd*.98-2*wallT), boxDim, -L*.5+.03, floorY+boxH-.075, 0);                       // 后开口顶梁
-          P(new THREE.BoxGeometry(.06,.05,Wd*.86), boxDim, -L*.5+.03, floorY+.055, 0);                                    // 后门槛
+          P(new THREE.BoxGeometry(boxL,.12,Wd*.98), frameM, boxCx, floorY-.06, 0);                                      // 货箱副车架：托住货箱底，连到大梁
+          P(new THREE.BoxGeometry(boxL, .06, Wd), plyM, boxCx, floorY+.03, 0);                                           // 货箱木地板：铺满到侧壁外沿（原宽 .88Wd 两侧各漏 9cm）
+          P(new THREE.BoxGeometry(boxL, .05, Wd), boxM, boxCx, floorY+boxH-.025, 0);                                     // 货箱顶板：与侧壁外表面齐平
+          [-1,1].forEach(sd => P(new THREE.BoxGeometry(boxL, boxH, wallT), boxM, boxCx, floorY+boxH/2, sd*(Wd*.5-wallT/2)));   // 侧壁全高：上下包住地板 / 顶板边缘
+          P(new THREE.BoxGeometry(wallT, boxH, Wd), boxM, boxX1-wallT/2, floorY+boxH/2, 0);                               // 前壁：铺满到侧壁外沿（原两端各漏 2.4cm）
+          [-1,1].forEach(sd => { for (let rx = boxX1-.45; rx > -L*.5+.45; rx -= .85) P(new THREE.BoxGeometry(.018, boxH*.9, .012), boxDim, rx, floorY+boxH/2, sd*(Wd*.5+.006)); });   // 瓦楞筋移到侧壁外表面
+          [-1,1].forEach(sd => P(new THREE.BoxGeometry(.06, boxH, .06), boxDim, -L*.5+.03, floorY+boxH/2, sd*(Wd*.5-wallT/2)));   // 后开口立柱
+          P(new THREE.BoxGeometry(.06,.05,Wd), boxDim, -L*.5+.03, floorY+boxH-.075, 0);                                  // 后开口顶梁
+          P(new THREE.BoxGeometry(.06,.05,Wd), boxDim, -L*.5+.03, floorY+.055, 0);                                       // 后门槛
           const boxDoor = (sd) => {                                                                                       // 货箱后双开门：铰链在货箱后两角，绕竖轴外摆（part 与字段同名，3D 点击直接写回 e.boxOpen）
             const pv = new THREE.Group(); pv.position.set(-L*.5, floorY+boxH/2+.02, sd*(Wd*.465)); grp.add(pv);
-            const leaf = new THREE.Mesh(new THREE.BoxGeometry(.035, boxH*.94, Wd*.43), boxDim); leaf.position.set(-.02, 0, -sd*Wd*.215); leaf.castShadow = leaf.receiveShadow = true; pv.add(leaf);
+            const leaf = new THREE.Mesh(new THREE.BoxGeometry(.035, boxH*.94, Wd*.50), boxDim); leaf.position.set(-.02, 0, -sd*Wd*.215); leaf.castShadow = leaf.receiveShadow = true; pv.add(leaf);   // 两扇门各占半宽，合拢无缝
             [-1,1].forEach(k => { const bar = new THREE.Mesh(new THREE.BoxGeometry(.014,.05,.05), chrome); bar.position.set(-.05, k*boxH*.30, -sd*Wd*.40); pv.add(bar); });   // 门锁杆
             const d = { kind:'car', carId:e.id, part:'boxOpen', field:'boxOpen', axis:'y', open:!!e.boxOpen, cur:e.boxOpen?1:0, a0:0, a1: sd*1.85, pivot:pv, label:['货箱后门','the cargo doors'] };
             pv.traverse(o => { if (o.isMesh) { o.userData.door = d; o.userData.pick3d = {kind:'extra', id:e.id}; } });
@@ -22038,6 +22038,18 @@
           P(new THREE.BoxGeometry(.08,.22,Wd*.92), mat('#3a4148',{metalness:.4,roughness:.6}), L*.5+.02, wr+.20, 0);  // 前保险杠（贴地面，不随抬高的驾驶室地板上移）
           P(new THREE.BoxGeometry(.025,.45,Wd*.5), black, L*.5+.03, wr+.58, 0);                                       // 进气格栅
           [-1,1].forEach(sd => P(new THREE.BoxGeometry(.04,.16,Wd*.16), lampM, L*.5+.035, wr+.56, sd*Wd*.32));        // 前照灯
+          {                                                                                                              // 卡车前照灯聚光：与轿车同款，照向前方地面
+            const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:lightsOn?.13:0, depthWrite:false, side:THREE.DoubleSide }));
+            [-1, 1].forEach(sl => {
+              const lx = L*.5 + .08, ly = wr + .56, lz = sl * Wd * .32;
+              const spot = new THREE.SpotLight(0xfff2cf, lightsOn?55:0, 14, .30, .5, 1.6);
+              spot.position.set(lx, ly, lz); spot.target.position.set(lx + 10, -.2, lz + sl * .5);
+              grp.add(spot); grp.add(spot.target);
+              const beam = new THREE.Mesh(new THREE.ConeGeometry(2.2, 7, 16, 1, true), beamMat);
+              beam.rotation.z = Math.PI / 2 - .08; beam.position.set(lx + 3.2, ly - .3, lz); beam.renderOrder = 2;
+              beam.userData.driveBeam = true; grp.add(beam);
+            });
+          }
           [-1,1].forEach(sd => P(new THREE.BoxGeometry(.04,.22,Wd*.18), tailM, -L*.5-.035, floorY-.22, sd*Wd*.34));       // 尾灯：降到货箱下角（约 0.83m），真卡车灯组高度
           const mkWheel = (wx, zoff) => { const wh = P(new THREE.CylinderGeometry(wr,wr,.26,18), tire, wx, wr, zoff); wh.rotation.x = Math.PI/2;
             const rl = P(new THREE.CylinderGeometry(wr*.6,wr*.6,.28,12), rimM, wx, wr, zoff); rl.rotation.x = Math.PI/2; };
