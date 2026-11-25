@@ -26,7 +26,7 @@ DISPLAY_NAME = "户型装修设计"
 PORT = 8765
 FNPACK = ROOT / "tools" / "bin" / "fnpack.exe"      # 官方打包工具（Windows 版）
 
-WWW_FILES = ["index.html", "libs", "LICENSE", "README.md"]
+WWW_FILES = ["index.html", "favicon.ico", "libs", "LICENSE", "README.md"]
 EXCLUDE = {".env", ".git", "__pycache__", ".playwright-cli", "plans",
            "server.log", ".codebuddy", "node_modules", ".idea", ".vscode"}
 

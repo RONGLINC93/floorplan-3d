@@ -14,7 +14,7 @@ import zipfile
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parent
-WWW_FILES = ["index.html", "libs", "LICENSE"]
+WWW_FILES = ["index.html", "favicon.ico", "libs", "LICENSE"]
 EXCLUDE = {".env", ".git", "__pycache__", ".playwright-cli", "plans",
            "server.log", ".codebuddy", "node_modules", ".idea", ".vscode"}
 
@@ -65,8 +65,19 @@ def pack_win(version: str) -> None:
     print("[i] Windows 用户解压后双击「启动服务器.bat」即可运行（需装有 Python 3）")
 
 
+def read_manifest_version() -> str:
+    """版本号以仓库根 manifest 的 version= 为准（与 fpk 打包一致），不再硬编码。"""
+    p = ROOT / "manifest"
+    if not p.exists():
+        sys.exit("[x] 未找到 manifest，无法确定版本号")
+    for line in p.read_text(encoding="utf-8").splitlines():
+        if line.startswith("version="):
+            return line.split("=", 1)[1].strip()
+    sys.exit("[x] manifest 中未找到 version= 行")
+
+
 def main():
-    pack_win(sys.argv[1] if len(sys.argv) > 1 else "1.0.2")
+    pack_win(sys.argv[1] if len(sys.argv) > 1 else read_manifest_version())
 
 
 if __name__ == "__main__":
