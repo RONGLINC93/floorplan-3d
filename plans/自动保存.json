@@ -126,7 +126,11 @@
       "opDoor": 20,
       "opFront": 16,
       "opRear": 30,
-      "opSun": 16
+      "opSun": 16,
+      "winFL": false,
+      "winFR": false,
+      "winRL": false,
+      "winRR": false
     }
   ],
   "leaders": [],
@@ -273,7 +277,11 @@
           "opDoor": 20,
           "opFront": 16,
           "opRear": 30,
-          "opSun": 16
+          "opSun": 16,
+          "winFL": false,
+          "winFR": false,
+          "winRL": false,
+          "winRR": false
         }
       ],
       "leaders": [],
