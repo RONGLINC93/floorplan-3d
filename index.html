@@ -22059,7 +22059,7 @@
           if (floorY+cabH < BH-.1) P(new THREE.BoxGeometry(cabL*.5, .12, Wd*.7), paintDim, cabCx+cabL*.12, floorY+cabH+.06, 0);   // 车顶导流罩（贴驾驶室顶面，不外挑）
           P(new THREE.BoxGeometry(.08,.22,Wd*.92), mat('#3a4148',{metalness:.4,roughness:.6}), L*.5+.02, wr+.20, 0);  // 前保险杠（贴地面，不随抬高的驾驶室地板上移）
           P(new THREE.BoxGeometry(.025,.45,Wd*.5), black, L*.5+.03, wr+.58, 0);                                       // 进气格栅
-          [-1,1].forEach(sd => P(new THREE.BoxGeometry(.04,.16,Wd*.16), lampM, L*.5+.035, wr+.56, sd*Wd*.32));        // 前照灯
+          [-1,1].forEach(sd => { const lamp = P(new THREE.BoxGeometry(.04,.16,Wd*.16), lampM, L*.5+.035, wr+.56, sd*Wd*.32); lamp.userData.carLamp = e.id; });   // 前照灯登记点击切换（与轿车 / 越野车同源）
           {                                                                                                              // 卡车前照灯聚光：与轿车同款，照向前方地面
             const beamMat = oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:lightsOn?.13:0, depthWrite:false, side:THREE.DoubleSide }));
             [-1, 1].forEach(sl => {
@@ -22269,7 +22269,11 @@
           if (suv) {                                                                                                       // 越野车专属：车顶行李架 + 射灯 + 侧踏板（备胎已在尾门上）
             [-1,1].forEach(sd => { const rail = new THREE.Mesh(new THREE.BoxGeometry(L*.56,.045,.055), black); rail.position.set(-L*.09, top+.055, sd*halfW*.72); rail.castShadow = true; grp.add(rail); });
             [-L*.32, L*.16].forEach(rx => { const bar = new THREE.Mesh(new THREE.BoxGeometry(.045,.04,halfW*1.44), black); bar.position.set(rx, top+.038, 0); bar.castShadow = true; grp.add(bar); });
-            [-1,1].forEach(sd => { const rlamp = new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.035,14), oneMat(new THREE.MeshBasicMaterial({ color: lightsOn ? 0xfff0c8 : 0x6b6658 }))); rlamp.rotation.x = Math.PI/2; rlamp.position.set(L*.18, top+.10, sd*halfW*.60); rlamp.castShadow = false; grp.add(rlamp); });
+            [-1,1].forEach(sd => { const lampX = L*.18, lampY = top+.10, lampZ = sd*halfW*.60;                             // 车顶射灯：灯口朝车头（本地 +x），带真实探照光 + 可见光束锥
+              const rlamp = new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.035,14), oneMat(new THREE.MeshBasicMaterial({ color: lightsOn ? 0xfff0c8 : 0x6b6658 }))); rlamp.rotation.z = Math.PI/2; rlamp.position.set(lampX, lampY, lampZ); rlamp.castShadow = false; rlamp.userData.carLamp = e.id; grp.add(rlamp);   // 与前照灯同标记：点击 / 漫游按 E 开关全车灯光
+              const spot = new THREE.SpotLight(0xfff0c8, lightsOn ? 26 : 0, 14, .30, .6, 1.6); spot.position.set(lampX, lampY, lampZ); spot.target.position.set(lampX + 11, .2, lampZ + sd*1.4); grp.add(spot); grp.add(spot.target);
+              const rbeam = new THREE.Mesh(new THREE.ConeGeometry(.95, 5.5, 14, 1, true), oneMat(new THREE.MeshBasicMaterial({ color:0xfff2cf, transparent:true, opacity:lightsOn ? .12 : 0, depthWrite:false, side:THREE.DoubleSide }))); rbeam.rotation.z = Math.PI/2 - .10; rbeam.position.set(lampX + 2.75, lampY - .28, lampZ); rbeam.renderOrder = 2; rbeam.userData.driveBeam = true; grp.add(rbeam);
+            });
             [-1,1].forEach(sd => {                                                    // 侧踏板：居中于两轮之间，内缘贴进门槛，两枚短支架连到车底，不再整根悬空
               const step = new THREE.Mesh(new THREE.BoxGeometry(L*.36,.05,.11), black); step.position.set(0, y0-.05, sd*(halfW+.045)); step.castShadow = true; grp.add(step);
               [-L*.12, L*.12].forEach(bx => { const br = new THREE.Mesh(new THREE.BoxGeometry(.06,.09,.10), black); br.position.set(bx, y0-.025, sd*(halfW+.02)); br.castShadow = true; grp.add(br); });
