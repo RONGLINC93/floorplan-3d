@@ -118,7 +118,15 @@
       "lights": true,
       "id": "fmwvkxjtq148",
       "x": 4870,
-      "y": -5390
+      "y": -5390,
+      "srL": 400,
+      "srW": 400,
+      "sunL": 740,
+      "sunW": 1100,
+      "opDoor": 20,
+      "opFront": 16,
+      "opRear": 30,
+      "opSun": 16
     }
   ],
   "leaders": [],
@@ -257,7 +265,15 @@
           "lights": true,
           "id": "fmwvkxjtq148",
           "x": 4870,
-          "y": -5390
+          "y": -5390,
+          "srL": 400,
+          "srW": 400,
+          "sunL": 740,
+          "sunW": 1100,
+          "opDoor": 20,
+          "opFront": 16,
+          "opRear": 30,
+          "opSun": 16
         }
       ],
       "leaders": [],
