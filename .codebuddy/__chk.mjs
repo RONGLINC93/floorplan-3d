@@ -6281,7 +6281,10 @@
             [-1,1].forEach(sd => { const rail = new THREE.Mesh(new THREE.BoxGeometry(L*.56,.045,.055), black); rail.position.set(-L*.09, top+.055, sd*halfW*.72); rail.castShadow = true; grp.add(rail); });
             [-L*.32, L*.16].forEach(rx => { const bar = new THREE.Mesh(new THREE.BoxGeometry(.045,.04,halfW*1.44), black); bar.position.set(rx, top+.038, 0); bar.castShadow = true; grp.add(bar); });
             [-1,1].forEach(sd => { const rlamp = new THREE.Mesh(new THREE.CylinderGeometry(.075,.075,.035,14), oneMat(new THREE.MeshBasicMaterial({ color: lightsOn ? 0xfff0c8 : 0x6b6658 }))); rlamp.rotation.x = Math.PI/2; rlamp.position.set(L*.18, top+.10, sd*halfW*.60); rlamp.castShadow = false; grp.add(rlamp); });
-            [-1,1].forEach(sd => { const step = new THREE.Mesh(new THREE.BoxGeometry(L*.36,.05,.11), black); step.position.set(0, y0-.04, sd*(halfW+.09)); step.castShadow = true; grp.add(step); });   // 侧踏板居中于两轮之间（两端距轮内侧还留约 20cm），不再偏左压住后轮
+            [-1,1].forEach(sd => {                                                    // 侧踏板：居中于两轮之间，内缘贴进门槛，两枚短支架连到车底，不再整根悬空
+              const step = new THREE.Mesh(new THREE.BoxGeometry(L*.36,.05,.11), black); step.position.set(0, y0-.05, sd*(halfW+.045)); step.castShadow = true; grp.add(step);
+              [-L*.12, L*.12].forEach(bx => { const br = new THREE.Mesh(new THREE.BoxGeometry(.06,.09,.10), black); br.position.set(bx, y0-.025, sd*(halfW+.02)); br.castShadow = true; grp.add(br); });
+            });
           }
           [-1, 1].forEach(sd => {                                                                                         // 保险杠 / 灯组 / 后视镜 / 雨刷
             P(new THREE.BoxGeometry(.08,.11,Wd*.90), paintDim, sd*(L*.5+.02), y0+.10, 0);                                 // 保险杠收薄，车头不再像方柜
