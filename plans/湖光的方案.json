@@ -136,7 +136,7 @@
     {
       "id": "fmwtay8cd279",
       "wall": "CWfmwtabgg6249",
-      "c": 189.6279296875,
+      "c": 560,
       "w": 900,
       "kind": "door",
       "flip": false,
@@ -247,12 +247,30 @@
     {
       "id": "fmwtb6y4w294",
       "wall": "CWfmwtabgg6249",
-      "c": 3260,
+      "c": 3190,
       "w": 900,
       "kind": "hwin",
       "flip": true,
       "sill": 2000,
       "wh": 600
+    },
+    {
+      "id": "fmww7z54a148",
+      "wall": "CWfmwtabk9l250",
+      "c": 715.1410597967188,
+      "w": 160,
+      "kind": "venthole",
+      "flip": true,
+      "sill": 3400
+    },
+    {
+      "id": "fmww7zxdg149",
+      "wall": "CWfmwtabk9l250",
+      "c": 2898.7659811610647,
+      "w": 160,
+      "kind": "venthole",
+      "flip": false,
+      "sill": 3000
     }
   ],
   "deletedWalls": [
@@ -600,6 +618,46 @@
       "id": "fmwtbqd2j156",
       "x": 7480,
       "y": -3360
+    },
+    {
+      "type": "drainpipe",
+      "w": 110,
+      "h": 3900,
+      "z": 300,
+      "len": 2000,
+      "dir": "v",
+      "nrot": 90,
+      "id": "fmwwbkqhj296",
+      "x": 5000,
+      "y": -780,
+      "edist": 85,
+      "rot": 0
+    },
+    {
+      "type": "drainpipe",
+      "w": 75,
+      "h": 4200,
+      "z": 0,
+      "len": 2000,
+      "dir": "v",
+      "nrot": 0,
+      "id": "fmwwbm0nx297",
+      "x": 14410,
+      "y": -1310,
+      "edist": 67.5
+    },
+    {
+      "type": "drainpipe",
+      "w": 110,
+      "h": 4200,
+      "z": 0,
+      "len": 2000,
+      "dir": "v",
+      "nrot": 0,
+      "id": "fmwwbqc8c148",
+      "x": 14410,
+      "y": -5080,
+      "edist": 85
     }
   ],
   "leaders": [],
@@ -820,7 +878,7 @@
         {
           "id": "fmwtay8cd279",
           "wall": "CWfmwtabgg6249",
-          "c": 189.6279296875,
+          "c": 560,
           "w": 900,
           "kind": "door",
           "flip": false,
@@ -931,12 +989,30 @@
         {
           "id": "fmwtb6y4w294",
           "wall": "CWfmwtabgg6249",
-          "c": 3260,
+          "c": 3190,
           "w": 900,
           "kind": "hwin",
           "flip": true,
           "sill": 2000,
           "wh": 600
+        },
+        {
+          "id": "fmww7z54a148",
+          "wall": "CWfmwtabk9l250",
+          "c": 715.1410597967188,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 3400
+        },
+        {
+          "id": "fmww7zxdg149",
+          "wall": "CWfmwtabk9l250",
+          "c": 2898.7659811610647,
+          "w": 160,
+          "kind": "venthole",
+          "flip": false,
+          "sill": 3000
         }
       ],
       "deletedWalls": [
@@ -1259,6 +1335,46 @@
           "id": "fmwtbqd2j156",
           "x": 7480,
           "y": -3360
+        },
+        {
+          "type": "drainpipe",
+          "w": 110,
+          "h": 3900,
+          "z": 300,
+          "len": 2000,
+          "dir": "v",
+          "nrot": 90,
+          "id": "fmwwbkqhj296",
+          "x": 5000,
+          "y": -780,
+          "edist": 85,
+          "rot": 0
+        },
+        {
+          "type": "drainpipe",
+          "w": 75,
+          "h": 4200,
+          "z": 0,
+          "len": 2000,
+          "dir": "v",
+          "nrot": 0,
+          "id": "fmwwbm0nx297",
+          "x": 14410,
+          "y": -1310,
+          "edist": 67.5
+        },
+        {
+          "type": "drainpipe",
+          "w": 110,
+          "h": 4200,
+          "z": 0,
+          "len": 2000,
+          "dir": "v",
+          "nrot": 0,
+          "id": "fmwwbqc8c148",
+          "x": 14410,
+          "y": -5080,
+          "edist": 85
         }
       ],
       "leaders": [],
@@ -1671,6 +1787,24 @@
           "wh": 1800,
           "grille": true,
           "th": 500
+        },
+        {
+          "id": "fmww811ny150",
+          "wall": "CWfmwtbadx0419",
+          "c": 454.65673232427616,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
+        },
+        {
+          "id": "fmww81min161",
+          "wall": "CWfmwtauk47254",
+          "c": 738.8042083605887,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
         }
       ],
       "deletedWalls": [
@@ -2553,6 +2687,24 @@
           "wh": 1800,
           "grille": true,
           "th": 500
+        },
+        {
+          "id": "fmww813rs151",
+          "wall": "CWfmwtc25s3235",
+          "c": 433.293220406782,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
+        },
+        {
+          "id": "fmww81lce160",
+          "wall": "CWfmwtc25s3228",
+          "c": 718.0480047074434,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
         }
       ],
       "deletedWalls": [
@@ -3620,6 +3772,24 @@
           "wh": 1800,
           "grille": true,
           "th": 500
+        },
+        {
+          "id": "fmww815b2152",
+          "wall": "CWfmwtcav1w599",
+          "c": 452.87916917796974,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
+        },
+        {
+          "id": "fmww81k0h159",
+          "wall": "CWfmwtcav1w592",
+          "c": 653.0475353918372,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
         }
       ],
       "deletedWalls": [
@@ -4815,6 +4985,24 @@
           "wh": 1800,
           "grille": true,
           "th": 500
+        },
+        {
+          "id": "fmww816ng153",
+          "wall": "CWfmwtcazvd707",
+          "c": 416.13526883858685,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
+        },
+        {
+          "id": "fmww81imq158",
+          "wall": "CWfmwtcazvd700",
+          "c": 667.2735694929853,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
         }
       ],
       "deletedWalls": [
@@ -5966,6 +6154,24 @@
           "wh": 1800,
           "grille": true,
           "th": 500
+        },
+        {
+          "id": "fmww8182a154",
+          "wall": "CWfmwtcb3xv815",
+          "c": 426.5359898729603,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
+        },
+        {
+          "id": "fmww81hc2157",
+          "wall": "CWfmwtcb3xv808",
+          "c": 698.0090869548694,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
         }
       ],
       "deletedWalls": [
@@ -6713,7 +6919,9 @@
         }
       ],
       "pillars": [],
-      "wallH": {},
+      "wallH": {
+        "CWfmwtcb3xv809": 3100
+      },
       "entryDoor": null,
       "roomLayoutInitDone": true,
       "roomLayoutFrom": "fmwtcajzb355"
@@ -7139,6 +7347,24 @@
           "wh": 1800,
           "grille": true,
           "th": 500
+        },
+        {
+          "id": "fmww81a4w155",
+          "wall": "CWfmwtcb7tr923",
+          "c": 421.5860112851806,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
+        },
+        {
+          "id": "fmww81fvf156",
+          "wall": "CWfmwtcb7tr916",
+          "c": 671.1134800206157,
+          "w": 160,
+          "kind": "venthole",
+          "flip": true,
+          "sill": 2400
         }
       ],
       "deletedWalls": [
@@ -7770,7 +7996,7 @@
         {
           "type": "tiecol",
           "w": 600,
-          "h": 1200,
+          "h": 1100,
           "id": "fmwtcb7tr957",
           "x": 1120,
           "y": -1020,
@@ -7779,7 +8005,7 @@
         {
           "type": "tiecol",
           "w": 600,
-          "h": 1200,
+          "h": 1100,
           "id": "fmwtcb7tr958",
           "x": 1130,
           "y": -5420,
@@ -7824,7 +8050,7 @@
           "type": "tiecol",
           "w": 240,
           "d": 240,
-          "h": 1200,
+          "h": 1100,
           "id": "fmwtcb7tr963",
           "x": -550,
           "y": -990
@@ -7833,7 +8059,7 @@
           "type": "tiecol",
           "w": 240,
           "d": 240,
-          "h": 1200,
+          "h": 1100,
           "id": "fmwtcb7tr964",
           "x": -550,
           "y": -5450
@@ -7872,21 +8098,32 @@
       "weakBoxes": [],
       "stairs": [
         {
-          "id": "fmwtdwev0202",
-          "x": 2160,
-          "y": -3360,
-          "w": 500,
-          "len": 600,
-          "h": 4200,
-          "dir": 180,
-          "type": "ladder"
+          "id": "fmwtekiim297",
+          "x": 1740,
+          "y": -4600,
+          "w": 1400,
+          "dir": 0,
+          "rise": 4200,
+          "type": "spiral",
+          "flipX": false,
+          "cw": true
         }
       ],
       "pillars": [],
       "wallH": {
         "CWfmwtcb7tr931": 1200,
         "CWfmwtcb7tr928": 1200,
-        "CWfmwtcb7tr929": 1200
+        "CWfmwtcb7tr929": 1200,
+        "CWfmwtcb7tr932": 3100,
+        "CWfmwtcb7tr933": 3100,
+        "CWfmwtcb7tr920": 3100,
+        "CWfmwtcb7tr918": 3100,
+        "CWfmwtcb7tr915": 3100,
+        "CWfmwtcb7tr919": 3100,
+        "CWfmwtcb7tr922": 3100,
+        "CWfmwtcb7tr926": 3100,
+        "CWfmwtcb7tr921": 3100,
+        "CWfmwtcb7tr927": 3100
       },
       "entryDoor": null,
       "roomLayoutInitDone": true,
@@ -7915,8 +8152,8 @@
           "name": "卫生间",
           "mat": "tile800"
         },
-        "Xfmwtewpgw148": {
-          "name": "楼顶",
+        "Xfmwtei59h296": {
+          "name": "楼顶露台",
           "mat": "antislip",
           "ceil": false
         }
@@ -8500,23 +8737,23 @@
           "mat": "tile800"
         },
         {
-          "id": "Xfmwtewpgw148",
+          "id": "Xfmwtei59h296",
           "poly": [
             [
               2720,
-              -5320
+              -5300
             ],
             [
               15390,
-              -5320
+              -5300
             ],
             [
-              15410,
-              -1140
+              15390,
+              -1130
             ],
             [
-              2710,
-              -1140
+              2720,
+              -1130
             ]
           ],
           "mat": "tile800"
@@ -8529,11 +8766,11 @@
       "levels": [],
       "slabs": [
         {
-          "id": "fmwteys8d149",
+          "id": "fmwtehsah295",
           "x": 9050,
-          "y": -3225,
+          "y": -3210,
           "w": 13180,
-          "d": 4690,
+          "d": 4670,
           "thick": 100,
           "z": 0,
           "farea": true
@@ -8574,7 +8811,7 @@
     "axis": true,
     "bearing": false,
     "wallSnap": true,
-    "ghost": true,
+    "ghost": false,
     "slab": true
   }
 }
