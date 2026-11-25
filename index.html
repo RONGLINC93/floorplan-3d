@@ -4529,6 +4529,8 @@
     function commit(before) { undoStack.push(before); if (undoStack.length > 150) undoStack.shift(); redoStack.length = 0; window.stateRev++; scheduleAutoSave(); }
     const keepOneUndo = () => { if (undoStack.length > 1) undoStack.splice(0, undoStack.length - 1); };   // 打开 / 导入 / 新建方案时：只保留最近一步撤销（本方案 → 新方案），清掉上一个方案的旧历史
     function mutate(fn) { const b = snap(); fn(); commit(b); markDirty(); renderAll(); }
+    /* 轿车门盖 / 车窗等连续动画的状态写入：进撤销栈、刷新 2D / 面板，但不 bump stateRev，3D 场景保留现有部件继续播放动画 */
+    function mutateLive3D(fn) { const b = snap(); fn(); undoStack.push(b); if (undoStack.length > 150) undoStack.shift(); redoStack.length = 0; markDirty(); renderAll(); scheduleAutoSave(); }
     function undo() { if (!undoStack.length) return toast(tr('没有可撤销的操作', 'Nothing to undo')); redoStack.push(snap()); state = JSON.parse(undoStack.pop()); window.stateRev++; validateSel(); markDirty(); renderAll(); window.View3D?.onFloorChanged(); scheduleAutoSave(); }
     function redo() { if (!redoStack.length) return; undoStack.push(snap()); state = JSON.parse(redoStack.pop()); window.stateRev++; validateSel(); markDirty(); renderAll(); window.View3D?.onFloorChanged(); scheduleAutoSave(); }
     function validateSel() {
@@ -16280,7 +16282,7 @@
           else if (h?.carLamp) toggleCarLamp(h.carLamp);                   // 预览态：车灯只动作不选中
           else if (h?.liftBtn) liftBtnAct(h.liftBtn);                     // 预览态也支持电梯楼层 / 开关门按钮
           else if (h?.carWin) toggleDoor(h.carWin);              // 预览态：玻璃升降按钮只动作不选中
-          else if (h?.door) h.door.open = !h.door.open;
+          else if (h?.door) { if (h.door.kind === 'car') toggleDoor(h.door); else h.door.open = !h.door.open; }
           else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
           else if (h?.kind === 'lamp') toggleLamp(h.id, h.gang);
           else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp')) toggleStreetLamp(h.id, false);   // 预览态：只开关不选中
@@ -16295,7 +16297,8 @@
         else if (h?.liftBtn) { liftBtnAct(h.liftBtn); window.select({ kind: 'lift', id: h.liftBtn.id }); }   // 呼叫面板按钮：执行后选中电梯（属性面板可继续设置楼层）
         else if (h?.carWin) { toggleDoor(h.carWin); window.select({ kind:'extra', id:h.carWin.carId }); }   // 玻璃升降按钮：降下 / 升起车窗并选中整车
         else if (h?.door) {                                               // 门 / 窗：开合的同时选中它（属性面板可改尺寸 / 材质 / 开启方向）
-          h.door.open = !h.door.open;
+          if (h.door.kind === 'car') toggleDoor(h.door);                 // 轿车门把手：写回方案（否则重建场景时门会突然弹回关闭）
+          else h.door.open = !h.door.open;
           if (BOX_ARR[h.kind] && h.id != null) {                        // 电箱：门状态写回方案，2D 同步显示开启轮廓
             const b = (state[BOX_ARR[h.kind]] || []).find(x => x.id === h.id);
             if (b) { b.doorOpen = h.door.open; renderNotes(); }
@@ -24211,14 +24214,14 @@
     window.applyCarVisual = applyCarVisual;
     const toggleCarDoor = (carId, part) => {                       // 轿车门盖开合：写回 state + 撤销历史 + 同步面板 / 2D
       const e = (state.extras || []).find(x => String(x.id) === String(carId)); if (!e) return;
-      mutate(() => { e[part] = !e[part]; }); applyCarVisual(carId);
+      mutateLive3D(() => { e[part] = !e[part]; }); applyCarVisual(carId);
       const d = doors.find(x => x.kind === 'car' && String(x.carId) === String(carId) && x.part === part);
       const lb = d?.label || ['车门','car panel'];
       toast(tr(`${lb[0]}已${e[part] ? '打开' : '关闭'}`, `${lb[1]} ${e[part] ? 'opened' : 'closed'}`));
     };
     const toggleCarWindow = (carId, part) => {                     // 轿车侧窗升降：写回 state + 撤销历史 + 同步面板 / 2D
       const e = (state.extras || []).find(x => String(x.id) === String(carId)); if (!e) return;
-      mutate(() => { e[part] = !e[part]; }); applyCarVisual(carId);
+      mutateLive3D(() => { e[part] = !e[part]; }); applyCarVisual(carId);
       const d = doors.find(x => x.kind === 'carWin' && String(x.carId) === String(carId) && x.part === part);
       const lb = d?.label || ['车窗','car window'];
       toast(tr(`${lb[0]}已${e[part] ? '降下' : '升起'}`, `${lb[1]} ${e[part] ? 'lowered' : 'raised'}`));

@@ -109,7 +109,7 @@
       "color": "red",
       "int": "black",
       "doorFL": false,
-      "doorFR": false,
+      "doorFR": true,
       "doorRL": false,
       "doorRR": false,
       "hood": false,
@@ -127,10 +127,10 @@
       "opFront": 16,
       "opRear": 30,
       "opSun": 16,
-      "winFL": false,
+      "winFL": true,
       "winFR": false,
-      "winRL": false,
-      "winRR": false
+      "winRL": true,
+      "winRR": true
     }
   ],
   "leaders": [],
@@ -260,7 +260,7 @@
           "color": "red",
           "int": "black",
           "doorFL": false,
-          "doorFR": false,
+          "doorFR": true,
           "doorRL": false,
           "doorRR": false,
           "hood": false,
@@ -278,10 +278,10 @@
           "opFront": 16,
           "opRear": 30,
           "opSun": 16,
-          "winFL": false,
+          "winFL": true,
           "winFR": false,
-          "winRL": false,
-          "winRR": false
+          "winRL": true,
+          "winRR": true
         }
       ],
       "leaders": [],
