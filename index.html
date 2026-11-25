@@ -21911,12 +21911,29 @@
             pivot.traverse(o => { if (o.isMesh) { o.userData.door = d; o.userData.pick3d = {kind:'extra', id:e.id}; } });
             doors.push(d);
           };
+          const rearDoorShape = (x0, dw, fx, rx, yb, yt) => {                                                           // 后门板轮廓：后下角沿后轮拱圆弧切掉，与侧板门洞同一段弧，轮胎正常露出
+            const s = new THREE.Shape();
+            s.moveTo(fx, yb); s.lineTo(fx, yt); s.lineTo(rx, yt);
+            const tEnd = Math.acos(Math.min(1, Math.max(-1, (rx + x0 - rcx) / ar)));
+            for (let i = 10; i >= 0; i--) { const t = i / 10 * tEnd;
+              s.lineTo(rcx + ar * Math.cos(t) - x0, Math.max(y0 + ar * Math.sin(t) + .03, yb)); }
+            s.closePath(); return s;
+          };
           [-1, 1].forEach(sd => {                                                                                         // 左右两侧各前后两扇车门（铰链在前缘，门板外沿略突出侧板 2mm）
             [[L*.19, L*.23, 'doorFL','doorFR','左前门','Front left door','右前门','Front right door', [[L*.19,belt-.012],[L*.08,top-.07],[-L*.04,top-.07],[-L*.04,belt-.012]]],
              [-L*.06, L*.24, 'doorRL','doorRR','左后门','Rear left door','右后门','Rear right door', [[-L*.06,belt-.012],[-L*.06,top-.07],[-L*.22,top-.07],[-L*.30,belt-.012]]]].forEach(([x0, dw, fL, fR, zhL, enL, zhR, enR, winPts]) => {
               const pivot = new THREE.Group(); pivot.position.set(x0, 0, sd*(halfW-wall));
-              const panel = new THREE.Mesh(new THREE.BoxGeometry(dw+.008, doorH, wall), paint); panel.position.set(-dw/2, doorCy, sd*(wall/2+.002)); pivot.add(panel);   // 门板略宽于洞、外沿突出 2mm：盖住洞缘，不与侧板共面闪烁
-              const inner = new THREE.Mesh(new THREE.BoxGeometry(dw*.92, doorH*.90, .014), innerM); inner.position.set(-dw/2, doorCy, -sd*.005); pivot.add(inner);          // 内饰板紧贴门板内表面，中间不再留 3~4cm 空腔
+              const isRear = fL === 'doorRL';                                                                            // 后门与后轮拱相交：门板 / 内饰板都要切出轮拱缺口，不再盖住轮胎
+              const panelGeo = isRear
+                ? new THREE.ExtrudeGeometry(rearDoorShape(x0, dw, .004, -dw-.004, y0, belt), { depth: wall, bevelEnabled: false, curveSegments: 4 })
+                : new THREE.BoxGeometry(dw+.008, doorH, wall);
+              const panel = new THREE.Mesh(panelGeo, paint);
+              if (isRear) panel.position.z = sd > 0 ? .002 : -wall-.002; else panel.position.set(-dw/2, doorCy, sd*(wall/2+.002)); pivot.add(panel);   // 门板略宽于洞、外沿突出 2mm：盖住洞缘，不与侧板共面闪烁
+              const innerGeo = isRear
+                ? new THREE.ExtrudeGeometry(rearDoorShape(x0, dw, -dw*.04, -dw*.96, doorCy-doorH*.45, doorCy+doorH*.45), { depth: .014, bevelEnabled: false, curveSegments: 4 })
+                : new THREE.BoxGeometry(dw*.92, doorH*.90, .014);
+              const inner = new THREE.Mesh(innerGeo, innerM);
+              if (isRear) inner.position.z = sd > 0 ? -.012 : -.002; else inner.position.set(-dw/2, doorCy, -sd*.005); pivot.add(inner);              // 内饰板紧贴门板内表面，中间不再留 3~4cm 空腔
               const wpts = winPts.map(([px,py])=>[px-x0,py]);
               pane(wpts, doorGlass, sd*(wall-.006), pivot);                                    // 四门侧窗深色贴膜玻璃面：下缘压过腰线、填满窗洞、随门一起开合
               quad(wpts, doorGlass, sd*(wall-.016), sd*(wall-.002), pivot);                    // 玻璃边框与玻璃面同深度（原来分置门板内外两侧，斜看是一道 5cm 空缝）
