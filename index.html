@@ -4901,56 +4901,29 @@
       $('#gWalls').innerHTML = builtIn + drawn + renderArcWalls2();
     }
 
-    /* 2D 下层幽灵墙：半透明显示紧邻下方一层的墙体，作为当前层对位参照；只画不参与拾取 / 编辑 */
-    const GHOST_2D_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'bover', 'wallH'];
+    /* 2D 下层参照：半透明显示紧邻下方一层的全部对象（房间 / 墙体 / 门窗 / 柱 / 楼梯 / 家具 / 井洞 / 栏杆梁板 / 阳台花池 / 排水管件 / 文字标注等），作为当前层对位参照；只画不参与拾取 / 编辑 */
+    const GHOST_2D_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'bover', 'wallH', 'rooms', 'roomsExtra', 'pillars', 'stairs', 'furniture', 'extras', 'lamps', 'wells', 'rails', 'beams', 'parapets', 'canopies', 'balconies', 'planters', 'flues', 'gates', 'outdoor', 'slabs', 'levels', 'leaders', 'notes'];
     function renderGhostWalls2() {
       const g = $('#gGhost'); if (!g) return;
-      if (!ui.layers.ghost) { g.innerHTML = ''; g.removeAttribute('data-ghost-of'); return; }
+      const clear = () => { g.innerHTML = ''; g.removeAttribute('data-ghost-of'); };
+      if (!ui.layers.ghost) { clear(); return; }
       const fs = state.floors || [], idx = fs.findIndex(f => f.id === state.activeFloor);
       const below = idx > 0 ? fs[idx - 1] : null;
       const data = below ? state.byFloor?.[below.id] : null;
-      if (!data) { g.innerHTML = ''; g.removeAttribute('data-ghost-of'); return; }
+      if (!data) { clear(); return; }
 
       const saved = {}; GHOST_2D_KEYS.forEach(k => saved[k] = state[k]);
-      const fill = '#8a97a8', opacity = '.28';
-      const outline = 'stroke="#6f7b8c" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke" pointer-events="none"';
       let s = '';
       try {
-        // 临时换入下层数据，复用当前层墙体几何 helper（builtinSeg / wallSegs / cwGeom 都读全局 state）
-        GHOST_2D_KEYS.forEach(k => { state[k] = data[k] === undefined ? saved[k] : data[k]; });
-        const deleted = state.deletedWalls || [], demolished = state.demolished || [];
-
-        WALLS.forEach((w, i) => {                                    // 内置墙
-          const id = 'w' + i;
-          if (deleted.includes(id) || demolished.includes(id)) return;
-          const seg = builtinSeg(i);
-          wallSegs(id, seg.L).forEach(([c0, c1]) => {
-            if (seg.hz) s += `<rect x="${seg.rect[0] + c0}" y="${seg.rect[1]}" width="${c1 - c0}" height="${seg.rect[3] - seg.rect[1]}" fill="${fill}" fill-opacity="${opacity}" ${outline}/>`;
-            else s += `<rect x="${seg.rect[0]}" y="${seg.rect[1] + c0}" width="${seg.rect[2] - seg.rect[0]}" height="${c1 - c0}" fill="${fill}" fill-opacity="${opacity}" ${outline}/>`;
-          });
-        });
-
-        (state.walls || []).forEach(w => {                          // 自画墙（含斜墙 + 墙角外扩）
-          const id = 'CW' + w.id;
-          if (deleted.includes(id) || demolished.includes(id)) return;
-          const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]); if (L < 1) return;
-          const e0 = wallEndExt(w, 0), e1 = wallEndExt(w, 1);
-          const T = cwT(w);
-          wallSegs(id, L).forEach(([c0, c1]) => {
-            const [P0, P1] = segPts(w.a, w.b, c0 > 0 ? c0 : -e0, c1 < L ? c1 : L + e1);
-            const g2 = cwGeom([P0[0], P0[1], P1[0], P1[1]], T);
-            if (g2.rot) s += `<g transform="translate(${g2.cx} ${g2.cy}) rotate(${g2.rot})"><rect x="${-g2.len / 2}" y="${-T / 2}" width="${g2.len}" height="${T}" fill="${fill}" fill-opacity="${opacity}" ${outline}/></g>`;
-            else if (g2.w && g2.h) s += `<rect x="${g2.x}" y="${g2.y}" width="${g2.w}" height="${g2.h}" fill="${fill}" fill-opacity="${opacity}" ${outline}/>`;
-          });
-        });
-
-        (state.arcWalls || []).forEach(w => {                       // 弧形墙
-          const id = 'AW' + w.id;
-          if (deleted.includes(id) || demolished.includes(id)) return;
-          const t = Math.max(60, +w.t || 240), d = arcPathD(arcSamples(w.a, w.b, +w.bulge || 0));
-          s += `<path d="${d}" fill="none" stroke="${fill}" stroke-opacity="${opacity}" stroke-width="${t}" stroke-linecap="butt" ${outline}/>`;
-        });
-      } finally { GHOST_2D_KEYS.forEach(k => { state[k] = saved[k]; }); }
+        // 临时换入下层数据，复用当前层的全部 2D 渲染函数，把各组内容借入幽灵层（state 恢复后由 renderAll 的后续调用还原各组）
+        // 下层缺某类数据时用空集合而非当前层数据，避免旧方案把当前层对象误画成下层参照
+        GHOST_2D_KEYS.forEach(k => { state[k] = data[k] !== undefined ? data[k] : Array.isArray(saved[k]) ? [] : (k === 'bover' || k === 'roomsExtra' ? {} : saved[k]); });
+        renderRooms(); renderFurn(); renderWalls(); renderOpenings(); renderPillars(); renderStairs(); renderNotes();
+        s = `<g opacity=".3">` + ['gWells', 'gRooms', 'gFurn', 'gWalls', 'gOpen', 'gPillars', 'gStairs', 'gNotes'].map(id => { const el = $('#' + id); return el ? el.innerHTML : ''; }).join('') + `</g>`;
+      } finally {
+        GHOST_2D_KEYS.forEach(k => { state[k] = saved[k]; });
+        renderRooms();                                           // 房间层在 renderAll 里排在本函数之前，借出后要立刻还原
+      }
       g.innerHTML = s;
       g.setAttribute('data-ghost-of', below.id);
     }
@@ -7629,7 +7602,7 @@
           return;
         }
         if (isExtraPt(e.type)) {                                  // 点构件：雨水管 / 构造柱 / 烟囱 / 景观树
-          const minR = e.type === 'spout' || e.type === 'drainpipe' || DP_FIT_TYPES.includes(e.type) ? 80 : 60;              // 雨水管 / 排水管（件）平面符号最小显示半径（管径更粗时按真实半径画，改直径能看到变化）
+          const minR = e.type === 'spout' || e.type === 'drainpipe' || DP_FIT_TYPES.includes(e.type) ? 40 : 60;              // 雨水管 / 排水管（件）平面符号最小显示半径 ⌀80（⌀80 以上按真实直径画，改直径能直接看到大小变化）
           const r = Math.max(minR, (+e.w || (e.type === 'tree' ? 900 : 100)) / 2);
           let inner = '';
           if (e.type === 'tree') {                                // 树冠双层圆 + 树心
@@ -8832,7 +8805,7 @@
         <button class="flbtn" id="flAdd" title="${tr('在当前层上方新增楼层', 'Add a floor above current')}">＋</button>
         <button class="flbtn" id="flCopy" title="${tr('复制当前层（含全部对象）', 'Duplicate current floor with all objects')}">${tr('复制', 'Copy')}</button>
         <button class="flbtn" id="flDel" title="${tr('删除当前楼层', 'Delete current floor')}">${tr('删除', 'Delete')}</button>
-        <button class="flbtn ${ui.layers.ghost ? 'on' : ''}" id="flGhost" title="${tr('显示 / 隐藏紧邻下层墙体的半透明参照（2D 与 3D 同时生效）', 'Show / hide the translucent walls of the floor directly below (2D and 3D)')}">${tr('下层参照', 'Below reference')}</button>
+        <button class="flbtn ${ui.layers.ghost ? 'on' : ''}" id="flGhost" title="${tr('显示 / 隐藏紧邻下层全部对象（墙 / 门窗 / 家具 / 柱 / 楼梯等）的半透明参照（2D 与 3D 同时生效）', 'Show / hide a translucent reference of everything on the floor below — walls, openings, furniture, pillars, stairs (2D and 3D)')}">${tr('下层参照', 'Below reference')}</button>
         <span class="flsep"></span>
         <label class="fllabel" title="${tr('当前层的楼层高度，影响层高与 3D 堆叠', 'Current floor height, affects ceiling and 3D stacking')}">${tr('层高', 'Height')} <input class="fheight" id="flHeight" type="number" min="1200" max="12000" step="100" value="${cur.h}"> mm</label>`;
       const allBtn = bar.querySelector('[data-fl-all]');
@@ -9062,9 +9035,10 @@
           ${e.type === 'spout' ? `<label class="chk"><input type="checkbox" id="exHp" ${e.hopper ? 'checked' : ''}> ${tr('顶部落水斗', 'Top hopper')}</label>` : ''}
           ${e.type === 'drainpipe' ? `<label title="${tr('竖向=沿墙立管；横向=沿墙水平敷设的横管（用下方长度与底标高控制）', 'Vertical = riser along the wall; Horizontal = pipe running along the wall (set length and base level below)')}">${tr('方向', 'Direction')}<select id="exDpDir"><option value="v" ${(e.dir || 'v') === 'v' ? 'selected' : ''}>${tr('竖向', 'Vertical')}</option><option value="h" ${e.dir === 'h' ? 'selected' : ''}>${tr('横向', 'Horizontal')}</option></select></label>
             ${e.dir === 'h' ? `<label title="${tr('横管沿墙走向的总长', 'Total length of the horizontal run along the wall')}">${tr('长度', 'Length')} (mm)<input type="number" id="exDpLen" value="${Math.round(e.len ?? 2000)}" min="300" max="30000" step="100"></label>` : ''}
-            <label title="${tr('管底离地面的高度，常用于躲开踢脚线 / 设备或悬空横排', 'Pipe bottom above the floor — to clear skirtings / equipment or run overhead')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" min="0" max="15000" step="50"></label>
+            <label title="${tr('管底离地面的高度，常用于躲开踢脚线 / 设备或悬空横排；自由输入，可为负（沉到地面以下）', 'Pipe bottom above the floor — to clear skirtings / equipment or run overhead; free input, negative values sink below floor level')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
-          ${DP_FIT_TYPES.includes(e.type) ? `<label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+          ${DP_FIT_TYPES.includes(e.type) ? `<label title="${tr('管件底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Fitting base level above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
+            <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
             <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           ${isTraffic(e.type) ? `<label title="${tr('板面法线方向，决定 3D 牌面 / 信号灯朝向', 'Facing of the sign face / signal head')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
@@ -10966,8 +10940,8 @@
     ${o.kind === 'bay' ? `<div class="form"><label class="chk full"><input type="checkbox" id="oBayCurve" ${o.bayCurve ? 'checked' : ''}> ${tr('弧形正面（正面玻璃沿圆弧外凸，窗扇数不生效）', 'Curved front: arc glazing; sashes ignored')}</label></div>` : ''}
     <div class="actions"><button class="btn" id="oBayFlip" title="${tr('凸窗换到墙的另一侧', 'Flip the bay to the other side of the wall')}">${tr('换到墙另一侧', 'Flip side')}</button></div>` : ''}
     ${o.kind === 'cwin' ? `<div class="form"><label title="${tr('圆窗直径 = 宽度，窗台为圆心以下的高度', 'Diameter = width; sill is measured below the circle')}">${tr('窗台高（圆底离地）', 'Sill height')} (mm)<input type="number" id="oSill" value="${sillDef}" min="0" max="2200" step="50"></label></div>` : ''}
-    ${o.kind === 'venthole' ? `<div class="form"><label title="${tr('过墙圆孔中心离地高度；3D 中圆孔与套管按此标高贯穿墙体', 'Height of the round hole center above floor; the hole and sleeve pass through the wall at this level')}">${tr('孔中心高', 'Hole center height')} (mm)<input type="number" id="oSill" value="${Math.round(o.sill ?? 2400)}" min="100" max="${Math.max(200, wallH - 100)}" step="50"></label></div>` : ''}
-    ${o.kind === 'sqventhole' ? `<div class="form"><label title="${tr('沿墙方向的孔宽即上方“孔宽”，这里设置垂直方向的孔高；两者可分设为矩形', 'Width along the wall is set above; here set the vertical hole height; both can differ to form a rectangle')}">${tr('孔高', 'Hole height')} (mm)<input type="number" id="oVh" value="${Math.round(o.wh ?? 160)}" min="60" max="${Math.max(60, wallH - 100)}" step="10"></label><label title="${tr('过墙孔中心离地高度；3D 中孔与方管套管按此标高贯穿墙体', 'Height of the hole center above floor; the hole and sleeve pass through the wall at this level')}">${tr('孔中心高', 'Hole center height')} (mm)<input type="number" id="oSill" value="${Math.round(o.sill ?? 2400)}" min="100" max="${Math.max(200, wallH - 100)}" step="50"></label></div>` : ''}
+    ${o.kind === 'venthole' ? `<div class="form"><label title="${tr('圆孔底边离地高度；3D 中圆孔与套管按此贯穿墙体；自由输入，可为负（孔底沉到地面以下）', 'Height of the round hole bottom above floor; the hole and sleeve pass through the wall at this level; free input, negative values sink below floor')}">${tr('孔底标高', 'Hole bottom level')} (mm)<input type="number" id="oSill" value="${Math.round((o.sill ?? 2400) - (o.w ?? 160) / 2)}" step="10"></label></div>` : ''}
+    ${o.kind === 'sqventhole' ? `<div class="form"><label title="${tr('沿墙方向的孔宽即上方“孔宽”，这里设置垂直方向的孔高；两者可分设为矩形', 'Width along the wall is set above; here set the vertical hole height; both can differ to form a rectangle')}">${tr('孔高', 'Hole height')} (mm)<input type="number" id="oVh" value="${Math.round(o.wh ?? 160)}" min="60" max="${Math.max(60, wallH - 100)}" step="10"></label><label title="${tr('过墙孔底边离地高度；3D 中孔与方管套管按此贯穿墙体；自由输入，可为负（孔底沉到地面以下）', 'Height of the hole bottom above floor; the hole and square sleeve pass through the wall at this level; free input, negative values sink below floor')}">${tr('孔底标高', 'Hole bottom level')} (mm)<input type="number" id="oSill" value="${Math.round((o.sill ?? 2400) - (o.wh ?? 160) / 2)}" step="10"></label></div>` : ''}
     ${['window', 'hwin', 'swin'].includes(o.kind) ? `<div class="form"><label title="${tr('推拉窗扇数（1–4）：相邻扇在墙厚两侧轨道上交错滑动，3D 里点哪扇开哪扇', 'Sliding sash count (1–4): adjacent sashes ride offset tracks; click any sash in 3D to slide it open')}">${tr('窗扇数', 'Sashes')}<input type="number" id="oPanes" value="${Math.max(1, Math.min(4, Math.round(o.panes ?? 2)))}" min="1" max="4" step="1"></label></div>` : ''}
     ${['window', 'hwin', 'dwin'].includes(o.kind) ? `<div class="form"><label class="chk full"><input type="checkbox" id="oGrille" ${openGrille(o) ? 'checked' : ''}>${tr('窗花（窗上亮子：横向带框玻璃带）', 'Transom: framed glass band above the window')}</label></div>` : ''}
     ${['window', 'hwin', 'dwin'].includes(o.kind) && openGrille(o) ? `<div class="form"><label title="${tr('窗花高度不能超过窗户高度', 'Transom height cannot exceed the window height')}">${tr('窗花高度', 'Transom height')} (mm · ≤ ${Math.round(o.wh ?? Math.max(300, 2400 - Math.round(o.sill ?? (o.kind === 'hwin' ? 1400 : 900))))})<input type="number" id="oTh" value="${Math.round(o.th ?? 500)}" min="150" max="${Math.round(o.wh ?? Math.max(300, 2400 - Math.round(o.sill ?? (o.kind === 'hwin' ? 1400 : 900))))}" step="50"></label></div>` : ''}
@@ -11033,10 +11007,15 @@
         mutate(() => setDoorDir(o.id, st));
         toast(tr('开启方式：', 'Swing: ') + doorDirLabel(o.id));
       };
-      const os = $('#oSill');                                        // 窗台高 / 过墙排风口孔中心高
+      const os = $('#oSill');                                        // 窗台高 / 过墙排风口孔底标高（存储仍是孔中心 sill，UI 按底边换算，兼容旧方案）
       if (os) os.onchange = e => {
         const v = parseFloat(e.target.value); if (isNaN(v)) return;
-        mutate(() => { const g = state.openings.find(x => x.id === o.id); if (g) g.sill = (o.kind === 'venthole' || o.kind === 'sqventhole') ? Math.max(100, Math.min(Math.max(200, wallHMM(g.wall) - 100), Math.round(v / 10) * 10)) : Math.max(0, Math.min(2200, Math.round(v / 10) * 10)); });
+        mutate(() => {
+          const g = state.openings.find(x => x.id === o.id); if (!g) return;
+          if (o.kind === 'venthole') g.sill = Math.round(v + (g.w || 160) / 2);           // 圆孔：底标高 + 半径 = 中心（自由值，可为负）
+          else if (o.kind === 'sqventhole') g.sill = Math.round(v + (g.wh || g.w || 160) / 2);   // 方孔：底标高 + 半孔高 = 中心
+          else g.sill = Math.max(0, Math.min(2200, Math.round(v / 10) * 10));
+        });
       };
       const ovh = $('#oVh');                                          // 矩形过墙孔高：不超过孔中心到上下墙边的可用高度（留 20mm 墙垛）
       if (ovh) ovh.onchange = e => {
@@ -13118,7 +13097,7 @@
                                               : kind === 'venthole'
                                                 ? tr(`已开过墙排风口 ⌀${Math.round(w)} mm（贯穿圆孔，孔中心高默认 2400，直径 / 标高在右侧改）`, `Wall vent hole ⌀${Math.round(w)} mm cored (through-hole, center 2400 by default; edit diameter / height in the panel)`)
                                                 : kind === 'sqventhole'
-                                                  ? tr(`已开方形过墙排风口 ${Math.round(w)}×160 mm（贯穿矩形孔，孔中心高默认 2400，孔宽 / 孔高 / 标高在右侧改）`, `Square wall vent ${Math.round(w)}x160 mm cored (through-hole, center 2400 by default; edit width / height / sill in the panel)`)
+                                                  ? tr(`已开方形过墙排风口 ${Math.round(w)}×160 mm（贯穿矩形孔，孔底标高默认 2320，孔宽 / 孔高 / 底标高在右侧改）`, `Square wall vent ${Math.round(w)}x160 mm cored (through-hole, bottom level 2320 by default; edit width / height / level in the panel)`)
                                                   : kind === 'cwin'
                                                 ? tr(`已放圆窗 ${Math.round(w)} mm（直径 = 宽度，窗台默认 900）`, `Round window ${Math.round(w)} mm added (diameter = width, sill 900)`)
                                                 : kind === 'bay'
@@ -15517,10 +15496,10 @@
       if (dt === 'retain') toast(tr('挡土墙：点起点，再点终点；墙厚 / 高度在右侧改，带压顶', 'Retaining wall: click start then end; edit thickness / height in the panel'));
       if (dt === 'gutter') toast(tr('天沟 / 檐沟：点起点，再点终点；槽宽 / 槽深在右侧改', 'Gutter: click start then end; edit channel width / depth in the panel'));
       if (dt === 'spout') toast(tr('雨水管：点击放置；直径 / 高度在右侧改，可拖动整体移动', 'Downspout: click to place; edit diameter / height in the panel'));
-      if (dt === 'drainpipe') toast(tr('排水管：点击墙边放置，自动吸附距墙面 30mm、默认与墙同高，每 1 米一道固定卡扣；直径（默认 110）/ 高度在右侧改；3D 选中后按住 Shift 拖动可绕竖直轴旋转', 'Drainpipe: click beside a wall to place — snaps 30 mm off the wall at wall height, a clamp every 1 m; diameter (⌀110 default) / height editable; in 3D, hold Shift and drag the selected pipe to rotate it around the vertical axis'));
-      if (DP_FIT_TYPES.includes(dt)) toast(tr('管件点击墙边放置，强制吸附距墙 30mm，支管 / 出水口朝墙外；直径（默认 110）/ 高度在右侧改；3D 选中后按住 Shift 拖动可绕竖直轴旋转', 'Fitting: click beside a wall to place — always snaps 30 mm off the wall, branch / outlet facing away from the wall; diameter (⌀110 default) / height editable; in 3D, hold Shift and drag the selected fitting to rotate it around the vertical axis'));
+      if (dt === 'drainpipe') toast(tr('排水管：点击墙边放置，自动吸附距墙面 30mm、默认与墙同高，每 1 米一道固定卡扣；直径（默认 110）/ 高度在右侧改；3D 设计模式下选中后按住 Shift 拖动可绕竖直轴旋转', 'Drainpipe: click beside a wall to place — snaps 30 mm off the wall at wall height, a clamp every 1 m; diameter (⌀110 default) / height editable; in 3D Design mode, hold Shift and drag the selected pipe to rotate it around the vertical axis'));
+      if (DP_FIT_TYPES.includes(dt)) toast(tr('管件点击墙边放置，强制吸附距墙 30mm，支管 / 出水口朝墙外；直径（默认 110）/ 高度在右侧改；3D 设计模式下选中后按住 Shift 拖动可绕竖直轴旋转', 'Fitting: click beside a wall to place — always snaps 30 mm off the wall, branch / outlet facing away from the wall; diameter (⌀110 default) / height editable; in 3D Design mode, hold Shift and drag the selected fitting to rotate it around the vertical axis'));
       if (dt === 'venthole') toast(tr('过墙排风口：点击墙上的位置开贯穿圆孔（默认直径 160mm）；孔径 / 孔中心高在右侧改，用于油烟机 / 排风扇风道', 'Wall vent: click a wall to core a through-hole (diameter 160 mm by default); edit diameter / height in the panel, for range hood or exhaust fan ducts'));
-      if (dt === 'sqventhole') toast(tr('方形过墙排风口：点击墙上的位置开贯穿矩形孔（默认宽 × 高 160×160mm）；孔宽 / 孔高 / 孔中心高可分别设置，用于方形风道穿墙', 'Square wall vent: click a wall to core a through rectangular hole (160x160 mm by default); edit width / height / sill separately in the panel, for square ducts'));
+      if (dt === 'sqventhole') toast(tr('方形过墙排风口：点击墙上的位置开贯穿矩形孔（默认宽 × 高 160×160mm）；孔宽 / 孔高 / 孔底标高可分别设置（底标高可为负），用于方形风道穿墙', 'Square wall vent: click a wall to core a through rectangular hole (160x160 mm by default); edit width / height / hole bottom level separately (level may be negative), for square ducts'));
       if (dt === 'barrier') toast(tr('路障：点击放置；右侧切换锥桶 / 水马 / 铁马 / 石墩，改尺寸与朝向', 'Barrier: click to place; switch cone / water / steel horse / concrete block and edit size / angle in the panel'));
       if (isSecurity(dt)) toast(tr(`${EXTRA_NAME[dt][0]}：点击放置；${isNVR(dt) ? '右侧勾选要添加的摄像机与要连接的显示器，3D 屏幕将实时显示这些摄像机的画面' : isMonitor(dt) ? '3D 屏幕真实显示所连录像机的摄像机实时画面（分屏 + 通道 / 时间），可改宽高 / 标高 / 朝向' : '安装高度 / 朝向 / 视场角在右侧改，加入录像机后 3D 可实时取景'}`, `${EXTRA_NAME[dt][1]}: click to place; ${isNVR(dt) ? 'check cameras to add and monitors to connect in the panel; 3D screens show their live feeds' : isMonitor(dt) ? '3D screen shows live feeds from the connected NVR (split-screen + channel / time); edit size / height / angle' : 'edit mount height / angle / FOV in the panel; add to an NVR for live 3D view'}`));
       if (dt === 'streetlamp') toast(tr('路灯：点击放置；切夜景自动开灯，3D 点灯杆可开 / 关；右侧切换单臂 / 双臂 / 庭院灯 / 高杆灯，改杆径 / 杆高 / 悬臂长 / 朝向 / 照亮半径', 'Street lamp: click to place; automatically switches on in night mode, click pole in 3D to toggle; switch single-arm / double-arm / courtyard / high-mast, edit pole / height / arm / angle / light radius in the panel'));
@@ -19929,12 +19908,12 @@
         pushWallCollider(P0, P1, T, top);
         return;
       }
-      if (o.kind === 'venthole') {                           // 过墙排风口：方板挖圆洞补墙 + 穿墙套管（PVC 圆管沿墙法线贯穿），不装窗框玻璃
-        const c = Math.max(0, Math.min(M(o.sill ?? 2400), top - .12));   // 孔中心标高（m），上下留 120mm 墙垛
-        const d = Math.max(.06, Math.min(M(o.w), Math.min(c, top - c) * 2 - .02));   // 圆孔直径，不越出上下墙边
+      if (o.kind === 'venthole') {                           // 过墙排风口：方板挖圆洞补墙 + 穿墙套管（PVC 圆管沿墙法线贯穿），不装窗框玻璃；孔底标高自由（可为负，孔沉到地面以下）
+        const c = M(o.sill ?? 2400);                          // 孔中心标高（m）：由孔底标高 + 半径换算，自由值不钳位
+        const d = Math.max(.06, M(o.w));                     // 圆孔直径：按用户设置，不再压缩
         const L = d, rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const sill = c - d / 2, head = c + d / 2;
-        wallSeg3D(P0, P1, T, 0, sill);                       // 孔下墙
+        if (sill > .001) wallSeg3D(P0, P1, T, 0, sill);      // 孔下墙（孔底低于地面时不画）
         if (top > head + .001) wallSeg3D(P0, P1, T, head, top);   // 孔上墙
         const shp = new THREE.Shape();                       // 方形补板，中间挖圆洞
         shp.moveTo(-L / 2, 0); shp.lineTo(L / 2, 0); shp.lineTo(L / 2, d); shp.lineTo(-L / 2, d); shp.closePath();
@@ -19951,13 +19930,13 @@
         pushWallCollider(P0, P1, T, top);                    // 圆孔很小，整墙仍挡人（不因开孔可穿行）
         return;
       }
-      if (o.kind === 'sqventhole') {                         // 矩形过墙排风口：方板挖矩形洞补墙 + 穿墙方管套管（沿墙法线贯穿），不装窗框玻璃
-        const c = Math.max(0, Math.min(M(o.sill ?? 2400), top - .12));   // 孔中心标高（m），上下留 120mm 墙垛
+      if (o.kind === 'sqventhole') {                         // 矩形过墙排风口：方板挖矩形洞补墙 + 穿墙方管套管（沿墙法线贯穿），不装窗框玻璃；孔底标高自由（可为负）
+        const c = M(o.sill ?? 2400);                          // 孔中心标高（m）：由孔底标高 + 半孔高换算，自由值不钳位
         const L = Math.max(.06, M(o.w));                     // 孔宽：沿墙方向
-        const dh = Math.max(.06, Math.min(M(o.wh ?? o.w), Math.min(c, top - c) * 2 - .02));   // 孔高：垂直方向，不越出上下墙边
+        const dh = Math.max(.06, M(o.wh ?? o.w));            // 孔高：垂直方向，按用户设置，不再压缩
         const rot = wallAngle(P0, P1), [mx, mz] = wallMid(P0, P1), TT = M(T);
         const sill = c - dh / 2, head = c + dh / 2;
-        wallSeg3D(P0, P1, T, 0, sill);                       // 孔下墙
+        if (sill > .001) wallSeg3D(P0, P1, T, 0, sill);      // 孔下墙（孔底低于地面时不画）
         if (top > head + .001) wallSeg3D(P0, P1, T, head, top);   // 孔上墙
         const shp = new THREE.Shape();                       // 方形补板，中间挖矩形洞
         shp.moveTo(-L / 2, 0); shp.lineTo(L / 2, 0); shp.lineTo(L / 2, dh); shp.lineTo(-L / 2, dh); shp.closePath();
@@ -22764,7 +22743,7 @@
               return;
             }
             if (T3 === 'drainpipe') {                           // 排水管：竖向立管 / 横向横管，空心圆管贴墙 30mm，每隔 1 米一道固定卡扣（卡箍 + 连接臂 + 墙面背板）
-              const r = Math.max(.025, M(e.w || 110) / 2), zb = Math.max(0, M(e.z || 0));   // zb = 管底标高
+              const r = Math.max(.025, M(e.w || 110) / 2), zb = M(e.z || 0);   // zb = 管底标高（自由值，可为负：管底沉到地面以下）
               if (e.dir === 'h') {                              // 横向：沿墙走向水平敷设（中心标高 = 底标高 + 管半径），卡扣沿管每 1m 一道
                 const L = Math.max(.3, M(e.len || 2000)), cy = zb + r;
                 const tt = ((+e.nrot || 0) + (+e.rot || 0) + 90) * Math.PI / 180;   // 沿墙切向（法线 nrot + 转向 rot + 90°）
@@ -22820,8 +22799,8 @@
               }
               return;
             }
-            if (DP_FIT_TYPES.includes(T3)) {                    // 排水管管件：三通 / 45°弯 / 90°弯 / 蓄水弯（空心管段 + 支管朝墙外，贴墙 30mm）
-              const r = Math.max(.025, M(e.w || 110) / 2);
+            if (DP_FIT_TYPES.includes(T3)) {                    // 排水管管件：三通 / 45°弯 / 90°弯 / 蓄水弯（空心管段 + 支管朝墙外，贴墙 30mm；底标高 zbF 自由可负）
+              const r = Math.max(.025, M(e.w || 110) / 2), zbF = M(e.z || 0);   // zbF = 管件底标高（整体抬高 / 沉到地面以下）
               const wr = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180, dirx = Math.cos(wr), dirz = Math.sin(wr);   // 支管 / 出水口方向 = 墙外法线 + 转向偏移（转向不影响贴墙位置）
               const pMat = mat('#c9cdd1', { metalness: .2, roughness: .55 }), bMat = mat('#5f676d', { metalness: .15, roughness: .75, side: THREE.BackSide }), rMat = mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide });
               const wtF = Math.min(.008, r * .22);
@@ -22834,30 +22813,48 @@
                 const b = new THREE.Mesh(new THREE.CylinderGeometry(r - wtF, r - wtF, L, 16, 1, true), bMat); b.rotation.z = Math.PI / 2; b.position.x = L / 2; g.add(b);
                 [0, L].forEach(lx => { const rim = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, r - wtF), r, 16), rMat); rim.rotation.y = Math.PI / 2; rim.position.x = lx; g.add(rim); });
               };
-              const fitCol = (pts, yTop) => {                   // 按管段端点求碰撞盒（含管半径外扩）
+              const fitCol = (pts, yTop) => {                   // 按管段端点求碰撞盒（含管半径外扩；底随底标高）
                 const xs = pts.map(p2 => p2[0]), zs = pts.map(p2 => p2[2]);
-                colliders.push([Math.min(...xs) - r, Math.min(...zs) - r, Math.max(...xs) + r, Math.max(...zs) + r, 0, Math.max(yTop, .1)]);
+                colliders.push([Math.min(...xs) - r, Math.min(...zs) - r, Math.max(...xs) + r, Math.max(...zs) + r, zbF, Math.max(yTop, zbF + .1)]);
+              };
+              const joint = P => {                              // 折线拐点球形接头：填满两段平切圆柱对接留下的三角缺口（外壁 + 内腔，保持空心观感）
+                const s = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), pMat); s.position.set(P[0], P[1], P[2]); s.castShadow = true; archUp.add(s);
+                const si = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, r - wtF), 16, 12), bMat); si.position.set(P[0], P[1], P[2]); archUp.add(si);
               };
               if (T3 === 'dpTee') {                             // 三通：竖向主管贯通 + 中部水平支管（朝墙外）
-                const br = r * 3, B = [px + dirx * br, h / 2, pz + dirz * br];
-                dpTube([px, 0, pz], [px, h, pz]); dpTube([px, h / 2, pz], B);
-                fitCol([[px, 0, pz], B], h);
-              } else if (T3 === 'dpE90') {                      // 90°弯：竖管升到上部后转水平（朝墙外）
-                const yb = Math.max(r * 1.5, h - r * 2.2), ob = r * 2.4, B = [px + dirx * ob, yb, pz + dirz * ob];
-                dpTube([px, 0, pz], [px, yb, pz]); dpTube([px, yb, pz], B);
-                fitCol([[px, 0, pz], B], yb);
+                const br = r * 3, B = [px + dirx * br, zbF + h / 2, pz + dirz * br];
+                dpTube([px, zbF, pz], [px, zbF + h, pz]); dpTube([px, zbF + h / 2, pz], B);
+                joint([px, zbF + h / 2, pz]);
+                fitCol([[px, zbF, pz], B], zbF + h);
+              } else if (T3 === 'dpE90') {                      // 90°弯：竖管 → 四分之一圆弧弯管（连续管壁，消除平切缺口）→ 水平管（朝墙外）
+                const R = Math.max(r * 1.4, .035), yb = Math.max(R + r, h - r * 2.2), ob = r * 2.4;
+                const A = [px, zbF + yb - R, pz];                // 竖管顶 = 圆弧起点（切线竖直向上）
+                const O = [px + dirx * R, A[1], pz + dirz * R];  // 圆弧圆心
+                const C = [O[0], O[1] + R, O[2]];                // 圆弧终点（切线朝墙外）
+                const B = [C[0] + dirx * ob, C[1], C[2] + dirz * ob];
+                dpTube([px, zbF, pz], A); dpTube(C, B);
+                const bg = new THREE.Group(); bg.position.set(O[0], O[1], O[2]);
+                bg.quaternion.setFromRotationMatrix(new THREE.Matrix4().makeBasis(          // 局部 +X = -D（墙内）、+Y = 竖直、+Z = X×Y
+                  new THREE.Vector3(-dirx, 0, -dirz), new THREE.Vector3(0, 1, 0), new THREE.Vector3(dirz, 0, -dirx)
+                ));
+                archUp.add(bg);
+                const tOut = new THREE.Mesh(new THREE.TorusGeometry(R, r, 16, 24, Math.PI / 2), pMat); tOut.castShadow = true; bg.add(tOut);
+                bg.add(new THREE.Mesh(new THREE.TorusGeometry(R, Math.max(.004, r - wtF), 16, 24, Math.PI / 2), bMat));   // 弯管内腔
+                fitCol([[px, zbF, pz], A, C, B], C[1] + r);
               } else if (T3 === 'dpE45') {                      // 45°弯：竖管 + 45° 斜上支管（朝墙外上方）
-                const yb = Math.max(r * 1.2, h / 2), ob = r * 2.6, c = Math.SQRT1_2, B = [px + dirx * ob * c, yb + ob * c, pz + dirz * ob * c];
-                dpTube([px, 0, pz], [px, yb, pz]); dpTube([px, yb, pz], B);
-                fitCol([[px, 0, pz], B], Math.max(h, yb + ob * c));
+                const yb = Math.max(r * 1.2, h / 2), ob = r * 2.6, c = Math.SQRT1_2, B = [px + dirx * ob * c, zbF + yb + ob * c, pz + dirz * ob * c];
+                dpTube([px, zbF, pz], [px, zbF + yb, pz]); dpTube([px, zbF + yb, pz], B);
+                joint([px, zbF + yb, pz]);
+                fitCol([[px, zbF, pz], B], Math.max(h, yb + ob * c) + zbF);
               } else {                                          // 蓄水弯（S 弯水封）：竖落 → 底横 → 竖升（水封段）→ 出水横管（朝墙外）
                 const ylow = Math.max(r * 1.6, h - r * 3.4), ymid = Math.min(h - .02, ylow + r * 1.8), o1 = r * 1.2, o2 = r * 3;
                 const P = [
-                  [px, h, pz], [px, ylow, pz], [px + dirx * o1, ylow, pz + dirz * o1],
-                  [px + dirx * o1, ymid, pz + dirz * o1], [px + dirx * o2, ymid, pz + dirz * o2]
+                  [px, zbF + h, pz], [px, zbF + ylow, pz], [px + dirx * o1, zbF + ylow, pz + dirz * o1],
+                  [px + dirx * o1, zbF + ymid, pz + dirz * o1], [px + dirx * o2, zbF + ymid, pz + dirz * o2]
                 ];
                 for (let i = 0; i < P.length - 1; i++) dpTube(P[i], P[i + 1]);
-                fitCol(P, h);
+                [1, 2, 3].forEach(i => joint(P[i]));
+                fitCol(P, zbF + h);
               }
               return;
             }
@@ -23515,7 +23512,7 @@
     }
     /* 下层幽灵：半透明显示紧邻下方的那一层墙体，作为当前层对位参照（漫游 / 碰撞 / 拾取都只针对当前层，不受影响） */
     let plateGroup = null, stackGroup = null;
-    const GHOST_FLOOR_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'wallH', 'rooms', 'roomsExtra', 'bover', 'pillars'];
+    const GHOST_FLOOR_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'wallH', 'rooms', 'roomsExtra', 'bover', 'pillars', 'furniture', 'stairs'];
     function buildFloorPlates() {
       if (!scene) return;
       if (!ui.layers.ghost || opt.allFloors) {                      // 开关关闭，或整栋模式：整栋模式下其它楼层已经是完整真实几何，再做半透明幽灵墙只会重复叠加，下层比上层宽处露出一堆碎片
@@ -23532,7 +23529,7 @@
       const dy = below.z / 1000 - base;                             // 下层相对当前层的标高差（负，米）：below.z 是 mm，base=floorY() 已是米
       // 临时把下层数据换入全局 state，复用墙体几何 helper（builtinSeg / wallSegs / cwGeom 都读 state）
       const saved = {}; GHOST_FLOOR_KEYS.forEach(k => saved[k] = state[k]);
-      GHOST_FLOOR_KEYS.forEach(k => { state[k] = data[k] === undefined ? saved[k] : data[k]; });
+      GHOST_FLOOR_KEYS.forEach(k => { state[k] = data[k] !== undefined ? data[k] : Array.isArray(saved[k]) ? [] : (k === 'bover' || k === 'roomsExtra' ? {} : saved[k]); });   // 下层缺类数据时用空集合，避免误把当前层对象画成幽灵
       const ghostMat = new THREE.MeshStandardMaterial({ color: 0x8a97a8, transparent: true, opacity: .3, roughness: 1, depthWrite: false });
       const addGhost = (P0, P1, T, ht) => {                          // 半透明墙段（与 wallSeg3D 相同的中线与旋转算法）
         const L = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]); if (L < 1 || ht <= .001) return;
@@ -23552,6 +23549,23 @@
           const id = 'CW' + w.id; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
           const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
           wallSegs(id, L).forEach(([c0, c1]) => { const [P0, P1] = segPts(w.a, w.b, c0, c1); addGhost(P0, P1, cwT(w), ht); });
+        });
+        (state.pillars || []).forEach(c => {                        // 柱：圆 / 方 / L / 十字统一按柱径体量近似
+          const o = new THREE.Mesh(pillarShape(c) === 'round' ? new THREE.CylinderGeometry(M(c.w) / 2, M(c.w) / 2, ht, 16) : new THREE.BoxGeometry(M(c.w), ht, M(c.w)), ghostMat);
+          o.position.set(M(c.x), ht / 2, M(c.y)); plateGroup.add(o);
+        });
+        (state.furniture || []).forEach(f => {                      // 家具：直接用真实 3D 造型，整体替换为半透明幽灵材质
+          const g2 = buildFurniture(f); if (!g2) return;
+          const olds = new Set();
+          g2.traverse(o => { if (o.isMesh) { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => olds.add(m)); o.material = ghostMat; o.castShadow = false; } });
+          olds.forEach(m => m.dispose?.());
+          plateGroup.add(g2);
+        });
+        (state.stairs || []).forEach(st => {                        // 楼梯：按外接盒做半透明体量（对位参照足够）
+          const bb = stairBBox(stairLayout(st)); if (!bb || bb.x1 - bb.x0 < 1) return;
+          const sh = Math.min(1, ht);
+          const o = new THREE.Mesh(new THREE.BoxGeometry(M(bb.x1 - bb.x0), sh, M(bb.z1 - bb.z0)), ghostMat);
+          o.position.set(M((bb.x0 + bb.x1) / 2), sh / 2, M((bb.z0 + bb.z1) / 2)); plateGroup.add(o);
         });
       } finally { GHOST_FLOOR_KEYS.forEach(k => { state[k] = saved[k]; }); }
       plateGroup.position.y = dy;                                   // 整组下移到下层标高
