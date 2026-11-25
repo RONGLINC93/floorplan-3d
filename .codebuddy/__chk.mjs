@@ -8050,11 +8050,13 @@
       const def = FACILITY_DEFS[e.type];
       const L = Math.max(2.5, M(e.w || def.w)), Wd = Math.max(1.2, M(e.d || def.d)), BH = Math.max(1.1, M(e.h || def.h));
       const wr = e.type === 'carTruck' ? Math.min(.52, Math.max(.36, BH*.15)) : e.type === 'carSuv' ? Math.min(.40, BH*.24) : Math.min(.33, BH*.22), y0 = e.type === 'carTruck' ? wr*2 + .12 : wr*.82;   // 卡车驾驶位地板与 3D 模型同高
-      driveCar = { id:e.id, grp, col, L, Wd, y0, ang:((+e.rot||0)%360)*Math.PI/180, speed:0, cx:grp.position.x, cz:grp.position.z };
+      const cabL = Math.max(1.5, Math.min(L*.3, 2.3));
+      driveCar = { id:e.id, grp, col, L, Wd, y0, ang:((+e.rot||0)%360)*Math.PI/180, speed:0, cx:grp.position.x, cz:grp.position.z,
+        sx: e.type === 'carTruck' ? L*.5 - cabL/2 : -L*.05, sy: y0 + (e.type === 'carTruck' ? 1.45 : 1.0), sz: e.type === 'carTruck' ? -Wd*.23 : -Wd*.22 };   // 驾驶座本地坐标：卡车驾驶室在车头、眼位约 2.5m（风挡中部）
       fallY = 0; jumpY = jumpV = fallV = 0; crouchT = 0; eyeH = EYE_STAND; headH = EYE_STAND; ladderOn = null; stuckT = 0;
       if (stuckTip) stuckTip.classList.remove('open');
       grp.updateMatrixWorld(true);
-      const eye = grp.localToWorld(new THREE.Vector3(e.type === 'carTruck' ? L*.28 : -L*.05, y0 + (e.type === 'carTruck' ? 1.2 : 1.0), -Wd*.22));   // 驾驶位眼高（卡车高座椅眼位约 1.85m），相机在座椅略靠后；卡车驾驶室在车头
+      const eye = grp.localToWorld(new THREE.Vector3(driveCar.sx, driveCar.sy, driveCar.sz));   // 驾驶位眼高（卡车高座椅眼位约 2.25m），相机在座椅略靠后；卡车驾驶室在车头
       camera.position.copy(eye); camera.lookAt(eye.x + Math.cos(driveCar.ang), eye.y, eye.z + Math.sin(driveCar.ang));
       if (driveExit) driveExit.style.display = 'block';
       if (walkTip) { walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('E / F 下车 · WASD 驾驶 · Shift 加速 · 空格刹车', 'E / F exit · WASD drive · Shift boost · Space brake'); walkTip.classList.add('open'); }
@@ -8104,7 +8106,7 @@
       if (d.col) { const ca = Math.cos(d.ang), sa = Math.sin(d.ang);
         const hw = (d.L*Math.abs(ca)+d.Wd*Math.abs(sa))/2, hd = (d.L*Math.abs(sa)+d.Wd*Math.abs(ca))/2;
         d.col[0] = nx-hw; d.col[1] = nz-hd; d.col[2] = nx+hw; d.col[3] = nz+hd; }
-      camera.position.copy(d.grp.localToWorld(new THREE.Vector3(-d.L*.05, d.y0 + 1.0, -d.Wd*.22)));
+      camera.position.copy(d.grp.localToWorld(new THREE.Vector3(d.sx, d.sy, d.sz)));   // 驾驶中相机锁定在驾驶座眼位
       if (d.ang !== oang) camera.rotateY(-(d.ang - oang));        // 视角随车身转向，同时保留 PointerLock 的鼠标环视
       { const tf = FOV + Math.min(7, Math.abs(d.speed) * .9);     // 驾驶视野：车速越快 FOV 略拉宽（最高 +7°），提速更有冲刺感
         camera.fov += (tf - camera.fov) * Math.min(1, dt * 5);
