@@ -23623,6 +23623,16 @@
         a.distanceTo(px(hit.clone().add(new THREE.Vector3(0, 0, 1)).project(camera)))) / 1000;
       return { x: hit.x * 1000 + OX, y: hit.z * 1000 + OY, s };
     }
+    function alignedSelBox(o) {                                   // 选中车辆：贴合车身、随车旋转的包围框（BoxHelper 是轴对齐的，车一斜框就虚胖穿到别的对象上）
+      const rx = o.rotation.x, ry = o.rotation.y, rz = o.rotation.z;
+      o.rotation.set(0, 0, 0); o.updateWorldMatrix(true, false);
+      const box = new THREE.Box3().setFromObject(o);
+      const ctr = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+      o.rotation.set(rx, ry, rz); o.updateWorldMatrix(true, false);
+      const line = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x, size.y, size.z)), new THREE.LineBasicMaterial({ color: 0xb5653a }));
+      line.position.copy(ctr); line.rotation.y = ry; scene.add(line);
+      return line;
+    }
     function updateSel() {                                       // 家具 / 墙 / 柱 / 楼梯等选中对象统一橙色包围盒
       if (m3dPreview || opt.mode === 'walk') {                   // 3D 预览 / 漫游态：不显示编辑用的选中包围盒（只看效果，进这些模式前残留的选中线也一并清掉）
         if (selHelpers.length) { selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = ''; }
@@ -23643,9 +23653,15 @@
             if (t && String(t.id) === String(ui.sel.id) && (t.kind === ui.sel.kind || (lampKind && t.kind === state.extras.find(x => String(x.id) === String(ui.sel.id)).type))) targets.push(o);
           });
         }
-        targets.forEach(o => { const h = new THREE.BoxHelper(o, 0xb5653a); scene.add(h); selHelpers.push(h); });
+        targets.forEach(o => {
+          let h;
+          const ex = o.userData.pick3d && state.extras?.find(x => String(x.id) === String(o.userData.pick3d.id));
+          if (ex && isCar(ex.type)) h = alignedSelBox(o);                        // 车辆：贴合车身的旋转框
+          else { h = new THREE.BoxHelper(o, 0xb5653a); scene.add(h); }
+          selHelpers.push(h);
+        });
       }
-      selHelpers.forEach(h => h.update());
+      selHelpers.forEach(h => h.update && h.update());
     }
 
     /* ======================= 漫游 ======================= */
@@ -23730,7 +23746,7 @@
     function blockedOne(x, z, r, footH, noPoultry, W) {
       const passByHeight = (y0, y1) => footH !== null && (footH + headH < y0 || footH > y1 || y1 <= footH + WALK_STEP_OVER);
       for (const c of W.colliders) {
-        if (driveCar && c.carId === driveCar.id) continue;           // 驾驶中跳过本车整车碰撞，否则车一移动就把自己判为被挡
+        if (driveCar && c.carId != null) continue;                   // 驾驶中跳过所有车辆碰撞（含本车）：车挨着车摆放时不再互相锁死，墙 / 家具仍生效
         const [x0, z0, x1, z1, y0 = -Infinity, y1 = Infinity] = c;
         if (passByHeight(y0, y1)) continue;
         if (x > x0 - r && x < x1 + r && z > z0 - r && z < z1 + r) return true;
@@ -24022,13 +24038,18 @@
       if (h.kind === 'extra' && h.id != null && isCar((state.extras || []).find(x => String(x.id) === String(h.id))?.type)) return h.id;
       return null;
     };
-    function carFootBlocked(cx, cz, ang, L, Wd) {                 // 驾驶碰撞：按旋转后的车身矩形足迹取中心 + 四角试探，避开墙 / 家具 / 其它车
-      const ca = Math.cos(ang), sa = Math.sin(ang);
-      const hw = (L*Math.abs(ca)+Wd*Math.abs(sa))/2, hd = (L*Math.abs(sa)+Wd*Math.abs(ca))/2;
-      for (const [sx, sz] of [[0,0],[-1,-1],[-1,1],[1,-1],[1,1]]) if (blocked(cx + sx*hw, cz + sz*hd, .1, 0)) return true;
+    function carFootBlocked(cx, cz, ang, L, Wd) {                 // 驾驶碰撞：只查结构碰撞体（墙 / 柱 / 楼梯）。门扇 / 窗扇 / 家具 / 其它车辆不再锁死整车——之前车中心压到一扇关着的门，W 一给速度就被清零，只能原地转向
+      const ca = Math.cos(ang), sa = Math.sin(ang), ix = L*.5*.8, iz = Wd*.5*.8;
+      const hit = (x, z) => worldDatasets().some(W => W.colliders.some(c => {
+        if (driveCar && c.carId != null) return false;
+        return x > c[0]-.06 && x < c[2]+.06 && z > c[1]-.06 && z < c[3]+.06;
+      }));
+      if (hit(cx, cz)) return true;
+      for (const [lx, lz] of [[ix,iz],[ix,-iz],[-ix,iz],[-ix,-iz]]) if (hit(cx + lx*ca - lz*sa, cz + lx*sa + lz*ca)) return true;
       return false;
     }
     function enterCar(id) {                                       // 上车：把相机移到左前驾驶位，登记 driveCar 后由 stepDrive 接管漫游物理
+      if (document.activeElement && document.activeElement !== document.body) document.activeElement.blur();   // 焦点若在面板输入框，keydown 会被吞掉导致无法驾驶
       const e = (state.extras || []).find(x => String(x.id) === String(id) && isCar(x.type)); if (!e) return false;
       const grp = archUp.children.find(o => o.userData.pick3d?.kind === 'extra' && String(o.userData.pick3d.id) === String(e.id)); if (!grp) return false;
       const col = colliders.find(c => c.carId === e.id);
@@ -24085,14 +24106,19 @@
       let nx = d.cx, nz = d.cz;
       if (!carFootBlocked(nx0, nz, d.ang, d.L, d.Wd)) nx = nx0;
       if (!carFootBlocked(nx, nz0, d.ang, d.L, d.Wd)) nz = nz0;
-      if (nx === d.cx && nz === d.cz && d.speed !== 0) d.speed = 0;
+      if (nx === d.cx && nz === d.cz && d.speed !== 0) { d.speed = 0;                                  // 双向都被挡：停车并提示（大车室内易被墙挡）
+        const now = performance.now(); if (!d.stuckAt || now - d.stuckAt > 3500) { d.stuckAt = now; toast(tr('被障碍挡住：倒车（S）或转向绕开', 'Blocked — reverse (S) or steer around')); } }
       d.cx = nx; d.cz = nz;
       d.grp.position.set(nx, 0, nz); d.grp.rotation.y = -d.ang; d.grp.updateMatrixWorld(true);
       if (d.col) { const ca = Math.cos(d.ang), sa = Math.sin(d.ang);
         const hw = (d.L*Math.abs(ca)+d.Wd*Math.abs(sa))/2, hd = (d.L*Math.abs(sa)+d.Wd*Math.abs(ca))/2;
         d.col[0] = nx-hw; d.col[1] = nz-hd; d.col[2] = nx+hw; d.col[3] = nz+hd; }
       camera.position.copy(d.grp.localToWorld(new THREE.Vector3(d.sx, d.sy, d.sz)));   // 驾驶中相机锁定在驾驶座眼位
-      if (d.ang !== oang) camera.rotateY(-(d.ang - oang));        // 视角随车身转向，同时保留 PointerLock 的鼠标环视
+      if (d.ang !== oang) {                                       // 视角随车身转向：改世界 yaw 而非本地 rotateY（本地 Y 在带俯仰时会歪、roll 越积越大）
+        const eu = new THREE.Euler().setFromQuaternion(camera.quaternion, 'YXZ');
+        eu.y -= (d.ang - oang); eu.z = 0;
+        camera.quaternion.setFromEuler(eu);
+      }
       { const tf = FOV + Math.min(7, Math.abs(d.speed) * .9);     // 驾驶视野：车速越快 FOV 略拉宽（最高 +7°），提速更有冲刺感
         camera.fov += (tf - camera.fov) * Math.min(1, dt * 5);
         if (Math.abs(camera.fov - tf) < .05) camera.fov = tf;
@@ -25078,7 +25104,7 @@
       ui.layers.slab = v;                                       // 与图层设置保持一致（随方案保存）
     }
 
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
   </script>
 </body>
 
