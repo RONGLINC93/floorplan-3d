@@ -21879,6 +21879,10 @@
             for (let i=0;i<pts.length;i++){const a=pts[i],b=pts[(i+1)%pts.length];v.push(...a,z1,...b,z1,...b,z2,...a,z1,...b,z2,...a,z2);}
             g.setAttribute('position', new THREE.Float32BufferAttribute(v,3)); g.computeVertexNormals();
             const o = new THREE.Mesh(g,m); o.castShadow=o.receiveShadow=true; (parent||grp).add(o); return o; };
+          const pane = (pts, m, z, parent) => { const g = new THREE.BufferGeometry(); const v = [];   // 真实玻璃面：凸多边形扇形三角化，贴在指定 z 平面上（quad 只画边缘窄带，填不满窗洞）
+            for (let i = 1; i < pts.length - 1; i++) v.push(...pts[0], z, ...pts[i], z, ...pts[i+1], z);
+            g.setAttribute('position', new THREE.Float32BufferAttribute(v, 3)); g.computeVertexNormals();
+            const o = new THREE.Mesh(g, m); o.castShadow = false; o.receiveShadow = true; (parent || grp).add(o); return o; };
           quad([[L*.20,belt-.09],[L*.09,top-.06],[L*.09,top+.005],[L*.20,belt]], glass, -halfW+.02, halfW-.02);            // 前风挡
           quad([[-L*.35,belt-.09],[-L*.23,top-.06],[-L*.23,top+.005],[-L*.35,belt]], glass, -halfW+.02, halfW-.02);        // 后风挡
           P(new THREE.BoxGeometry(L*.52,.02,Wd*.80), carpetM, -L*.05, y0+.075, 0);                                         // 座舱地毯
@@ -21913,7 +21917,8 @@
               const pivot = new THREE.Group(); pivot.position.set(x0, 0, sd*(halfW-wall));
               const panel = new THREE.Mesh(new THREE.BoxGeometry(dw, doorH, wall), paint); panel.position.set(-dw/2, doorCy, sd*wall/2); pivot.add(panel);
               const inner = new THREE.Mesh(new THREE.BoxGeometry(dw*.92, doorH*.90, .014), innerM); inner.position.set(-dw/2, doorCy, -sd*(wall/2+.006)); pivot.add(inner);
-              quad(winPts.map(([px,py])=>[px-x0,py]), doorGlass, sd*.004, sd*.016, pivot);                                   // 侧窗玻璃随门转动，深色贴膜
+              quad(winPts.map(([px,py])=>[px-x0,py]), doorGlass, sd*.004, sd*.016, pivot);                                   // 侧窗玻璃边框（随门转动）
+              pane(winPts.map(([px,py])=>[px-x0,py]), doorGlass, sd*(wall-.006), pivot);                                    // 四门侧窗深色贴膜玻璃面：填满窗洞、随门一起开合
               const hd = new THREE.Mesh(new THREE.BoxGeometry(.10,.016,.02), chrome); hd.position.set(-dw*.72, belt-.12, sd*(wall+.012)); pivot.add(hd);
               grp.add(pivot); regCarPart(sd<0?fL:fR, pivot, sd*1.15, 'y', sd<0?zhL:zhR);
             });
