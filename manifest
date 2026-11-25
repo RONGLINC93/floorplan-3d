@@ -1,5 +1,5 @@
 appname=floorplan3d
-version=1.0.29
+version=1.0.30
 display_name=户型装修设计
 desc=纯前端的户型装修设计工具：2D 平面图摆放家具、拆改墙体、测量尺寸，一键切换 Three.js 3D 场景鸟瞰或第一人称漫游，支持方案保存到服务器。仅供学习交流使用。
 source=thirdparty
