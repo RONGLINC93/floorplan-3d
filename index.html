@@ -7777,7 +7777,7 @@
               const line = (x1, y1, x2, y2, stroke, sw, op) => { const A0 = Pxy(x1, y1), B0 = Pxy(x2, y2);
                 return `<line x1="${A0[0].toFixed(1)}" y1="${A0[1].toFixed(1)}" x2="${B0[0].toFixed(1)}" y2="${B0[1].toFixed(1)}" stroke="${stroke}" stroke-width="${sw}"${op != null ? ` stroke-opacity="${op}"` : ''} vector-effect="non-scaling-stroke"/>`; };
               const paint = CAR_COLORS[e.color] || CAR_COLORS.white, glass = '#3d5b73';
-              const sunL2 = Math.max(300, Math.min(L*.28, +e.sunL || L*.14)), sunW2 = Math.max(300, Math.min(Wd*.80, +e.sunW || Wd*.36)), sunX2 = -L*.07, sunD2 = Math.max(L*.015, Math.min(sunL2*.6, L*.16 - sunL2/2));   // 2D 天窗玻璃尺寸（mm），与 3D 同一组参数
+              const sunL2 = Math.max(300, Math.min(L*.28, +e.sunL || L*.14)), sunW2 = Math.max(300, Math.min(Wd*.80, +e.sunW || Wd*.36)), sunX2 = -L*.07, sunD2 = suv ? Math.max(L*.015, Math.min(sunL2*.75, L*.31 - 50 - sunL2/2)) : Math.max(L*.015, Math.min(sunL2*.6, L*.16 - sunL2/2));   // 2D 天窗玻璃尺寸与滑开行程（mm），与 3D 同一组参数
               const sunOp2 = Math.min(1, .42 + .58 * Math.max(.05, Math.min(1, (+e.opSun || 16) / 100)));                        // 2D 天窗玻璃随不透明度同步深浅
               const edge = on ? '#b5653a' : '#4b565e', ew = on ? 2 : 1.3;
               inner = face([[-L2-160,-W2-160],[L2+160,-W2-160],[L2+160,W2+160],[-L2-160,W2+160]], 'transparent', 0, null)   // 透明命中带
@@ -21918,7 +21918,9 @@
           const wr = suv ? Math.min(.40, BH * .24) : Math.min(.33, BH * .22), y0 = wr * .82, belt = Math.min(BH * .63, y0 + (suv ? .78 : .60)), top = BH - .02, ar = wr * 1.14, halfW = Wd * .46, wall = .07;
           const sunL = Math.max(.30, Math.min(L*.28, M(e.sunL || L*140))), sunW = Math.max(.30, Math.min(Wd*.80, M(e.sunW || Wd*360)));  // 天窗玻璃长 / 宽（米）：只控制玻璃开口，车顶棚随开口重新拼装
           const sunX = -L*.07, sunFront = sunX + sunL/2, sunRear = sunX - sunL/2;                                          // 天窗开口中心 / 前后沿
-          const sunDist = Math.max(L*.015, Math.min(sunL*.6, L*.16 - sunL/2));                                            // 滑开行程：玻璃后沿不越出车顶后段
+          const sunDist = suv                                                                                              // 越野车平顶加长：滑开行程加大（玻璃抬升越过行李架横杆，后沿推到行李架后横杆前停住，不顶到车尾）
+            ? Math.max(L*.015, Math.min(sunL*.75, L*.31 - .05 - sunL/2))
+            : Math.max(L*.015, Math.min(sunL*.6, L*.16 - sunL/2));                                                          // 滑开行程：玻璃后沿不越出车顶后段
           const sil = [[-L*.5,y0]];
           [-L*.31,L*.31].forEach(cx=>{for(let i=0;i<=10;i++){const t=Math.PI-i*Math.PI/10;sil.push([cx+Math.cos(t)*ar,y0+Math.sin(t)*ar]);}});
           sil.push([L*.5,y0],[L*.5,belt-.09],...(suv
@@ -21927,7 +21929,14 @@
           const sideShape = new THREE.Shape();
           sil.forEach(([x,y],i)=> i?sideShape.lineTo(x,y):sideShape.moveTo(x,y)); sideShape.closePath();
           const cutHole = pts => { const h=new THREE.Path(); pts.forEach(([x,y],i)=> i?h.lineTo(x,y):h.moveTo(x,y)); h.closePath(); sideShape.holes.push(h); };
-          cutHole(suv ? [[-L*.04,y0+.03],[L*.23,y0+.03],[L*.23,belt],[L*.20,top-.07],[-L*.04,top-.07]] : [[-L*.04,y0+.03],[L*.19,y0+.03],[L*.19,belt],[L*.08,top-.07],[-L*.04,top-.07]]);   // 前门洞+前侧窗洞合并：belt 处不再有白色洞缘横杆
+          const frontX = suv ? L*.23 : L*.19, fcx = L*.31;                                                  // 前门洞前沿 / 前轮拱中心：越野车前门加长后，前沿会压进前轮拱
+          const fHit = (frontX - fcx) / ar, frontArch = fHit > -1, fEnd = Math.acos(Math.max(-1, Math.min(1, fHit)));  // 前沿压进轮拱时，洞底必须沿拱形抬起；否则洞跑出车身轮廓，三角化后在门洞里留下一片白色面
+          const frontBot = [[-L*.04,y0+.03]];                                                                // 前门洞+前侧窗洞合并：belt 处不再有白色洞缘横杆
+          if (frontArch) {
+            frontBot.push([fcx-ar,y0+.03]);
+            for(let i=1;i<=10;i++){const t=Math.PI-i/10*(Math.PI-fEnd);frontBot.push([fcx+ar*Math.cos(t),y0+ar*Math.sin(t)+.03]);}
+          } else frontBot.push([frontX,y0+.03]);
+          cutHole([...frontBot,[frontX,belt],[suv?L*.20:L*.08,top-.07],[-L*.04,top-.07]]);
           const rcx=-L*.31, rEnd=Math.acos(Math.min(1,(-L*.30-rcx)/ar)), rearBot=[[-L*.06,y0+.03]];
           for(let i=0;i<=10;i++){const t=i/10*rEnd;rearBot.push([rcx+ar*Math.cos(t),y0+ar*Math.sin(t)+.03]);}
           cutHole([...rearBot, ...(suv ? [[-L*.40,belt],[-L*.38,top-.07],[-L*.06,top-.07]] : [[-L*.30,belt],[-L*.22,top-.07],[-L*.06,top-.07]])]);   // 后门洞+后侧窗洞合并：越野车 C 柱更靠后、后侧窗加长
@@ -21988,6 +21997,14 @@
               s.lineTo(rcx + ar * Math.cos(t) - x0, Math.max(y0 + ar * Math.sin(t) + .03, yb)); }
             s.closePath(); return s;
           };
+          const frontDoorShape = (x0, dw, fx, rx, yb, yt) => {                                                           // 前门板轮廓：前沿下角沿前轮拱圆弧切掉，与侧板门洞同一段弧，开门后不留白色面、轮胎正常露出
+            const s = new THREE.Shape();
+            const tEnd = Math.acos(Math.max(-1, Math.min(1, (x0 + fx - fcx) / ar)));
+            s.moveTo(fx, yt); s.lineTo(rx, yt); s.lineTo(rx, yb);
+            for (let i = 0; i <= 10; i++) { const t = Math.PI - i/10*(Math.PI - tEnd);
+              s.lineTo(fcx + ar*Math.cos(t) - x0, Math.max(y0 + ar*Math.sin(t) + .03, yb)); }
+            s.closePath(); return s;
+          };
           const frontDoorPivots = {};                                                                                     // 前门枢轴：后视镜挂到前门上，开门时随门转，不再与门板穿模
           [-1, 1].forEach(sd => {                                                                                         // 左右两侧各前后两扇车门（铰链在前缘，门板外沿略突出侧板 2mm）
             [(suv
@@ -22001,14 +22018,18 @@
               const isRear = fL === 'doorRL';                                                                            // 后门与后轮拱相交：门板 / 内饰板都要切出轮拱缺口，不再盖住轮胎
               const panelGeo = isRear
                 ? new THREE.ExtrudeGeometry(rearDoorShape(x0, dw, .004, -dw-.004, y0, belt), { depth: wall, bevelEnabled: false, curveSegments: 4 })
-                : new THREE.BoxGeometry(dw+.008, doorH, wall);
+                : frontArch
+                  ? new THREE.ExtrudeGeometry(frontDoorShape(x0, dw, .004, -dw-.004, y0, belt), { depth: wall, bevelEnabled: false, curveSegments: 4 })
+                  : new THREE.BoxGeometry(dw+.008, doorH, wall);
               const panel = new THREE.Mesh(panelGeo, paint);
-              if (isRear) panel.position.z = sd > 0 ? .002 : -wall-.002; else panel.position.set(-dw/2, doorCy, sd*(wall/2+.002)); pivot.add(panel);   // 门板略宽于洞、外沿突出 2mm：盖住洞缘，不与侧板共面闪烁
+              if (isRear || frontArch) panel.position.z = sd > 0 ? .002 : -wall-.002; else panel.position.set(-dw/2, doorCy, sd*(wall/2+.002)); pivot.add(panel);   // 门板略宽于洞、外沿突出 2mm：盖住洞缘，不与侧板共面闪烁
               const innerGeo = isRear
                 ? new THREE.ExtrudeGeometry(rearDoorShape(x0, dw, -dw*.04, -dw*.96, doorCy-doorH*.45, doorCy+doorH*.45), { depth: .014, bevelEnabled: false, curveSegments: 4 })
-                : new THREE.BoxGeometry(dw*.92, doorH*.90, .014);
+                : frontArch
+                  ? new THREE.ExtrudeGeometry(frontDoorShape(x0, dw, -dw*.04, -dw*.96, doorCy-doorH*.45, doorCy+doorH*.45), { depth: .014, bevelEnabled: false, curveSegments: 4 })
+                  : new THREE.BoxGeometry(dw*.92, doorH*.90, .014);
               const inner = new THREE.Mesh(innerGeo, innerM);
-              if (isRear) inner.position.z = sd > 0 ? -.012 : -.002; else inner.position.set(-dw/2, doorCy, -sd*.005); pivot.add(inner);              // 内饰板紧贴门板内表面，中间不再留 3~4cm 空腔
+              if (isRear || frontArch) inner.position.z = sd > 0 ? -.012 : -.002; else inner.position.set(-dw/2, doorCy, -sd*.005); pivot.add(inner);   // 内饰板紧贴门板内表面，中间不再留 3~4cm 空腔
               const wpts = winPts.map(([px,py])=>[px-x0,py]);
               const winGroup = new THREE.Group(); pivot.add(winGroup);                          // 侧窗玻璃单独成组，随内侧升降按钮上下滑动
               pane(wpts, doorGlass, sd*(wall-.006), winGroup);                                  // 四门侧窗深色贴膜玻璃面：下缘压过腰线、填满窗洞、随门一起开合
@@ -22048,7 +22069,7 @@
           [-1,1].forEach(sd => { const rf = new THREE.Mesh(new THREE.BoxGeometry(sunL*.96,.018,.02), black); rf.position.set(sunX, -.015, sd*sunW/2); sunSlide.add(rf); });   // 天窗支架：玻璃两侧窄滑轨梁随动（中间镂空，不挡看车内的视线）
           [-1,1].forEach(sd => P(new THREE.BoxGeometry(sunL*.98,.008,.015), black, sunX, top+.012, sd*(sunW/2-.01)).castShadow = false);   // 开口内两条固定滑轨（玻璃沿轨滑动）
           doors.push({ kind:'car', carId:e.id, part:'sunroof', field:'sunroof', slide:true, open:!!e.sunroof, cur:e.sunroof?1:0,   // 滑动式天窗：关闭时嵌在开口内，打开先整块升出顶棚、再沿车顶向后推（真车同款两段式行程）
-            pivots:[{ g:sunSlide, px:0, pz:0, ax:-1, az:0, dist:sunDist, ay:.04, tph:true }], label:CAR_PART_LABEL.sunroof });
+            pivots:[{ g:sunSlide, px:0, pz:0, ax:-1, az:0, dist:sunDist, ay:suv ? .075 : .04, tph:true }], label:CAR_PART_LABEL.sunroof });   // 越野车抬升量加大：玻璃整体从车顶行李架横杆上方越过，全程不再穿杆
           sunGlass.userData.door = doors[doors.length-1]; sunGlass.userData.pick3d = { kind:'extra', id:e.id };
           [-1, 1].forEach(sd => [-1, 1].forEach(sx => {                                                                    // 四轮：越野车轮胎更宽更大（轮拱已由车身轮廓切出）
             const wx = sx * L * (suv ? .33 : .31), ww = suv ? .24 : .20, rim = suv ? .72 : .67;

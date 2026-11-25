@@ -15,4 +15,4 @@ service_port=8765
 checkport=true
 ctl_stop=true
 disable_authorization_path=false
-changelog=1.0.28 新增指北针 / 电梯与楼板 / 女儿墙 / 雨棚等建筑构件，左右侧栏改为选项夹，服务器支持 IPv4/IPv6 双栈。
+changelog=1.0.29 新增指北针 / 电梯与楼板 / 女儿墙 / 雨棚等建筑构件，左右侧栏改为选项夹，服务器支持 IPv4/IPv6 双栈。
