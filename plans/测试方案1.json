@@ -104,7 +104,7 @@
       "type": "carSuv",
       "w": 4800,
       "h": 1850,
-      "rot": 0,
+      "rot": 351.45316592942623,
       "d": 1950,
       "color": "red",
       "int": "beige",
@@ -127,8 +127,8 @@
       "opSun": 16,
       "lights": true,
       "id": "fmwvzz9so197",
-      "x": 5950,
-      "y": 4950
+      "x": -10625,
+      "y": 6464
     },
     {
       "type": "carSuv",
@@ -142,7 +142,7 @@
       "doorFR": true,
       "doorRL": false,
       "doorRR": false,
-      "hood": false,
+      "hood": true,
       "trunk": true,
       "sunroof": false,
       "winFL": false,
@@ -219,6 +219,26 @@
       "id": "fmww0o4gq150",
       "x": 4300,
       "y": 10350
+    },
+    {
+      "type": "carTruck",
+      "w": 6800,
+      "h": 3100,
+      "rot": 208.57127075545793,
+      "d": 2400,
+      "color": "blue",
+      "boxOpen": true,
+      "lights": true,
+      "id": "fmww1nj4c148",
+      "x": 19582,
+      "y": 6535,
+      "boxDoor": false,
+      "doorFR": false,
+      "doorFL": false,
+      "winFR": false,
+      "winFL": false,
+      "opDoor": 16,
+      "opFront": 16
     }
   ],
   "leaders": [],
@@ -343,7 +363,7 @@
           "type": "carSuv",
           "w": 4800,
           "h": 1850,
-          "rot": 0,
+          "rot": 351.45316592942623,
           "d": 1950,
           "color": "red",
           "int": "beige",
@@ -366,8 +386,8 @@
           "opSun": 16,
           "lights": true,
           "id": "fmwvzz9so197",
-          "x": 5950,
-          "y": 4950
+          "x": -10625,
+          "y": 6464
         },
         {
           "type": "carSuv",
@@ -381,7 +401,7 @@
           "doorFR": true,
           "doorRL": false,
           "doorRR": false,
-          "hood": false,
+          "hood": true,
           "trunk": true,
           "sunroof": false,
           "winFL": false,
@@ -458,6 +478,26 @@
           "id": "fmww0o4gq150",
           "x": 4300,
           "y": 10350
+        },
+        {
+          "type": "carTruck",
+          "w": 6800,
+          "h": 3100,
+          "rot": 208.57127075545793,
+          "d": 2400,
+          "color": "blue",
+          "boxOpen": true,
+          "lights": true,
+          "id": "fmww1nj4c148",
+          "x": 19582,
+          "y": 6535,
+          "boxDoor": false,
+          "doorFR": false,
+          "doorFL": false,
+          "winFR": false,
+          "winFL": false,
+          "opDoor": 16,
+          "opFront": 16
         }
       ],
       "leaders": [],
