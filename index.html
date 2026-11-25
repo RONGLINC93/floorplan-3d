@@ -3001,8 +3001,8 @@
           <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
           <button class="btn chip on" data-t="slabs" data-en="Slabs" title="显示 / 隐藏 3D 里的地板 / 楼板与房间地面（便于俯视层间、查看楼梯洞口）"
             data-en-title="Show / hide floors, slabs and room grounds in 3D (handy to look down between storeys and check stair openings)">楼板</button>
-          <button class="btn chip on" data-t="hi" data-en="Hover FX" title="悬停门 / 窗 / 灯具 / 电梯按钮等交互构件时显示橙色高亮框与动作提示气泡；关闭后悬停不再高亮、不出提示（点击动作与漫游瞄准提示不受影响）"
-            data-en-title="Show an orange highlight and an action tooltip when hovering interactive objects (doors / windows / lamps / lift buttons...); turn off for a clean view (click actions and walk-aim tips are unaffected)">交互高亮</button>
+          <button class="btn chip on" data-t="hi" data-en="Hover FX" title="悬停门 / 窗 / 灯具 / 电梯按钮等交互构件时显示橙色高亮框；关闭后悬停不再高亮，动作提示气泡保留（点击动作与漫游瞄准提示不受影响）"
+            data-en-title="Show an orange highlight when hovering interactive objects (doors / windows / lamps / lift buttons...); turn off for a clean view — tooltips, click actions and walk-aim tips are unaffected">交互高亮</button>
         </div>
       </div>
       <div class="spacer"></div>
@@ -16316,11 +16316,11 @@
         cv.style.cursor = cursorForTool(); doorTip.classList.remove('open');
       };
       window.clearDoorHover = clearDoorHover;
+      window.clearDoorHi = () => { if (doorHover) { doorHi.removeFromParent(); doorHi.visible = false; doorHover = null; } };   // 只清高亮框、保留提示气泡（交互高亮开关用）
       cv.addEventListener('pointermove', e => {
         if (fdrag || objdrag) return;                           // 拖动中保留工具光标，不被悬停逻辑清掉
         const baseCur = cursorForTool();
         if (!active || anim || opt.mode !== 'orbit' || e.pointerType !== 'mouse' || !matchMedia('(hover:hover)').matches) { cv.style.cursor = baseCur; doorTip.classList.remove('open'); return; }
-        if (opt.hi === false) { clearDoorHover(); return; }     // 「交互高亮」开关关闭：悬停不高亮、不出提示气泡（点击动作照常）
         const h = pick(e);
         if (baseCur === 'move') {                               // 移动工具：四向箭头
           clearDoorHover(); cv.style.cursor = 'move'; return;
@@ -16330,10 +16330,13 @@
         }
         if (h?.liftBtn && h.mesh) {                                      // 电梯呼叫 / 选层 / 开关门按钮：高亮命中盒 + 气泡提示（与门同款反馈）
           if (doorHover !== h.mesh) {
-            const p = h.mesh.geometry.parameters;
-            doorHi.removeFromParent(); doorHi.visible = true;
-            doorHi.scale.set((p.width || .05) * 1.5, (p.height || .05) * 1.5, (p.depth || .02) + .04);
-            h.mesh.add(doorHi); doorHover = h.mesh;
+            doorHover = h.mesh;
+            if (opt.hi !== false) {                                     // 「交互高亮」关闭时只出气泡、不挂高亮框
+              const p = h.mesh.geometry.parameters;
+              doorHi.removeFromParent(); doorHi.visible = true;
+              doorHi.scale.set((p.width || .05) * 1.5, (p.height || .05) * 1.5, (p.depth || .02) + .04);
+              h.mesh.add(doorHi);
+            }
           }
           cv.style.cursor = baseCur;
           doorTip.textContent = liftBtnTip(h.liftBtn, false);
@@ -16341,13 +16344,15 @@
           doorTip.style.left = e.clientX + 'px'; doorTip.style.top = e.clientY + 'px';
         } else if (h?.door && h.mesh) {
           if (doorHover !== h.mesh) {                                    // 换门：把高亮层挂到新门扇（随开门动画一起转）
-            doorHi.removeFromParent(); doorHi.visible = true;
-            const p = h.mesh.geometry.parameters;                        // 车门玻璃是 BufferGeometry 没有 parameters：用世界包围盒兜底
-            if (p) doorHi.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
-            else { const bb = new THREE.Box3().setFromObject(h.mesh), sz = bb.getSize(new THREE.Vector3());
-              bb.getCenter(doorHi.position); doorHi.scale.set(Math.max(.05,sz.x)*1.05, Math.max(.05,sz.y)*1.05, Math.max(.02,sz.z)+.06); }
-            h.mesh.add(doorHi);
             doorHover = h.mesh;
+            if (opt.hi !== false) {                                     // 「交互高亮」关闭时只出气泡、不挂高亮框
+              const p = h.mesh.geometry.parameters;                     // 车门玻璃是 BufferGeometry 没有 parameters：用世界包围盒兜底
+              if (p) doorHi.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+              else { const bb = new THREE.Box3().setFromObject(h.mesh), sz = bb.getSize(new THREE.Vector3());
+                bb.getCenter(doorHi.position); doorHi.scale.set(Math.max(.05,sz.x)*1.05, Math.max(.05,sz.y)*1.05, Math.max(.02,sz.z)+.06); }
+              doorHi.removeFromParent(); doorHi.visible = true;
+              h.mesh.add(doorHi);
+            }
           }
           cv.style.cursor = baseCur;                              // 光标服从当前工具：选择=原鼠标，移动=四箭头，绘制=十字
           doorTip.textContent = h.door.kind === 'car'
@@ -16384,14 +16389,16 @@
           const gl = ex && archUp.children.find(o => o.userData.pick3d && String(o.userData.pick3d.id) === String(ex.id) && (o.userData.pick3d.kind === ex.type || o.userData.pick3d.kind === 'extra'));
           if (!gl) { clearDoorHover(); return; }
           if (doorHover !== gl) {                                        // 高亮层挂到场景：灯杆是 Group 无 geometry 参数，用世界包围盒（排除光晕精灵，避免框比灯大）
-            const bb = new THREE.Box3();
-            gl.children.forEach(c => { if (!c.isSprite) bb.expandByObject(c); });
-            if (bb.isEmpty()) { clearDoorHover(); return; }
-            const s = bb.getSize(new THREE.Vector3());
-            doorHi.removeFromParent(); doorHi.visible = true;
-            doorHi.scale.set(Math.max(.05, s.x) * 1.08, Math.max(.05, s.y) * 1.08, Math.max(.05, s.z) * 1.08);
-            bb.getCenter(doorHi.position); scene.add(doorHi);
             doorHover = gl;
+            if (opt.hi !== false) {                                     // 「交互高亮」关闭时只出气泡、不挂高亮框
+              const bb = new THREE.Box3();
+              gl.children.forEach(c => { if (!c.isSprite) bb.expandByObject(c); });
+              if (bb.isEmpty()) { clearDoorHover(); return; }
+              const s = bb.getSize(new THREE.Vector3());
+              doorHi.removeFromParent(); doorHi.visible = true;
+              doorHi.scale.set(Math.max(.05, s.x) * 1.08, Math.max(.05, s.y) * 1.08, Math.max(.05, s.z) * 1.08);
+              bb.getCenter(doorHi.position); scene.add(doorHi);
+            }
           }
           cv.style.cursor = baseCur;
           if (ex.type === 'traflight') {
@@ -24110,7 +24117,7 @@
         if (k === 'furn') { furnG.visible = opt.furn; if (!opt.furn && ui.sel?.kind === 'furn') window.select(null); }
         if (k === 'labels') showLabels(opt.labels && opt.mode === 'orbit' && !anim);
         if (k === 'slabs') { setSlabVis(opt.slabs); typeof scheduleAutoSave === 'function' && scheduleAutoSave(); }   // 楼板开关：同步回图层设置持久化
-        if (k === 'hi' && !opt.hi) window.clearDoorHover?.();   // 交互高亮关闭：立即清掉残留的悬停高亮框与提示气泡
+        if (k === 'hi') window.clearDoorHi?.();                 // 交互高亮切换：清掉残留的悬停高亮框（提示气泡保留，随下次悬停刷新）
         if (k === 'night') {
           const n = opt.night ? autoLightStreetlamps() : 0;       // 进入夜景自动开灯；离开夜景不改开关状态
           applyLight();
