@@ -21973,7 +21973,7 @@
               const hdIn = new THREE.Mesh(new THREE.BoxGeometry(.12,.018,.022), chrome); hdIn.position.set(-dw*.72, belt-.12, -sd*.024); hdIn.userData.carHandle = true; pivot.add(hdIn);   // 门内侧把手：坐在车里也能点开合
               const hHitIn = new THREE.Mesh(new THREE.BoxGeometry(.14,.09,.06), oneMat(new THREE.MeshBasicMaterial({ transparent:true, opacity:0, depthWrite:false }))); hHitIn.position.set(-dw*.72, belt-.12, -sd*.035); hHitIn.userData.carHandle = true; pivot.add(hHitIn);   // 内侧把手命中带
               const wb = new THREE.Mesh(new THREE.BoxGeometry(.07,.024,.014), winBtnMat); wb.position.set(-dw*.72+.50, belt-.17, -sd*.026); wb.userData.carWin = winDoor; pivot.add(wb);   // 内侧玻璃升降按钮：琥珀色、略放大，与把手拉开距离避免命中带互相遮挡
-              const wbHit = new THREE.Mesh(new THREE.BoxGeometry(.10,.08,.05), oneMat(new THREE.MeshBasicMaterial({ transparent:true, opacity:0, depthWrite:false }))); wbHit.position.set(-dw*.72+.20, belt-.17, -sd*.032); wbHit.userData.carWin = winDoor; pivot.add(wbHit);   // 按钮透明命中带
+              const wbHit = new THREE.Mesh(new THREE.BoxGeometry(.10,.08,.05), oneMat(new THREE.MeshBasicMaterial({ transparent:true, opacity:0, depthWrite:false }))); wbHit.position.set(-dw*.72+.50, belt-.17, -sd*.032); wbHit.userData.carWin = winDoor; pivot.add(wbHit);   // 按钮透明命中带
               grp.add(pivot); regCarPart(sd<0?fL:fR, pivot, sd*1.15, 'y', sd<0?zhL:zhR, true);
             });
           });
