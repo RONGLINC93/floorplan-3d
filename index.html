@@ -3001,6 +3001,8 @@
           <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
           <button class="btn chip on" data-t="slabs" data-en="Slabs" title="显示 / 隐藏 3D 里的地板 / 楼板与房间地面（便于俯视层间、查看楼梯洞口）"
             data-en-title="Show / hide floors, slabs and room grounds in 3D (handy to look down between storeys and check stair openings)">楼板</button>
+          <button class="btn chip on" data-t="hi" data-en="Hover FX" title="悬停门 / 窗 / 灯具 / 电梯按钮等交互构件时显示橙色高亮框与动作提示气泡；关闭后悬停不再高亮、不出提示（点击动作与漫游瞄准提示不受影响）"
+            data-en-title="Show an orange highlight and an action tooltip when hovering interactive objects (doors / windows / lamps / lift buttons...); turn off for a clean view (click actions and walk-aim tips are unaffected)">交互高亮</button>
         </div>
       </div>
       <div class="spacer"></div>
@@ -15894,7 +15896,7 @@
     const BAY_DRIP = .06;                                // 飘窗顶板 / 窗台板外挑（挡雨滴水檐，上下同尺寸才齐平）
     const wx = x => (x - OX) / 1000, wz = y => (y - OY) / 1000, M = v => v / 1000;
     const SW = () => stage.clientWidth, SH = () => stage.clientHeight;
-    const opt = { cut: 2.8, full: true, furn: true, labels: true, slabs: true, allFloors: false, night: false, hour: 10, mode: 'orbit' };
+    const opt = { cut: 2.8, full: true, furn: true, labels: true, slabs: true, hi: true, allFloors: false, night: false, hour: 10, mode: 'orbit' };
 
     let inited = false, active = false, raf = 0, anim = null, fly = null;
     let renderer, labelRenderer, scene, camera, orbit, walkCtl, hemi, sun, ground, glassMat, wallMat, capMat, frameMat, casingMat, steelMat, entryCasingMat;
@@ -16318,6 +16320,7 @@
         if (fdrag || objdrag) return;                           // 拖动中保留工具光标，不被悬停逻辑清掉
         const baseCur = cursorForTool();
         if (!active || anim || opt.mode !== 'orbit' || e.pointerType !== 'mouse' || !matchMedia('(hover:hover)').matches) { cv.style.cursor = baseCur; doorTip.classList.remove('open'); return; }
+        if (opt.hi === false) { clearDoorHover(); return; }     // 「交互高亮」开关关闭：悬停不高亮、不出提示气泡（点击动作照常）
         const h = pick(e);
         if (baseCur === 'move') {                               // 移动工具：四向箭头
           clearDoorHover(); cv.style.cursor = 'move'; return;
@@ -24107,6 +24110,7 @@
         if (k === 'furn') { furnG.visible = opt.furn; if (!opt.furn && ui.sel?.kind === 'furn') window.select(null); }
         if (k === 'labels') showLabels(opt.labels && opt.mode === 'orbit' && !anim);
         if (k === 'slabs') { setSlabVis(opt.slabs); typeof scheduleAutoSave === 'function' && scheduleAutoSave(); }   // 楼板开关：同步回图层设置持久化
+        if (k === 'hi' && !opt.hi) window.clearDoorHover?.();   // 交互高亮关闭：立即清掉残留的悬停高亮框与提示气泡
         if (k === 'night') {
           const n = opt.night ? autoLightStreetlamps() : 0;       // 进入夜景自动开灯；离开夜景不改开关状态
           applyLight();
