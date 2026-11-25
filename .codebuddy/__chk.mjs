@@ -6029,7 +6029,7 @@
             const o = new THREE.Mesh(g, m); o.castShadow = false; o.receiveShadow = true; (parent || grp).add(o); return o; };
           const glassZ = halfW - wall;                                                                                    // 风挡只铺到两侧板内表面，不再伸进 A/C 柱厚度里造成穿模
           quad(suv ? [[L*.28,belt-.09],[L*.22,top-.06],[L*.22,top+.005],[L*.28,belt]] : [[L*.20,belt-.09],[L*.09,top-.06],[L*.09,top+.005],[L*.20,belt]], frontGlass, -glassZ, glassZ);         // 前风挡：越野车 A 柱更直立
-          quad(suv ? [[-L*.46,belt-.09],[-L*.38,top-.06],[-L*.38,top+.005],[-L*.46,belt]] : [[-L*.35,belt-.09],[-L*.23,top-.06],[-L*.23,top+.005],[-L*.35,belt]], rearGlass, -glassZ, glassZ);     // 后风挡：越野车尾门更垂直
+          if (!suv) quad([[-L*.35,belt-.09],[-L*.23,top-.06],[-L*.23,top+.005],[-L*.35,belt]], rearGlass, -glassZ, glassZ);     // 后风挡（越野车后风挡玻璃挂在尾门枢轴上，见 trunkPivot 处：掀尾门时玻璃跟盖板一起上抬）
           P(new THREE.BoxGeometry(L*.52,.02,Wd*.80), carpetM, -L*.05, y0+.075, 0);                                         // 座舱地毯
           [-1, 1].forEach(sd => [L*.00, -L*.18].forEach(sx => {                                                            // 四座：前排略后移，留出腿部空间
             P(new THREE.BoxGeometry(.44,.10,.44), innerM, sx, y0+.30, sd*Wd*.22);
@@ -6121,15 +6121,21 @@
           [-1,1].forEach(sl => { const ln = new THREE.Mesh(new THREE.BoxGeometry(hoodLen*.9,.008,.018), paintDim); ln.position.set(hoodLen/2,.006,sl*Wd*.22); hoodPivot.add(ln); });
           grp.add(hoodPivot); regCarPart('hood', hoodPivot, .95, 'z', '前引擎盖');
           const trunkX = suv ? L*.40 : L*.35, trunkLen = suv ? L*.10 : L*.15;
-          const trunkPivot = new THREE.Group(); trunkPivot.position.set(-trunkX, belt-.09, 0);
-          const tp = new THREE.Mesh(new THREE.BoxGeometry(trunkLen,.04,halfW*2), paint); tp.position.set(-trunkLen/2,0,0); trunkPivot.add(tp);                 // 尾门与侧板外沿齐平
-          [-1,1].forEach(sl => { const tl = new THREE.Mesh(new THREE.BoxGeometry(trunkLen*.87,.008,.018), paintDim); tl.position.set(-trunkLen/2,.006,sl*Wd*.22); trunkPivot.add(tl); });
+          const tgx = suv ? -L*.38 : -trunkX, tgy = suv ? top+.005 : belt-.09;                                             // 尾门铰链：越野车移到风挡玻璃顶缘（玻璃 + 盖板 + 备胎整块绕车顶后缘上掀，掀背门同款），轿车仍是腰带高度的平置盖板
+          const trunkPivot = new THREE.Group(); trunkPivot.position.set(tgx, tgy, 0);
+          const tpLen = suv ? L*.04 : trunkLen, tpCx = suv ? -L*.48 : -trunkX-trunkLen/2;                                  // 越野车盖板只留玻璃下缘以外的尾唇：藏在玻璃下面、从铰链连到舱内那节板去掉，开门不再翻出一大块白板
+          const tp = new THREE.Mesh(new THREE.BoxGeometry(tpLen,.04,halfW*2), paint); tp.position.set(tpCx-tgx, belt-.09-tgy, 0); trunkPivot.add(tp);                 // 尾门与侧板外沿齐平
+          [-1,1].forEach(sl => { const tl = new THREE.Mesh(new THREE.BoxGeometry(tpLen*.87,.008,.018), paintDim); tl.position.set(tpCx-tgx, belt-.084-tgy, sl*Wd*.22); trunkPivot.add(tl); });
           if (suv) {                                                                                                         // 越野车备胎挂在尾门外侧（不写死在车身上）：尾门开合时随门一起掀起
             const spareR = Math.min(.34, wr*1.02);
-            const rearSpare = new THREE.Mesh(new THREE.CylinderGeometry(spareR,spareR,.13,20), tire); rearSpare.rotation.z = Math.PI/2; rearSpare.position.set(-trunkLen-.055, .10, 0); rearSpare.castShadow = true; trunkPivot.add(rearSpare);
+            const rearSpare = new THREE.Mesh(new THREE.CylinderGeometry(spareR,spareR,.13,20), tire); rearSpare.rotation.z = Math.PI/2; rearSpare.position.set(-trunkX-trunkLen-.055-tgx, belt+.01-tgy, 0); rearSpare.castShadow = true; trunkPivot.add(rearSpare);
             const rearHub = new THREE.Mesh(new THREE.CylinderGeometry(.14,.14,.14,16), chrome); rearHub.rotation.z = Math.PI/2; rearHub.position.copy(rearSpare.position); trunkPivot.add(rearHub);
           }
-          grp.add(trunkPivot); regCarPart('trunk', trunkPivot, -.95, 'z', '后备箱门');
+          if (suv) quad([[-L*.46-tgx, belt-.09-tgy],[-L*.38-tgx, top-.06-tgy],[-L*.38-tgx, top+.005-tgy],[-L*.46-tgx, belt-tgy]], rearGlass, -glassZ, glassZ, trunkPivot);   // 越野车后风挡玻璃：换算成尾门枢轴局部坐标，铰链在玻璃顶缘，掀尾门时玻璃与盖板一起上抬
+          if (suv) [-1,1].forEach(sd => { const ax=-L*.38-tgx, ay=top+.005-tgy, bx=-L*.46-tgx, by=belt-tgy;               // 尾门玻璃两侧边框：沿后风挡外缘斜边各贴一条与车身同色的边框，随尾门一起开合
+            const flen=Math.hypot(bx-ax,by-ay)+.04, ang=Math.atan2(by-ay,bx-ax);
+            const fr=new THREE.Mesh(new THREE.BoxGeometry(flen,.06,.022), paint); fr.position.set((ax+bx)/2,(ay+by)/2, sd*glassZ); fr.rotation.z=ang; fr.castShadow=false; trunkPivot.add(fr); });
+          grp.add(trunkPivot); regCarPart('trunk', trunkPivot, suv ? -1.45 : -.95, 'z', '后备箱门');   // 越野车掀背门开度更大：玻璃 + 盖板绕玻璃顶缘上掀至接近竖直，备胎随门抬起
           const sunBase = new THREE.Group(); sunBase.position.set(0, top+.024, 0); grp.add(sunBase);                       // 天窗玻璃内嵌在顶棚开口里（顶面下沉约 5mm，与车顶齐平无外框）
           const sunSlide = new THREE.Group(); sunBase.add(sunSlide);
           const sunGlass = new THREE.Mesh(new THREE.BoxGeometry(sunL,.012,sunW), sunGlassM); sunGlass.position.set(sunX, 0, 0); sunGlass.castShadow = false; sunGlass.receiveShadow = true; sunSlide.add(sunGlass);   // 玻璃不挡光：开孔进阳光，直接看到座椅 / 仪表台
