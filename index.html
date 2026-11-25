@@ -1809,11 +1809,11 @@
       display: block
     }
 
-    /* 驾驶中「下车」按钮（准星下方，触屏可直接点；与键盘 E/F 同源） */
+    /* 驾驶中「下车」按钮：右下角半透明不挡准星；桌面限时自动隐藏（E/F 下车），触屏常驻 */
     #driveExitBtn {
       position: fixed;
-      left: 50%;
-      top: 50%;
+      right: 18px;
+      bottom: 18px;
       z-index: 60;
       display: none;
       pointer-events: auto;
@@ -1823,11 +1823,13 @@
       font-size: 12px;
       padding: 6px 14px;
       border-radius: 7px;
-      transform: translate(-50%, 92px);
+      opacity: .6;
       white-space: nowrap;
       cursor: pointer;
-      box-shadow: 0 4px 14px rgba(40, 30, 20, .3)
+      box-shadow: 0 4px 14px rgba(40, 30, 20, .3);
+      transition: opacity .2s
     }
+    #driveExitBtn:hover { opacity: 1 }
 
     #roomList small {
       color: var(--muted);
@@ -23627,8 +23629,9 @@
     function alignedSelBox(o) {                                   // 选中车辆：贴合车身、随车旋转的包围框（BoxHelper 是轴对齐的，车一斜框就虚胖穿到别的对象上）
       const rx = o.rotation.x, ry = o.rotation.y, rz = o.rotation.z;
       o.rotation.set(0, 0, 0); o.updateWorldMatrix(true, false);
-      const box = new THREE.Box3().setFromObject(o);
-      const ctrLocal = box.getCenter(new THREE.Vector3()), size = box.getSize(new THREE.Vector3());
+      const box = new THREE.Box3();                                // 手动展开包围盒：排除车灯光束锥（向前伸出 7m，会把框拉到车头外）与灯光本体
+      o.traverse(c => { if (c.isMesh && !c.userData.driveBeam) box.expandByObject(c); });   // 只展开 mesh 叶节点：expandByObject 会递归子级，对整组调用会把光束又算回来
+      const ctrLocal = o.worldToLocal(box.getCenter(new THREE.Vector3())), size = box.getSize(new THREE.Vector3());   // Box3 给的是世界坐标，必须转回车体本地系，否则 localToWorld 会把车位置叠加两次
       o.rotation.set(rx, ry, rz); o.updateWorldMatrix(true, false);
       const line = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(size.x, size.y, size.z)), new THREE.LineBasicMaterial({ color: 0xb5653a }));
       line.position.copy(o.localToWorld(ctrLocal.clone())); line.rotation.y = ry; scene.add(line);
@@ -23719,8 +23722,7 @@
         walkRespawn();                                               // 从入户门外 1.8m 面向屋内出发
         $('#walkOverlay').style.display = 'flex';
         $('#tools').style.visibility = 'hidden';                       // 漫游中隐藏左上角模式切换
-        $('#sunPad').style.visibility = 'hidden';                      // 漫游中隐藏右上角日照滑杆
-        syncHint3d();
+        syncHint3d();                                                  // 日照滑杆漫游中保留（触屏可直接调；桌面 Esc 暂停后也能调）
       } else {
         resetRunFx();                                              // 离开漫游：复位跑动 FOV / 起伏，鸟瞰相机不受残留视场角影响
         walkCtl.unlock(); stopTouchWalk(); orbit.enabled = true;
@@ -25055,6 +25057,7 @@
       });
       if (opt.mode === 'walk' && !driveCar) pushOutOfRevolve(camera.position, camera.position.y - eyeH, headH);   // 漫游时翼扫到玩家则推开，避免穿模（驾驶中相机在车内，不参与）
       if (driveCar) { if (doorHiRef && doorHiRef.visible) { doorHiRef.removeFromParent(); doorHiRef.visible = false; }   // 驾驶中兜底：任何残留的瞄准高亮都不显示
+        if (driveExit) driveExit.style.display = opt.mode === 'walk' && (touchWalk || now - driveCar.tipAt < 4000) ? 'block' : 'none';   // 桌面 4 秒后收起，切出漫游也收起；触屏保留
         if (walkTip) { walkTip.classList.toggle('open', now - driveCar.tipAt < 4000);                                   // 驾驶提示只在上车后 4 秒内显示，不再常驻屏幕中间
           if (walkTip.classList.contains('open')) walkTip.textContent = touchWalk ? tr('点按「下车」退出', 'Tap "Exit" to get out') : tr('WASD 驾驶 · Shift 加速 · 空格刹车 · E / F 下车', 'WASD drive · Shift boost · Space brake · E / F exit'); } }
       else updateDoorWalkTip();

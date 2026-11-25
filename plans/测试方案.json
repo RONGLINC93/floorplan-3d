@@ -1486,7 +1486,7 @@
       "id": "fmwkbesmf93",
       "x": 18750,
       "y": 9040,
-      "flagY": 800
+      "flagY": 5500
     },
     {
       "type": "signbd",
@@ -3326,7 +3326,7 @@
           "id": "fmwkbesmf93",
           "x": 18750,
           "y": 9040,
-          "flagY": 800
+          "flagY": 5500
         },
         {
           "type": "signbd",
