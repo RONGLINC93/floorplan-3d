@@ -7401,8 +7401,8 @@
       if (e.type === 'facFuelPrice') return `<g transform="translate(${e.x} ${e.y})">
         <rect x="${(-W*.5).toFixed(1)}" y="${(-D*.5).toFixed(1)}" width="${W.toFixed(1)}" height="${D.toFixed(1)}" rx="24" fill="#20262b" fill-opacity=".92" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
         ${[['92#', e.p92 || '7.68'], ['95#', e.p95 || '8.18'], ['98#', e.p98 || '9.28'], ['0#', e.p0 || '7.12']].map(([lb, pr], i) => {
-          const cy = (-D*.5 + D*(i+.5)/4).toFixed(1), fs = Math.max(26, D*.19).toFixed(0);
-          return `<text x="${(-W*.42).toFixed(1)}" y="${cy}" font-size="${fs}" fill="#ffd75e" text-anchor="start" dominant-baseline="middle">${lb}</text><text x="${(W*.42).toFixed(1)}" y="${cy}" font-size="${fs}" fill="#7ef0a0" text-anchor="end" dominant-baseline="middle">${pr}</text>`;
+          const cy = (-D*.5 + D*(i+.5)/4).toFixed(1), fs = Math.max(26, D*.19), sw = Math.round(fs * .22);
+          return `<text x="${(-W*.42).toFixed(1)}" y="${cy}" font-size="${fs}" fill="#ffd75e" text-anchor="start" dominant-baseline="central" stroke="#fbf9f4" stroke-width="${sw}" paint-order="stroke" pointer-events="none">${lb}</text><text x="${(W*.42).toFixed(1)}" y="${cy}" font-size="${fs}" fill="#7ef0a0" text-anchor="end" dominant-baseline="central" stroke="#fbf9f4" stroke-width="${sw}" paint-order="stroke" pointer-events="none">${pr}</text>`;
         }).join('')}
       </g>` + dot(Math.max(40, R * .3), col, .5);
       if (e.type === 'facFuelUnload') return `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(60, W * .45).toFixed(1)}" fill="#6b7075" fill-opacity=".85" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>` + txt(0, 0, '卸', '#fff', Math.max(60, W * .5));
