@@ -1775,6 +1775,27 @@
       display: block
     }
 
+    /* 3D 移动轴线 Y 拖拽标高气泡（跟随轴线锚点） */
+    #axTip {
+      position: fixed;
+      z-index: 60;
+      display: none;
+      pointer-events: none;
+      background: #1f6f45;
+      color: #fff;
+      font-size: 12px;
+      padding: 5px 10px;
+      border-radius: 7px;
+      transform: translate(20px, -8px);
+      white-space: nowrap;
+      font-variant-numeric: tabular-nums;
+      box-shadow: 0 4px 14px rgba(40, 30, 20, .3)
+    }
+
+    #axTip.open {
+      display: block
+    }
+
     /* 漫游模式门交互提示（准星下方） */
     #walkDoorTip {
       position: fixed;
@@ -16989,7 +17010,7 @@
           const g = groundAt(e.clientX, e.clientY), sels = axSels().slice();
           axdrag = {
             pid: e.pointerId, ax: axk, sx: e.clientX, sy: e.clientY, gx: g ? g.x : 0, gy: g ? g.y : 0, dx: 0, dy: 0, dz: 0, moved: false,
-            allowY: axYOK(sels), sels,
+            allowY: axYOK(sels), sels, z0: axYOK(sels) ? (+axFindObj(sels[0]).z || 0) : 0,
             targets: selMeshes.map(o => ({ o, x: o.position.x, y: o.position.y, z: o.position.z }))
           };
           orbit.enabled = false; fly = null; cv.setPointerCapture(e.pointerId);
@@ -17055,6 +17076,7 @@
             const wpp = 2 * camera.position.distanceTo(axGizmo.position) * Math.tan(camera.fov * Math.PI / 360) / renderer.domElement.clientHeight;
             axdrag.dz = Math.round((axdrag.sy - e.clientY) * wpp * 1000 / step) * step;
             axdrag.targets.forEach(t => { t.o.position.y = t.y + axdrag.dz / 1000; });   // 先挪模型，松手写回标高
+            axTipShow(Math.round(axdrag.z0 + axdrag.dz));           // 锚点旁实时显示底标高
             return;
           }
           const g = groundAt(e.clientX, e.clientY); if (!g) return;
@@ -17118,7 +17140,7 @@
       const endF = e => {
         if (e.type === 'pointerup' && e.button !== 0) return;          // 右键 / 中键松手不当作点击（右键另有平移 / 取消绘制）
         if (axdrag && e.pointerId === axdrag.pid) {
-          const d = axdrag; axdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool(); axSetHover(null);
+          const d = axdrag; axdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool(); axSetHover(null); axTipHide();
           if (d.moved && (d.dx || d.dy || d.dz)) {
             mutate(() => d.sels.forEach(sel => {                       // 松手写回方案：X / Z 平移构件，Y 调整标高 z（进撤销栈）
               if (sel.kind === 'furn') { const f = getF(sel.id); if (f) { f.cx += d.dx; f.cy += d.dy; } return; }
@@ -24975,6 +24997,15 @@
       Object.keys(axMats).forEach(key => axMats[key].color.setHex(key === k ? axColsHi[key] : axCols[key]));
       axHoverKey = k;
     }
+    const axTip = document.createElement('div'); axTip.id = 'axTip'; document.body.appendChild(axTip);   // Y 轴拖拽时跟随锚点显示底标高
+    function axTipShow(mm) {
+      const r = renderer.domElement.getBoundingClientRect(), v = axGizmo.position.clone().project(camera);
+      axTip.textContent = tr('底标高', 'Base level') + ' ' + mm + ' mm';
+      axTip.style.left = (r.left + (v.x + 1) * r.width / 2) + 'px';
+      axTip.style.top = (r.top + (1 - v.y) * r.height / 2) + 'px';
+      axTip.classList.add('open');
+    }
+    const axTipHide = () => axTip.classList.remove('open');
     function buildAxGizmo() {
       axGizmo = new THREE.Group(); axGizmo.visible = false; scene.add(axGizmo);
       [['x', new THREE.Vector3(1, 0, 0)], ['y', new THREE.Vector3(0, 1, 0)], ['z', new THREE.Vector3(0, 0, 1)]].forEach(([k, dir]) => {
@@ -24995,7 +25026,7 @@
       if (!axGizmo) buildAxGizmo();                               // scene 初始化完成后才能挂到场景，惰性构建
       const editing = active && !anim && opt.mode === 'orbit' && !m3dPreview;
       const show = editing && (axdrag || (orbit.enabled && ui.tool === 'draw' && ui.drawTool === 'move' && selMeshes.length && axSels().length && axSels().every(axMovableSel)));   // 拖动（含家具 / 多选 / 沿墙）时 orbit 被关掉，轴线随之隐藏；轴线拖动中仍跟随
-      if (!show) { axGizmo.visible = false; axSetHover(null); return; }
+      if (!show) { axGizmo.visible = false; axSetHover(null); axTipHide(); return; }
       const box = new THREE.Box3();
       (axdrag ? axdrag.targets.map(t => t.o) : selMeshes).forEach(o => box.expandByObject(o));
       if (box.isEmpty()) { axGizmo.visible = false; return; }

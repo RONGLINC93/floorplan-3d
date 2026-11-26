@@ -1,10 +1,10 @@
 {
   "furniture": [
     {
-      "id": "fmwxk635g99",
+      "id": "fmwxkjewy99",
       "type": "bed",
       "name": "双人床",
-      "cx": 9090,
+      "cx": 8300,
       "cy": 1000,
       "w": 1800,
       "d": 2000,
@@ -12,7 +12,7 @@
       "color": "#c9d6df"
     },
     {
-      "id": "fmwxk635g100",
+      "id": "fmwxkjewy100",
       "type": "nightstand",
       "name": "床头柜",
       "cx": 7150,
@@ -23,7 +23,7 @@
       "color": "#e8dccb"
     },
     {
-      "id": "fmwxk635g101",
+      "id": "fmwxkjewy101",
       "type": "nightstand",
       "name": "床头柜",
       "cx": 9450,
@@ -34,7 +34,7 @@
       "color": "#e8dccb"
     },
     {
-      "id": "fmwxk635g102",
+      "id": "fmwxkjewy102",
       "type": "wardrobe",
       "name": "衣柜",
       "cx": 8800,
@@ -45,7 +45,7 @@
       "color": "#efe6d8"
     },
     {
-      "id": "fmwxk635g103",
+      "id": "fmwxkjewy103",
       "type": "baycushion",
       "name": "飘窗垫",
       "cx": 10770,
@@ -56,7 +56,7 @@
       "color": "#e7dccd"
     },
     {
-      "id": "fmwxk635g104",
+      "id": "fmwxkjewy104",
       "type": "shower",
       "name": "淋浴房",
       "cx": 5270,
@@ -67,7 +67,7 @@
       "color": "#e4edf2"
     },
     {
-      "id": "fmwxk635g105",
+      "id": "fmwxkjewy105",
       "type": "toilet",
       "name": "马桶",
       "cx": 5170,
@@ -78,7 +78,7 @@
       "color": "#ffffff"
     },
     {
-      "id": "fmwxk635g106",
+      "id": "fmwxkjewy106",
       "type": "vanity",
       "name": "浴室柜",
       "cx": 6110,
@@ -89,7 +89,7 @@
       "color": "#eef1f3"
     },
     {
-      "id": "fmwxk635g107",
+      "id": "fmwxkjewy107",
       "type": "bed",
       "name": "单人床",
       "cx": 2420,
@@ -100,7 +100,7 @@
       "color": "#e8d5b5"
     },
     {
-      "id": "fmwxk635g108",
+      "id": "fmwxkjewy108",
       "type": "desk",
       "name": "书桌",
       "cx": 2120,
@@ -111,7 +111,7 @@
       "color": "#e2cfb4"
     },
     {
-      "id": "fmwxk635g109",
+      "id": "fmwxkjewy109",
       "type": "chair",
       "name": "椅子",
       "cx": 2700,
@@ -122,7 +122,7 @@
       "color": "#cfc6b8"
     },
     {
-      "id": "fmwxk635g110",
+      "id": "fmwxkjewy110",
       "type": "wardrobe",
       "name": "衣柜",
       "cx": 4280,
@@ -133,7 +133,7 @@
       "color": "#efe6d8"
     },
     {
-      "id": "fmwxk635g111",
+      "id": "fmwxkjewy111",
       "type": "bookshelf",
       "name": "书架",
       "cx": 3500,
@@ -144,7 +144,7 @@
       "color": "#e2cfb4"
     },
     {
-      "id": "fmwxk635g112",
+      "id": "fmwxkjewy112",
       "type": "shower",
       "name": "淋浴区",
       "cx": 2870,
@@ -155,7 +155,7 @@
       "color": "#e4edf2"
     },
     {
-      "id": "fmwxk635g113",
+      "id": "fmwxkjewy113",
       "type": "toilet",
       "name": "马桶",
       "cx": 3560,
@@ -166,7 +166,7 @@
       "color": "#ffffff"
     },
     {
-      "id": "fmwxk635g114",
+      "id": "fmwxkjewy114",
       "type": "vanity",
       "name": "浴室柜",
       "cx": 4150,
@@ -177,7 +177,7 @@
       "color": "#eef1f3"
     },
     {
-      "id": "fmwxk635g115",
+      "id": "fmwxkjewy115",
       "type": "washer",
       "name": "洗衣机",
       "cx": 300,
@@ -188,7 +188,7 @@
       "color": "#e6ebee"
     },
     {
-      "id": "fmwxk635g116",
+      "id": "fmwxkjewy116",
       "type": "vanity",
       "name": "洗衣池",
       "cx": 250,
@@ -199,7 +199,7 @@
       "color": "#eef1f3"
     },
     {
-      "id": "fmwxk635g117",
+      "id": "fmwxkjewy117",
       "type": "counter",
       "name": "橱柜台面",
       "cx": 300,
@@ -210,7 +210,7 @@
       "color": "#e9e5de"
     },
     {
-      "id": "fmwxk635g118",
+      "id": "fmwxkjewy118",
       "type": "counter",
       "name": "橱柜台面",
       "cx": 1390,
@@ -221,7 +221,7 @@
       "color": "#e9e5de"
     },
     {
-      "id": "fmwxk635g119",
+      "id": "fmwxkjewy119",
       "type": "stove",
       "name": "燃气灶",
       "cx": 300,
@@ -232,7 +232,7 @@
       "color": "#dcdcdc"
     },
     {
-      "id": "fmwxk635g120",
+      "id": "fmwxkjewy120",
       "type": "ksink",
       "name": "水槽",
       "cx": 1400,
@@ -243,18 +243,18 @@
       "color": "#e1e6ea"
     },
     {
-      "id": "fmwxk635g121",
+      "id": "fmwxkjewy121",
       "type": "fridge",
       "name": "冰箱",
-      "cx": 2850,
-      "cy": 5596,
+      "cx": 2770,
+      "cy": 5540,
       "w": 700,
       "d": 700,
       "rot": 0,
       "color": "#dfe4e8"
     },
     {
-      "id": "fmwxk635g122",
+      "id": "fmwxkjewy122",
       "type": "table",
       "name": "餐桌",
       "cx": 3600,
@@ -265,7 +265,7 @@
       "color": "#e2cfb4"
     },
     {
-      "id": "fmwxk635g123",
+      "id": "fmwxkjewy123",
       "type": "chair",
       "name": "餐椅",
       "cx": 2940,
@@ -276,7 +276,7 @@
       "color": "#cfc6b8"
     },
     {
-      "id": "fmwxk635g124",
+      "id": "fmwxkjewy124",
       "type": "chair",
       "name": "餐椅",
       "cx": 2940,
@@ -287,7 +287,7 @@
       "color": "#cfc6b8"
     },
     {
-      "id": "fmwxk635g125",
+      "id": "fmwxkjewy125",
       "type": "chair",
       "name": "餐椅",
       "cx": 4260,
@@ -298,7 +298,7 @@
       "color": "#cfc6b8"
     },
     {
-      "id": "fmwxk635g126",
+      "id": "fmwxkjewy126",
       "type": "chair",
       "name": "餐椅",
       "cx": 4260,
@@ -309,7 +309,7 @@
       "color": "#cfc6b8"
     },
     {
-      "id": "fmwxk635g127",
+      "id": "fmwxkjewy127",
       "type": "cabinet",
       "name": "餐边柜",
       "cx": 3500,
@@ -320,7 +320,7 @@
       "color": "#efe6d8"
     },
     {
-      "id": "fmwxk635g128",
+      "id": "fmwxkjewy128",
       "type": "rug",
       "name": "地毯",
       "cx": 7600,
@@ -331,7 +331,7 @@
       "color": "#d9cbb8"
     },
     {
-      "id": "fmwxk635g129",
+      "id": "fmwxkjewy129",
       "type": "tvstand",
       "name": "电视柜",
       "cx": 7600,
@@ -342,7 +342,7 @@
       "color": "#e2cfb4"
     },
     {
-      "id": "fmwxk635g130",
+      "id": "fmwxkjewy130",
       "type": "sofa",
       "name": "三人沙发",
       "cx": 7600,
@@ -353,7 +353,7 @@
       "color": "#b7c4b0"
     },
     {
-      "id": "fmwxk635g131",
+      "id": "fmwxkjewy131",
       "type": "coffeetable",
       "name": "茶几",
       "cx": 7600,
@@ -364,7 +364,7 @@
       "color": "#e8dccb"
     },
     {
-      "id": "fmwxk635g132",
+      "id": "fmwxkjewy132",
       "type": "armchair",
       "name": "单人沙发",
       "cx": 9500,
@@ -375,7 +375,7 @@
       "color": "#d6b99a"
     },
     {
-      "id": "fmwxk635g133",
+      "id": "fmwxkjewy133",
       "type": "shoecab",
       "name": "鞋柜",
       "cx": 4995,
@@ -386,7 +386,7 @@
       "color": "#efe6d8"
     },
     {
-      "id": "fmwxk635g134",
+      "id": "fmwxkjewy134",
       "type": "plant",
       "name": "绿植",
       "cx": 9950,
@@ -397,7 +397,7 @@
       "color": "#a9c39b"
     },
     {
-      "id": "fmwxk635g135",
+      "id": "fmwxkjewy135",
       "type": "plant",
       "name": "绿植",
       "cx": 5250,
@@ -408,7 +408,7 @@
       "color": "#a9c39b"
     },
     {
-      "id": "fmwxk635g136",
+      "id": "fmwxkjewy136",
       "type": "bed",
       "name": "双人床",
       "cx": 7323,
@@ -419,7 +419,7 @@
       "color": "#d8c7dc"
     },
     {
-      "id": "fmwxk635g137",
+      "id": "fmwxkjewy137",
       "type": "wardrobe",
       "name": "衣柜",
       "cx": 8500,
@@ -430,7 +430,7 @@
       "color": "#efe6d8"
     },
     {
-      "id": "fmwxk635g138",
+      "id": "fmwxkjewy138",
       "type": "desk",
       "name": "书桌",
       "cx": 9500,
@@ -441,7 +441,7 @@
       "color": "#e2cfb4"
     },
     {
-      "id": "fmwxk635g139",
+      "id": "fmwxkjewy139",
       "type": "chair",
       "name": "椅子",
       "cx": 9500,
@@ -452,7 +452,7 @@
       "color": "#cfc6b8"
     },
     {
-      "id": "fmwxk635g140",
+      "id": "fmwxkjewy140",
       "type": "baycushion",
       "name": "飘窗垫",
       "cx": 10770,
@@ -463,10 +463,10 @@
       "color": "#e7dccd"
     },
     {
-      "id": "fmwxk635g141",
+      "id": "fmwxkjewy141",
       "type": "roundtable",
       "name": "茶桌",
-      "cx": 11410,
+      "cx": 11180,
       "cy": 8200,
       "w": 600,
       "d": 600,
@@ -474,7 +474,7 @@
       "color": "#e2cfb4"
     },
     {
-      "id": "fmwxk635g142",
+      "id": "fmwxkjewy142",
       "type": "armchair",
       "name": "休闲椅",
       "cx": 11180,
@@ -485,7 +485,7 @@
       "color": "#d6b99a"
     },
     {
-      "id": "fmwxk635g143",
+      "id": "fmwxkjewy143",
       "type": "armchair",
       "name": "休闲椅",
       "cx": 11180,
@@ -496,7 +496,7 @@
       "color": "#d6b99a"
     },
     {
-      "id": "fmwxk635g144",
+      "id": "fmwxkjewy144",
       "type": "plant",
       "name": "绿植",
       "cx": 11550,
@@ -507,18 +507,18 @@
       "color": "#a9c39b"
     },
     {
-      "id": "fmwxk635g145",
+      "id": "fmwxkjewy145",
       "type": "chicken",
       "name": "母鸡",
-      "cx": 13250,
-      "cy": 4480,
+      "cx": 11000,
+      "cy": 9650,
       "w": 420,
       "d": 420,
       "rot": 0,
       "color": "#e8d5b0"
     },
     {
-      "id": "fmwxk635g146",
+      "id": "fmwxkjewy146",
       "type": "chicken",
       "name": "母鸡",
       "cx": 11400,
@@ -529,7 +529,7 @@
       "color": "#e8d5b0"
     },
     {
-      "id": "fmwxk635g147",
+      "id": "fmwxkjewy147",
       "type": "duck",
       "name": "鸭子",
       "cx": 11050,
@@ -624,7 +624,19 @@
   "gates": [],
   "extras": [],
   "leaders": [],
-  "lamps": [],
+  "lamps": [
+    {
+      "id": "t1795698530330",
+      "type": "chandelier",
+      "x": 5000,
+      "y": 3000,
+      "z": 2460,
+      "r": 3500,
+      "on": true,
+      "rot": 0,
+      "pitch": 0
+    }
+  ],
   "powerBoxes": [],
   "weakBoxes": [],
   "stairs": [],
@@ -644,10 +656,10 @@
     "f1": {
       "furniture": [
         {
-          "id": "fmwxk635g99",
+          "id": "fmwxkjewy99",
           "type": "bed",
           "name": "双人床",
-          "cx": 9090,
+          "cx": 8300,
           "cy": 1000,
           "w": 1800,
           "d": 2000,
@@ -655,7 +667,7 @@
           "color": "#c9d6df"
         },
         {
-          "id": "fmwxk635g100",
+          "id": "fmwxkjewy100",
           "type": "nightstand",
           "name": "床头柜",
           "cx": 7150,
@@ -666,7 +678,7 @@
           "color": "#e8dccb"
         },
         {
-          "id": "fmwxk635g101",
+          "id": "fmwxkjewy101",
           "type": "nightstand",
           "name": "床头柜",
           "cx": 9450,
@@ -677,7 +689,7 @@
           "color": "#e8dccb"
         },
         {
-          "id": "fmwxk635g102",
+          "id": "fmwxkjewy102",
           "type": "wardrobe",
           "name": "衣柜",
           "cx": 8800,
@@ -688,7 +700,7 @@
           "color": "#efe6d8"
         },
         {
-          "id": "fmwxk635g103",
+          "id": "fmwxkjewy103",
           "type": "baycushion",
           "name": "飘窗垫",
           "cx": 10770,
@@ -699,7 +711,7 @@
           "color": "#e7dccd"
         },
         {
-          "id": "fmwxk635g104",
+          "id": "fmwxkjewy104",
           "type": "shower",
           "name": "淋浴房",
           "cx": 5270,
@@ -710,7 +722,7 @@
           "color": "#e4edf2"
         },
         {
-          "id": "fmwxk635g105",
+          "id": "fmwxkjewy105",
           "type": "toilet",
           "name": "马桶",
           "cx": 5170,
@@ -721,7 +733,7 @@
           "color": "#ffffff"
         },
         {
-          "id": "fmwxk635g106",
+          "id": "fmwxkjewy106",
           "type": "vanity",
           "name": "浴室柜",
           "cx": 6110,
@@ -732,7 +744,7 @@
           "color": "#eef1f3"
         },
         {
-          "id": "fmwxk635g107",
+          "id": "fmwxkjewy107",
           "type": "bed",
           "name": "单人床",
           "cx": 2420,
@@ -743,7 +755,7 @@
           "color": "#e8d5b5"
         },
         {
-          "id": "fmwxk635g108",
+          "id": "fmwxkjewy108",
           "type": "desk",
           "name": "书桌",
           "cx": 2120,
@@ -754,7 +766,7 @@
           "color": "#e2cfb4"
         },
         {
-          "id": "fmwxk635g109",
+          "id": "fmwxkjewy109",
           "type": "chair",
           "name": "椅子",
           "cx": 2700,
@@ -765,7 +777,7 @@
           "color": "#cfc6b8"
         },
         {
-          "id": "fmwxk635g110",
+          "id": "fmwxkjewy110",
           "type": "wardrobe",
           "name": "衣柜",
           "cx": 4280,
@@ -776,7 +788,7 @@
           "color": "#efe6d8"
         },
         {
-          "id": "fmwxk635g111",
+          "id": "fmwxkjewy111",
           "type": "bookshelf",
           "name": "书架",
           "cx": 3500,
@@ -787,7 +799,7 @@
           "color": "#e2cfb4"
         },
         {
-          "id": "fmwxk635g112",
+          "id": "fmwxkjewy112",
           "type": "shower",
           "name": "淋浴区",
           "cx": 2870,
@@ -798,7 +810,7 @@
           "color": "#e4edf2"
         },
         {
-          "id": "fmwxk635g113",
+          "id": "fmwxkjewy113",
           "type": "toilet",
           "name": "马桶",
           "cx": 3560,
@@ -809,7 +821,7 @@
           "color": "#ffffff"
         },
         {
-          "id": "fmwxk635g114",
+          "id": "fmwxkjewy114",
           "type": "vanity",
           "name": "浴室柜",
           "cx": 4150,
@@ -820,7 +832,7 @@
           "color": "#eef1f3"
         },
         {
-          "id": "fmwxk635g115",
+          "id": "fmwxkjewy115",
           "type": "washer",
           "name": "洗衣机",
           "cx": 300,
@@ -831,7 +843,7 @@
           "color": "#e6ebee"
         },
         {
-          "id": "fmwxk635g116",
+          "id": "fmwxkjewy116",
           "type": "vanity",
           "name": "洗衣池",
           "cx": 250,
@@ -842,7 +854,7 @@
           "color": "#eef1f3"
         },
         {
-          "id": "fmwxk635g117",
+          "id": "fmwxkjewy117",
           "type": "counter",
           "name": "橱柜台面",
           "cx": 300,
@@ -853,7 +865,7 @@
           "color": "#e9e5de"
         },
         {
-          "id": "fmwxk635g118",
+          "id": "fmwxkjewy118",
           "type": "counter",
           "name": "橱柜台面",
           "cx": 1390,
@@ -864,7 +876,7 @@
           "color": "#e9e5de"
         },
         {
-          "id": "fmwxk635g119",
+          "id": "fmwxkjewy119",
           "type": "stove",
           "name": "燃气灶",
           "cx": 300,
@@ -875,7 +887,7 @@
           "color": "#dcdcdc"
         },
         {
-          "id": "fmwxk635g120",
+          "id": "fmwxkjewy120",
           "type": "ksink",
           "name": "水槽",
           "cx": 1400,
@@ -886,18 +898,18 @@
           "color": "#e1e6ea"
         },
         {
-          "id": "fmwxk635g121",
+          "id": "fmwxkjewy121",
           "type": "fridge",
           "name": "冰箱",
-          "cx": 2850,
-          "cy": 5596,
+          "cx": 2770,
+          "cy": 5540,
           "w": 700,
           "d": 700,
           "rot": 0,
           "color": "#dfe4e8"
         },
         {
-          "id": "fmwxk635g122",
+          "id": "fmwxkjewy122",
           "type": "table",
           "name": "餐桌",
           "cx": 3600,
@@ -908,7 +920,7 @@
           "color": "#e2cfb4"
         },
         {
-          "id": "fmwxk635g123",
+          "id": "fmwxkjewy123",
           "type": "chair",
           "name": "餐椅",
           "cx": 2940,
@@ -919,7 +931,7 @@
           "color": "#cfc6b8"
         },
         {
-          "id": "fmwxk635g124",
+          "id": "fmwxkjewy124",
           "type": "chair",
           "name": "餐椅",
           "cx": 2940,
@@ -930,7 +942,7 @@
           "color": "#cfc6b8"
         },
         {
-          "id": "fmwxk635g125",
+          "id": "fmwxkjewy125",
           "type": "chair",
           "name": "餐椅",
           "cx": 4260,
@@ -941,7 +953,7 @@
           "color": "#cfc6b8"
         },
         {
-          "id": "fmwxk635g126",
+          "id": "fmwxkjewy126",
           "type": "chair",
           "name": "餐椅",
           "cx": 4260,
@@ -952,7 +964,7 @@
           "color": "#cfc6b8"
         },
         {
-          "id": "fmwxk635g127",
+          "id": "fmwxkjewy127",
           "type": "cabinet",
           "name": "餐边柜",
           "cx": 3500,
@@ -963,7 +975,7 @@
           "color": "#efe6d8"
         },
         {
-          "id": "fmwxk635g128",
+          "id": "fmwxkjewy128",
           "type": "rug",
           "name": "地毯",
           "cx": 7600,
@@ -974,7 +986,7 @@
           "color": "#d9cbb8"
         },
         {
-          "id": "fmwxk635g129",
+          "id": "fmwxkjewy129",
           "type": "tvstand",
           "name": "电视柜",
           "cx": 7600,
@@ -985,7 +997,7 @@
           "color": "#e2cfb4"
         },
         {
-          "id": "fmwxk635g130",
+          "id": "fmwxkjewy130",
           "type": "sofa",
           "name": "三人沙发",
           "cx": 7600,
@@ -996,7 +1008,7 @@
           "color": "#b7c4b0"
         },
         {
-          "id": "fmwxk635g131",
+          "id": "fmwxkjewy131",
           "type": "coffeetable",
           "name": "茶几",
           "cx": 7600,
@@ -1007,7 +1019,7 @@
           "color": "#e8dccb"
         },
         {
-          "id": "fmwxk635g132",
+          "id": "fmwxkjewy132",
           "type": "armchair",
           "name": "单人沙发",
           "cx": 9500,
@@ -1018,7 +1030,7 @@
           "color": "#d6b99a"
         },
         {
-          "id": "fmwxk635g133",
+          "id": "fmwxkjewy133",
           "type": "shoecab",
           "name": "鞋柜",
           "cx": 4995,
@@ -1029,7 +1041,7 @@
           "color": "#efe6d8"
         },
         {
-          "id": "fmwxk635g134",
+          "id": "fmwxkjewy134",
           "type": "plant",
           "name": "绿植",
           "cx": 9950,
@@ -1040,7 +1052,7 @@
           "color": "#a9c39b"
         },
         {
-          "id": "fmwxk635g135",
+          "id": "fmwxkjewy135",
           "type": "plant",
           "name": "绿植",
           "cx": 5250,
@@ -1051,7 +1063,7 @@
           "color": "#a9c39b"
         },
         {
-          "id": "fmwxk635g136",
+          "id": "fmwxkjewy136",
           "type": "bed",
           "name": "双人床",
           "cx": 7323,
@@ -1062,7 +1074,7 @@
           "color": "#d8c7dc"
         },
         {
-          "id": "fmwxk635g137",
+          "id": "fmwxkjewy137",
           "type": "wardrobe",
           "name": "衣柜",
           "cx": 8500,
@@ -1073,7 +1085,7 @@
           "color": "#efe6d8"
         },
         {
-          "id": "fmwxk635g138",
+          "id": "fmwxkjewy138",
           "type": "desk",
           "name": "书桌",
           "cx": 9500,
@@ -1084,7 +1096,7 @@
           "color": "#e2cfb4"
         },
         {
-          "id": "fmwxk635g139",
+          "id": "fmwxkjewy139",
           "type": "chair",
           "name": "椅子",
           "cx": 9500,
@@ -1095,7 +1107,7 @@
           "color": "#cfc6b8"
         },
         {
-          "id": "fmwxk635g140",
+          "id": "fmwxkjewy140",
           "type": "baycushion",
           "name": "飘窗垫",
           "cx": 10770,
@@ -1106,10 +1118,10 @@
           "color": "#e7dccd"
         },
         {
-          "id": "fmwxk635g141",
+          "id": "fmwxkjewy141",
           "type": "roundtable",
           "name": "茶桌",
-          "cx": 11410,
+          "cx": 11180,
           "cy": 8200,
           "w": 600,
           "d": 600,
@@ -1117,7 +1129,7 @@
           "color": "#e2cfb4"
         },
         {
-          "id": "fmwxk635g142",
+          "id": "fmwxkjewy142",
           "type": "armchair",
           "name": "休闲椅",
           "cx": 11180,
@@ -1128,7 +1140,7 @@
           "color": "#d6b99a"
         },
         {
-          "id": "fmwxk635g143",
+          "id": "fmwxkjewy143",
           "type": "armchair",
           "name": "休闲椅",
           "cx": 11180,
@@ -1139,7 +1151,7 @@
           "color": "#d6b99a"
         },
         {
-          "id": "fmwxk635g144",
+          "id": "fmwxkjewy144",
           "type": "plant",
           "name": "绿植",
           "cx": 11550,
@@ -1150,18 +1162,18 @@
           "color": "#a9c39b"
         },
         {
-          "id": "fmwxk635g145",
+          "id": "fmwxkjewy145",
           "type": "chicken",
           "name": "母鸡",
-          "cx": 13250,
-          "cy": 4480,
+          "cx": 11000,
+          "cy": 9650,
           "w": 420,
           "d": 420,
           "rot": 0,
           "color": "#e8d5b0"
         },
         {
-          "id": "fmwxk635g146",
+          "id": "fmwxkjewy146",
           "type": "chicken",
           "name": "母鸡",
           "cx": 11400,
@@ -1172,7 +1184,7 @@
           "color": "#e8d5b0"
         },
         {
-          "id": "fmwxk635g147",
+          "id": "fmwxkjewy147",
           "type": "duck",
           "name": "鸭子",
           "cx": 11050,
@@ -1265,7 +1277,19 @@
       "gates": [],
       "extras": [],
       "leaders": [],
-      "lamps": [],
+      "lamps": [
+        {
+          "id": "t1795698530330",
+          "type": "chandelier",
+          "x": 5000,
+          "y": 3000,
+          "z": 2460,
+          "r": 3500,
+          "on": true,
+          "rot": 0,
+          "pitch": 0
+        }
+      ],
       "powerBoxes": [],
       "weakBoxes": [],
       "stairs": [],
