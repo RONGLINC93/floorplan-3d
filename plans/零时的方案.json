@@ -468,7 +468,8 @@
       "d": 6000,
       "id": "fmwu9r6uy173",
       "x": 15740,
-      "y": -4510
+      "y": -4510,
+      "z": 0
     },
     {
       "type": "traflight",
@@ -1149,7 +1150,7 @@
       "h": 4500,
       "rot": 0,
       "d": 4000,
-      "on": true,
+      "on": false,
       "id": "fmwuflr9p153",
       "x": 32390,
       "y": -16680
@@ -1301,7 +1302,7 @@
       "id": "fmwusz84f197",
       "x": 24667,
       "y": -30055,
-      "sunroof": false,
+      "sunroof": true,
       "sunL": 740,
       "sunW": 1100,
       "opDoor": 90,
@@ -1311,7 +1312,8 @@
       "winFL": false,
       "winFR": false,
       "winRL": false,
-      "winRR": false
+      "winRR": false,
+      "z": 3370
     },
     {
       "type": "carSedan",
@@ -1377,7 +1379,7 @@
       "type": "carSedan",
       "w": 5100,
       "h": 1600,
-      "rot": 345.63525740819455,
+      "rot": 181,
       "d": 2100,
       "color": "blue",
       "int": "grey",
@@ -1389,9 +1391,9 @@
       "trunk": false,
       "lights": true,
       "id": "fmwuszdve200",
-      "x": 17571,
-      "y": -22794,
-      "sunroof": false,
+      "x": 20220,
+      "y": -22790,
+      "sunroof": true,
       "sunL": 740,
       "sunW": 1100,
       "opDoor": 90,
@@ -1401,7 +1403,8 @@
       "winFL": false,
       "winFR": false,
       "winRL": false,
-      "winRR": false
+      "winRR": false,
+      "z": 8230
     },
     {
       "type": "carSedan",
@@ -2137,7 +2140,8 @@
           "d": 6000,
           "id": "fmwu9r6uy173",
           "x": 15740,
-          "y": -4510
+          "y": -4510,
+          "z": 0
         },
         {
           "type": "traflight",
@@ -2818,7 +2822,7 @@
           "h": 4500,
           "rot": 0,
           "d": 4000,
-          "on": true,
+          "on": false,
           "id": "fmwuflr9p153",
           "x": 32390,
           "y": -16680
@@ -2970,7 +2974,7 @@
           "id": "fmwusz84f197",
           "x": 24667,
           "y": -30055,
-          "sunroof": false,
+          "sunroof": true,
           "sunL": 740,
           "sunW": 1100,
           "opDoor": 90,
@@ -2980,7 +2984,8 @@
           "winFL": false,
           "winFR": false,
           "winRL": false,
-          "winRR": false
+          "winRR": false,
+          "z": 3370
         },
         {
           "type": "carSedan",
@@ -3046,7 +3051,7 @@
           "type": "carSedan",
           "w": 5100,
           "h": 1600,
-          "rot": 345.63525740819455,
+          "rot": 181,
           "d": 2100,
           "color": "blue",
           "int": "grey",
@@ -3058,9 +3063,9 @@
           "trunk": false,
           "lights": true,
           "id": "fmwuszdve200",
-          "x": 17571,
-          "y": -22794,
-          "sunroof": false,
+          "x": 20220,
+          "y": -22790,
+          "sunroof": true,
           "sunL": 740,
           "sunW": 1100,
           "opDoor": 90,
@@ -3070,7 +3075,8 @@
           "winFL": false,
           "winFR": false,
           "winRL": false,
-          "winRR": false
+          "winRR": false,
+          "z": 8230
         },
         {
           "type": "carSedan",
