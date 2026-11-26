@@ -368,6 +368,7 @@
     "axis": true,
     "bearing": false,
     "wallSnap": true,
+    "notes": true,
     "ghost": true,
     "slab": true
   }

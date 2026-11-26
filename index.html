@@ -2987,6 +2987,9 @@
           <button class="btn chip" data-layer="bearing" data-en="Bearing walls">承重墙</button>
           <button class="btn chip on" data-layer="wallSnap" title="拖动家具时贴墙吸附"
             data-en-title="Snap furniture to walls while dragging" data-en="Wall snap">贴墙吸附</button>
+          <button class="btn chip on" data-layer="notes" title="显示 / 隐藏手动放置的标注（文字标注、手动尺寸、标高、引线 / 剖切符号、指北针）"
+            data-en-title="Show / hide manually placed annotations (text notes, manual dims, levels, leaders / section marks, north arrow)"
+            data-en="Notes">标注</button>
         </div>
         <div class="grp only3d">
           <button class="btn chip on" data-cut="2.8" data-en="Full walls">全高墙</button>
@@ -4574,7 +4577,7 @@
     const ui = {
       tool: 'select', drawTool: 'select', wallFree: false, sel: null, multi: [], mq: null, mA: null, mCur: null, dimA: null, dimCur: null, railA: null, railCur: null, beamA: null, beamCur: null, slabA: null, slabCur: null, parapetA: null, parapetCur: null, canopyA: null, canopyCur: null, rectA: null, rectCur: null, rectKind: null,
       rotBase: null, rotSnap: null, rotBefore: null, rotCur: null, rotAngle: 0, rotPick: false, rotMode: null, gizmoHover: null, pitches: null, pitchNow: 0,
-      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, ghost: true, slab: true }
+      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, notes: true, ghost: true, slab: true }
     };
     /* 图层开关随方案保存：存到服务器（挂在方案 JSON 的 layers 字段），打开方案时还原 */
     function applyLayers(s) {
@@ -4911,7 +4914,7 @@
       g.setAttribute('display', ui.layers.furn ? 'inline' : 'none');
       g.innerHTML = state.furniture.map(f => {
         const fs = Math.max(80, Math.min(170, Math.min(f.w, f.d) * .2));
-        const label = Math.min(f.w, f.d) >= 380 && !NOLABEL.includes(f.type)
+        const label = ui.layers.notes !== false && Math.min(f.w, f.d) >= 380 && !NOLABEL.includes(f.type)
           ? `<text transform="rotate(${-f.rot})" font-size="${fs}" text-anchor="middle" dominant-baseline="central" fill="#4a443c" opacity=".8" pointer-events="none">${esc(nm(f.name))}</text>` : '';
         return `<g class="furn" data-fid="${f.id}" transform="translate(${f.cx} ${f.cy}) rotate(${f.rot})">${furnSVG(f.type, f.w, f.d, f.color)}${label}</g>`;
       }).join('');
@@ -8209,7 +8212,7 @@
           }
           const dpLabel = DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type)
             ? `DN${e.w || 110}${e.z ? ` 底${e.z}` : ''}${e.pitch ? ` 俯${Math.round(e.pitch)}°` : ''}` : extraName(e);
-          out.push(`<g data-extra="${e.id}" style="cursor:move">${inner}${e.type === 'tiecol' || e.type === 'facCrosswalk' || isMonitor(e.type) || PARK_EXT[e.type] ? '' : T(e.x, e.y, dpLabel, col, DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? 190 : 180)}</g>`);   // 构造柱符号太小、斑马线与停车场配套为贴地标线 / 自带标识，不放名称标注
+          out.push(`<g data-extra="${e.id}" style="cursor:move">${inner}${e.type === 'tiecol' || e.type === 'facCrosswalk' || isMonitor(e.type) || PARK_EXT[e.type] || ui.layers.notes === false ? '' : T(e.x, e.y, dpLabel, col, DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? 190 : 180)}</g>`);   // 构造柱符号太小、斑马线与停车场配套为贴地标线 / 自带标识，不放名称标注；名称标注随「标注」图层显隐
           return;
         }
         const x0 = e.x - e.w / 2, y0 = e.y - e.d / 2, { w, d } = e;
@@ -8374,14 +8377,15 @@
       if (gfa) gfa.innerHTML = renderFAreas2();                 // 地板 / 层顶楼板在最底层当基础
       const gw = $('#gWells');
       if (gw) gw.innerHTML = renderWells2();                    // 电梯井 / 楼梯间 / 楼板洞口：贴在基础之上、房间 / 墙 / 门窗 / 家具等全部对象之下
-      g.innerHTML = (state.notes || []).map(n => {
+      const ann = ui.layers.notes !== false;                    // 「标注」图层：文字标注 / 手动尺寸 / 标高 / 引线剖切 / 指北针（旧方案无此字段时默认显示）
+      g.innerHTML = (ann ? (state.notes || []).map(n => {
         const fs = Math.max(100, +n.size || 300), b = noteBBox(n);
         return `<g data-note="${n.id}" style="cursor:move">
         <rect x="${b[0]}" y="${b[1]}" width="${b[2] - b[0]}" height="${b[3] - b[1]}" fill="transparent"/>
         <text x="${n.x}" y="${n.y + fs * .36}" font-size="${fs}" text-anchor="middle" fill="#2b2824" font-weight="600"
         stroke="#fbf9f4" stroke-width="${fs * .16}" paint-order="stroke" pointer-events="none">${esc(n.text)}</text></g>`;
-      }).join('') + renderDims2() + renderRails2() + renderBeams2() + renderLevels2() + renderSlabs2() + renderParapets2() + renderCanopies2()
-        + renderGates2() + renderOutdoor2() + renderExtras2() + renderLeaders2() + renderAxesNet2() + renderBalconies2() + renderPlanters2() + renderFlues2() + renderNorth2() + renderPending2();
+      }).join('') : '') + (ann ? renderDims2() : '') + renderRails2() + renderBeams2() + (ann ? renderLevels2() : '') + renderSlabs2() + renderParapets2() + renderCanopies2()
+        + renderGates2() + renderOutdoor2() + renderExtras2() + (ann ? renderLeaders2() : '') + renderAxesNet2() + renderBalconies2() + renderPlanters2() + renderFlues2() + (ann ? renderNorth2() : '') + renderPending2();
       updateNoteEditorPos();
     }
     /* ---------- 旋转：选中对象 → 显示双环 gizmo → 按住拖拽 / 松手保持 ---------- */
@@ -16308,7 +16312,10 @@
         const k = b.dataset.layer; ui.layers[k] = !ui.layers[k]; b.classList.toggle('on', ui.layers[k]);
         scheduleAutoSave();                                                // 图层改动随方案自动保存到服务器
         if (k === 'dims') $('#gDims').setAttribute('display', ui.layers.dims ? 'inline' : 'none');
-        else if (k !== 'wallSnap') renderAll();
+        else if (k !== 'wallSnap') {
+          if (k === 'notes' && !ui.layers.notes && ui.sel && ['note', 'dim', 'level', 'leader', 'north'].includes(ui.sel.kind)) { ui.sel = null; const ne = $('#noteEditor'); if (ne) ne.style.display = 'none'; }   // 隐藏标注层时取消标注类选中，避免残留选中框 / 编辑框
+          renderAll();
+        }
       };
     });
 
