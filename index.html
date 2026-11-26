@@ -4652,18 +4652,19 @@
     function aabb(f) { const a = f.rot * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a)); return { hw: f.w / 2 * c + f.d / 2 * s, hh: f.w / 2 * s + f.d / 2 * c }; }
     const fmt = (n, d = 2) => n.toFixed(d);
     const norm = a => ((Math.round(a) % 360) + 360) % 360;
+    const normF = a => ((a % 360) + 360) % 360;                               // 不取整的角度归一（保留 48° / 26° 等非 15° 倍数默认值）
     const angleWrap = (el, getObj, field) => {                              // 角度输入统一跨界循环：0 往下 → 360 → 345…；360 往上 → 0
       if (!el) return;
       let prev = 0;
       el.onfocus = () => { prev = +el.value || 0; };
       el.oninput = () => {
-        let v = +el.value; if (!isFinite(v)) return;
+        let v = parseFloat(el.value); if (!isFinite(v)) return;
         if (prev === 0 && v < 0) v = 360;                                    // 0 往回调 → 360
-        else if (v > 360) v = 0;                                             // 360 往前调 → 0
-        else v = (Math.round(v / 15) * 15 % 360 + 360) % 360;                 // 常规 15° 取整
+        else if (prev === 360 && v > 360) v = 0;                             // 360 往前调 → 0
+        else v = v === 360 ? 360 : normF(v);                                 // 保留 360 作为边界值，其余归一且不取整
         el.value = v; prev = v;
       };
-      el.onchange = () => mutate(() => { const o = getObj(); if (o) o[field] = +el.value; });
+      el.onchange = () => mutate(() => { const o = getObj(); if (o) o[field] = parseFloat(el.value) || 0; });
     };
     function snapRects() {
       const ok = id => !state.deletedWalls.includes(id) && !state.demolished.includes(id);
@@ -7223,7 +7224,7 @@
     const DP_WALL_TYPES = ['drainpipe', 'waterRiser', ...DP_FIT_TYPES];       // 给排水贴墙构件（含立管 / 管件）
     const DP_POINT_TYPES = ['rainInlet', 'hydrantIn', 'sprinkler', 'manifold']; // 给排水独立点构件（雨水斗 / 消防 / 分水器）
     const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(t) || DP_WALL_TYPES.includes(t) || DP_POINT_TYPES.includes(t) || isTraffic(t) || isSecurity(t) || isFacility(t);
-    const extraRot = e => e && (e.type === 'park' || isCar(e.type)) ? ((+e.rot || 0) % 360) : 0;   // 停车位 / 轿车 / 越野车：整车随朝向旋转（包围盒 / 手柄同步）
+    const extraRot = e => e && (e.type === 'park' || isCar(e.type) || ['ac', 'solar', 'equip'].includes(e.type)) ? ((+e.rot || 0) % 360) : 0;   // 车位 / 车辆 / 设备平台 / 太阳能 / 设备基础：随朝向旋转（包围盒 / 手柄同步）
     function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
       if (!deg) return { x, y };
       const a = deg * Math.PI / 180, c = Math.cos(-a), s = Math.sin(-a), dx = x - cx, dy = y - cy;
@@ -7728,7 +7729,7 @@
             const fx = e.x + Math.cos(fa) * fs2 * .7, fy = e.y - fs2 + Math.sin(fa) * fs2 * .7;
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(30, r * .5)}" fill="${col}" stroke="none"/>
               <line x1="${e.x}" y1="${e.y}" x2="${e.x}" y2="${e.y - fs2}" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-              <polygon points="${e.x},${e.y - fs2} ${fx},${fy} ${e.x + Math.cos(fa) * 0},${e.y - fs2 + fs2 * .32}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
+              <polygon points="${e.x},${e.y - fs2} ${fx},${fy} ${e.x},${e.y - fs2 + fs2 * .32}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
           } else if (e.type === 'streetlamp' || e.type === 'solarlamp') {   // 路灯 / 太阳能路灯俯视：底座圆 + 悬臂 + 灯头（按样式，亮 / 灭两态）
             const st = e.style || 'single', a = ((+e.rot || 0) % 360) * Math.PI / 180;
             const R = Math.max(150, r * 1.5), lit = e.on !== false && (!isSolarLamp(e.type) || (e.battery ?? 0) > 0);
@@ -8312,7 +8313,7 @@
       if (K === 'lift') { const l = (state.lifts || []).find(x => x.id === sel.id); return l ? { kind: K, id: l.id, x: l.x, y: l.y, dir: +l.dir || 0 } : null; }
       if (BOX_ARR[K]) { const b = (state[BOX_ARR[K]] || []).find(x => x.id === sel.id); return b ? { kind: K, id: b.id, x: b.x, y: b.y, dir: +b.dir || 0 } : null; }
       if (K === 'flue') { const f = (state.flues || []).find(x => x.id === sel.id); return f ? { kind: K, id: f.id, x: f.x, y: f.y } : null; }
-      if (K === 'lamp') { const l = (state.lamps || []).find(x => x.id === sel.id); return l && !WALL_LAMP_TYPES.includes(l.type) ? { kind: K, id: l.id, x: l.x, y: l.y, rot: +l.rot || 0 } : null; }
+      if (K === 'lamp') { const l = (state.lamps || []).find(x => x.id === sel.id); return l && !WALL_LAMP_TYPES.includes(l.type) && !PASSIVE_LAMP_TYPES.includes(l.type) && l.type !== 'switch' ? { kind: K, id: l.id, x: l.x, y: l.y, rot: +l.rot || 0 } : null; }
       if (K === 'extra') {
         const o = (state.extras || []).find(x => x.id === sel.id); if (!o) return null;
         if (o.type === 'barrier' || o.type === 'drainpipe' || o.type === 'waterRiser' || DP_FIT_TYPES.includes(o.type) || DP_POINT_TYPES.includes(o.type))
@@ -8382,7 +8383,7 @@
           } else if (t.a && t.b) {                             // 天沟：两端点跟着转
             o.a = rq(t.a[0], t.a[1]); o.b = rq(t.b[0], t.b[1]);
           } else if (o.type === 'drainpipe' || o.type === 'waterRiser' || DP_FIT_TYPES.includes(o.type) || DP_POINT_TYPES.includes(o.type))
-            o.rot = norm((+o.rot || 0) + deg);                 // 给排水贴墙件 / 点构件：原地转向（贴墙位置与法线不变）
+            o.rot = norm(t.rot + deg);                          // 给排水贴墙件 / 点构件：从快照重算（预览不累计、取消能还原）
           else if (t.spin) {                                  // 设施 / 标志 / 摄像头 / 路灯 / 停车位 / 车辆：位置与朝向一起转
             const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y; o.rot = norm(t.rot + deg);
           }
@@ -9062,14 +9063,14 @@
       if (t === 'retain') return { ...base, w: 300, h: 1800 };
       if (t === 'gutter') return { ...base, w: 300, h: 120 };
       if (t === 'spout') return { ...base, w: 100, h: 2800 };
-      if (t === 'drainpipe') return { ...base, w: 110, h: 2800, z: 0, len: 2000, dir: 'v', nrot: 0 };   // 排水管：默认 ⌀110，z=底标高，dir=竖向/横向（横向用 len 长度）；放置时按所在墙自动改高度（与墙同高）并记录贴墙法线方向 nrot
+      if (t === 'drainpipe') return { ...base, w: 110, h: 2800, z: 0, len: 2000, dir: 'v', nrot: 0, rot: 0 };   // 排水管：默认 ⌀110，z=底标高，dir=竖向/横向；nrot=贴墙法线、rot=转向
       if (t === 'dpRoute') return { ...base, w: 110, z: 2500, slope: 0.5 };   // 连续画管：pts 折线、管径、底标高、坡度(%)
-      if (t === 'waterRiser') return { ...base, w: 50, h: 2800, z: 0, nrot: 0 };
-      if (t === 'rainInlet') return { ...base, w: 110, h: 180, z: 0, linkId: null };
-      if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0, doorOpen: false };
-      if (t === 'sprinkler') return { ...base, w: 25, h: 120, z: 2600 };
-      if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, n: 4, dn: 32 };
-      if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0, pitch: 0 };   // 管件：默认 ⌀110、件高 300；nrot=贴墙法线、pitch=支管俯仰角（可正负，±720°）
+      if (t === 'waterRiser') return { ...base, w: 50, h: 2800, z: 0, nrot: 0, rot: 0 };
+      if (t === 'rainInlet') return { ...base, w: 110, h: 180, z: 0, rot: 0, linkId: null };
+      if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0, rot: 0, doorOpen: false };
+      if (t === 'sprinkler') return { ...base, w: 25, h: 120, z: 2600, rot: 0 };
+      if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, rot: 0, n: 4, dn: 32 };
+      if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0, rot: 0, pitch: 0 };   // 管件：默认 ⌀110、件高 300；nrot=贴墙法线、rot=转向、pitch=俯仰
       if (t === 'tiecol') return { ...base, w: 240, d: 240, h: 2800 };   // 构造柱：长(X) × 宽(Y) 独立可设，默认 240×240
       if (t === 'chimney') return { ...base, w: 400, h: 1200, z: 2800 };
       if (t === 'tree') return { ...base, w: 900, h: 3000 };
@@ -9146,8 +9147,8 @@
             <label title="${mnt === 'ceiling' || mnt === 'pendant' ? tr('吸顶盘 / 吊杆顶的标高，摄像机挂在其下方', 'Level of the ceiling plate; camera hangs below it') : tr('摄像机镜头中心的高度', 'Height of the lens center')}">${mnt === 'ceiling' || mnt === 'pendant' ? tr('吸顶标高', 'Ceiling level') : tr('安装高度', 'Mount height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="300" max="12000" step="50"></label>
             ${mnt === 'pendant' ? `<label>${tr('吊杆长', 'Drop rod')} (mm)<input type="number" id="exDrop" value="${Math.round(e.drop ?? 400)}" min="100" max="3000" step="50"></label>` : ''}
             <label>${tr('镜头尺寸', 'Lens size')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 120)}" min="40" max="600" step="10"></label>
-            <label title="${tr('取景方向，决定 3D 实时画面的朝向', 'Viewing direction, decides the live 3D feed heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
-            <label title="${tr('镜头俯仰角（默认半球 48° / 球形 30° / 枪型 14°）', 'Lens tilt (defaults: dome 48° / PTZ 30° / bullet 14°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? (e.type === 'camDome' ? 48 : e.type === 'camPTZ' ? 30 : 14))}" min="-360" max="360" step="15"></label>
+            <label title="${tr('取景方向，决定 3D 实时画面的朝向', 'Viewing direction, decides the live 3D feed heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
+            <label title="${tr('镜头俯仰角（默认半球 48° / 球形 30° / 枪型 14°）', 'Lens tilt (defaults: dome 48° / PTZ 30° / bullet 14°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? (e.type === 'camDome' ? 48 : e.type === 'camPTZ' ? 30 : 14))}" min="-360" max="375" step="15"></label>
             <label title="${tr('摄像机取景视场角，越大看得越广', 'Camera field of view; larger sees wider')}">${tr('视场角', 'Field of view')} (°)<input type="number" id="exFov" value="${Math.round(e.fov ?? 80)}" min="30" max="150" step="5"></label>`;
         } else if (isNVR(e.type)) {
           rows += `<label>${tr('机箱宽', 'Width')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 400)}" min="150" max="1200" step="10"></label>
@@ -9159,7 +9160,7 @@
           rows += `<label>${tr('屏幕宽', 'Screen width')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 800)}" min="200" max="6000" step="10"></label>
             <label>${tr('屏幕高', 'Screen height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 450)}" min="150" max="4000" step="10"></label>
             <label>${tr('中心标高', 'Center height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 400)}" min="300" max="6000" step="50"></label>
-            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>`;
+            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
         }
         rows += `<label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
           <label>${tr('位置', 'Position')} Y (mm)<input type="number" id="exY" value="${Math.round(e.y)}" step="10"></label>`;
@@ -9177,7 +9178,7 @@
           ${e.type === 'facBarrierGate' ? `<label class="chk"><input type="checkbox" id="exOpen" ${e.open !== false ? 'checked' : ''}> ${tr('闸杆抬起（3D 点击闸杆 / 机箱也可切换）', 'Arm raised (click the arm / box in 3D to toggle)')}</label>` : ''}
           ${e.type === 'facLaneLight' ? `<label>${tr('当前信号', 'Signal')}<select id="exSig">${[['red', tr('红灯 · 禁行', 'Red · stop')], ['green', tr('绿灯 · 通行', 'Green · go')]].map(([v, t]) => `<option value="${v}" ${(e.sig || 'red') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>` : ''}
           ${isStreetLamp(e.type) ? `<label>${tr('悬臂长', 'Arm length')} (mm)<input type="number" id="exArm" value="${Math.round(e.arm ?? 0)}" min="0" max="8000" step="100"></label>
-            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
+            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
             <label title="${tr('夜景模式下照亮周围的范围半径', 'Illumination radius in night mode')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="exLR" value="${Math.round(e.r ?? 12000)}" min="500" max="60000" step="500"></label>
             <label class="chk"><input type="checkbox" id="exOn" ${e.on !== false ? 'checked' : ''}> ${tr('开灯（切夜景自动开启）', 'On (auto-on in night mode)')}</label>
             ${isSolarLamp(e.type) ? (() => {
@@ -9195,13 +9196,13 @@
           ${e.type === 'drainpipe' ? `<label title="${tr('竖向=沿墙立管；横向=沿墙水平敷设的横管（用下方长度与底标高控制）', 'Vertical = riser along the wall; Horizontal = pipe running along the wall (set length and base level below)')}">${tr('方向', 'Direction')}<select id="exDpDir"><option value="v" ${(e.dir || 'v') === 'v' ? 'selected' : ''}>${tr('竖向', 'Vertical')}</option><option value="h" ${e.dir === 'h' ? 'selected' : ''}>${tr('横向', 'Horizontal')}</option></select></label>
             ${e.dir === 'h' ? `<label title="${tr('横管沿墙走向的总长', 'Total length of the horizontal run along the wall')}">${tr('长度', 'Length')} (mm)<input type="number" id="exDpLen" value="${Math.round(e.len ?? 2000)}" min="300" max="30000" step="100"></label>` : ''}
             <label title="${tr('管底离地面的高度，常用于躲开踢脚线 / 设备或悬空横排；自由输入，可为负（沉到地面以下）', 'Pipe bottom above the floor — to clear skirtings / equipment or run overhead; free input, negative values sink below floor level')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
-            <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+            <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${DP_FIT_TYPES.includes(e.type) ? `<label title="${tr('管件底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Fitting base level above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
-            <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
-            <label title="${tr('支管 / 出水口相对墙外方向的上下俯仰角（0 = 水平、正 = 朝上、负 = 朝下）', 'Branch / outlet pitch relative to the wall normal (0 = horizontal, positive = up, negative = down)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch || 0)}" min="-360" max="360" step="15"></label>
+            <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
+            <label title="${tr('支管 / 出水口相对墙外方向的上下俯仰角（0 = 水平、正 = 朝上、负 = 朝下）', 'Branch / outlet pitch relative to the wall normal (0 = horizontal, positive = up, negative = down)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch || 0)}" min="-360" max="375" step="15"></label>
             ${e.type === 'dpReducer' ? `<label>${tr('变径后直径', 'Outlet ⌀')} (mm)<input type="number" id="exDn2" value="${Math.round(e.dn2 ?? 110)}" min="30" max="2000" step="10"></label>` : ''}` : ''}
           ${e.type === 'waterRiser' ? `<label title="${tr('给水立管底部离地高度；3D 按设定高度生成，默认与墙同高', 'Riser bottom above the floor')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
-            <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+            <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${e.type === 'hydrantIn' ? `<label>${tr('箱体进深', 'Cabinet depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? 240)}" min="100" max="600" step="10"></label>
             <label title="${tr('箱底离地面的高度，用于壁挂高位安装；自由输入，可为负', 'Cabinet bottom above the floor — for high wall mounting; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('箱门开合状态；设计态 / 预览态点击 3D 箱门也可开合', 'Door state; click the 3D cabinet door in design / preview mode to toggle')}">${tr('箱门开启', 'Door open')}<input type="checkbox" id="exDoorOpen" ${e.doorOpen ? 'checked' : ''}></label>` : ''}
@@ -9209,14 +9210,14 @@
           ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>
             <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>
             <label title="${tr('集管底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Header base above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>` : ''}
-          ${DP_POINT_TYPES.includes(e.type) ? `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+          ${DP_POINT_TYPES.includes(e.type) ? `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${e.type === 'rainInlet' ? `<label title="${tr('雨水斗底部离地（屋面）高度；自由输入，可为负', 'Funnel bottom above the floor / roof; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             ${e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}` : ''}
           ${DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? `<div class="full muted" style="font-size:11px">${tr('净高', 'Clearance')} ${Math.round((ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)))} mm${(ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)) < 100 ? ` · ${tr('低于 100mm，建议调整标高', 'Below 100 mm — adjust the level')}` : ''}</div>` : ''}
           ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
-          ${isTraffic(e.type) ? `<label title="${tr('板面法线方向，决定 3D 牌面 / 信号灯朝向', 'Facing of the sign face / signal head')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
-          ${isFacility(e.type) ? `<label title="${tr('设施朝向', 'Facility heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
+            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
+          ${isTraffic(e.type) ? `<label title="${tr('板面法线方向，决定 3D 牌面 / 信号灯朝向', 'Facing of the sign face / signal head')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
+          ${isFacility(e.type) ? `<label title="${tr('设施朝向', 'Facility heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${isTrafficSign(e.type) ? `<label title="${tr('0 = 牌面居中套在立杆上；不为 0 时杆顶向朝向右侧（正值）或左侧（负值）伸出横向横臂，牌面横向挂装在臂端', '0 centers the face on the pole; otherwise a horizontal arm extends right (+) or left (-) from the pole top and the face mounts sideways on the arm end')}">${tr('左右伸出', 'Lateral offset')} (mm)<input type="number" id="exOff" value="${Math.round(e.off || 0)}" min="-3000" max="3000" step="50"></label>` : ''}
           ${e.type === 'traflight' ? `<label title="${tr('当前点亮的信号，3D 里点击灯杆也可切换', 'Currently lit signal; also cycles by clicking the pole in 3D')}">${tr('当前信号', 'Signal')}<select id="exSig">${[['red', tr('红灯 · 停', 'Red · stop')], ['green', tr('绿灯 · 行', 'Green · go')], ['yellow', tr('黄灯 · 注意', 'Yellow · caution')]].map(([v, t]) => `<option value="${v}" ${(e.sig || 'red') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
             <label class="chk"><input type="checkbox" id="exTAuto" ${e.auto !== false ? 'checked' : ''}> ${tr('自动轮播（每 4 秒切换）', 'Auto cycle every 4s')}</label>` : ''}
@@ -9246,8 +9247,8 @@
         if (e.type === 'hatch') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('翻边高', 'Curb')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 250)}" min="60" max="1000" step="10"></label>`;
         if (e.type === 'solar') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('支架高', 'Stand')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 300)}" min="80" max="2000" step="10"></label>`;
         if (e.type === 'equip') rows += `<label>${tr('基础厚', 'Base')} (mm)<input type="number" id="exT" value="${Math.round(e.thick ?? 150)}" min="60" max="600" step="10"></label><label>${tr('设备高', 'Unit height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 800)}" min="200" max="4000" step="50"></label><label>${tr('安装标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" min="-500" max="12000" step="50"></label>`;
-        if (['flag', 'solar', 'equip', 'ac'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>`;
-        if (e.type === 'solar') rows += `<label title="${tr('集热板倾角（默认约 26°）', 'Collector tilt (default ≈26°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? 26)}" min="-360" max="360" step="15"></label>`;
+        if (['flag', 'solar', 'equip', 'ac'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
+        if (e.type === 'solar') rows += `<label title="${tr('集热板倾角（默认约 26°）', 'Collector tilt (default ≈26°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? 26)}" min="-360" max="375" step="15"></label>`;
       }
       const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式（壁装 / 立杆时此处为镜头中心高度，吸顶 / 吊装为吸顶盘标高，吊装另可改吊杆长）。2D 画镜头 + 视场扇形并带安装标记，3D 按类型生成半球 / 球形云台 / 枪型模型与对应支架。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装方式 / 高度 / 朝向 / 视场角均可改。', 'Camera: click to place; ceiling / pendant / wall / pole mounts (wall & pole use lens-center height, ceiling & pendant use the plate level, pendant adds a drop-rod length). 2D shows lens + view cone with mount marks, 3D builds dome / PTZ / bullet model with matching bracket. Add it to an NVR and the 3D feed renders live from its viewpoint. Edit mount / height / angle / FOV.')
         : isNVR(e.type) ? tr('录像机是监控系统的中枢：在上方勾选「添加的摄像机」登记要录像的镜头，再勾选「连接的显示器」指定把画面送到哪些屏幕。只有既被录像机添加、又连到显示器的摄像机画面才会出现在 3D 屏幕上。', 'NVR is the hub: check "Cameras" to register feeds, then check "Connected monitors" to route them. A camera appears on a 3D screen only if it is added here and that monitor is connected.')
@@ -10974,7 +10975,7 @@
       <label>${tr('深', 'Depth')} (mm)<input type="number" id="fD" value="${f.d}" min="50" step="10"></label>
       <label>${tr('中心', 'Center')} X (mm)<input type="number" id="fX" value="${Math.round(f.cx)}" step="10"></label>
       <label>${tr('中心', 'Center')} Y (mm)<input type="number" id="fY" value="${Math.round(f.cy)}" step="10"></label>
-      <label>${tr('旋转', 'Rotation')} (°)<input type="number" id="fR" value="${f.rot}" min="-360" max="360" step="15"></label>
+      <label>${tr('旋转', 'Rotation')} (°)<input type="number" id="fR" value="${f.rot}" min="-360" max="375" step="15"></label>
       <label>${tr('颜色', 'Color')}<input type="color" id="fC" value="${f.color}"></label>
     </div>
     <div class="muted" style="margin-top:8px">${tr('占地面积', 'Footprint')} ${fmt(f.w * f.d / 1e6)} m²</div>
@@ -11465,8 +11466,8 @@
       if (isWall) fields.push(`<label title="${tr('面板中心沿墙到墙起点的距离（0 到墙长）', 'Distance from wall start along the wall (0 to wall length)')}">${tr('沿墙位置', 'Along wall')} (mm)<input type="number" id="lC" value="${Math.round(l.c ?? 0)}" min="0" max="${Math.max(0, Math.round(wL))}" step="10"></label>`);
       if (!isPassive) fields.push(`<label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`);
       if (!isWall) fields.push(`<label>X (mm)<input type="number" id="lX" value="${Math.round(l.x)}" step="10"></label>`, `<label>Y (mm)<input type="number" id="lY" value="${Math.round(l.y)}" step="10"></label>`);
-      if (!isWall && !isPassive && !isAnySw) fields.push(`<label title="${tr('灯体水平朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Fixture heading — with it selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="lRot" value="${Math.round(l.rot || 0)}" min="-360" max="360" step="15"></label>`);
-      if (!isWall && ['spot', 'down', 'ceil', 'chandelier', 'floor'].includes(l.type)) fields.push(`<label title="${tr('灯头俯仰角（0 = 垂直向下、正 = 偏向外侧、负 = 反向）', 'Head pitch (0 = straight down, positive = tilt outward, negative = inward)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="lPitch" value="${Math.round(l.pitch || 0)}" min="-360" max="360" step="15"></label>`);
+      if (!isWall && !isPassive && !isAnySw) fields.push(`<label title="${tr('灯体水平朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Fixture heading — with it selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="lRot" value="${Math.round(l.rot || 0)}" min="-360" max="375" step="15"></label>`);
+      if (!isWall && ['spot', 'down', 'ceil', 'chandelier'].includes(l.type)) fields.push(`<label title="${tr('灯头俯仰角（0 = 垂直向下、正 = 偏向外侧、负 = 反向）', 'Head pitch (0 = straight down, positive = tilt outward, negative = inward)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="lPitch" value="${Math.round(l.pitch || 0)}" min="-360" max="375" step="15"></label>`);
       if (isAnySw) {                                    // 控制方式 + 控制半径同行（各占一列），在灯具列表上方
         fields.push(`<label title="${tr('按半径：控制半径内的灯；指定灯具：只控制下面勾选的灯', 'By radius: lamps within range; Selected lamps: only the checked lamps below')}">${tr('控制方式', 'Control mode')}<select id="lMode"><option value="radius" ${listMode ? '' : 'selected'}>${tr('按半径', 'By radius')}</option><option value="list" ${listMode ? 'selected' : ''}>${tr('指定灯具', 'Selected lamps')}</option></select></label>`);
         if (!listMode) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
@@ -19503,7 +19504,7 @@
         colliders.push([X - .18, Z - .18, X + .18, Z + .18, 0, Y + .1]);
       }
       const headG = new THREE.Group(); headG.position.set(0, Y, 0);
-      if (+l.pitch) headG.rotation.x = l.pitch * Math.PI / 180;   // 灯头俯仰：绕侧轴上下倾斜
+      if (+l.pitch && l.type !== 'floor') headG.rotation.x = l.pitch * Math.PI / 180;   // 灯头俯仰：落地灯为直立摆放，不倾斜
       g.add(headG);
       const shade = new THREE.Mesh(new THREE.CylinderGeometry(R * .55, R, l.type === 'down' ? .05 : .14, 24), headMat('#ddd3c0'));
       shade.position.y = l.type === 'floor' ? .06 : 0; shade.castShadow = true; headG.add(shade);
@@ -23030,7 +23031,7 @@
                 const rc = new THREE.PerspectiveCamera(Math.max(30, Math.min(150, +e.fov || 80)), W / Hh, .05, 120);
                 const lensY = attachY - (T3 === 'camBullet' ? .17 : T3 === 'camPTZ' ? .25 : .16);
                 rc.position.set(px + Math.cos(ang) * .12, lensY, pz + Math.sin(ang) * .12);
-                const pitch = (+e.pitch ?? (T3 === 'camDome' ? 48 : T3 === 'camPTZ' ? 30 : 14)) * Math.PI / 180, D = 5;
+                const pitch = +(e.pitch ?? (T3 === 'camDome' ? 48 : T3 === 'camPTZ' ? 30 : 14)) * Math.PI / 180, D = 5;
                 rc.lookAt(px + Math.cos(ang) * D, lensY - Math.tan(pitch) * D, pz + Math.sin(ang) * D);
                 const sc = document.createElement('canvas'); sc.width = W; sc.height = Hh;
                 const sctx = sc.getContext('2d', { willReadFrequently: true });
@@ -23095,7 +23096,7 @@
               ball.position.set(px, h + r * 1.6, pz); ball.userData.flagId = e.id; archUp.add(ball);
               const fw = Math.max(.5, h * .1), fh = fw * .62;   // 竖直旗面：宽 fw、高 fh，顶部贴旗面顶标高（可升降）
               const fy = Math.min(h - .5, Math.max(.5, M(e.flagY ?? Math.round(h * 1000 * .9))));
-              const fa = (+e.rot || 0) * Math.PI / 180, fx = px + Math.cos(fa) * (fw / 2 + r), fz = pz - Math.sin(fa) * (fw / 2 + r);
+              const fa = (+e.rot || 0) * Math.PI / 180, fx = px + Math.cos(fa) * (fw / 2 + r), fz = pz + Math.sin(fa) * (fw / 2 + r);
               const fb = box(fw, fh, .02, fx, fy - fh / 2, fz, mat('#a44e3d', { roughness: .8 }));
               fb.rotation.y = -fa;                                   // 旗面朝向随「转向」变化
               fb.userData.flagId = e.id; fb.userData.flagMeshFor = e.id;   // flagMeshFor 供升降动画逐帧定位
