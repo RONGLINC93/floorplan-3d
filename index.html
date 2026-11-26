@@ -15023,7 +15023,7 @@
     window.cancelDraw3D = () => {                                  // 3D 右击：与 2D 一致（取消当前起点 / 回到选择 / 取消旋转）
       if (ui.tool !== 'draw') return;
       if (ui.drawTool === 'rotate') {
-        if (ui.rotBase) rotCancel(); else if (ui.rotPick) finishRotPick(); else setSubTool('select');
+        rotCancel(); setSubTool('select');                       // 右击 = 还原未完成旋转并回到选择工具（与 Esc / 2D 一致）
       } else if (ui.drawTool !== 'select') {
         if (ui.exPts || wStart || DRAW_START_KEYS.some(k => ui[k])) {         // 第一下：只取消已定的起点，保留当前工具
           wStart = wCur = wallChainStart = null; ui.wallSnapPt = null; ui.exPts = null; ui.exSnap = null;
@@ -15759,9 +15759,8 @@
       if (ui.tool === 'measure') setTool('select');                                        // 测量中右击 → 回到预览
       else if (ui.tool === 'draw') {
         if (ui.drawTool === 'rotate') {
-          if (ui.rotBase) rotCancel();                            // 旋转中右击 = 取消本次旋转
-          else if (ui.rotPick) finishRotPick();                   // 点选阶段右击 = 结束选择，去点基点
-          else setSubTool('select');
+          rotCancel();                                            // 右击 = 还原未完成的旋转（含退出点选阶段），直接回到选择工具（与 Esc 一致）
+          setSubTool('select');
           return;
         }
         window.cancelDraw3D();                                  // 与 3D 共用：第一击取消起点，第二击回到选择
