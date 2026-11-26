@@ -23425,14 +23425,14 @@
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
                 for (let i = 1; i <= 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(r * 1.12, r * .16, 8, 16), mat('#8a9198', { metalness: .5, roughness: .45 })); t.rotation.x = Math.PI / 2; t.position.set(px, zbF + h * i / 5, pz); archUp.add(t); }
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpValve') {                     // 阀门：直通阀——水平直管对穿而过（沿墙外法线方向），球形阀体居中，手轮朝上装在阀体正上方
+              } else if (T3 === 'dpValve') {                     // 阀门：直通阀——水平直管对穿而过（沿墙外法线方向），掏空球形阀体居中（两极对穿孔），手轮朝上装在阀体正上方
                 const mm = { p: mat('#7d8489', { metalness: .55, roughness: .4 }), b: PLM.b, r: PLM.r }, yl = zbF + h * .45, L = r * 2.6;
                 const fx = px - dirx * L, fz = pz - dirz * L, ex = px + dirx * L, ez = pz + dirz * L;   // 直通两端（放置点居中）
-                dpTube([fx, yl, fz], [px, yl, pz]);              // 进水半段（空心）
-                dpTube([px, yl, pz], [ex, yl, ez]);              // 出水半段（空心、出口开放）
-                const body = new THREE.Mesh(new THREE.SphereGeometry(r * 1.45, 18, 14), mat('#8a9198', { metalness: .5, roughness: .45 }));
-                body.scale.y = .75; body.position.set(px, yl, pz); body.castShadow = true; archUp.add(body);   // 居中球形阀体
-                const bT = yl + r * 1.1;                         // 阀体顶面
+                dpTube([fx, yl, fz], [ex, yl, ez]);              // 贯通直管：管腔从阀体两极穿孔中穿过、两端可见
+                const bg = new THREE.Group(); bg.position.set(px, yl, pz); bg.rotation.y = -wr; archUp.add(bg);   // 阀体局部系（X 轴 = 流向）
+                const body = new THREE.Mesh(new THREE.SphereGeometry(r * 1.45, 24, 18, 0, Math.PI * 2, .8, Math.PI - 1.6), mat('#8a9198', { metalness: .5, roughness: .45, side: THREE.DoubleSide }));
+                body.rotation.z = Math.PI / 2; body.castShadow = true; bg.add(body);   // 球形阀体：极轴转向流向，削去两极留对穿孔（孔径略大于管径），壳体 DoubleSide 内壁可见
+                const bT = yl + r * 1.45;                        // 阀体顶面
                 const bonnet = new THREE.Mesh(new THREE.CylinderGeometry(r * .42, r * .8, h * .3, 16, 1, true), mm.p);
                 bonnet.position.set(px, bT + h * .15, pz); bonnet.castShadow = true; archUp.add(bonnet);   // 阀盖（竖直朝上）
                 box(r * .16, h * .26, r * .16, px, bT + h * .42, pz, mat('#9aa1a6', { metalness: .6, roughness: .4 }));   // 阀杆
