@@ -4652,6 +4652,19 @@
     function aabb(f) { const a = f.rot * Math.PI / 180, c = Math.abs(Math.cos(a)), s = Math.abs(Math.sin(a)); return { hw: f.w / 2 * c + f.d / 2 * s, hh: f.w / 2 * s + f.d / 2 * c }; }
     const fmt = (n, d = 2) => n.toFixed(d);
     const norm = a => ((Math.round(a) % 360) + 360) % 360;
+    const angleWrap = (el, getObj, field) => {                              // 角度输入统一跨界循环：0 往下 → 360 → 345…；360 往上 → 0
+      if (!el) return;
+      let prev = 0;
+      el.onfocus = () => { prev = +el.value || 0; };
+      el.oninput = () => {
+        let v = +el.value; if (!isFinite(v)) return;
+        if (prev === 0 && v < 0) v = 360;                                    // 0 往回调 → 360
+        else if (v > 360) v = 0;                                             // 360 往前调 → 0
+        else v = (Math.round(v / 15) * 15 % 360 + 360) % 360;                 // 常规 15° 取整
+        el.value = v; prev = v;
+      };
+      el.onchange = () => mutate(() => { const o = getObj(); if (o) o[field] = +el.value; });
+    };
     function snapRects() {
       const ok = id => !state.deletedWalls.includes(id) && !state.demolished.includes(id);
       return WALLS.map((w, i) => ok('w' + i) ? wallRectOf(i) : null).filter(Boolean).concat(WINS.map((r, i) => !bopenRemoved('w' + i) ? bopenRect('w' + i) : null).filter(Boolean), state.walls.filter(w => ok('CW' + w.id)).map(w => [w.a[0], w.a[1], w.b[0], w.b[1]]));
@@ -7162,7 +7175,7 @@
         const checked = pm ? (Array.isArray(e.ports) ? e.ports[+pm[1]] === true : e.on === true) : ((k === 'doorOpen' || k === 'lights') ? e[k] !== false : e[k]);
         r += `<label class="chk"><input type="checkbox" id="fx_${k}" ${checked ? 'checked' : ''}> ${tr(zh, en)}</label>`;
       });
-      r += `<label>${tr('朝向', 'Angle')} (°)${num('exRot', ((+e.rot || 0) % 360 + 360) % 360, -360, 360, 15)}</label>
+      r += `<label>${tr('朝向', 'Angle')} (°)${num('exRot', Math.round(e.rot || 0), -360, 360, 15)}</label>
         <label>${tr('位置', 'Position')} X (mm)${num('exX', e.x, -1e6, 1e6, 10)}</label>
         <label>${tr('位置', 'Position')} Y (mm)${num('exY', e.y, -1e6, 1e6, 10)}</label>`;
       return r;
@@ -8111,14 +8124,18 @@
               inner = `<polygon points="${rotRect(hw * 2, Math.max(100, R))}" fill="${col}" fill-opacity=".16" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>`;
               for (let i = 0; i < n; i++) { const dx = -hw + (i + .5) * (hw * 2 / n); inner += `<line x1="${e.x + dx * ca}" y1="${e.y + dx * sa}" x2="${e.x + dx * ca - sa * R * 1.6}" y2="${e.y + dx * sa + ca * R * 1.6}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }
             }
-          } else {                                                // 雨水管：圆 + 中心十字
+          } else {                                                // 雨水管 / 给水立管：圆 + 中心十字
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
               ${e.type === 'spout' || e.type === 'waterRiser' ? `<circle cx="${e.x}" cy="${e.y}" r="${r * .68}" fill="none" stroke="${col}" stroke-opacity=".8" stroke-width="1" vector-effect="non-scaling-stroke"/>` : ''}
               <line x1="${e.x - r * 1.5}" y1="${e.y}" x2="${e.x + r * 1.5}" y2="${e.y}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
               <line x1="${e.x}" y1="${e.y - r * 1.5}" x2="${e.x}" y2="${e.y + r * 1.5}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
+            if (e.type === 'waterRiser') {                        // 卡扣朝向 = 贴墙法线 + 转向，随旋转工具 / R 键同步
+              const ra = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180, bx = e.x + Math.cos(ra) * r * 1.5, by = e.y + Math.sin(ra) * r * 1.5;
+              inner += `<line x1="${e.x}" y1="${e.y}" x2="${bx}" y2="${by}" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${bx}" cy="${by}" r="${Math.max(18, r * .28)}" fill="${col}" fill-opacity=".65" stroke="none"/>`;
+            }
           }
           const dpLabel = DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type)
-            ? `DN${e.w || 110}${e.z ? ` 底${e.z}` : ''}` : extraName(e);
+            ? `DN${e.w || 110}${e.z ? ` 底${e.z}` : ''}${e.pitch ? ` 俯${Math.round(e.pitch)}°` : ''}` : extraName(e);
           out.push(`<g data-extra="${e.id}" style="cursor:move">${inner}${e.type === 'tiecol' || e.type === 'facCrosswalk' || isMonitor(e.type) || PARK_EXT[e.type] ? '' : T(e.x, e.y, dpLabel, col, DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? 190 : 180)}</g>`);   // 构造柱符号太小、斑马线与停车场配套为贴地标线 / 自带标识，不放名称标注
           return;
         }
@@ -8293,7 +8310,14 @@
       if (K === 'lift') { const l = (state.lifts || []).find(x => x.id === sel.id); return l ? { kind: K, id: l.id, x: l.x, y: l.y, dir: +l.dir || 0 } : null; }
       if (BOX_ARR[K]) { const b = (state[BOX_ARR[K]] || []).find(x => x.id === sel.id); return b ? { kind: K, id: b.id, x: b.x, y: b.y, dir: +b.dir || 0 } : null; }
       if (K === 'flue') { const f = (state.flues || []).find(x => x.id === sel.id); return f ? { kind: K, id: f.id, x: f.x, y: f.y } : null; }
-      if (K === 'extra') { const o = (state.extras || []).find(x => x.id === sel.id); return o && (o.type === 'barrier' || o.type === 'drainpipe' || DP_FIT_TYPES.includes(o.type)) ? { kind: K, id: o.id, x: o.x, y: o.y, rot: +o.rot || 0 } : null; }   // 路障 / 排水管（件）支持 R 键转向
+      if (K === 'extra') {
+        const o = (state.extras || []).find(x => x.id === sel.id); if (!o) return null;
+        if (o.type === 'barrier' || o.type === 'drainpipe' || o.type === 'waterRiser' || DP_FIT_TYPES.includes(o.type) || DP_POINT_TYPES.includes(o.type))
+          return { kind: K, id: o.id, x: o.x, y: o.y, rot: +o.rot || 0 };   // 路障 / 给排水贴墙件与点构件：原地转向
+        if (o.type === 'gutter' && o.a && o.b) return { kind: K, id: o.id, a: o.a.slice(), b: o.b.slice() };   // 天沟：线性两端点
+        if (o.type === 'dpRoute' && o.pts) return { kind: K, id: o.id, pts: o.pts.map(p => p.slice()) };      // 连续画管：整条折线
+        return null;
+      }
       if (ROT_LINEAR[K]) {
         const o = (state[ROT_LINEAR[K]] || []).find(x => x.id === sel.id);
         return o ? { kind: K, id: sel.id, a: o.a.slice(), b: o.b.slice() } : null;
@@ -8346,7 +8370,12 @@
           const o = (state.extras || []).find(x => x.id === t.id); if (!o) return;
           if (o.type === 'barrier') {                          // 路障：位置与朝向一起转
             const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y; o.rot = norm(t.rot + deg);
-          } else if (o.type === 'drainpipe' || DP_FIT_TYPES.includes(o.type)) o.rot = norm((+o.rot || 0) + deg);   // 排水管 / 管件：原地转向（贴墙位置与卡扣朝向不变，支管方向 = 墙法线 + 转向）
+          } else if (t.pts) {                                  // 连续画管：整条折线绕基点旋转，首尾端点同步
+            o.pts = t.pts.map(p => rq(p[0], p[1])); o.a = o.pts[0].slice(); o.b = o.pts[o.pts.length - 1].slice();
+          } else if (t.a && t.b) {                             // 天沟：两端点跟着转
+            o.a = rq(t.a[0], t.a[1]); o.b = rq(t.b[0], t.b[1]);
+          } else if (o.type === 'drainpipe' || o.type === 'waterRiser' || DP_FIT_TYPES.includes(o.type) || DP_POINT_TYPES.includes(o.type))
+            o.rot = norm((+o.rot || 0) + deg);                 // 给排水贴墙件 / 点构件：原地转向（贴墙位置与法线不变）
         } else if (ROT_LINEAR[t.kind]) {
           const o = (state[ROT_LINEAR[t.kind]] || []).find(x => x.id === t.id); if (!o) return;
           o.a = rq(t.a[0], t.a[1]); o.b = rq(t.b[0], t.b[1]);
@@ -9030,7 +9059,7 @@
       if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0, doorOpen: false };
       if (t === 'sprinkler') return { ...base, w: 25, h: 120, z: 2600 };
       if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, n: 4, dn: 32 };
-      if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0 };   // 管件：默认 ⌀110、件高 300；放置时记录贴墙法线方向 nrot 与到墙距离 edist
+      if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0, pitch: 0 };   // 管件：默认 ⌀110、件高 300；nrot=贴墙法线、pitch=支管俯仰角（可正负，±720°）
       if (t === 'tiecol') return { ...base, w: 240, d: 240, h: 2800 };   // 构造柱：长(X) × 宽(Y) 独立可设，默认 240×240
       if (t === 'chimney') return { ...base, w: 400, h: 1200, z: 2800 };
       if (t === 'tree') return { ...base, w: 900, h: 3000 };
@@ -9158,6 +9187,7 @@
             <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           ${DP_FIT_TYPES.includes(e.type) ? `<label title="${tr('管件底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Fitting base level above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
+            <label title="${tr('支管 / 出水口相对墙外方向的上下俯仰角（0 = 水平、正 = 朝上、负 = 朝下）', 'Branch / outlet pitch relative to the wall normal (0 = horizontal, positive = up, negative = down)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch || 0)}" min="-360" max="360" step="15"></label>
             ${e.type === 'dpReducer' ? `<label>${tr('变径后直径', 'Outlet ⌀')} (mm)<input type="number" id="exDn2" value="${Math.round(e.dn2 ?? 110)}" min="30" max="2000" step="10"></label>` : ''}` : ''}
           ${e.type === 'waterRiser' ? `<label title="${tr('给水立管底部离地高度；3D 按设定高度生成，默认与墙同高', 'Riser bottom above the floor')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
@@ -9168,6 +9198,7 @@
           ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>
             <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>
             <label title="${tr('集管底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Header base above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>` : ''}
+          ${DP_POINT_TYPES.includes(e.type) ? `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           ${e.type === 'rainInlet' ? `<label title="${tr('雨水斗底部离地（屋面）高度；自由输入，可为负', 'Funnel bottom above the floor / roof; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             ${e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}` : ''}
           ${DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? `<div class="full muted" style="font-size:11px">${tr('净高', 'Clearance')} ${Math.round((ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)))} mm${(ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)) < 100 ? ` · ${tr('低于 100mm，建议调整标高', 'Below 100 mm — adjust the level')}` : ''}</div>` : ''}
@@ -9321,7 +9352,6 @@
         upd('exH', (e, v) => e.h = v, 40, 4000);
         upd('exFov', (e, v) => e.fov = v, 30, 150);
         upd('exDrop', (e, v) => e.drop = v, 100, 3000);
-        upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
         const em = $('#exMount'); if (em) em.onchange = () => mutate(() => {
           const e = (state.extras || []).find(x => x.id === id); if (!e) return;
           e.mount = em.value; renderPanel();                     // 重绘面板：吸顶标高 / 吊杆长随安装方式切换
@@ -9383,7 +9413,10 @@
           bindSolarNum('exDrain', 'drain', .1, 20);
         }
         const dp = $('#exDpDir'); if (dp) dp.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) { e.dir = dp.value; if (e.dir === 'h' && !e.len) e.len = 2000; } renderPanel(); });   // 竖向 / 横向切换（重渲染面板换高度 / 长度输入）
-        const en = $('#exNR'); if (en) en.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.rot = norm(Math.round(en.value / 15) * 15); });   // 排水管（件）转向：支管方向 = 墙法线 + 转向（按 15° 取整）
+        const getE = () => (state.extras || []).find(x => x.id === id);
+        angleWrap($('#exNR'), getE, 'rot');                                  // 给排水转向
+        angleWrap($('#exPitch'), getE, 'pitch');                              // 管件俯仰
+        angleWrap($('#exRot'), getE, 'rot');                                  // 通用朝向（建筑/家具配套/停车场等）
         const dpl = $('#exDpLen'); if (dpl) dpl.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.len = Math.max(300, Math.round(dpl.value / 100) * 100); });
         const hp = $('#exHp'); if (hp) hp.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.hopper = hp.checked; });
         upd('exFY', (e, v) => e.flagY = Math.min(e.h ?? 6000, Math.max(500, Math.round(v / 50) * 50)));   // 旗面升降（不超过杆顶）
@@ -9411,7 +9444,6 @@
           const tx = $('#exText'); if (tx) tx.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.text = tx.value.trim().slice(0, 16) || (signDef(e0.type).def || ' '); });
         }
         upd('exOff', (e, v) => e.off = v, -3000, 3000);
-        upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
         if (PARK_EXT[e0.type]) bindPark(id);                     // 停车场配套：进深 / 样式 / 层列数 / 开关等
       } else {
         const ws = $('#exWS'); if (ws) ws.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.style = ws.value; });
@@ -9425,7 +9457,6 @@
         upd('exC', (e, v) => e.col = v, 60, 500);
         upd('exNo', (e, v) => e.no = v, 1, 999);
         upd('exDir', (e, v) => e.dir = ((Math.round(v) % 360) + 360) % 360);
-        upd('exRot', (e, v) => e.rot = ((Math.round(v) % 360) + 360) % 360);
       }
       $('#aDel').onclick = () => { ui.sel = { kind: 'extra', id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
@@ -10930,7 +10961,7 @@
       <label>${tr('深', 'Depth')} (mm)<input type="number" id="fD" value="${f.d}" min="50" step="10"></label>
       <label>${tr('中心', 'Center')} X (mm)<input type="number" id="fX" value="${Math.round(f.cx)}" step="10"></label>
       <label>${tr('中心', 'Center')} Y (mm)<input type="number" id="fY" value="${Math.round(f.cy)}" step="10"></label>
-      <label>${tr('旋转', 'Rotation')} (°)<input type="number" id="fR" value="${f.rot}" step="15"></label>
+      <label>${tr('旋转', 'Rotation')} (°)<input type="number" id="fR" value="${f.rot}" min="-360" max="360" step="15"></label>
       <label>${tr('颜色', 'Color')}<input type="color" id="fC" value="${f.color}"></label>
     </div>
     <div class="muted" style="margin-top:8px">${tr('占地面积', 'Footprint')} ${fmt(f.w * f.d / 1e6)} m²</div>
@@ -10947,7 +10978,8 @@
       $('#fName').onchange = e => upd(g => g.name = e.target.value.trim() || g.name);
       num('#fW', (g, v) => g.w = Math.max(50, Math.round(v)));
       num('#fD', (g, v) => g.d = Math.max(50, Math.round(v)));
-      num('#fX', (g, v) => g.cx = v); num('#fY', (g, v) => g.cy = v); num('#fR', (g, v) => g.rot = norm(v));
+      num('#fX', (g, v) => g.cx = v); num('#fY', (g, v) => g.cy = v);
+      angleWrap($('#fR'), () => getF(f.id), 'rot');
       $('#fC').onchange = e => upd(g => g.color = e.target.value);
       $('#aRot').onclick = () => rotateSel(90);
       $('#aDup').onclick = duplicateSel;
@@ -22876,6 +22908,42 @@
           buildPark3D(T3, e, { grp, P, colliders, doors, px, pz, ang, W, h, poleM, darkM });
         }
       }
+      const wrapPtRot = (e, start, colStart, px, pz) => {       // 给排水点构件：整体随「转向」旋转（2D 已用 rot，3D 同步），碰撞盒同步重算
+        const deg = +e.rot || 0; if (!deg) return;
+        const a = deg * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+        const gp = new THREE.Group(); gp.position.set(px, 0, pz); gp.rotation.y = -a; archUp.add(gp);
+        archUp.children.slice(start).forEach(o => {           // 线对象顶点已是世界坐标（雨水斗→雨水管连线），保持原位不转
+          if (o === gp || o.isLine) return;
+          o.position.x -= px; o.position.z -= pz; o.userData.pick3d = { kind: 'extra', id: e.id }; gp.add(o);
+        });
+        for (let i = colStart; i < colliders.length; i++) {     // 轴对齐碰撞盒按旋转后四角重算
+          const c = colliders[i]; let x0 = Infinity, x1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+          [[c[0], c[2]], [c[0], c[3]], [c[1], c[2]], [c[1], c[3]]].forEach(([x, z]) => {
+            const dx = x - px, dz = z - pz, nx = px + dx * ca - dz * sa, nz = pz + dx * sa + dz * ca;
+            x0 = Math.min(x0, nx); x1 = Math.max(x1, nx); z0 = Math.min(z0, nz); z1 = Math.max(z1, nz);
+          });
+          colliders[i] = [x0, z0, x1, z1, c[4], c[5]];
+        }
+      };
+      const wrapFit3D = (e, start, colStart, cx, cy, cz, dirx, dirz, pit) => {   // 管件整件俯仰：主管 + 支管一起绕侧向水平轴翻转
+        const gp = new THREE.Group(); gp.position.set(cx, cy, cz);
+        gp.quaternion.setFromAxisAngle(new THREE.Vector3(dirz, 0, -dirx), -pit);   // 绕侧向轴，正向使墙外方向朝上
+        archUp.add(gp);
+        archUp.children.slice(start).forEach(o => {
+          if (o === gp || o.isLine) return;
+          o.position.x -= cx; o.position.y -= cy; o.position.z -= cz; o.userData.pick3d = { kind: 'extra', id: e.id }; gp.add(o);
+        });
+        for (let i = colStart; i < colliders.length; i++) {     // 轴对齐碰撞盒按旋转后八角重算
+          const c = colliders[i]; let x0 = Infinity, x1 = -Infinity, y0 = Infinity, y1 = -Infinity, z0 = Infinity, z1 = -Infinity;
+          [[c[0], c[4], c[1]], [c[0], c[4], c[3]], [c[0], c[5], c[1]], [c[0], c[5], c[3]],
+           [c[2], c[4], c[1]], [c[2], c[4], c[3]], [c[2], c[5], c[1]], [c[2], c[5], c[3]]].forEach(([x, y, z]) => {
+            const v = new THREE.Vector3(x - cx, y - cy, z - cz).applyQuaternion(gp.quaternion);
+            const nx = cx + v.x, ny = cy + v.y, nz = cz + v.z;
+            x0 = Math.min(x0, nx); x1 = Math.max(x1, nx); y0 = Math.min(y0, ny); y1 = Math.max(y1, ny); z0 = Math.min(z0, nz); z1 = Math.max(z1, nz);
+          });
+          colliders[i] = [x0, z0, x1, z1, y0, y1];
+        }
+      };
       (state.extras || []).forEach(e => {                    // 扩展构件：楼板洞口 / 设备平台 / 停车位 / 凉亭 / 天窗 / 散水 / 挡土墙 / 天沟 / 雨水管
         const s0 = archUp.children.length;
         try {
@@ -23216,6 +23284,7 @@
               b.position.set(P[0], P[1], P[2]); archUp.add(b);
             };
             if (DP_POINT_TYPES.includes(T3)) {                     // 给排水独立点构件：雨水斗 / 消火栓 / 喷淋头 / 分水器（必须放在 isExtraPt 内，先于雨水管默认分支 return）
+              const rotStart = archUp.children.length, rotColStart = colliders.length;
               const r = Math.max(.03, M(e.w || 110) / 2), zb = M(e.z || 0);
               if (T3 === 'rainInlet') {                            // 雨水斗：漏斗 + 格栅，连最近雨水管
                 const top = zb + Math.max(.12, M(e.h || 180)), funnel = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.2, r * .8, top - zb, 16, 1, true), mat('#9fb9c4', { metalness: .35, roughness: .5, side: THREE.DoubleSide }));
@@ -23296,6 +23365,7 @@
                 }
                 colliders.push([px - w / 2, pz - rr, px + w / 2, pz + rr, zb, zb + hh]);
               }
+              wrapPtRot(e, rotStart, rotColStart, px, pz);
               return;
             }
             if (T3 === 'drainpipe' || T3 === 'waterRiser') {     // 排水管 / 给水立管：空心圆管贴墙 30mm，每隔 1 米一道固定卡扣
@@ -23343,7 +23413,7 @@
                 rim.rotation.x = -Math.PI / 2; rim.position.set(px, y, pz); archUp.add(rim);
               });
               const clampM = mat('#8a9198', { metalness: .6, roughness: .4 });
-              const wr = ((+e.nrot || 0) * Math.PI / 180);      // 指向墙面的法线方向（放置时记录；拖动后仍按此方向挂卡扣）
+              const wr = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180;   // 卡扣朝向 = 贴墙法线 + 转向（与面板「转向」及 2D 方向标记一致）
               const dirx = Math.cos(wr), dirz = Math.sin(wr);
               const cd = Math.max(r + .01, M(e.edist || ((e.w || 110) / 2 + 30)));   // 管中心到墙面距离（放置时记录）：卡扣臂刚好搭到墙、背板贴墙
               const armL = Math.max(.02, cd - r + .02);         // 连接臂长：从管面伸到墙面（两端各搭进管 / 背板 10mm）
@@ -23358,6 +23428,8 @@
             if (DP_FIT_TYPES.includes(T3)) {                    // 排水管管件：三通 / 45°弯 / 90°弯 / 蓄水弯（空心管段 + 支管朝墙外，贴墙 30mm；底标高 zbF 自由可负）
               const r = Math.max(.025, M(e.w || 110) / 2), zbF = M(e.z || 0);   // zbF = 管件底标高（整体抬高 / 沉到地面以下）
               const wr = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180, dirx = Math.cos(wr), dirz = Math.sin(wr);   // 支管 / 出水口方向 = 墙外法线 + 转向偏移（转向不影响贴墙位置）
+              const pit = (+e.pitch || 0) * Math.PI / 180;   // 俯仰角：整件绕侧向水平轴翻转（正=朝上、负=朝下）
+              const fitStart = archUp.children.length, fitColStart = colliders.length;
               const pMat = mat('#c9cdd1', { metalness: .2, roughness: .55 }), bMat = mat('#5f676d', { metalness: .15, roughness: .75, side: THREE.BackSide }), rMat = mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide });
               const wtF = Math.min(.008, r * .22);
               const dpTube = (A, B) => {                        // 空心管段 A→B（米）：外壁 + 内腔 + 两端管口环面（支持斜向段）
@@ -23461,6 +23533,7 @@
                 [1, 2, 3].forEach(i => joint(P[i]));
                 fitCol(P, zbF + h);
               }
+              if (pit) wrapFit3D(e, fitStart, fitColStart, px, zbF + h / 2, pz, dirx, dirz, pit);   // 整件俯仰：主管 / 支管一起绕侧向水平轴翻转，碰撞盒同步
               return;
             }
             const r = Math.max(.02, M(e.w || 100) / 2), spoutM = { p: mat('#9aa1a6', { metalness: .5, roughness: .45 }), b: PLM.b, r: PLM.r };
