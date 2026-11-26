@@ -7724,12 +7724,14 @@
               inner = `<circle cx="${e.x}" cy="${e.y}" r="${R * .85}" fill="${col}" fill-opacity=".32" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
                 <circle cx="${e.x}" cy="${e.y}" r="${R * .34}" fill="none" stroke="${col}" stroke-width=".9" stroke-dasharray="30 20" vector-effect="non-scaling-stroke"/>`;
             }
-          } else if (e.type === 'flag') {                         // 旗杆：杆点 + 旗面三角（旗面朝向随「转向」）
+          } else if (e.type === 'flag') {                         // 旗杆：杆点 + 旗面三角（整面绕杆顶随「转向」旋转）
             const fs2 = Math.max(220, r * 3), fa = (+e.rot || 0) * Math.PI / 180;
-            const fx = e.x + Math.cos(fa) * fs2 * .7, fy = e.y - fs2 + Math.sin(fa) * fs2 * .7;
+            const ca = Math.cos(fa), sa = Math.sin(fa), ox = e.x, oy = e.y - fs2;
+            const p1 = [ox + fs2 * .7 * ca - fs2 * .16 * sa, oy + fs2 * .7 * sa + fs2 * .16 * ca];
+            const p2 = [ox - fs2 * .32 * sa, oy + fs2 * .32 * ca];
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(30, r * .5)}" fill="${col}" stroke="none"/>
               <line x1="${e.x}" y1="${e.y}" x2="${e.x}" y2="${e.y - fs2}" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-              <polygon points="${e.x},${e.y - fs2} ${fx},${fy} ${e.x},${e.y - fs2 + fs2 * .32}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
+              <polygon points="${ox},${oy} ${p1[0]},${p1[1]} ${p2[0]},${p2[1]}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
           } else if (e.type === 'streetlamp' || e.type === 'solarlamp') {   // 路灯 / 太阳能路灯俯视：底座圆 + 悬臂 + 灯头（按样式，亮 / 灭两态）
             const st = e.style || 'single', a = ((+e.rot || 0) % 360) * Math.PI / 180;
             const R = Math.max(150, r * 1.5), lit = e.on !== false && (!isSolarLamp(e.type) || (e.battery ?? 0) > 0);
@@ -9190,7 +9192,8 @@
               <label>${tr('夜晚耗电速度', 'Night drain rate')} (%/s)<input type="number" id="exDrain" value="${+(e.drain ?? 1.2)}" min="0.1" max="20" step="0.1"></label>
             </div>`;
             })() : ''}` : ''}
-          ${e.type === 'flag' ? `<label title="${tr('3D 场景中点击旗杆可在升起 / 降下之间切换', 'In 3D, click the flagpole to toggle raised / lowered')}">${tr('旗面顶标高', 'Flag top')} (mm)<input type="number" id="exFY" value="${Math.round(e.flagY ?? Math.round((e.h ?? 6000) * .9))}" min="500" max="12000" step="50"></label>` : ''}
+          ${e.type === 'flag' ? `<label title="${tr('旗面朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Flag facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
+            <label title="${tr('3D 场景中点击旗杆可在升起 / 降下之间切换', 'In 3D, click the flagpole to toggle raised / lowered')}">${tr('旗面顶标高', 'Flag top')} (mm)<input type="number" id="exFY" value="${Math.round(e.flagY ?? Math.round((e.h ?? 6000) * .9))}" min="500" max="12000" step="50"></label>` : ''}
           ${e.type === 'chimney' ? `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label>` : ''}
           ${e.type === 'spout' ? `<label class="chk"><input type="checkbox" id="exHp" ${e.hopper ? 'checked' : ''}> ${tr('顶部落水斗', 'Top hopper')}</label>` : ''}
           ${e.type === 'drainpipe' ? `<label title="${tr('竖向=沿墙立管；横向=沿墙水平敷设的横管（用下方长度与底标高控制）', 'Vertical = riser along the wall; Horizontal = pipe running along the wall (set length and base level below)')}">${tr('方向', 'Direction')}<select id="exDpDir"><option value="v" ${(e.dir || 'v') === 'v' ? 'selected' : ''}>${tr('竖向', 'Vertical')}</option><option value="h" ${e.dir === 'h' ? 'selected' : ''}>${tr('横向', 'Horizontal')}</option></select></label>
@@ -9247,7 +9250,7 @@
         if (e.type === 'hatch') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('翻边高', 'Curb')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 250)}" min="60" max="1000" step="10"></label>`;
         if (e.type === 'solar') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('支架高', 'Stand')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 300)}" min="80" max="2000" step="10"></label>`;
         if (e.type === 'equip') rows += `<label>${tr('基础厚', 'Base')} (mm)<input type="number" id="exT" value="${Math.round(e.thick ?? 150)}" min="60" max="600" step="10"></label><label>${tr('设备高', 'Unit height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 800)}" min="200" max="4000" step="50"></label><label>${tr('安装标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" min="-500" max="12000" step="50"></label>`;
-        if (['flag', 'solar', 'equip', 'ac'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
+        if (['solar', 'equip', 'ac'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
         if (e.type === 'solar') rows += `<label title="${tr('集热板倾角（默认约 26°）', 'Collector tilt (default ≈26°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? 26)}" min="-360" max="375" step="15"></label>`;
       }
       const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式（壁装 / 立杆时此处为镜头中心高度，吸顶 / 吊装为吸顶盘标高，吊装另可改吊杆长）。2D 画镜头 + 视场扇形并带安装标记，3D 按类型生成半球 / 球形云台 / 枪型模型与对应支架。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装方式 / 高度 / 朝向 / 视场角均可改。', 'Camera: click to place; ceiling / pendant / wall / pole mounts (wall & pole use lens-center height, ceiling & pendant use the plate level, pendant adds a drop-rod length). 2D shows lens + view cone with mount marks, 3D builds dome / PTZ / bullet model with matching bracket. Add it to an NVR and the 3D feed renders live from its viewpoint. Edit mount / height / angle / FOV.')
