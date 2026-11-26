@@ -23425,15 +23425,24 @@
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
                 for (let i = 1; i <= 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(r * 1.12, r * .16, 8, 16), mat('#8a9198', { metalness: .5, roughness: .45 })); t.rotation.x = Math.PI / 2; t.position.set(px, zbF + h * i / 5, pz); archUp.add(t); }
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpValve') {                     // 阀门：空心阀体 + 阀杆 + 水平手轮
-                const mm = { p: mat('#7d8489', { metalness: .55, roughness: .4 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
-                dpTube([px, zbF, pz], [px, yc - h * .17, pz]);
-                pTube([px, yc - h * .17, pz], [px, yc + h * .17, pz], r * 1.25, mm);
-                dpTube([px, yc + h * .17, pz], [px, zbF + h, pz]);
-                box(.018, h * .3, .018, px, zbF + h * .84, pz, mat('#8a9198', { metalness: .6, roughness: .4 }));
-                const wh = new THREE.Mesh(new THREE.TorusGeometry(r * 1.2, .012, 8, 20), mat('#b5653a', { metalness: .3, roughness: .6 }));
-                wh.rotation.x = Math.PI / 2; wh.position.set(px, zbF + h, pz); archUp.add(wh);
-                fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
+              } else if (T3 === 'dpValve') {                     // 阀门：直通阀——水平直管对穿而过（沿墙外法线方向），球形阀体居中，手轮朝上装在阀体正上方
+                const mm = { p: mat('#7d8489', { metalness: .55, roughness: .4 }), b: PLM.b, r: PLM.r }, yl = zbF + h * .45, L = r * 2.6;
+                const fx = px - dirx * L, fz = pz - dirz * L, ex = px + dirx * L, ez = pz + dirz * L;   // 直通两端（放置点居中）
+                dpTube([fx, yl, fz], [px, yl, pz]);              // 进水半段（空心）
+                dpTube([px, yl, pz], [ex, yl, ez]);              // 出水半段（空心、出口开放）
+                const body = new THREE.Mesh(new THREE.SphereGeometry(r * 1.45, 18, 14), mat('#8a9198', { metalness: .5, roughness: .45 }));
+                body.scale.y = .75; body.position.set(px, yl, pz); body.castShadow = true; archUp.add(body);   // 居中球形阀体
+                const bT = yl + r * 1.1;                         // 阀体顶面
+                const bonnet = new THREE.Mesh(new THREE.CylinderGeometry(r * .42, r * .8, h * .3, 16, 1, true), mm.p);
+                bonnet.position.set(px, bT + h * .15, pz); bonnet.castShadow = true; archUp.add(bonnet);   // 阀盖（竖直朝上）
+                box(r * .16, h * .26, r * .16, px, bT + h * .42, pz, mat('#9aa1a6', { metalness: .6, roughness: .4 }));   // 阀杆
+                const wy = bT + h * .55;                         // 手轮高度
+                const wh = new THREE.Mesh(new THREE.TorusGeometry(r * 1.1, .014, 8, 24), mat('#b5653a', { metalness: .3, roughness: .6 }));
+                wh.rotation.x = Math.PI / 2; wh.position.set(px, wy, pz); archUp.add(wh);
+                const hub = new THREE.Mesh(new THREE.CylinderGeometry(r * .16, r * .16, .03, 12), mat('#b5653a', { metalness: .3, roughness: .6 }));
+                hub.position.set(px, wy, pz); archUp.add(hub);   // 手轮轮毂
+                for (let i = 0; i < 3; i++) box(r * 2.1, .012, .022, px, wy, pz, mat('#b5653a', { metalness: .3, roughness: .6 }), i * 60);   // 手轮三根辐条
+                fitCol([[fx, yl, fz], [px, yl, pz], [ex, yl, ez]], wy + .02);
               } else if (T3 === 'dpMeter') {                     // 水表：空心表壳 + 表盘（不遮断管腔）
                 const mm = { p: mat('#c4ccd2', { metalness: .35, roughness: .5 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
                 pTube([px, yc - h * .25, pz], [px, yc + h * .25, pz], r * 1.3, mm);
