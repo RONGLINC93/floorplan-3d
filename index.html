@@ -1643,6 +1643,17 @@
       color: var(--muted)
     }
 
+    #gizmo3d {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 4;
+      display: none;
+      pointer-events: none;
+      overflow: visible
+    }
+
     #cross {
       position: absolute;
       left: 50%;
@@ -2006,48 +2017,6 @@
       border-radius: 6px;
       font: inherit;
       text-align: right
-    }
-
-    /* 旋转：角度输入框（与画墙长度框同款，在画板下方中间） */
-    #rotAngleBox {
-      position: absolute;
-      left: 50%;
-      bottom: 16px;
-      transform: translateX(-50%);
-      display: none;
-      align-items: center;
-      gap: 8px;
-      background: rgba(255, 253, 249, .97);
-      border: 1px solid var(--line);
-      border-radius: 10px;
-      padding: 6px 12px;
-      z-index: 6;
-      box-shadow: 0 6px 20px rgba(40, 30, 20, .15);
-      font-size: 13px;
-      white-space: nowrap
-    }
-
-    #rotAngleBox.open {
-      display: flex
-    }
-
-    #rotAngle {
-      width: 84px;
-      padding: 4px 8px;
-      border: 1px solid var(--line);
-      border-radius: 6px;
-      font: inherit;
-      text-align: right
-    }
-
-    #rotAngleBox .btn {
-      padding: 4px 10px;
-      background: var(--accent);
-      color: #fff
-    }
-
-    #rotAngleBox .btn:hover {
-      background: #9f5530
     }
 
     /* ---------- 对象列表 / 属性（右侧栏两个选项夹） ---------- */
@@ -2800,8 +2769,7 @@
         font-size: 12px
       }
 
-      #wallLenBox,
-      #rotAngleBox {
+      #wallLenBox {
         bottom: 54px;
         max-width: calc(100% - 16px);
         gap: 5px;
@@ -2809,20 +2777,17 @@
         font-size: 12px
       }
 
-      #wallLen,
-      #rotAngle {
+      #wallLen {
         width: 80px;
         font-size: 16px;
         padding: 6px
       }
 
-      #wallLenBox .len-hint,
-      #rotAngleBox .muted {
+      #wallLenBox .len-hint {
         display: none
       }
 
-      #wallLenOk,
-      #rotOk {
+      #wallLenOk {
         min-height: 34px;
         padding: 5px 10px
       }
@@ -3076,15 +3041,15 @@
           <div class="dtg">
             <div class="dth" data-en="General">通用操作</div>
             <button class="btn chip on" data-dt="select"
-              title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；单选或框选后都能在右侧面板复制、复制到 / 移动到指定楼层、删除（Ctrl+D 复制、Delete 删除）；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙、原始墙体与原始门窗，按住 Alt 拖动可从任意位置起手"
-              data-en-title="Click to edit; single or marquee selection supports duplicate / copy to floor / move to floor / delete in the right panel (Ctrl+D duplicates, Delete removes); drag on empty space or inside a room to marquee-select furniture, stairs, columns, custom walls and original walls / openings, Alt+drag starts anywhere"
+              title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；按住 Ctrl 点选可加选 / 减选；单选或框选后都能在右侧面板复制、复制到 / 移动到指定楼层、删除（Ctrl+D 复制、Delete 删除）；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙、原始墙体与原始门窗，按住 Alt 拖动可从任意位置起手"
+              data-en-title="Click to edit; Ctrl+click adds / removes from selection; single or marquee selection supports duplicate / copy to floor / move to floor / delete in the right panel (Ctrl+D duplicates, Delete removes); drag on empty space or inside a room to marquee-select furniture, stairs, columns, custom walls and original walls / openings, Alt+drag starts anywhere"
               data-en="Select"><i data-lucide="mouse-pointer-2"></i>选择</button>
-            <button class="btn chip" data-dt="move" title="移动：按住家具 / 墙 / 门窗 / 构件等拖动位置，多选后按住其中任一对象可整组移动；轻点仍可选中"
-              data-en-title="Move: drag furniture / walls / openings / structures to reposition; drag any selected item to move the whole group"
+            <button class="btn chip" data-dt="move" title="移动：按住家具 / 墙 / 门窗 / 构件等拖动位置，Ctrl+点选可加选 / 减选，多选后按住其中任一对象可整组移动；轻点仍可选中"
+              data-en-title="Move: drag furniture / walls / openings / structures to reposition; Ctrl+click adds / removes from selection; drag any selected item to move the whole group"
               data-en="Move"><i data-lucide="move"></i>移动</button>
             <button class="btn chip" data-dt="rotate"
-              title="旋转：点此工具后直接在画板上点选对象（可多选），点空白处或回车结束选择，再点基点；移动鼠标旋转，再点一下确认，也可输入角度回车"
-              data-en-title="Rotate: click this tool, then click objects on the canvas (multiple OK). Click empty space or press Enter to finish picking, pick a base point, move to rotate, click to confirm — or type an angle"
+              title="旋转：点选对象后显示交叉双环，按住左键拖水平环转向 / 竖直环俯仰（对象支持时才显示）；Ctrl+点选可多选，点空白处取消 / 换选"
+              data-en-title="Rotate: selected objects show crossed rings — hover to highlight, drag the horizontal ring to turn or the vertical ring to tilt (when supported); click empty space for a new base point, or type an angle below"
               data-en="Rotate"><i data-lucide="rotate-cw"></i>旋转</button>
             <button class="btn chip" data-dt="paint" title="材质刷：先用「选择」点一个房间作为样板（或在右侧选好材料），再点其他房间逐个刷地面材料"
               data-en-title="Material brush: pick a sample room with Select (or choose the material on the right), then click other rooms to apply the flooring one by one"
@@ -3824,6 +3789,7 @@
           </div>
         </div>
         <div id="cross"></div>
+        <svg id="gizmo3d" xmlns="http://www.w3.org/2000/svg"></svg>
         <div id="joy"><i></i></div>
         <button class="btn primary" id="walkExit" data-en="Exit walk">退出漫游</button>
         <div id="hint3d"></div>
@@ -3845,11 +3811,6 @@
           data-en-placeholder="Length"><span>mm</span><button class="btn" id="wallLenOk"
           data-en="Apply">应用</button><span class="muted len-hint" data-en="Enter to apply · Esc to cancel">Enter 确认 ·
           Esc 取消</span></div>
-      <div id="rotAngleBox"><span data-en="Angle">角度</span><input id="rotAngle" type="number" step="1"
-          placeholder="0"><span>°</span>
-        <span class="muted" data-en="Enter to apply · Esc to cancel">Enter 确认 · Esc 取消</span><button class="btn"
-          id="rotOk" data-en="Apply">应用</button>
-      </div>
     </main>
 
     <aside class="right">
@@ -4579,7 +4540,7 @@
     window.stateRev = 1;                           // 方案数据版本号：凡是改变 state 的入口（mutate / commit / undo / redo）都要 bump；View3D.sync 用它代替每帧全量 JSON 签名比对。太阳能路灯充放电、信号灯轮播等每 0.5s 的状态字段变化刻意不 bump（视觉由 applyLight / updateSolarVisuals 直改，不需要重建建筑）
     const ui = {
       tool: 'select', drawTool: 'select', wallFree: false, sel: null, multi: [], mq: null, mA: null, mCur: null, dimA: null, dimCur: null, railA: null, railCur: null, beamA: null, beamCur: null, slabA: null, slabCur: null, parapetA: null, parapetCur: null, canopyA: null, canopyCur: null, rectA: null, rectCur: null, rectKind: null,
-      rotBase: null, rotSnap: null, rotBefore: null, rotCur: null, rotAngle: 0, rotTyping: false, rotPick: false,
+      rotBase: null, rotSnap: null, rotBefore: null, rotCur: null, rotAngle: 0, rotPick: false, rotMode: null, gizmoHover: null, pitches: null, pitchNow: 0,
       layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, ghost: true, slab: true }
     };
     /* 图层开关随方案保存：存到服务器（挂在方案 JSON 的 layers 字段），打开方案时还原 */
@@ -7177,7 +7138,7 @@
         const checked = pm ? (Array.isArray(e.ports) ? e.ports[+pm[1]] === true : e.on === true) : ((k === 'doorOpen' || k === 'lights') ? e[k] !== false : e[k]);
         r += `<label class="chk"><input type="checkbox" id="fx_${k}" ${checked ? 'checked' : ''}> ${tr(zh, en)}</label>`;
       });
-      r += `<label>${tr('朝向', 'Angle')} (°)${num('exRot', Math.round(e.rot || 0), -360, 360, 15)}</label>
+      r += `<label>${tr('转向', 'Turn')} (°)${num('exRot', Math.round(e.rot || 0), -360, 360, 15)}</label>
         <label>${tr('位置', 'Position')} X (mm)${num('exX', e.x, -1e6, 1e6, 10)}</label>
         <label>${tr('位置', 'Position')} Y (mm)${num('exY', e.y, -1e6, 1e6, 10)}</label>`;
       return r;
@@ -8301,7 +8262,7 @@
         + renderGates2() + renderOutdoor2() + renderExtras2() + renderLeaders2() + renderAxesNet2() + renderBalconies2() + renderPlanters2() + renderFlues2() + renderNorth2() + renderPending2();
       updateNoteEditorPos();
     }
-    /* ---------- CAD 式旋转：先选中对象 → 点「旋转」→ 点基点 → 拖动预览 / 点击或输入角度确认 ---------- */
+    /* ---------- 旋转：选中对象 → 显示双环 gizmo → 按住拖拽 / 松手保持 ---------- */
     const ROT_LINEAR = { rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', dim: 'dims' };
     const ROT_BOX = { balcony: 'balconies', planter: 'planters', slab: 'slabs' };   // 轴对齐构件：按 90° 换宽深
     function rotSnapshot(sel) {                                   // 记下原始几何，预览时按角度从原始值重算
@@ -8338,6 +8299,19 @@
     function rotTargets() {                                       // 当前选中（单选或多选）里可旋转的对象
       const list = ui.multi.length ? ui.multi : (ui.sel ? [ui.sel] : []);
       return list.map(rotSnapshot).filter(Boolean);
+    }
+    function rotPitchOf(sel) {                                    // 对象是否支持俯仰，返回原始 pitch（度）或 null
+      if (!sel) return null;
+      if (sel.kind === 'extra') { const o = (state.extras || []).find(x => x.id === sel.id); return o && o.pitch != null && (DP_FIT_TYPES.includes(o.type) || isCamType(o.type) || o.type === 'solar') ? +o.pitch : null; }
+      if (sel.kind === 'lamp') { const l = (state.lamps || []).find(x => x.id === sel.id); return l && l.pitch != null && !WALL_LAMP_TYPES.includes(l.type) && l.type !== 'floor' ? +l.pitch : null; }
+      return null;
+    }
+    function rotPitchApply(list, pitch0, delta) {                 // 从原始 pitch 重算（预览不累计、取消可还原）
+      list.forEach((t, i) => {
+        const p0 = pitch0[i]; if (p0 == null) return;
+        if (t.kind === 'extra') { const o = (state.extras || []).find(x => x.id === t.id); if (o) o.pitch = norm(p0 + delta); }
+        else if (t.kind === 'lamp') { const l = (state.lamps || []).find(x => x.id === t.id); if (l) l.pitch = norm(p0 + delta); }
+      });
     }
     function rotApply(list, base, deg) {                          // 绕任意基点旋转指定角度（从原始快照重算）
       const rad = deg * Math.PI / 180, c = Math.cos(rad), sn = Math.sin(rad);
@@ -8406,11 +8380,22 @@
       });
     }
     function rotBaseSet() { return ui.tool === 'draw' && ui.drawTool === 'rotate' && !!ui.rotBase; }
+    function rotGizmoBegin() {                                     // 已有选中对象：直接以选区中心显示双环 gizmo（点空白处才进入 CAD 基点阶段）
+      ui.rotSnap = rotTargets();
+      if (!ui.rotSnap.length) return false;
+      let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+      ui.rotSnap.forEach(t => { const b = objBBox(t); if (!b) return; x0 = Math.min(x0, b[0]); y0 = Math.min(y0, b[1]); x1 = Math.max(x1, b[2]); y1 = Math.max(y1, b[3]); });
+      const c = isFinite(x0) ? { x: (x0 + x1) / 2, y: (y0 + y1) / 2 } : { x: 0, y: 0 };
+      ui.rotBase = { x: c.x, y: c.y }; ui.rotCur = { x: c.x, y: c.y };
+      ui.rotAngle = 0; ui.rotMode = 'gizmo';
+      ui.pitches = ui.rotSnap.map(rotPitchOf); ui.pitchNow = 0; ui.rotBefore = snap();
+      renderSel(); renderRotPreview();
+      return true;
+    }
     function rotCancel(silent) {                                  // Esc / 切工具：几何回到旋转前
       if (!ui.rotBase) return false;
       rotApply(ui.rotSnap || [], ui.rotBase, 0);
-      ui.rotBase = null; ui.rotSnap = null; ui.rotBefore = null; ui.rotCur = null; ui.rotAngle = 0; ui.rotTyping = false;
-      $('#rotAngleBox').classList.remove('open');
+      ui.rotBase = null; ui.rotSnap = null; ui.rotBefore = null; ui.rotCur = null; ui.rotAngle = 0; ui.rotMode = null; ui.pitches = null; ui.pitchNow = 0; ui.gizmoHover = null;
       renderDraw();                                               // 清掉基点的虚线圆 / 角度预览
       if (!silent) { renderAll(); toast(tr('已取消旋转', 'Rotation cancelled')); }
       return true;
@@ -8420,23 +8405,29 @@
       let deg = Math.atan2(p.y - ui.rotBase.y, p.x - ui.rotBase.x) * 180 / Math.PI;
       return shift ? Math.round(deg * 10) / 10 : Math.round(deg / 15) * 15;
     }
-    // 确认旋转：angle 省略时优先用输入框里手输的角度，否则用最后的预览角
-    function rotConfirm(angle) {
-      if (!rotBaseSet()) return;
-      let d = angle;
-      if (d == null) {
-        const v = parseFloat($('#rotAngle').value);
-        d = (ui.rotTyping && isFinite(v)) ? v : ui.rotAngle;
-      }
-      rotApply(ui.rotSnap || [], ui.rotBase, d);
-      const before = ui.rotBefore, moved = Math.abs(d) > .001;
-      ui.rotBase = null; ui.rotSnap = null; ui.rotBefore = null; ui.rotCur = null; ui.rotAngle = 0; ui.rotTyping = false;
-      $('#rotAngleBox').classList.remove('open');
+    // 确认旋转：用最后预览角（省略 angle 时）
+    function rotFinish(moved, before, msg) {                      // 旋转统一收尾：清状态 / 入撤销栈 / 重绘 / 退出子工具
+      ui.rotBase = null; ui.rotSnap = null; ui.rotBefore = null; ui.rotCur = null; ui.rotAngle = 0; ui.rotMode = null; ui.pitches = null; ui.pitchNow = 0; ui.gizmoHover = null;
       renderDraw();                                               // 清掉基点的虚线圆 / 角度预览
       if (moved) commit(before);
       renderAll();
       setSubTool('select');
-      toast(moved ? tr(`已旋转 ${Math.round(d * 10) / 10}°`, `Rotated ${Math.round(d * 10) / 10}°`) : tr('角度为 0，未改变对象', 'Angle is 0 — nothing changed'));
+      toast(msg);
+    }
+    function rotGizmoRefresh() {                                   // 拖拽完成但保留旋转工具：以当前几何重制快照与角度基线，方便连续调整
+      ui.rotSnap = rotTargets();
+      ui.rotBefore = snap();
+      ui.rotCur = { ...ui.rotBase };
+      ui.rotAngle = 0; ui.pitchNow = 0;
+      ui.pitches = ui.rotSnap.map(rotPitchOf); ui.gizmoHover = null;
+      renderAll();
+    }
+    function rotConfirm(angle) {
+      if (!rotBaseSet()) return;
+      const d = angle == null ? ui.rotAngle : angle;
+      rotApply(ui.rotSnap || [], ui.rotBase, d);
+      const moved = Math.abs(d) > .001;
+      rotFinish(moved, ui.rotBefore, moved ? tr(`已旋转 ${Math.round(d * 10) / 10}°`, `Rotated ${Math.round(d * 10) / 10}°`) : tr('角度为 0，未改变对象', 'Angle is 0 — nothing changed'));
     }
     function renderRotPreview() {
       const g = $('#gDraw'); if (!g) return;
@@ -8469,7 +8460,7 @@
       const fEl = t.closest('[data-fid]'); if (fEl) return { kind: 'furn', id: fEl.dataset.fid };
       const map = [['rail', 'rail'], ['beam', 'beam'], ['parapet', 'parapet'], ['canopy', 'canopy'], ['dim', 'dim'],
       ['stair', 'stair'], ['pillar', 'pillar'], ['lift', 'lift'], ['slab', 'slab'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue'],
-      ['pbox', 'pbox'], ['wbox', 'wbox']];
+      ['pbox', 'pbox'], ['wbox', 'wbox'], ['extra', 'extra'], ['lamp', 'lamp']];
       for (const [kind, attr] of map) {
         const el = t.closest('[data-' + attr + ']');
         if (el) return { kind, id: el.dataset[attr] };
@@ -8479,11 +8470,12 @@
       if (hit) return { kind: 'wall', id: hit.ref };
       return null;
     }
-    function finishRotPick(silent) {                             // 结束点选，进入「点基点」
+    function finishRotPick(silent) {                             // 结束点选：以选区中心显示双环 gizmo
       if (ui.drawTool !== 'rotate' || !ui.rotPick) return;
-      if (!rotTargets().length) { if (!silent) toast(tr('请先点选要旋转的对象', 'Click the objects to rotate first')); return; }
-      ui.rotPick = false; syncModeHint();
-      if (!silent) toast(tr(`已选择 ${rotTargets().length} 项 · 点一下基点`, `${rotTargets().length} selected — pick a base point`));
+      if (!rotTargets().length) return;
+      ui.rotPick = false;
+      rotGizmoBegin();
+      syncModeHint();                                            // 操作提示只走顶部提示条，不再弹底部 toast
     }
 
     function rotateSel(deg) {                                    // 快捷 90° 整转（R 键 / 属性面板按钮 / 双击家具）：绕选区中心
@@ -8924,8 +8916,133 @@
             stroke="#fff" stroke-width="${3 * k}" paint-order="stroke">${Math.round(Math.hypot(g.b[0] - g.a[0], g.b[1] - g.a[1]))} mm</text>`;
         }
       }
+      if (rotBaseSet()) s += rotGizmoSVG();
       $('#gSel').innerHTML = s;
     }
+
+    function gizmoShapesSVG(cx, cy, k, hi, canPitch, deg, pdeg, circle) {  // 2D / 3D 共用的双环图形：k 为线条缩放；circle=true 转向环为正圆（俯仰为圆润竖椭圆），两环一横一纵交叉
+      const R = 34 * k, ry = 12 * k, RR = R * 1.08, RX = RR * .8;  // RX：俯仰环横向半径——屏幕上两个正圆必然重合，纵向环取 0.8R 近似圆以保持一横一纵可区分
+      const yawCol = '#e08a3c', pitchCol = '#3d8bd4';              // 转向环橙（横向）/ 俯仰环蓝（纵向）：颜色 + 形状双重区分
+      const op = a => hi && hi !== a ? '.35' : '.9';               // 悬停某环时另一环淡化，突出当前轴
+      const w = hi === 'yaw' ? 2.6 : 1.5;                          // non-scaling-stroke 线宽按屏幕像素计，不再乘视图缩放
+      const wp = hi === 'pitch' ? 2.6 : 1.5;
+      let s = `<${circle ? 'circle' : 'ellipse'} cx="${cx}" cy="${cy}" ${circle ? `r="${RR}"` : `rx="${RR}" ry="${ry}"`} fill="none" stroke="${yawCol}" stroke-width="${w}" vector-effect="non-scaling-stroke" pointer-events="none" opacity="${op('yaw')}"/>`;
+      s += `<${circle ? 'circle' : 'ellipse'} data-gizmo="yaw" cx="${cx}" cy="${cy}" ${circle ? `r="${RR}"` : `rx="${RR}" ry="${ry}"`} fill="none" stroke="transparent" stroke-width="14" vector-effect="non-scaling-stroke" pointer-events="stroke" style="cursor:grab"><title>${tr('按住左键拖动转向（绕竖直轴）', 'Hold left button and drag to turn (around vertical axis)')}</title></${circle ? 'circle' : 'ellipse'}>`;
+      if (canPitch) {
+        s += `<ellipse cx="${cx}" cy="${cy}" rx="${RX}" ry="${RR}" fill="none" stroke="${pitchCol}" stroke-width="${wp}" vector-effect="non-scaling-stroke" pointer-events="none" opacity="${op('pitch')}"/>`;
+        s += `<ellipse data-gizmo="pitch" cx="${cx}" cy="${cy}" rx="${RX}" ry="${RR}" fill="none" stroke="transparent" stroke-width="14" vector-effect="non-scaling-stroke" pointer-events="stroke" style="cursor:grab"><title>${tr('按住左键拖动俯仰（绕水平轴）', 'Hold left button and drag to tilt (around horizontal axis)')}</title></ellipse>`;
+      }
+      s += `<circle cx="${cx}" cy="${cy}" r="${4 * k}" fill="#fff" stroke="${hi === 'pitch' ? pitchCol : yawCol}" stroke-width="1.6" vector-effect="non-scaling-stroke" pointer-events="none"/>`;
+      const lbl = !canPitch ? tr('转向', 'Turn') : hi === 'pitch' ? tr('俯仰', 'Tilt') : hi === 'yaw' ? tr('转向', 'Turn') : tr('转向 / 俯仰', 'Turn / Tilt');
+      s += `<text x="${cx + R * 1.2}" y="${cy - R * .9}" font-size="${11 * k}" fill="${hi === 'pitch' ? pitchCol : yawCol}" font-weight="600" stroke="#fff" stroke-width="${3 * k}" paint-order="stroke" pointer-events="none">${lbl}${hi === 'pitch' || hi === 'yaw' ? ` ${Math.round(hi === 'pitch' ? pdeg : deg)}°` : ''}</text>`;
+      return s;
+    }
+    function rotGizmoSVG() {                                       // 2D 俯视：只画转向环（正圆；俯仰环仅在 3D 显示）
+      const list = ui.rotSnap || []; if (!list.length) return '';
+      const k = 1 / view.s, c = ui.rotBase || { x: 0, y: 0 };
+      return gizmoShapesSVG(c.x, c.y, k, ui.gizmoHover, false, ui.rotAngle, 0, true);
+    }
+
+    /* 3D 双环 gizmo：像球体的两条交叉大圆——横向环（水平面，转向）+ 纵向环（竖直面，俯仰），按相机真实投影，天然十字交叉不重叠 */
+    let gizmo3dDrag = null;
+    function gizmo3dRing(v3, cx, cy, r, vert, ox, oy, rot) {     // 3D 空间正圆 → 屏幕路径（r mm；ox/oy 为覆盖层容器偏移）：水平大圆 / 竖直大圆（俯仰平面随对象朝向 rot 转）
+      const n = 36;
+      const a = (rot || 0) * Math.PI / 180, dx = Math.sin(a), dz = -Math.cos(a);   // 对象朝向水平向量（SVG y 向下，rot 顺时针）
+      let s = '';
+      for (let i = 0; i <= n; i++) {
+        const t = i / n * Math.PI * 2, c = Math.cos(t), sn = Math.sin(t);
+        const p = vert ? v3.projectMM(cx + c * r * dx, cy + c * r * dz, .9 + sn * r / 1000)
+                       : v3.projectMM(cx + c * r, cy + sn * r, .9);
+        if (!p || !p.visible) return null;
+        s += (i ? 'L' : 'M') + (p.x - ox).toFixed(1) + ' ' + (p.y - oy).toFixed(1);
+      }
+      return s + 'Z';
+    }
+    function renderGizmo3D() {
+      const el = $('#gizmo3d'), v3 = window.View3D; if (!el) return;
+      if (!rotBaseSet() || !is3D() || m3dPreview || !v3?.projectMM || v3.walking?.()) { el.style.display = 'none'; return; }
+      const rect = el.getBoundingClientRect(), ox = rect.left, oy = rect.top;
+      const canPitch = (ui.pitches || []).some(x => x != null), hi = ui.gizmoHover;
+      const p0 = v3.projectMM(ui.rotBase.x, ui.rotBase.y, .9), p1 = v3.projectMM(ui.rotBase.x, ui.rotBase.y, 1.9);
+      if (!p0 || !p0.visible) { el.style.display = 'none'; return; }
+      const perM = Math.hypot(p1.x - p0.x, p1.y - p0.y) || 0;      // 当前 zoom 下每米对应的屏幕像素
+      const r = perM > .01 ? Math.round(36 * 1000 / perM) : 1500;  // 屏幕半径恒约 36px（与 2D 一致）；世界尺寸随缩放变化
+      const rot = norm((rotTargets()[0]?.rot || 0) + (ui.rotAngle || 0));   // 对象当前朝向：原始朝向 + 本次旋转增量，俯仰环随之转动
+      const cyaw = gizmo3dRing(v3, ui.rotBase.x, ui.rotBase.y, r, false, ox, oy, rot);
+      const cpit = canPitch && gizmo3dRing(v3, ui.rotBase.x, ui.rotBase.y, r, true, ox, oy, rot);
+      if (!cyaw) { el.style.display = 'none'; return; }
+      const px = p0.x - ox, py = p0.y - oy;
+      el.style.display = 'block';
+      const yawCol = '#e08a3c', pitchCol = '#3d8bd4', op = a => hi && hi !== a ? '.35' : '.9';
+      let s = `<path d="${cyaw}" fill="none" stroke="${yawCol}" stroke-width="${hi === 'yaw' ? 2.6 : 1.5}" vector-effect="non-scaling-stroke" pointer-events="none" opacity="${op('yaw')}"/>`;
+      s += `<path d="${cyaw}" data-gizmo="yaw" fill="none" stroke="transparent" stroke-width="14" vector-effect="non-scaling-stroke" pointer-events="stroke" style="cursor:grab"><title>${tr('按住左键拖动转向（绕竖直轴）', 'Hold left button and drag to turn (around vertical axis)')}</title></path>`;
+      if (cpit) {
+        s += `<path d="${cpit}" fill="none" stroke="${pitchCol}" stroke-width="${hi === 'pitch' ? 2.6 : 1.5}" vector-effect="non-scaling-stroke" pointer-events="none" opacity="${op('pitch')}"/>`;
+        s += `<path d="${cpit}" data-gizmo="pitch" fill="none" stroke="transparent" stroke-width="14" vector-effect="non-scaling-stroke" pointer-events="stroke" style="cursor:grab"><title>${tr('按住左键拖动俯仰（绕水平轴）', 'Hold left button and drag to tilt (around horizontal axis)')}</title></path>`;
+      }
+      const a0 = rot * Math.PI / 180, pdx = Math.sin(a0), pdz = -Math.cos(a0), pph = (ui.pitchNow || 0) * Math.PI / 180;
+      const gdot = (vert, t, col, rr) => {               // 环上标记点：转向环 4 点随转向角沿环转、俯仰环 2 点随俯仰角转，旋转量一目了然
+        const c = Math.cos(t + (vert ? pph : a0)), sn = Math.sin(t + (vert ? pph : a0));
+        const p = vert ? v3.projectMM(ui.rotBase.x + c * r * pdx, ui.rotBase.y + c * r * pdz, .9 + sn * r / 1000)
+                       : v3.projectMM(ui.rotBase.x + c * r, ui.rotBase.y + sn * r, .9);
+        return p && p.visible ? `<circle cx="${(p.x - ox).toFixed(1)}" cy="${(p.y - oy).toFixed(1)}" r="${rr}" fill="${col}" stroke="#fff" stroke-width="1.4" pointer-events="none" opacity="${op(vert ? 'pitch' : 'yaw')}"/>` : '';
+      };
+      for (let i = 0; i < 4; i++) s += gdot(false, i * Math.PI / 2, yawCol, i ? 3.6 : 5.2);   // 0° 为起始标记，画大一号
+      if (cpit) for (let i = 0; i < 2; i++) s += gdot(true, i * Math.PI, pitchCol, 4);
+      s += `<circle cx="${px}" cy="${py}" r="4" fill="#fff" stroke="${hi === 'pitch' ? pitchCol : yawCol}" stroke-width="1.6" pointer-events="none"/>`;
+      const lbl = !canPitch ? tr('转向', 'Turn') : hi === 'pitch' ? tr('俯仰', 'Tilt') : hi === 'yaw' ? tr('转向', 'Turn') : tr('转向 / 俯仰', 'Turn / Tilt');
+      s += `<text x="${px + 44}" y="${py - 32}" font-size="11" fill="${hi === 'pitch' ? pitchCol : yawCol}" font-weight="600" stroke="#fff" stroke-width="3" paint-order="stroke" pointer-events="none">${lbl}${hi === 'pitch' || hi === 'yaw' ? ` ${Math.round(hi === 'pitch' ? norm(ui.pitchNow || 0) : ui.rotAngle)}°` : ''}</text>`;
+      el.innerHTML = s;
+    }
+    $('#gizmo3d').addEventListener('pointerdown', e => {
+      if (e.button !== 0 || !rotBaseSet() || gizmo3dDrag) return;
+      const gz = e.target.closest && e.target.closest('[data-gizmo]'); if (!gz) return;
+      e.preventDefault(); e.stopPropagation();
+      const v3 = window.View3D, c = v3.projectMM(ui.rotBase.x, ui.rotBase.y);
+      if (v3.__dbg?.orbit) v3.__dbg.orbit.enabled = false;             // 拖动期间禁用轨道相机
+      $('#gizmo3d').setPointerCapture(e.pointerId);
+      gizmo3dDrag = { axis: gz.dataset.gizmo, sx: e.clientX, sy: e.clientY, before: snap(), snap: ui.rotSnap, pitches: ui.pitches,
+        cx: ui.rotBase.x, cy: ui.rotBase.y, a0: Math.atan2(e.clientY - c.y, e.clientX - c.x) * 180 / Math.PI,
+        rot0: ui.rotAngle, pitch0: ui.pitchNow || 0, delta: 0, moved: false, pid: e.pointerId };
+    });
+    window.addEventListener('pointermove', e => {                     // 覆盖层只有环命中区吃指针事件，离开环时靠这里清除 / 切换高亮
+      if (!gizmo3dDrag && (!rotBaseSet() || !is3D())) return;
+      if (gizmo3dDrag) { ui.gizmoHover = gizmo3dDrag.axis; return; }
+      const gz = e.target?.closest?.('#gizmo3d [data-gizmo]'), h = gz ? gz.dataset.gizmo : null;
+      if (h !== ui.gizmoHover) ui.gizmoHover = h;
+    }, true);
+    $('#gizmo3d').addEventListener('pointermove', e => {
+      if (!gizmo3dDrag) return;
+      if (Math.hypot(e.clientX - gizmo3dDrag.sx, e.clientY - gizmo3dDrag.sy) >= 2) gizmo3dDrag.moved = true;
+      if (gizmo3dDrag.axis === 'yaw') {
+        const c = window.View3D.projectMM(gizmo3dDrag.cx, gizmo3dDrag.cy);
+        const a = Math.atan2(e.clientY - c.y, e.clientX - c.x) * 180 / Math.PI;
+        let d = a - gizmo3dDrag.a0; if (d > 180) d -= 360; if (d < -180) d += 360;
+        gizmo3dDrag.delta = e.shiftKey ? d : Math.round(d / 15) * 15;
+        ui.rotAngle = norm(gizmo3dDrag.rot0 + gizmo3dDrag.delta);
+        rotApply(gizmo3dDrag.snap, { x: gizmo3dDrag.cx, y: gizmo3dDrag.cy }, gizmo3dDrag.delta);
+      } else {
+        const raw = (e.clientY - gizmo3dDrag.sy) * .5;                 // 屏幕位移 → 俯仰角（Shift 自由，默认 15° 吸附）
+        gizmo3dDrag.delta = e.shiftKey ? raw : Math.round(raw / 15) * 15;
+        ui.pitchNow = gizmo3dDrag.pitch0 + gizmo3dDrag.delta;
+        rotPitchApply(gizmo3dDrag.snap, gizmo3dDrag.pitches, gizmo3dDrag.delta);
+      }
+      window.stateRev++; renderAll();                                 // 让 3D 实时跟着改（sync 按 stateRev 重建）
+    });
+    const endGizmo3D = e => {
+      if (!gizmo3dDrag) return;
+      const d = gizmo3dDrag; gizmo3dDrag = null;
+      const el = $('#gizmo3d'); if (el.hasPointerCapture?.(e.pointerId)) el.releasePointerCapture(e.pointerId);
+      const orbit = window.View3D?.__dbg?.orbit; if (orbit) orbit.enabled = true;
+      if (!d.moved) return;                                            // 轻点环不结束旋转，可继续按住拖
+      const deg = Math.round((d.delta || 0) * 10) / 10;
+      commit(d.before);                                                // 松手只固化这一步，仍留在旋转工具继续调整
+      rotGizmoRefresh();
+      toast(tr(`已${d.axis === 'yaw' ? '转向' : '俯仰'} ${deg}°`, `${d.axis === 'yaw' ? 'Turned' : 'Tilted'} ${deg}°`));
+    };
+    $('#gizmo3d').addEventListener('pointerup', endGizmo3D);
+    $('#gizmo3d').addEventListener('pointercancel', endGizmo3D);
+    (function gizmo3dLoop() { renderGizmo3D(); requestAnimationFrame(gizmo3dLoop); })();
 
     function renderAll() {
       renderGrid(); renderRooms(); renderGhostWalls2(); renderFurn(); renderWalls(); renderOpenings(); renderPillars(); renderStairs(); renderAxes(); renderLabels(); renderDims(); renderNotes(); renderMeasure(); renderSel(); renderPanel(); updateHeader();
@@ -9149,7 +9266,7 @@
             <label title="${mnt === 'ceiling' || mnt === 'pendant' ? tr('吸顶盘 / 吊杆顶的标高，摄像机挂在其下方', 'Level of the ceiling plate; camera hangs below it') : tr('摄像机镜头中心的高度', 'Height of the lens center')}">${mnt === 'ceiling' || mnt === 'pendant' ? tr('吸顶标高', 'Ceiling level') : tr('安装高度', 'Mount height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="300" max="12000" step="50"></label>
             ${mnt === 'pendant' ? `<label>${tr('吊杆长', 'Drop rod')} (mm)<input type="number" id="exDrop" value="${Math.round(e.drop ?? 400)}" min="100" max="3000" step="50"></label>` : ''}
             <label>${tr('镜头尺寸', 'Lens size')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 120)}" min="40" max="600" step="10"></label>
-            <label title="${tr('取景方向，决定 3D 实时画面的朝向', 'Viewing direction, decides the live 3D feed heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
+            <label title="${tr('取景方向，决定 3D 实时画面的朝向', 'Viewing direction, decides the live 3D feed heading')}">${tr('转向', 'Turn')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
             <label title="${tr('镜头俯仰角（默认半球 48° / 球形 30° / 枪型 14°）', 'Lens tilt (defaults: dome 48° / PTZ 30° / bullet 14°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? (e.type === 'camDome' ? 48 : e.type === 'camPTZ' ? 30 : 14))}" min="-360" max="375" step="15"></label>
             <label title="${tr('摄像机取景视场角，越大看得越广', 'Camera field of view; larger sees wider')}">${tr('视场角', 'Field of view')} (°)<input type="number" id="exFov" value="${Math.round(e.fov ?? 80)}" min="30" max="150" step="5"></label>`;
         } else if (isNVR(e.type)) {
@@ -9162,7 +9279,7 @@
           rows += `<label>${tr('屏幕宽', 'Screen width')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 800)}" min="200" max="6000" step="10"></label>
             <label>${tr('屏幕高', 'Screen height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 450)}" min="150" max="4000" step="10"></label>
             <label>${tr('中心标高', 'Center height')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 400)}" min="300" max="6000" step="50"></label>
-            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
+            <label>${tr('转向', 'Turn')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
         }
         rows += `<label>${tr('位置', 'Position')} X (mm)<input type="number" id="exX" value="${Math.round(e.x)}" step="10"></label>
           <label>${tr('位置', 'Position')} Y (mm)<input type="number" id="exY" value="${Math.round(e.y)}" step="10"></label>`;
@@ -9180,7 +9297,7 @@
           ${e.type === 'facBarrierGate' ? `<label class="chk"><input type="checkbox" id="exOpen" ${e.open !== false ? 'checked' : ''}> ${tr('闸杆抬起（3D 点击闸杆 / 机箱也可切换）', 'Arm raised (click the arm / box in 3D to toggle)')}</label>` : ''}
           ${e.type === 'facLaneLight' ? `<label>${tr('当前信号', 'Signal')}<select id="exSig">${[['red', tr('红灯 · 禁行', 'Red · stop')], ['green', tr('绿灯 · 通行', 'Green · go')]].map(([v, t]) => `<option value="${v}" ${(e.sig || 'red') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>` : ''}
           ${isStreetLamp(e.type) ? `<label>${tr('悬臂长', 'Arm length')} (mm)<input type="number" id="exArm" value="${Math.round(e.arm ?? 0)}" min="0" max="8000" step="100"></label>
-            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
+            <label>${tr('转向', 'Turn')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
             <label title="${tr('夜景模式下照亮周围的范围半径', 'Illumination radius in night mode')}">${tr('照亮半径', 'Light radius')} (mm)<input type="number" id="exLR" value="${Math.round(e.r ?? 12000)}" min="500" max="60000" step="500"></label>
             <label class="chk"><input type="checkbox" id="exOn" ${e.on !== false ? 'checked' : ''}> ${tr('开灯（切夜景自动开启）', 'On (auto-on in night mode)')}</label>
             ${isSolarLamp(e.type) ? (() => {
@@ -9213,14 +9330,14 @@
           ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>
             <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>
             <label title="${tr('集管底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Header base above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>` : ''}
-          ${DP_POINT_TYPES.includes(e.type) ? `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
+          ${DP_POINT_TYPES.includes(e.type) ? `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${e.type === 'rainInlet' ? `<label title="${tr('雨水斗底部离地（屋面）高度；自由输入，可为负', 'Funnel bottom above the floor / roof; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             ${e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}` : ''}
           ${DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? `<div class="full muted" style="font-size:11px">${tr('净高', 'Clearance')} ${Math.round((ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)))} mm${(ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)) < 100 ? ` · ${tr('低于 100mm，建议调整标高', 'Below 100 mm — adjust the level')}` : ''}</div>` : ''}
           ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
-            <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
-          ${isTraffic(e.type) ? `<label title="${tr('板面法线方向，决定 3D 牌面 / 信号灯朝向', 'Facing of the sign face / signal head')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
-          ${isFacility(e.type) ? `<label title="${tr('设施朝向', 'Facility heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
+            <label>${tr('转向', 'Turn')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
+          ${isTraffic(e.type) ? `<label title="${tr('板面法线方向，决定 3D 牌面 / 信号灯朝向', 'Facing of the sign face / signal head')}">${tr('转向', 'Turn')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
+          ${isFacility(e.type) ? `<label title="${tr('设施朝向', 'Facility heading')}">${tr('转向', 'Turn')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${isTrafficSign(e.type) ? `<label title="${tr('0 = 牌面居中套在立杆上；不为 0 时杆顶向朝向右侧（正值）或左侧（负值）伸出横向横臂，牌面横向挂装在臂端', '0 centers the face on the pole; otherwise a horizontal arm extends right (+) or left (-) from the pole top and the face mounts sideways on the arm end')}">${tr('左右伸出', 'Lateral offset')} (mm)<input type="number" id="exOff" value="${Math.round(e.off || 0)}" min="-3000" max="3000" step="50"></label>` : ''}
           ${e.type === 'traflight' ? `<label title="${tr('当前点亮的信号，3D 里点击灯杆也可切换', 'Currently lit signal; also cycles by clicking the pole in 3D')}">${tr('当前信号', 'Signal')}<select id="exSig">${[['red', tr('红灯 · 停', 'Red · stop')], ['green', tr('绿灯 · 行', 'Green · go')], ['yellow', tr('黄灯 · 注意', 'Yellow · caution')]].map(([v, t]) => `<option value="${v}" ${(e.sig || 'red') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
             <label class="chk"><input type="checkbox" id="exTAuto" ${e.auto !== false ? 'checked' : ''}> ${tr('自动轮播（每 4 秒切换）', 'Auto cycle every 4s')}</label>` : ''}
@@ -10978,7 +11095,7 @@
       <label>${tr('深', 'Depth')} (mm)<input type="number" id="fD" value="${f.d}" min="50" step="10"></label>
       <label>${tr('中心', 'Center')} X (mm)<input type="number" id="fX" value="${Math.round(f.cx)}" step="10"></label>
       <label>${tr('中心', 'Center')} Y (mm)<input type="number" id="fY" value="${Math.round(f.cy)}" step="10"></label>
-      <label>${tr('旋转', 'Rotation')} (°)<input type="number" id="fR" value="${f.rot}" min="-360" max="375" step="15"></label>
+      <label>${tr('转向', 'Turn')} (°)<input type="number" id="fR" value="${f.rot}" min="-360" max="375" step="15"></label>
       <label>${tr('颜色', 'Color')}<input type="color" id="fC" value="${f.color}"></label>
     </div>
     <div class="muted" style="margin-top:8px">${tr('占地面积', 'Footprint')} ${fmt(f.w * f.d / 1e6)} m²</div>
@@ -11970,6 +12087,20 @@
       if (sel) setRightTab('prop');                              // 选中对象自动切到右侧「属性」页
       renderPillars(); renderSel(); renderPanel(); renderNotes();
     }
+    function selectCtrl(sel, e) {                                // 选择 / 移动工具点选：按住 Ctrl = 加选 / 减选，否则单选
+      const same = sel && ui.sel?.kind === sel.kind && String(ui.sel?.id) === String(sel?.id) && !ui.multi.length;
+      if (!e || !e.ctrlKey) { if (same) return; select(sel); return; }   // 已是当前单选不重复刷新（避免打断面板输入）
+      if (!sel) { select(null); return; }
+      if (same) return;
+      const key = s => s.kind + ':' + s.id;
+      const list = ui.multi.length ? ui.multi.slice() : (ui.sel ? [ui.sel] : []);
+      const i = list.findIndex(s => key(s) === key(sel));
+      if (i >= 0) list.splice(i, 1);                             // 已在多选里再 Ctrl 点 = 移出
+      else list.push(sel);
+      if (list.length === 1) select(list[0]);
+      else { ui.sel = null; ui.multi = list; setRightTab('prop'); renderSel(); renderPanel(); }
+      syncModeHint();
+    }
 
     /* ---------- 多选 / 框选（设计模式）---------- */
     const getS = id => (state.stairs || []).find(x => x.id === id);
@@ -12677,11 +12808,21 @@
     let hintTimer = 0;
     function syncModeHint() {
       const h = $('#modehint');
-      if (is3D()) {                                                // 3D：提示区分预览 / 设计 / 移动
-        h.textContent = m3dPreview ? TIP3DPREV()
-          : (ui.drawTool === 'move' ? tr('3D 移动：按住对象沿地面拖动改位置 · Shift 锁轴 · 右击回到选择', '3D move: drag objects along the ground · Shift locks axis · right-click back to Select') : TIPS()['3d']);
-        h.classList.add('show');
+      const rotHint = ui.rotPick
+        ? tr('旋转：点选要旋转的对象 · Ctrl+点选继续加选 · 点空白处或回车 / 右键结束选择 · Esc 退出', 'Rotate: click the objects to rotate · Ctrl+click to add more · click empty space or press Enter / right-click to finish · Esc exits')
+        : ui.rotMode === 'gizmo'
+          ? tr('2D 旋转：点选对象后按住圆圈拖动转向（俯仰请切到 3D）· Ctrl+点选可多选 · 点空白处取消 / 换选 · Esc 取消', '2D rotate: pick an object, then hold and drag the ring to turn (tilt is available in 3D) · Ctrl+click to multi-select · click empty space to cancel / pick another · Esc cancels')
+          : tr('旋转：点一下基点 → 移动鼠标旋转 → 再点一下确认 · 默认 15° 吸附，Shift 自由角度 · Esc 取消', 'Rotate: pick a base point → move to rotate → click to confirm · 15° snap, Shift for free angle · Esc cancels');
+      if (is3D()) {                                                // 3D：旋转 / 移动有专属提示时显示顶部提示条，通用提示常驻在 #tip 不重复弹
+        const hint = m3dPreview ? ''
+          : ui.tool === 'draw' && ui.drawTool === 'rotate' ? (ui.rotPick
+            ? tr('3D 旋转：点选要旋转的对象 · Ctrl+点选可多选 · 点空白 / 回车结束选择 · Esc 取消', '3D rotate: click the objects to rotate · Ctrl+click to multi-select · click empty space or press Enter to finish · Esc cancels')
+            : tr('3D 旋转：按住左键拖动水平环转向、竖直环俯仰（对象支持时才显示）· Ctrl+点选可多选 · 点空白处取消 / 换选 · Esc 取消', '3D rotate: hold left button and drag the horizontal ring to turn, the vertical ring to tilt (when supported) · Ctrl+click to multi-select · click empty space to cancel / pick another · Esc cancels'))
+            : ui.drawTool === 'move' ? tr('3D 移动：按住对象沿地面拖动改位置 · Shift 锁轴 · 右击回到选择', '3D move: drag objects along the ground · Shift locks axis · right-click back to Select') : '';
+        h.textContent = hint;
         clearTimeout(hintTimer);
+        if (!hint) { h.classList.remove('show'); return; }
+        h.classList.add('show');
         hintTimer = setTimeout(() => h.classList.remove('show'), 4000);
         return;
       }
@@ -12690,15 +12831,12 @@
           : tr('预览模式：拖动平移 / 滚轮缩放 · 点击房间查看面积与地面 · 切到「设计」(W) 才能选中修改', 'Preview: pan / wheel zoom · tap a room for area & flooring · switch to "Design" (W) to edit anything'),
         measure: COARSE ? tr('按住拖出测量线，或依次点两点 · 靠近墙面自动吸附 · 点「预览」或右击退出', 'Hold and drag a line, or tap two points · snaps to walls · tap "Preview" or right-click to exit')
           : tr('点击两点（或按住拖动）测量距离 · 靠近墙面自动吸附 · Shift 锁定水平/垂直 · Esc 取消 · 右击回到预览', 'Click two points (or drag) to measure · snaps to walls · Shift locks horizontal/vertical · Esc cancels · right-click back to preview'),
-        draw: COARSE ? tr('「选择」点选 / 拖动框选，Delete 删除 · 画墙点两点 · 门窗点墙 · 直角/自由切换方向', 'Select: tap to pick / drag to marquee, Delete removes · walls: two points · doors/windows: tap a wall · ortho/free toggle')
-          : tr('「选择」点选或框选（Ctrl+D 复制 · Delete 删除）· 画墙点两点 · 门窗点墙 · 直角/自由切换方向 · Esc 取消', 'Select: click or marquee (Ctrl+D duplicate · Delete remove) · walls: two points · doors/windows: tap a wall · ortho/free toggle · Esc cancels')
+        draw: COARSE ? tr('「选择」点选（Ctrl+点选加选）/ 拖动框选，Delete 删除 · 画墙点两点 · 门窗点墙 · 直角/自由切换方向', 'Select: tap to pick (Ctrl+click adds) / drag to marquee, Delete removes · walls: two points · doors/windows: tap a wall · ortho/free toggle')
+          : tr('「选择」点选（Ctrl+点选加选 / 减选）或框选（Ctrl+D 复制 · Delete 删除）· 画墙点两点 · 门窗点墙 · 直角/自由切换方向 · Esc 取消', 'Select: click (Ctrl+click adds / removes) or marquee (Ctrl+D duplicate · Delete remove) · walls: two points · doors/windows: tap a wall · ortho/free toggle · Esc cancels')
       };
-      const rotHint = ui.rotPick
-        ? tr('旋转：点选要旋转的对象（可连续点选多个）· 点空白处或回车 / 右键结束选择并定基点 · Esc 退出', 'Rotate: click the objects to rotate (multiple OK) · click empty space or press Enter / right-click to finish · Esc exits')
-        : tr('旋转：点一下基点 → 移动鼠标旋转 → 再点一下确认；也可在底部输入角度回车 · 默认 15° 吸附，Shift 自由角度 · Esc 取消', 'Rotate: pick a base point → move to rotate → click to confirm; or type an angle below and press Enter · 15° snap, Shift for free angle · Esc cancels');
       const moveHint = COARSE
-        ? tr('移动：按住对象拖到新位置 · 多选后按住其中任一对象整组移动 · Shift 直角移动', 'Move: drag an object to reposition · drag any selected item to move the group · Shift locks axis')
-        : tr('移动：按住家具 / 墙 / 门窗 / 构件拖动改位置 · 多选后按住其中任一对象整组移动 · Shift 锁定水平 / 垂直 · 右击回到选择', 'Move: drag furniture / walls / openings / structures to reposition · drag any selected item to move the group · Shift locks axis · right-click back to Select');
+        ? tr('移动：按住对象拖到新位置 · Ctrl+点选加选 / 减选 · 多选后按住其中任一对象整组移动 · Shift 直角移动', 'Move: drag an object to reposition · Ctrl+click adds / removes selection · drag any selected item to move the group · Shift locks axis')
+        : tr('移动：按住家具 / 墙 / 门窗 / 构件拖动改位置 · Ctrl+点选加选 / 减选 · 多选后按住其中任一对象整组移动 · Shift 锁定水平 / 垂直 · 右击回到选择', 'Move: drag furniture / walls / openings / structures to reposition · Ctrl+click adds / removes selection · drag any selected item to move the group · Shift locks axis · right-click back to Select');
       const hint = ui.tool === 'draw' && ui.drawTool === 'rotate' ? rotHint : (ui.tool === 'draw' && ui.drawTool === 'move' ? moveHint : hints[ui.tool]);
       h.textContent = hint || '';
       clearTimeout(hintTimer);
@@ -13763,7 +13901,7 @@
           if (d.partial || ui.multi.length) {               // 有框选时：点空白 / 房间地面只取消框选，不顺手选中房间（再点一次才进房间属性）
             ui.multi = []; ui.mq = null; renderSel(); renderPanel(); return;
           }
-          if (d.room) select({ kind: 'room', id: d.room }); else select(null);
+          if (d.room) selectCtrl({ kind: 'room', id: d.room }, { ctrlKey: d.ctrl }); else select(null);
           return;
         }
         const hits = objectsInRect(d.mq || { x0: d.ax, y0: d.ay, x1: d.ax, y1: d.ay });
@@ -13772,6 +13910,15 @@
         const all = base.concat(hits.filter(s => !seen.has(s.kind + ':' + s.id)));
         if (all.length === 1) select(all[0]);               // 只框到一个：按普通单选处理（带手柄）
         else { ui.sel = null; ui.multi = all; renderSel(); renderPanel(); }
+        return;
+      }
+      if (d.kind === 'gizmo') {                                   // 双环拖拽松手：预览已写好最终数据，直接固化到撤销栈
+        if (cancel) { rotApply(d.snap, { x: d.cx, y: d.cy }, 0); rotPitchApply(d.snap, d.pitches, 0); rotFinish(false, d.before, tr('已取消旋转', 'Rotation cancelled')); return; }
+        if (!d.moved) return;                                     // 轻点环不结束旋转，可继续拖或点确认
+        const deg = Math.round((d.delta || 0) * 10) / 10;
+        commit(d.before);                                          // 松手只固化这一步，仍留在旋转工具继续调整
+        rotGizmoRefresh();
+        toast(tr(`已${d.axis === 'yaw' ? '转向' : '俯仰'} ${deg}°`, `${d.axis === 'yaw' ? 'Turned' : 'Tilted'} ${deg}°`));
         return;
       }
       if (d.kind === 'multiMove') {
@@ -13829,31 +13976,49 @@
         else { const a = ui.mA; ui.mA = null; ui.mCur = null; if (Math.hypot(q.x - a.x, q.y - a.y) > 20) mutate(() => state.measures.push({ a, b: q })); }
         renderMeasure(); return;
       }
-      if (ui.tool === 'draw' && ui.drawTool === 'rotate') {               // CAD 式旋转：点选对象 → 点基点 → 拖动预览 → 再点确认
+      if (ui.tool === 'draw' && ui.drawTool === 'rotate') {               // 旋转：选中后即显示双环 gizmo，拖环转向 / 俯仰；点空白处进入 CAD 基点阶段
+        const gz = t.closest && t.closest('[data-gizmo]');
+        if (gz && rotBaseSet()) {                                        // 命中双环：开始对应轴的拖拽（转向 / 俯仰）
+          drag = { kind: 'gizmo', axis: gz.dataset.gizmo, sx: e.clientX, sy: e.clientY, before: snap(), snap: ui.rotSnap, pitches: ui.pitches,
+            cx: ui.rotBase.x, cy: ui.rotBase.y, a0: Math.atan2(p.y - ui.rotBase.y, p.x - ui.rotBase.x) * 180 / Math.PI,
+            rot0: ui.rotAngle, pitch0: ui.pitchNow || 0, delta: 0, moved: false };
+          svg.setPointerCapture(e.pointerId); return;
+        }
         if (ui.rotPick) {
           const hit = rotHitAt(e, p);
           if (hit) {
             if (!rotSnapshot(hit)) { toast(tr('该对象不支持旋转', 'This object cannot be rotated')); return; }
-            if (rotPickAdd(hit)) toast(tr(`已选 ${rotTargets().length} 项 · 继续点选，或点空白 / 回车结束选择`, `${rotTargets().length} selected — click more objects, or click empty space / press Enter`));
+            rotPickAdd(hit);
+            finishRotPick(false);                                        // 点选（含 Ctrl 点选）都直接显示双环；之后 Ctrl+点选可继续加选
             return;
           }
-          if (!rotTargets().length) { toast(tr('请先点选要旋转的对象', 'Click the objects to rotate first')); return; }
-          ui.rotPick = false;                                            // 点空白：结束点选，并把这个位置当基点
+          if (!rotTargets().length) { syncModeHint(); return; }          // 点空白但还没选：顶部提示已说明操作
+          finishRotPick(false);                                          // 点空白：结束点选并显示双环 gizmo
+          return;
         }
         const q = snapPoint(p, e.shiftKey);
-        if (!ui.rotBase) {
+        if (ui.rotMode === 'gizmo') {                                    // gizmo 阶段点到可旋转对象 = 换选（Ctrl = 加选），并以选区中心重定基点
+          const hit = rotHitAt(e, p);
+          if (hit) {
+            if (!rotSnapshot(hit)) { toast(tr('该对象不支持旋转', 'This object cannot be rotated')); return; }
+            if (e.ctrlKey && rotPickAdd(hit)) { rotGizmoBegin(); syncModeHint(); return; }
+            select(hit); rotGizmoBegin();
+            return;
+          }
+          rotCancel(true); select(null); ui.rotPick = true;              // 点空白：结束当前会话、清掉旧选中，回到点选状态
+          renderAll(); syncModeHint();                                   // 顶部提示条显示「点选对象」说明，不再弹底部 toast
+          return;
+        }
+        if (!ui.rotBase) {                                               // 无基点兜底：进入定基点流程
           ui.rotSnap = rotTargets();
           if (!ui.rotSnap.length) { toast(tr('选中的对象不支持旋转，请重新点选', 'The selected objects cannot be rotated')); setSubTool('select'); return; }
-          ui.rotBase = q; ui.rotCur = q; ui.rotAngle = 0; ui.rotTyping = false; ui.rotBefore = snap();
-          $('#rotAngle').value = '';
-          $('#rotAngleBox').classList.add('open');
-          renderAll(); renderRotPreview();
-          setTimeout(() => { if (rotBaseSet()) { const inp = $('#rotAngle'); inp.focus(); inp.select(); } }, 0);   // 可直接输入角度
-          toast(tr('已定基点 · 移动鼠标旋转，再点一下确认（也可输入角度回车）', 'Base point set — move to rotate, click to confirm, or type an angle'));
-        } else {
-          ui.rotCur = q;
-          rotConfirm(rotAngleAt(q, e.shiftKey));
+          ui.pitches = ui.rotSnap.map(rotPitchOf); ui.pitchNow = 0;
+          ui.rotMode = 'base'; ui.rotBase = q; ui.rotCur = q; ui.rotAngle = 0; ui.rotBefore = snap();
+          renderAll(); renderRotPreview(); syncModeHint();
+          return;
         }
+        ui.rotCur = q;
+        rotConfirm(rotAngleAt(q, e.shiftKey));
         return;
       }
       if (ui.tool === 'draw' && (isRoadType(ui.drawTool) || DRAW_PLACE_TOOLS.has(ui.drawTool) || isTraffic(ui.drawTool) || isSecurity(ui.drawTool) || isFacility(ui.drawTool))) {   // 选择子工具不创建，落到下面的编辑链（白名单见 DRAW_PLACE_TOOLS；道路设施走 isFacility）
@@ -14577,89 +14742,89 @@
         drag = { kind: 'multiMove', sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, before: snap(), moved: false, items: startMultiDrag() };
       } else if (edit && t.closest('[data-note]')) {
         const id = t.closest('[data-note]').dataset.note, n0 = (state.notes || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'note' && ui.sel.id === id)) select({ kind: 'note', id });
+        selectCtrl({ kind: 'note', id }, e);
         if (n0) drag = { kind: 'noteMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: n0.x, y0: n0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-dim]')) {
         const id = t.closest('[data-dim]').dataset.dim, d0 = (state.dims || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'dim' && ui.sel.id === id)) select({ kind: 'dim', id });
+        selectCtrl({ kind: 'dim', id }, e);
         if (d0) drag = { kind: 'dimMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...d0.a], b0: [...d0.b], before: snap(), moved: false };
       } else if (edit && t.closest('[data-rail]')) {
         const id = t.closest('[data-rail]').dataset.rail, r0 = (state.rails || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'rail' && ui.sel.id === id)) select({ kind: 'rail', id });
+        selectCtrl({ kind: 'rail', id }, e);
         if (r0) drag = { kind: 'railMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...r0.a], b0: [...r0.b], before: snap(), moved: false };
       } else if (edit && t.closest('[data-beam]')) {
         const id = t.closest('[data-beam]').dataset.beam, b0 = (state.beams || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'beam' && ui.sel.id === id)) select({ kind: 'beam', id });
+        selectCtrl({ kind: 'beam', id }, e);
         if (b0) drag = { kind: 'beamMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...b0.a], b0: [...b0.b], before: snap(), moved: false };
       } else if (edit && t.closest('[data-level]')) {
         const id = t.closest('[data-level]').dataset.level, l0 = (state.levels || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'level' && ui.sel.id === id)) select({ kind: 'level', id });
+        selectCtrl({ kind: 'level', id }, e);
         if (l0) drag = { kind: 'levelMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: l0.x, y0: l0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-lift]')) {
         const id = t.closest('[data-lift]').dataset.lift, l0 = (state.lifts || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'lift' && ui.sel.id === id)) select({ kind: 'lift', id });
+        selectCtrl({ kind: 'lift', id }, e);
         if (l0) drag = { kind: 'liftMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: l0.x, y0: l0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-north]')) {
         if (state.north) {
-          if (ui.sel?.kind !== 'north') select({ kind: 'north' });
+          selectCtrl({ kind: 'north' }, e);
           drag = { kind: 'northMove', sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: state.north.x, y0: state.north.y, before: snap(), moved: false };
         }
       } else if (edit && t.closest('[data-slab]')) {
         const id = t.closest('[data-slab]').dataset.slab, s0 = (state.slabs || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'slab' && ui.sel.id === id)) select({ kind: 'slab', id });
+        selectCtrl({ kind: 'slab', id }, e);
         if (s0) drag = { kind: 'slabMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: s0.x, y0: s0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-parapet]')) {
         const id = t.closest('[data-parapet]').dataset.parapet, p0 = (state.parapets || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'parapet' && ui.sel.id === id)) select({ kind: 'parapet', id });
+        selectCtrl({ kind: 'parapet', id }, e);
         if (p0) drag = { kind: 'parapetMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...p0.a], b0: [...p0.b], before: snap(), moved: false };
       } else if (edit && t.closest('[data-canopy]')) {
         const id = t.closest('[data-canopy]').dataset.canopy, c0 = (state.canopies || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'canopy' && ui.sel.id === id)) select({ kind: 'canopy', id });
+        selectCtrl({ kind: 'canopy', id }, e);
         if (c0) drag = { kind: 'canopyMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...c0.a], b0: [...c0.b], before: snap(), moved: false };
       } else if (edit && (t.closest('[data-pbox]') || t.closest('[data-wbox]'))) {
         const el = t.closest('[data-pbox]') || t.closest('[data-wbox]');
         const kind = el.dataset.pbox ? 'pbox' : 'wbox', id = el.dataset[kind];
         const b0 = (state[BOX_ARR[kind]] || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === kind && ui.sel.id === id)) select({ kind, id });
+        selectCtrl({ kind, id }, e);
         if (b0) drag = { kind: 'boxSlide', objKind: kind, id, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };
       } else if (edit && t.closest('[data-balcony]')) {
         const id = t.closest('[data-balcony]').dataset.balcony, b0 = (state.balconies || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'balcony' && ui.sel.id === id)) select({ kind: 'balcony', id });
+        selectCtrl({ kind: 'balcony', id }, e);
         if (b0) drag = { kind: 'balconyMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: b0.x, y0: b0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-planter]')) {
         const id = t.closest('[data-planter]').dataset.planter, p0 = (state.planters || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'planter' && ui.sel.id === id)) select({ kind: 'planter', id });
+        selectCtrl({ kind: 'planter', id }, e);
         if (p0) drag = { kind: 'planterMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: p0.x, y0: p0.y, before: snap(), moved: false };
       } else if (edit && ['roof', 'pergola', 'deck', 'pool'].some(k => t.closest(`[data-${k}]`))) {
         const kind = ['roof', 'pergola', 'deck', 'pool'].find(k => t.closest(`[data-${k}]`));
         const id = t.closest(`[data-${kind}]`).dataset[kind], it = outArr(kind).find(x => x.id === id);
-        if (!(ui.sel?.kind === kind && ui.sel.id === id)) select({ kind, id });
+        selectCtrl({ kind, id }, e);
         if (it) drag = { kind: kind + 'Move', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: it.x, y0: it.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-arcwall]')) {
         const id = t.closest('[data-arcwall]').dataset.arcwall, a0 = (state.arcWalls || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'arcwall' && ui.sel.id === id)) select({ kind: 'arcwall', id });
+        selectCtrl({ kind: 'arcwall', id }, e);
         if (a0) drag = { kind: 'arcwallMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a: a0.a.slice(), b: a0.b.slice(), before: snap(), moved: false };
       } else if (edit && t.closest('[data-axgrid]')) {
         const id = t.closest('[data-axgrid]').dataset.axgrid, a0 = (state.axes || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'axgrid' && ui.sel.id === id)) select({ kind: 'axgrid', id });
+        selectCtrl({ kind: 'axgrid', id }, e);
         if (a0) drag = { kind: 'axgridMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: a0.x, y0: a0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-gate]')) {
         const id = t.closest('[data-gate]').dataset.gate, g0 = (state.gates || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'gate' && ui.sel.id === id)) select({ kind: 'gate', id });
+        selectCtrl({ kind: 'gate', id }, e);
         if (g0) drag = { kind: 'gateMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...g0.a], b0: [...g0.b], before: snap(), moved: false };
       } else if (edit && (t.closest('[data-roof]') || t.closest('[data-pergola]') || t.closest('[data-deck]') || t.closest('[data-pool]'))) {
         const el = t.closest('[data-roof]') || t.closest('[data-pergola]') || t.closest('[data-deck]') || t.closest('[data-pool]');
         const kind = el.dataset.roof ? 'roof' : el.dataset.pergola ? 'pergola' : el.dataset.deck ? 'deck' : 'pool';
         const id = el.dataset[kind], it = outArr(kind).find(x => x.id === id);
-        if (!(ui.sel?.kind === kind && ui.sel?.id === id)) select({ kind, id });
+        selectCtrl({ kind, id }, e);
         if (it) drag = { kind: kind + 'Move', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: it.x, y0: it.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-leader]')) {
         const id = t.closest('[data-leader]').dataset.leader, l0 = (state.leaders || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'leader' && ui.sel.id === id)) select({ kind: 'leader', id });
+        selectCtrl({ kind: 'leader', id }, e);
         if (l0) drag = { kind: 'leaderMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...l0.a], t0: [...l0.t], before: snap(), moved: false };
       } else if (edit && t.closest('[data-extra]')) {
         const id = t.closest('[data-extra]').dataset.extra, e0 = (state.extras || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'extra' && ui.sel.id === id)) select({ kind: 'extra', id });
+        selectCtrl({ kind: 'extra', id }, e);
         if (e0 && isRoadType(e0.type)) {                      // 双击道路本体：在点击处插入新拐点（与双击手柄删除配套）
           const now = Date.now();
           if (ui.exAddClick && ui.exAddClick.id === id && now - ui.exAddClick.t < 450 &&
@@ -14673,34 +14838,34 @@
           : { kind: 'extraMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: e0.x, y0: e0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-lamp]')) {
         const id = t.closest('[data-lamp]').dataset.lamp, l0 = (state.lamps || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'lamp' && ui.sel.id === id)) select({ kind: 'lamp', id });
+        selectCtrl({ kind: 'lamp', id }, e);
         if (l0 && l0.wall) drag = { kind: 'lampSlide', id, sx: e.clientX, sy: e.clientY, before: snap(), moved: false };   // 壁装灯具：沿墙滑动
         else if (l0) drag = { kind: 'lampMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: l0.x, y0: l0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-flue]')) {
         const id = t.closest('[data-flue]').dataset.flue, f0 = (state.flues || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'flue' && ui.sel.id === id)) select({ kind: 'flue', id });
+        selectCtrl({ kind: 'flue', id }, e);
         if (f0) drag = { kind: 'flueMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: f0.x, y0: f0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-bopen]')) {
         const id = t.closest('[data-bopen]').dataset.bopen;
-        if (!(ui.sel?.kind === 'bopen' && ui.sel?.id === id)) select({ kind: 'bopen', id });
+        selectCtrl({ kind: 'bopen', id }, e);
         drag = { kind: 'bopenMove', id, px: p.x, py: p.y, d0: [...(bov(id).d || [0, 0])], sx: e.clientX, sy: e.clientY, before: snap(), moved: false };   // 原始门窗沿墙滑动
       } else if (edit && t.closest('[data-open]')) {
         const id = t.closest('[data-open]').dataset.open;
-        if (!(ui.sel?.kind === 'open' && ui.sel?.id === id)) select({ kind: 'open', id });
+        selectCtrl({ kind: 'open', id }, e);
         if (state.openings.find(x => x.id === id)?.kind === 'lbay') { renderPanel(); return; }   // 转角飘窗跨两面墙，不做整体拖动
         drag = { kind: 'openMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-stair]')) {
         const id = t.closest('[data-stair]').dataset.stair, s0 = (state.stairs || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'stair' && ui.sel.id === id)) select({ kind: 'stair', id });
+        selectCtrl({ kind: 'stair', id }, e);
         if (s0) drag = { kind: 'stairMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: s0.x, y0: s0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-pillar]')) {
         const id = t.closest('[data-pillar]').dataset.pillar, c0 = (state.pillars || []).find(x => x.id === id);
-        if (!(ui.sel?.kind === 'pillar' && ui.sel.id === id)) select({ kind: 'pillar', id });
+        selectCtrl({ kind: 'pillar', id }, e);
         if (c0) drag = { kind: 'pillarMove', id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, x0: c0.x, y0: c0.y, before: snap(), moved: false };
       } else if (edit && t.closest('[data-fid]')) {
         const f = getF(t.closest('[data-fid]').dataset.fid);
-        if (ui.sel?.id !== f.id) select({ kind: 'furn', id: f.id });
-        drag = { kind: 'move', id: f.id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, ox: p.x - f.cx, oy: p.y - f.cy, before: snap(), moved: false };
+        selectCtrl({ kind: 'furn', id: f.id }, e);
+        if (!(e.ctrlKey && ui.multi.length > 1)) drag = { kind: 'move', id: f.id, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, ox: p.x - f.cx, oy: p.y - f.cy, before: snap(), moved: false };   // Ctrl 刚加选成组：这一下只加选不拖动（再按组内对象即整组拖）
       } else if (edit) {
         const wid = t.closest('[data-wall]')?.dataset.wall;
         if (wid && !wid.startsWith('CW') && state.demolished.includes(wid)) { toggleWall(wid); return; }   // 点已拆内置墙虚线残留 → 恢复
@@ -14714,11 +14879,11 @@
           }
           ui.roomDbl = { id: rid, t: now };
           const partial = ui.multi.length > 1;                       // 已有框选：这一下只负责取消框选，不顺手选中房间
-          if (!partial && !(ui.sel?.kind === 'room' && ui.sel?.id === rid)) select({ kind: 'room', id: rid });
-          drag = { kind: 'marquee', sx: e.clientX, sy: e.clientY, ax: p.x, ay: p.y, room: rid, add: e.shiftKey, mq: null, moved: false, partial };   // 房间内拖动 = 框选（不拖动则仍算点选房间）
+          if (!partial) selectCtrl({ kind: 'room', id: rid }, e);
+          drag = { kind: 'marquee', sx: e.clientX, sy: e.clientY, ax: p.x, ay: p.y, room: rid, add: e.shiftKey, ctrl: e.ctrlKey, mq: null, moved: false, partial };   // 房间内拖动 = 框选（不拖动则仍算点选房间）
           svg.setPointerCapture(e.pointerId); return;
         }
-        if (hit && !(ui.sel?.kind === 'wall' && ui.sel?.id === hit.ref)) select({ kind: 'wall', id: hit.ref });
+        if (hit) selectCtrl({ kind: 'wall', id: hit.ref }, e);
         if (hit && hit.ref.startsWith('CW')) {
           const w = state.walls.find(x => 'CW' + x.id === hit.ref);
           drag = { kind: 'wallMove', id: hit.ref, sx: e.clientX, sy: e.clientY, px: p.x, py: p.y, a0: [...w.a], b0: [...w.b], before: snap(), moved: false };
@@ -14870,11 +15035,31 @@
       if (drag && MOVE_DRAG_KINDS.has(drag.kind) && drag.px != null)
         p = axisLock({ x: drag.px, y: drag.py }, p, e.shiftKey);   // 直角模式（或按住 Shift）：整体拖动只走水平 / 垂直
       $('#cx').textContent = Math.round(p.x) + ' mm'; $('#cy').textContent = Math.round(p.y) + ' mm';
+      if (drag && drag.kind === 'gizmo') {                          // 双环拖拽：转向环 = 绕中心角度差；俯仰环 = 鼠标纵向位移
+        if (Math.hypot(e.clientX - drag.sx, e.clientY - drag.sy) >= 2) drag.moved = true;
+        if (drag.axis === 'yaw') {
+          const a = Math.atan2(p.y - drag.cy, p.x - drag.cx) * 180 / Math.PI;
+          let d = a - drag.a0; if (d > 180) d -= 360; if (d < -180) d += 360;
+          drag.delta = e.shiftKey ? d : Math.round(d / 15) * 15;
+          ui.rotAngle = norm(drag.rot0 + drag.delta);
+          rotApply(drag.snap, { x: drag.cx, y: drag.cy }, drag.delta);
+        } else {
+          const dy = (e.clientY - drag.sy) / view.s;                 // 屏幕纵向位移（mm）→ 俯仰角：每 600mm 对应 90°
+          const raw = dy / 600 * 90;
+          drag.delta = e.shiftKey ? raw : Math.round(raw / 15) * 15;
+          ui.pitchNow = drag.pitch0 + drag.delta;
+          rotPitchApply(drag.snap, drag.pitches, drag.delta);
+        }
+        renderAll(); renderRotPreview(); return;
+      }
       if (!drag) {
-        if (rotBaseSet()) {                                        // 旋转预览：跟手实时改变角度
-          ui.rotCur = snapPoint(p, false);
+        if (rotBaseSet()) {
+          const gz = e.target.closest && e.target.closest('[data-gizmo]');
+          const hov = gz ? gz.dataset.gizmo : null;
+          if (hov !== ui.gizmoHover) { ui.gizmoHover = hov; renderSel(); }
+          if (ui.rotMode === 'gizmo') return;                       // 双环待拖拽：只切换高亮，不跟手转动
+          ui.rotCur = snapPoint(p, false);                          // CAD 基点阶段：跟手实时改变角度
           ui.rotAngle = rotAngleAt(p, e.shiftKey);
-          if (!ui.rotTyping) $('#rotAngle').value = ui.rotAngle;
           rotApply(ui.rotSnap, ui.rotBase, ui.rotAngle);
           renderAll(); renderRotPreview(); return;
         }
@@ -15834,6 +16019,7 @@
       if (dt === 'rotate') {
         if (!rotTargets().length) { ui.sel = null; ui.multi = []; }   // 预选里没有可旋转对象 → 清空，改为自己点选
         ui.rotPick = !rotTargets().length;
+        if (!ui.rotPick) rotGizmoBegin();                            // 已有预选：立即显示双环 gizmo
       }
       if (dt === 'paint') {                   // 材质刷：以当前选中的房间为样板材料（没选房间则沿用上次）
         const rm = ui.sel?.kind === 'room' ? state.rooms[ui.sel.id]?.mat : null;
@@ -15860,10 +16046,7 @@
       if (ui.tool === 'draw' && innerWidth <= 900) document.querySelector('aside.lib')?.classList.remove('open');   // 手机上选完工具收起抽屉
       syncModeHint();
       if (dt === 'rotate') {
-        renderFab();                          // 底部操作条让位
-        toast(ui.rotPick
-          ? tr('旋转：点选要旋转的对象（可连点多个），点空白处或回车结束选择并定基点', 'Rotate: click the objects to rotate (multiple OK); click empty space or press Enter to finish picking')
-          : tr('旋转：点一下基点，然后移动鼠标旋转，再点一下确认；也可直接输入角度回车', 'Rotate: pick a base point, move to rotate, click to confirm — or type an angle and press Enter'));
+        renderFab();                          // 底部操作条让位（操作提示由顶部提示条显示，不再弹底部 toast）
       }
       if (dt === 'paint') toast(tr(`材质刷：当前「${nm(MATS[ui.paintMat].name)}」· 先用「选择」点房间可换样板`, `Paint: "${MATS[ui.paintMat].name}" · select a room to change it`));
       if (dt === 'dim') toast(tr('尺寸标注：点起点，再点终点（可拖动整体移动）', 'Dimension: click the start point, then the end point (drag to move)'));
@@ -15965,13 +16148,6 @@
       renderNotes();
     }
     document.querySelectorAll('#designTools .btn[data-dt]').forEach(b => b.onclick = () => setSubTool(b.dataset.dt));
-    // 旋转角度输入：键入后 Enter / 「应用」= 确认，Esc = 取消
-    $('#rotAngle').addEventListener('input', () => { ui.rotTyping = true; });
-    $('#rotAngle').addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); rotConfirm(); }
-      else if (e.key === 'Escape') { e.preventDefault(); rotCancel(); setSubTool('select'); }
-    });
-    $('#rotOk').onclick = () => rotConfirm();
     // 两点绘制：直角 / 自由 两种方向模式（对墙、栏杆、梁、女儿墙、雨棚、尺寸标注、测量都生效）
     const syncWallMode = () => {
       $('#wallOrtho').classList.toggle('on', !ui.wallFree);
@@ -16762,7 +16938,7 @@
 
       // 按住已选中的家具拖动：沿地面摆放（与 2D 共用网格和贴墙吸附）。
       // 在父元素上用捕获阶段监听，赶在 OrbitControls 之前关掉它，避免同时旋转镜头
-      let fdrag = null, objdrag = null;
+      let fdrag = null, objdrag = null, mdrag = null;
       const OBJ_ARRS = {
         wall: 'walls', arcwall: 'arcWalls', pillar: 'pillars', stair: 'stairs', lift: 'lifts', rail: 'rails', beam: 'beams', slab: 'slabs', parapet: 'parapets',
         canopy: 'canopies', balcony: 'balconies', planter: 'planters', flue: 'flues', extra: 'extras', roof: 'roofs', pergola: 'pergolas', deck: 'decks', pool: 'pools', gate: 'gates', lamp: 'lamps', pbox: 'powerBoxes', wbox: 'weakBoxes'
@@ -16807,9 +16983,27 @@
         if (!o.a && typeof o.x === 'number' && typeof o.y === 'number') { o.x += dx; o.y += dy; }
       };
       host.addEventListener('pointerdown', e => {
-        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || !ui.sel || (ui.tool === 'draw' && ui.drawTool !== 'move')) return;   // 仅「移动」工具可按住已选对象拖动（硬性约定：选择只选中 / 改尺寸），其余交给镜头旋转
+        if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || (ui.tool === 'draw' && ui.drawTool !== 'move') || (!ui.sel && !ui.multi.length)) return;   // 仅「移动」工具可按住已选对象拖动（硬性约定：选择只选中 / 改尺寸），其余交给镜头旋转
         const h = pick(e), g = groundAt(e.clientX, e.clientY);
         if (!g) return;
+        if (!ui.sel && ui.multi.length > 1) {                       // 多选：按住组内任一对象 = 整组移动（无需 Ctrl）
+          const hitSel = h ? ui.multi.find(s => h.fid ? (s.kind === 'furn' && String(s.id) === String(h.fid)) : (s.kind === h.kind && String(s.id) === String(h.id))) : null;
+          if (!hitSel) return;
+          mdrag = {
+            pid: e.pointerId, sx: e.clientX, sy: e.clientY, gx: g.x, gy: g.y, before: snap(), moved: false, dx: 0, dy: 0,
+            items: ui.multi.map(sel => {
+              const o = sel.kind === 'furn' ? getF(sel.id) : findObj(sel.kind, sel.id);
+              return o ? { furn: sel.kind === 'furn', kind: sel.kind, id: sel.id, o, cx0: o.cx, cy0: o.cy, x0: typeof o.x === 'number' ? o.x : null, y0: typeof o.y === 'number' ? o.y : null, a0: o.a ? [...o.a] : null, b0: o.b ? [...o.b] : null, pts0: o.pts ? o.pts.map(q => [...q]) : null } : null;
+            }).filter(Boolean),
+            mesh: []
+          };
+          mdrag.items.forEach(it => {
+            if (it.furn) { const m = furnG.children.find(o => o.userData.fid === it.id); if (m) mdrag.mesh.push({ m, x: m.position.x, z: m.position.z }); }
+            else archUp.children.forEach(o => { const t = o.userData.pick3d; if (t && t.kind === it.kind && String(t.id) === String(it.id)) mdrag.mesh.push({ m: o, x: o.position.x, z: o.position.z }); });
+          });
+          orbit.enabled = false; fly = null; cv.setPointerCapture(e.pointerId);
+          return;
+        }
         if (ui.sel.kind === 'furn') {
           const f = h?.fid === ui.sel.id && getF(h.fid);
           if (!f) return;
@@ -16842,6 +17036,16 @@
         orbit.enabled = false; fly = null; cv.setPointerCapture(e.pointerId);
       }, true);
       cv.addEventListener('pointermove', e => {
+        if (mdrag && e.pointerId === mdrag.pid) {
+          if (!mdrag.moved && Math.hypot(e.clientX - mdrag.sx, e.clientY - mdrag.sy) < TAP) return;
+          const g = groundAt(e.clientX, e.clientY); if (!g) return;
+          mdrag.moved = true; cv.style.cursor = 'move';
+          const step = e.shiftKey ? 50 : 10;
+          mdrag.dx = Math.round((g.x - mdrag.gx) / step) * step;
+          mdrag.dy = Math.round((g.y - mdrag.gy) / step) * step;
+          mdrag.mesh.forEach(t => { t.m.position.x = t.x + mdrag.dx / 1000; t.m.position.z = t.z + mdrag.dy / 1000; });   // 拖动中只挪模型，松手写回方案
+          return;
+        }
         if (objdrag && e.pointerId === objdrag.pid) {
           if (!objdrag.moved && Math.hypot(e.clientX - objdrag.sx, e.clientY - objdrag.sy) < TAP) return;
           const g = groundAt(e.clientX, e.clientY); if (!g) return;
@@ -16886,6 +17090,19 @@
       });
       const endF = e => {
         if (e.type === 'pointerup' && e.button !== 0) return;          // 右键 / 中键松手不当作点击（右键另有平移 / 取消绘制）
+        if (mdrag && e.pointerId === mdrag.pid) {
+          const d = mdrag; mdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool();
+          if (d.moved && (d.dx || d.dy)) {
+            mutate(() => d.items.forEach(it => {                        // 松手写回方案：家具改 cx/cy，其余按对象形态平移（进撤销栈）
+              if (it.furn) { it.o.cx = it.cx0 + d.dx; it.o.cy = it.cy0 + d.dy; return; }
+              if (it.x0 != null) it.o.x = it.x0 + d.dx;
+              if (it.y0 != null) it.o.y = it.y0 + d.dy;
+              if (it.a0) { it.o.a = [it.a0[0] + d.dx, it.a0[1] + d.dy]; it.o.b = [it.b0[0] + d.dx, it.b0[1] + d.dy]; }
+              if (it.pts0) it.o.pts = it.pts0.map(q => [q[0] + d.dx, q[1] + d.dy]);
+            }));
+          } else d.mesh.forEach(t => { t.m.position.x = t.x; t.m.position.z = t.z; });   // 未拖动 / 取消：还原模型
+          return;
+        }
         if (objdrag && e.pointerId === objdrag.pid) {
           const d = objdrag; objdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool();
           const info = d.openInfo;
@@ -16942,6 +17159,23 @@
           return;
         }
         const h = pick(e);
+        if (ui.tool === 'draw' && ui.drawTool === 'rotate' && !m3dPreview) {   // 3D 旋转：点选对象后立即显示双环（预览态仍走只读分支）
+          const sel = h?.fid ? { kind: 'furn', id: h.fid } : (h?.kind && h?.id != null ? { kind: h.kind, id: h.id } : null);
+          if (sel && window.rotSnapshot(sel)) {
+            if (ui.rotPick) {
+              window.rotPickAdd(sel);
+              window.finishRotPick(false);                               // 点选（含 Ctrl 点选）都直接显示双环；之后 Ctrl+点选可继续加选
+            }
+            else if (e.ctrlKey && window.rotPickAdd(sel)) { window.rotGizmoBegin(); }   // 双环待拖拽时 Ctrl+点对象 = 加选，基点重算到新选区中心
+            else { window.select(sel); window.rotGizmoBegin(); }
+          } else if (ui.rotPick) {
+            if (window.rotTargets().length) window.finishRotPick(false);    // 点空白：结束点选，显示双环
+          } else if (ui.rotMode === 'gizmo') {
+            rotCancel(true); select(null); ui.rotPick = true;          // 双环待拖拽时点空白：结束会话、清掉旧选中，转成重新选择对象
+            renderAll(); syncModeHint();                               // 顶部提示条更新为点选提示
+          }
+          return;
+        }
         if (m3dPreview) {                                                 // 3D 预览：门窗可点开合 / 房间可查看，家具不可选编辑
           if (h?.park) togglePark(h.park);                                // 预览态：停车场设备只动作不选中
           else if (h?.gateArm) toggleGateArm(h.gateArm);                   // 预览态：道闸只动作不选中
@@ -16976,9 +17210,9 @@
         else if (h?.kind === 'traflight') cycleTrafficLight(h.id, true);   // 信号灯：切换信号 + 选中（面板可改信号 / 自动轮播）
         else if (h?.kind === 'facLaneLight') cycleLaneLight(h.id, true);   // 车道灯：切红/绿 + 选中
         else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
-        else if (h?.fid) window.select({ kind: 'furn', id: h.fid });
-        else if (h?.room) window.select({ kind: 'room', id: h.room });
-        else if (h?.kind && h?.id != null) window.select({ kind: h.kind, id: h.id });   // 墙 / 柱 / 楼梯 / 电梯 / 栏杆 / 梁 / 扩展构件等
+        else if (h?.fid) window.selectCtrl({ kind: 'furn', id: h.fid }, e);   // 点选（Ctrl = 加选 / 减选）
+        else if (h?.room) window.selectCtrl({ kind: 'room', id: h.room }, e);
+        else if (h?.kind && h?.id != null) window.selectCtrl({ kind: h.kind, id: h.id }, e);   // 墙 / 柱 / 楼梯 / 电梯 / 栏杆 / 梁 / 扩展构件等
         else window.select(null);
       });
 
@@ -24662,26 +24896,29 @@
       };
       return line;
     }
-    function updateSel() {                                       // 家具 / 墙 / 柱 / 楼梯等选中对象统一橙色包围盒
+    function updateSel() {                                       // 家具 / 墙 / 柱 / 楼梯等选中对象统一橙色包围盒（单选与多选都高亮）
       if (m3dPreview || opt.mode === 'walk') {                   // 3D 预览 / 漫游态：不显示编辑用的选中包围盒（只看效果，进这些模式前残留的选中线也一并清掉）
         if (selHelpers.length) { selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = ''; }
         return;
       }
-      const key = ui.sel?.id != null ? ui.sel.kind + ':' + ui.sel.id : '';
+      const key = (ui.sel?.id != null ? ui.sel.kind + ':' + ui.sel.id : '') + '|' + (ui.multi || []).map(s => s.kind + ':' + s.id).join(',');
       if (key !== selKey) {
         selKey = key;
         selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = [];
+        const sels = ui.multi.length ? ui.multi : (ui.sel?.id != null ? [ui.sel] : []);   // 多选时逐个高亮（旋转工具 Ctrl 加选也走这里）
         const targets = [];
-        if (ui.sel?.kind === 'furn') {
-          const g = furnG.children.find(g => g.userData.fid === ui.sel.id);
-          if (g) targets.push(g);
-        } else if (ui.sel?.id != null) {
-          const lampKind = ui.sel.kind === 'extra' && ['streetlamp', 'solarlamp', 'traflight', 'facLaneLight'].includes(state.extras?.find(x => String(x.id) === String(ui.sel.id))?.type);   // 路灯 / 太阳能路灯 / 信号灯 / 车道灯：pick3d 用 type 作 kind，选中却是 extra，这里对齐
-          archUp.children.forEach(o => {                         // 墙段可能有多块，全部高亮
-            const t = o.userData.pick3d;
-            if (t && String(t.id) === String(ui.sel.id) && (t.kind === ui.sel.kind || (lampKind && t.kind === state.extras.find(x => String(x.id) === String(ui.sel.id)).type))) targets.push(o);
-          });
-        }
+        sels.forEach(sel => {
+          if (sel.kind === 'furn') {
+            const g = furnG.children.find(g => g.userData.fid === sel.id);
+            if (g) targets.push(g);
+          } else if (sel.id != null) {
+            const lampKind = sel.kind === 'extra' && ['streetlamp', 'solarlamp', 'traflight', 'facLaneLight'].includes(state.extras?.find(x => String(x.id) === String(sel.id))?.type);   // 路灯 / 太阳能路灯 / 信号灯 / 车道灯：pick3d 用 type 作 kind，选中却是 extra，这里对齐
+            archUp.children.forEach(o => {                       // 墙段可能有多块，全部高亮
+              const t = o.userData.pick3d;
+              if (t && String(t.id) === String(sel.id) && (t.kind === sel.kind || (lampKind && t.kind === state.extras.find(x => String(x.id) === String(sel.id)).type))) targets.push(o);
+            });
+          }
+        });
         targets.forEach(o => {
           let h;
           const ex = o.userData.pick3d && state.extras?.find(x => String(x.id) === String(o.userData.pick3d.id));
@@ -26165,7 +26402,15 @@
       ui.layers.slab = v;                                       // 与图层设置保持一致（随方案保存）
     }
 
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
+    function projectMM(x, y, h = .9) {                             // 户型 mm 平面点 → 视口像素（3D 旋转 gizmo 叠加层定位用）
+      const r = renderer.domElement.getBoundingClientRect(), v = new THREE.Vector3(wx(x), h, wz(y)).project(camera);
+      return { x: r.left + (v.x + 1) * r.width / 2, y: r.top + (1 - v.y) * r.height / 2, visible: v.z > -1 && v.z < 1 };
+    }
+    function camDirH() {                                           // 相机水平朝向单位向量（3D 俯仰大圆的平面取向用）
+      const d = camera.getWorldDirection(new THREE.Vector3()), L = Math.hypot(d.x, d.z);
+      return L > .05 ? { x: d.x / L, z: d.z / L } : { x: 1, z: 0 };
+    }
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, projectMM, camDirH, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
   </script>
 </body>
 
