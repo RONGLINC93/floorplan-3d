@@ -9027,7 +9027,7 @@
       if (t === 'dpRoute') return { ...base, w: 110, z: 2500, slope: 0.5 };   // 连续画管：pts 折线、管径、底标高、坡度(%)
       if (t === 'waterRiser') return { ...base, w: 50, h: 2800, z: 0, nrot: 0 };
       if (t === 'rainInlet') return { ...base, w: 110, h: 180, z: 0, linkId: null };
-      if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0 };
+      if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0, doorOpen: false };
       if (t === 'sprinkler') return { ...base, w: 25, h: 120, z: 2600 };
       if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, n: 4, dn: 32 };
       if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0 };   // 管件：默认 ⌀110、件高 300；放置时记录贴墙法线方向 nrot 与到墙距离 edist
@@ -9161,7 +9161,8 @@
             ${e.type === 'dpReducer' ? `<label>${tr('变径后直径', 'Outlet ⌀')} (mm)<input type="number" id="exDn2" value="${Math.round(e.dn2 ?? 110)}" min="30" max="2000" step="10"></label>` : ''}` : ''}
           ${e.type === 'waterRiser' ? `<label title="${tr('给水立管底部离地高度；3D 按设定高度生成，默认与墙同高', 'Riser bottom above the floor')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
-          ${e.type === 'hydrantIn' ? `<label>${tr('箱体进深', 'Cabinet depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? 240)}" min="100" max="600" step="10"></label>` : ''}
+          ${e.type === 'hydrantIn' ? `<label>${tr('箱体进深', 'Cabinet depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? 240)}" min="100" max="600" step="10"></label>
+            <label title="${tr('箱门开合状态；设计态 / 预览态点击 3D 箱门也可开合', 'Door state; click the 3D cabinet door in design / preview mode to toggle')}">${tr('箱门开启', 'Door open')}<input type="checkbox" id="exDoorOpen" ${e.doorOpen ? 'checked' : ''}></label>` : ''}
           ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>
             <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>` : ''}
           ${e.type === 'rainInlet' && e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}
@@ -9343,6 +9344,7 @@
           e.w = v; e.edist = 30 + v / 2;
         });
         if (e0.type === 'tiecol' || e0.type === 'hydrantIn') upd('exD', (e, v) => e.d = v, 60, 4000);   // 构造柱宽（Y 向）/ 消火栓箱进深
+        if (e0.type === 'hydrantIn') { const eo = $('#exDoorOpen'); if (eo) eo.onchange = () => { mutateLive3D(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.doorOpen = eo.checked; }); window.applyHydrantVisual?.(id); }; }   // 箱门开合：写回方案 + 同步 3D 动画
         if (e0.type === 'manifold') { const nx = $('#exN'); if (nx) nx.onchange = ev => { const v = parseInt(ev.target.value, 10); if (isNaN(v)) return; mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.n = Math.max(2, Math.min(12, v)); }); }; }
         upd('exDn', (e, v) => e.dn = v, 15, 110);
         if (e0.type === 'dpReducer') { const d2 = $('#exDn2'); if (d2) d2.onchange = ev => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.dn2 = Math.max(30, Math.min(Math.max(40, (+e.w || 160) - 10), Math.round(+ev.target.value || 110))); }); }
@@ -16889,7 +16891,7 @@
           else if (h?.carLamp) toggleCarLamp(h.carLamp);                   // 预览态：车灯只动作不选中
           else if (h?.liftBtn) liftBtnAct(h.liftBtn);                     // 预览态也支持电梯楼层 / 开关门按钮
           else if (h?.carWin) toggleDoor(h.carWin);              // 预览态：玻璃升降按钮只动作不选中
-          else if (h?.door) { if (h.door.kind === 'car') toggleDoor(h.door); else h.door.open = !h.door.open; }
+          else if (h?.door) { if (h.door.kind === 'car' || h.door.kind === 'hydrant') toggleDoor(h.door); else h.door.open = !h.door.open; }
           else if (h?.flagSel || h?.flagHandle) startFlagAnim((state.extras || []).find(x => x.id === (h.flagSel || h.flagHandle)));
           else if (h?.kind === 'lamp') toggleLamp(h.id, h.gang);
           else if ((h?.kind === 'streetlamp' || h?.kind === 'solarlamp')) toggleStreetLamp(h.id, false);   // 预览态：只开关不选中
@@ -16904,7 +16906,7 @@
         else if (h?.liftBtn) { liftBtnAct(h.liftBtn); window.select({ kind: 'lift', id: h.liftBtn.id }); }   // 呼叫面板按钮：执行后选中电梯（属性面板可继续设置楼层）
         else if (h?.carWin) { toggleDoor(h.carWin); window.select({ kind:'extra', id:h.carWin.carId }); }   // 玻璃升降按钮：降下 / 升起车窗并选中整车
         else if (h?.door) {                                               // 门 / 窗：开合的同时选中它（属性面板可改尺寸 / 材质 / 开启方向）
-          if (h.door.kind === 'car') toggleDoor(h.door);                 // 轿车门把手：写回方案（否则重建场景时门会突然弹回关闭）
+          if (h.door.kind === 'car' || h.door.kind === 'hydrant') toggleDoor(h.door);   // 车门 / 消火栓箱门：写回方案（否则重建场景时门会突然弹回关闭）
           else h.door.open = !h.door.open;
           if (BOX_ARR[h.kind] && h.id != null) {                        // 电箱：门状态写回方案，2D 同步显示开启轮廓
             const b = (state[BOX_ARR[h.kind]] || []).find(x => x.id === h.id);
@@ -16971,8 +16973,8 @@
           if (doorHover !== h.mesh) {                                    // 换门：把高亮层挂到新门扇（随开门动画一起转）
             doorHover = h.mesh;
             if (opt.hi !== false) {                                     // 「交互高亮」关闭时只出气泡、不挂高亮框
-              const p = h.mesh.geometry.parameters;                     // 车门玻璃是 BufferGeometry 没有 parameters：用世界包围盒兜底
-              if (p) doorHi.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+              const p = h.mesh.geometry.parameters;                     // 环形 / 圆柱部件有 parameters 但无 width/height/depth，车门玻璃干脆没有：都用包围盒兜底，避免 NaN scale
+              if (p && Number.isFinite(p.width) && Number.isFinite(p.height) && Number.isFinite(p.depth)) doorHi.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
               else { const bb = new THREE.Box3().setFromObject(h.mesh), sz = bb.getSize(new THREE.Vector3());
                 bb.getCenter(doorHi.position); doorHi.scale.set(Math.max(.05,sz.x)*1.05, Math.max(.05,sz.y)*1.05, Math.max(.02,sz.z)+.06); }
               doorHi.removeFromParent(); doorHi.visible = true;
@@ -23209,6 +23211,96 @@
               const b = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, rr - wt), 16, 12), mm.b);
               b.position.set(P[0], P[1], P[2]); archUp.add(b);
             };
+            if (DP_POINT_TYPES.includes(T3)) {                     // 给排水独立点构件：雨水斗 / 消火栓 / 喷淋头 / 分水器（必须放在 isExtraPt 内，先于雨水管默认分支 return）
+              const r = Math.max(.03, M(e.w || 110) / 2), zb = M(e.z || 0);
+              if (T3 === 'rainInlet') {                            // 雨水斗：漏斗 + 格栅，连最近雨水管
+                const top = zb + Math.max(.12, M(e.h || 180)), funnel = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.2, r * .8, top - zb, 16, 1, true), mat('#9fb9c4', { metalness: .35, roughness: .5, side: THREE.DoubleSide }));
+                funnel.position.set(px, (zb + top) / 2, pz); funnel.castShadow = true; archUp.add(funnel);
+                const gm = mat('#7d8489', { metalness: .6, roughness: .4 });
+                const rimG = new THREE.Mesh(new THREE.TorusGeometry(r * 2.2, .02, 8, 24), gm);
+                rimG.rotation.x = Math.PI / 2; rimG.position.set(px, top, pz); archUp.add(rimG);
+                for (let i = 0; i < 3; i++) box(r * 4.3, .016, .022, px, top, pz, gm, -i * 60);   // 三根格栅条：雨水可落入斗内
+                const link = (state.extras || []).find(o => o.id === e.linkId && o.type === 'spout');
+                if (link) { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px, top, pz), new THREE.Vector3(wx(link.x), top, wz(link.y))]); archUp.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0x2a667c, transparent: true, opacity: .45 }))); }
+                colliders.push([px - r * 2.3, pz - r * 2.3, px + r * 2.3, pz + r * 2.3, zb, top + .03]);
+              } else if (T3 === 'hydrantIn') {                    // 室内消火栓：壁挂红箱 + 可开合箱门（门内侧水带卷盘 / 栓口水枪随门转出）
+                const w = Math.max(.4, M(e.w || 650)), d = Math.max(.2, M(e.d || 240)), hh = Math.max(.5, M(e.h || 1000));
+                const bodyM = mat('#a83b31', { roughness: .6 }), doorM = mat('#d34c41', { roughness: .5 }), trimM = mat('#7d2f28', { roughness: .65 });
+                const metalM = mat('#9aa1a6', { metalness: .6, roughness: .4 }), zf = pz - d / 2 - .016;
+                [                                                   // 空心箱体：背板 + 四边侧板，正面留口供开门看到内部
+                  box(w, hh, .02, px, zb + hh / 2, pz + d / 2 - .01, bodyM),
+                  box(.02, hh, d, px - w / 2 + .01, zb + hh / 2, pz, bodyM),
+                  box(.02, hh, d, px + w / 2 - .01, zb + hh / 2, pz, bodyM),
+                  box(w, .02, d, px, zb + hh - .01, pz, bodyM),
+                  box(w, .02, d, px, zb + .01, pz, bodyM)
+                ].forEach(o => o.userData.pick3d = { kind: 'extra', id: e.id });
+                box(w - .04, hh - .04, .008, px, zb + hh / 2, pz + d / 2 - .025, mat('#6d2a24', { roughness: .9 }));   // 箱内背板贴后壁，留出纵深（不封在开口处）
+                const ir = Math.min(w, hh) * .17, ix = px - w * .14, iz = pz - d / 2 + .1;
+                const ir1 = new THREE.Mesh(new THREE.TorusGeometry(ir, .02, 8, 20), mat('#e8e4da', { roughness: .85 }));
+                ir1.position.set(ix, zb + hh * .55, iz); archUp.add(ir1);
+                const ir2 = new THREE.Mesh(new THREE.TorusGeometry(ir * .68, .015, 8, 16), mat('#5b6168', { roughness: .9 }));
+                ir2.position.set(ix, zb + hh * .55, iz - .016); archUp.add(ir2);
+                const ih = new THREE.Mesh(new THREE.CylinderGeometry(ir * .38, ir * .38, .035, 14), metalM);
+                ih.rotation.x = Math.PI / 2; ih.position.set(ix, zb + hh * .55, iz - .03); archUp.add(ih);
+                [box(.1, .1, .14, px + w * .22, zb + hh * .3, iz, metalM), box(.05, .18, .05, px + w * .22, zb + hh * .47, iz, metalM)]   // 箱内栓口 / 水枪
+                  .forEach(o => o.userData.pick3d = { kind: 'extra', id: e.id });
+                const hinge = new THREE.Group(); hinge.position.set(px - w * .44, zb + hh / 2, zf); archUp.add(hinge);   // 铰链在门左侧
+                const dx = w * .44;                                  // 门板中心相对铰链的 x 偏移
+                const P = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; hinge.add(o); return o; };
+                const gx = dx + w * .14, gy = hh * .13, gw = w * .5, gh = hh * .36;   // 观察窗（偏门右上）
+                const winTop = gy + gh / 2, winBot = gy - gh / 2, winL = gx - gw / 2, winR = gx + gw / 2;
+                const halfW = w * .44, halfH = hh * .44;
+                P(new THREE.BoxGeometry(winL - (dx - halfW), hh * .88, .022), doorM, ((dx - halfW) + winL) / 2, 0, 0);   // 门板左段（实体，挂卷盘）
+                P(new THREE.BoxGeometry((dx + halfW) - winR, hh * .88, .022), doorM, (winR + dx + halfW) / 2, 0, 0);   // 门板右段（实体，挂栓口 / 水枪）
+                P(new THREE.BoxGeometry(gw, halfH - winTop, .022), doorM, gx, (winTop + halfH) / 2, 0);                  // 门板窗上段
+                P(new THREE.BoxGeometry(gw, winBot + halfH, .022), doorM, gx, (winBot - halfH) / 2, 0);                 // 门板窗下段
+                const glass = P(new THREE.BoxGeometry(gw, gh, .01), mat('#a9c8d8', { roughness: .2, metalness: .1, transparent: true, opacity: .55, depthWrite: false }), gx, gy, -.012);   // 半透明观察窗：关门也能看到箱内，不再像实心色块
+                P(new THREE.BoxGeometry(gw + .03, .014, .016), metalM, gx, gy + gh / 2, -.018);   // 观察窗金属压条
+                P(new THREE.BoxGeometry(gw + .03, .014, .016), metalM, gx, gy - gh / 2, -.018);
+                P(new THREE.BoxGeometry(.014, gh + .03, .016), metalM, gx - gw / 2, gy, -.018);
+                P(new THREE.BoxGeometry(.014, gh + .03, .016), metalM, gx + gw / 2, gy, -.018);
+                P(new THREE.BoxGeometry(w * .9, .026, .028), trimM, dx, hh * .445, -.018);
+                P(new THREE.BoxGeometry(w * .9, .026, .028), trimM, dx, -hh * .445, -.018);
+                P(new THREE.BoxGeometry(.026, hh * .9, .028), trimM, dx - w * .45, 0, -.018);
+                P(new THREE.BoxGeometry(.026, hh * .9, .028), trimM, dx + w * .45, 0, -.018);
+                const rr = Math.min(w, hh) * .18, rx = dx - w * .22;
+                P(new THREE.TorusGeometry(rr, .022, 10, 24), mat('#e8e4da', { roughness: .8 }), rx, 0, -.03);
+                P(new THREE.TorusGeometry(rr * .72, .016, 8, 20), mat('#5b6168', { roughness: .9 }), rx, 0, -.045);   // 深灰水带
+                const hub = P(new THREE.CylinderGeometry(rr * .42, rr * .42, .04, 16), metalM, rx, 0, -.055);   // 轮毂盖住中心红底
+                hub.rotation.x = Math.PI / 2;
+                P(new THREE.BoxGeometry(.11, .11, .16), metalM, dx + w * .27, -hh * .2, -.07);       // 栓口
+                P(new THREE.BoxGeometry(.055, .2, .055), metalM, dx + w * .27, -hh * .02, -.07);      // 水枪
+                P(new THREE.BoxGeometry(.03, .12, .03), metalM, dx + w * .43, -hh * .08, -.055);      // 门把手
+                const dr = {                                           // 注册为交互门：复用 doors 每帧插值 + 点击 / 悬停 / 漫游链路
+                  kind: 'hydrant', id: e.id, part: 'doorOpen', field: 'doorOpen',
+                  pivot: hinge, a0: 0, a1: 1.65, axis: 'y',
+                  open: !!e.doorOpen, cur: e.doorOpen ? 1.65 : 0,
+                  label: ['消火栓箱门', 'hydrant cabinet door']
+                };
+                hinge.traverse(o => { if (o.isMesh) { o.userData.door = dr; o.userData.pick3d = { kind: 'extra', id: e.id }; } });
+                doors.push(dr); hinge.rotation.y = dr.cur;
+                colliders.push([px - w / 2, pz - d / 2, px + w / 2, pz + d / 2, zb, zb + hh]);
+              } else if (T3 === 'sprinkler') {                    // 喷淋头：下垂短管 + 溅水盘
+                const top = Math.max(.05, M(e.h || 120)), y0 = Math.max(0, zb - top);
+                const st = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, top, 10), mat('#b9c2c8', { metalness: .7, roughness: .35 }));
+                st.position.set(px, y0 + top / 2, pz); archUp.add(st);
+                const df = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.6, r * .6, .018, 16), mat('#c6ced3', { metalness: .6, roughness: .4 }));
+                df.position.set(px, y0, pz); archUp.add(df);
+                colliders.push([px - r * 1.6, pz - r * 1.6, px + r * 1.6, pz + r * 1.6, y0, y0 + top]);
+              } else {                                            // 分水器：集管 + 多路支管阀
+                const n = Math.max(2, Math.min(12, +e.n || 4)), w = Math.max(.3, M(e.w || 400)), hh = Math.max(.15, M(e.h || 350));
+                const rr = Math.max(.02, M(e.dn || 32) / 2), mm = { p: mat('#b9c2c8', { metalness: .6, roughness: .4 }), b: PLM.b, r: PLM.r };
+                pTube([px - w / 2, zb + hh / 2, pz], [px + w / 2, zb + hh / 2, pz], rr, mm);   // 空心集管，两端可见管口
+                for (let i = 0; i < n; i++) {
+                  const x = px - w / 2 + (i + .5) * w / n;
+                  pTube([x, zb + hh / 2, pz], [x, zb + hh * .92, pz], rr * .7, mm);            // 空心支管
+                  const hv = new THREE.Mesh(new THREE.TorusGeometry(rr * 1.1, .008, 8, 14), mat('#b5653a', { metalness: .3, roughness: .6 }));
+                  hv.rotation.x = Math.PI / 2; hv.position.set(x, zb + hh * .92, pz); archUp.add(hv);
+                }
+                colliders.push([px - w / 2, pz - rr, px + w / 2, pz + rr, zb, zb + hh]);
+              }
+              return;
+            }
             if (T3 === 'drainpipe' || T3 === 'waterRiser') {     // 排水管 / 给水立管：空心圆管贴墙 30mm，每隔 1 米一道固定卡扣
               const r = Math.max(.025, M(e.w || 110) / 2), zb = M(e.z || 0);   // zb = 管底标高（自由值，可为负：管底沉到地面以下）
               if (e.dir === 'h') {                              // 横向：沿墙走向水平敷设（中心标高 = 底标高 + 管半径），卡扣沿管每 1m 一道
@@ -23374,60 +23466,6 @@
               hp.position.set(px, h + .12, pz); hp.castShadow = true; archUp.add(hp);
               const lip = new THREE.Mesh(new THREE.TorusGeometry(r * 2.5, .018, 8, 20), spoutM.r);
               lip.rotation.x = Math.PI / 2; lip.position.set(px, h + .24, pz); archUp.add(lip);
-            }
-            return;
-          }
-          if (DP_POINT_TYPES.includes(T3)) {                     // 给排水独立点构件：雨水斗 / 消火栓 / 喷淋头 / 分水器
-            const r = Math.max(.03, M(e.w || 110) / 2), zb = M(e.z || 0);
-            if (T3 === 'rainInlet') {                            // 雨水斗：漏斗 + 格栅，连最近雨水管
-              const top = zb + Math.max(.12, M(e.h || 180)), funnel = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.2, r * .8, top - zb, 16, 1, true), mat('#9fb9c4', { metalness: .35, roughness: .5, side: THREE.DoubleSide }));
-              funnel.position.set(px, (zb + top) / 2, pz); funnel.castShadow = true; archUp.add(funnel);
-              const gm = mat('#7d8489', { metalness: .6, roughness: .4 });
-              const rimG = new THREE.Mesh(new THREE.TorusGeometry(r * 2.2, .02, 8, 24), gm);
-              rimG.rotation.x = Math.PI / 2; rimG.position.set(px, top, pz); archUp.add(rimG);
-              for (let i = 0; i < 3; i++) box(r * 4.3, .016, .022, px, top, pz, gm, -i * 60);   // 三根格栅条：雨水可落入斗内
-              const link = (state.extras || []).find(o => o.id === e.linkId && o.type === 'spout');
-              if (link) { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px, top, pz), new THREE.Vector3(wx(link.x), top, wz(link.y))]); archUp.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0x2a667c, transparent: true, opacity: .45 }))); }
-              colliders.push([px - r * 2.3, pz - r * 2.3, px + r * 2.3, pz + r * 2.3, zb, top + .03]);
-            } else if (T3 === 'hydrantIn') {                    // 室内消火栓：壁挂红箱 + 门框观察窗 + 水带卷盘 + 栓口水枪
-              const w = Math.max(.4, M(e.w || 650)), d = Math.max(.2, M(e.d || 240)), hh = Math.max(.5, M(e.h || 1000));
-              const bodyM = mat('#a83b31', { roughness: .6 }), doorM = mat('#d34c41', { roughness: .5 }), trimM = mat('#7d2f28', { roughness: .65 });
-              const metalM = mat('#9aa1a6', { metalness: .6, roughness: .4 }), zf = pz - d / 2 - .016;
-              box(w, hh, d, px, zb + hh / 2, pz, bodyM);           // 箱体
-              box(w * .88, hh * .88, .022, px, zb + hh / 2, zf, doorM);   // 箱门
-              box(w * .5, hh * .36, .012, px + w * .14, zb + hh * .63, zf - .014, mat('#a9c8d8', { roughness: .2, metalness: .1 }));  // 观察窗
-              box(w * .9, .026, .028, px, zb + hh * .945, zf - .018, trimM);
-              box(w * .9, .026, .028, px, zb + hh * .055, zf - .018, trimM);
-              box(.026, hh * .9, .028, px - w * .45, zb + hh / 2, zf - .018, trimM);
-              box(.026, hh * .9, .028, px + w * .45, zb + hh / 2, zf - .018, trimM);
-              const rx = px - w * .22, ry = zb + hh * .5, rr = Math.min(w, hh) * .18;
-              const reel = new THREE.Mesh(new THREE.TorusGeometry(rr, .026, 10, 24), mat('#f0ece2', { roughness: .8 }));
-              reel.position.set(rx, ry, zf - .03); archUp.add(reel);
-              const hose = new THREE.Mesh(new THREE.TorusGeometry(rr * .72, .018, 8, 20), mat('#d8d2c4', { roughness: .85 }));
-              hose.position.set(rx, ry, zf - .045); archUp.add(hose);
-              const hub = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .04, 16), metalM);
-              hub.rotation.x = Math.PI / 2; hub.position.set(rx, ry, zf - .055); archUp.add(hub);
-              box(.11, .11, .16, px + w * .27, zb + hh * .3, zf - .07, metalM);       // 栓口
-              box(.055, .2, .055, px + w * .27, zb + hh * .48, zf - .07, metalM);      // 水枪
-              colliders.push([px - w / 2, pz - d / 2, px + w / 2, pz + d / 2, zb, zb + hh]);
-            } else if (T3 === 'sprinkler') {                    // 喷淋头：下垂短管 + 溅水盘
-              const top = Math.max(.05, M(e.h || 120)), y0 = Math.max(0, zb - top);
-              const st = new THREE.Mesh(new THREE.CylinderGeometry(.012, .012, top, 10), mat('#b9c2c8', { metalness: .7, roughness: .35 }));
-              st.position.set(px, y0 + top / 2, pz); archUp.add(st);
-              const df = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.6, r * .6, .018, 16), mat('#c6ced3', { metalness: .6, roughness: .4 }));
-              df.position.set(px, y0, pz); archUp.add(df);
-              colliders.push([px - r * 1.6, pz - r * 1.6, px + r * 1.6, pz + r * 1.6, y0, y0 + top]);
-            } else {                                            // 分水器：集管 + 多路支管阀
-              const n = Math.max(2, Math.min(12, +e.n || 4)), w = Math.max(.3, M(e.w || 400)), hh = Math.max(.15, M(e.h || 350));
-              const rr = Math.max(.02, M(e.dn || 32) / 2), mm = { p: mat('#b9c2c8', { metalness: .6, roughness: .4 }), b: PLM.b, r: PLM.r };
-              pTube([px - w / 2, zb + hh / 2, pz], [px + w / 2, zb + hh / 2, pz], rr, mm);   // 空心集管，两端可见管口
-              for (let i = 0; i < n; i++) {
-                const x = px - w / 2 + (i + .5) * w / n;
-                pTube([x, zb + hh / 2, pz], [x, zb + hh * .92, pz], rr * .7, mm);            // 空心支管
-                const hv = new THREE.Mesh(new THREE.TorusGeometry(rr * 1.1, .008, 8, 14), mat('#b5653a', { metalness: .3, roughness: .6 }));
-                hv.rotation.x = Math.PI / 2; hv.position.set(x, zb + hh * .92, pz); archUp.add(hv);
-              }
-              colliders.push([px - w / 2, pz - rr, px + w / 2, pz + rr, zb, zb + hh]);
             }
             return;
           }
@@ -25394,6 +25432,18 @@
     driveExit.onclick = () => exitCar();                        // 驾驶中触屏下车（与键盘 E / F 同源）
     const driveCamBtn = document.createElement('button'); driveCamBtn.id = 'driveCamBtn'; driveCamBtn.textContent = tr('第三人称', '3rd person'); document.body.appendChild(driveCamBtn);
     driveCamBtn.onclick = () => { if (!driveCar) return; driveCar.cam3p = !driveCar.cam3p; driveCamBtn.textContent = driveCar.cam3p ? tr('第一人称', '1st person') : tr('第三人称', '3rd person'); };   // 触屏切换视角（与键盘 C 同源）
+    const applyHydrantVisual = id => {                            // 消火栓箱门：state → 运行时 doors[]（不重建 3D，保留开门动画）
+      const e = (state.extras || []).find(x => String(x.id) === String(id));
+      const d = doors.find(x => x.kind === 'hydrant' && String(x.id) === String(id));
+      if (d) d.open = !!e?.doorOpen;
+    };
+    window.applyHydrantVisual = applyHydrantVisual;
+    const toggleHydrantDoor = id => {                             // 消火栓箱门开合：写回 state + 撤销历史 + 提示
+      const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
+      mutateLive3D(() => { e.doorOpen = !e.doorOpen; }); applyHydrantVisual(id);
+      toast(tr(`消火栓箱门已${e.doorOpen ? '打开' : '关闭'}`, `Hydrant cabinet ${e.doorOpen ? 'opened' : 'closed'}`));
+    };
+    window.toggleHydrantDoor = toggleHydrantDoor;
     const applyCarVisual = id => {                                // 轿车门盖 / 天窗：state → 运行时 doors[]，2D / 3D 同步
       const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
       doors.forEach(d => { if ((d.kind === 'car' || d.kind === 'carWin') && String(d.carId) === String(id)) d.open = !!e[d.field]; });
@@ -25422,6 +25472,7 @@
     const toggleDoor = d => {                                     // 普通门手动开合入口：电梯门（带 liftId）只由呼叫面板控制，这里一律忽略
       if (d.kind === 'car') { toggleCarDoor(d.carId, d.part); return; }   // 轿车四门 / 机盖 / 尾门：写回 state，进撤销栈
       if (d.kind === 'carWin') { toggleCarWindow(d.carId, d.part); return; }   // 轿车侧窗升降按钮：写回 state，进撤销栈
+      if (d.kind === 'hydrant') { toggleHydrantDoor(d.id); return; }   // 消火栓箱门：写回 state，进撤销栈（不重建 3D）
       if (d.lift && d.liftId != null) return;
       d.open = !d.open;
       if (d.peer && d.open) d.peer.open = false;                  // 推拉窗：推开一边时对扇自动退回（同一洞口只有一边打开）
@@ -25703,8 +25754,8 @@
       } else if ((h?.door || h?.carWin) && h.dist < 2.5 && doorHiRef) {
         if (doorHiRef.parent !== h.mesh) {                          // 高亮挂到瞄准的门扇（随开门动画一起转）
           doorHiRef.removeFromParent(); doorHiRef.visible = true;
-          const p = h.mesh.geometry.parameters;                      // BufferGeometry 门玻璃无 parameters：包围盒兜底
-          if (p) doorHiRef.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
+          const p = h.mesh.geometry.parameters;                      // 环形 / 圆柱部件无 width/height/depth、门玻璃无 parameters：包围盒兜底，避免 NaN scale
+          if (p && Number.isFinite(p.width) && Number.isFinite(p.height) && Number.isFinite(p.depth)) doorHiRef.scale.set(p.width * 1.05, p.height * 1.05, p.depth + .06);
           else { const bb = _tipBB.setFromObject(h.mesh), sz = bb.getSize(_tipV);
             bb.getCenter(doorHiRef.position); doorHiRef.scale.set(Math.max(.05,sz.x)*1.05, Math.max(.05,sz.y)*1.05, Math.max(.02,sz.z)+.06); }
           h.mesh.add(doorHiRef);

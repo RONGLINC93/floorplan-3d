@@ -187,7 +187,7 @@
     {
       "type": "rainInlet",
       "w": 110,
-      "h": 180,
+      "h": 90,
       "z": 0,
       "linkId": null,
       "id": "fmwx33eqe253",
@@ -213,7 +213,8 @@
       "z": 0,
       "id": "fmwx33iiu255",
       "x": 3310,
-      "y": -1380
+      "y": -1380,
+      "doorOpen": false
     },
     {
       "type": "sprinkler",
@@ -441,7 +442,7 @@
         {
           "type": "rainInlet",
           "w": 110,
-          "h": 180,
+          "h": 90,
           "z": 0,
           "linkId": null,
           "id": "fmwx33eqe253",
@@ -467,7 +468,8 @@
           "z": 0,
           "id": "fmwx33iiu255",
           "x": 3310,
-          "y": -1380
+          "y": -1380,
+          "doorOpen": false
         },
         {
           "type": "sprinkler",
