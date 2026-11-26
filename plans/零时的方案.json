@@ -475,7 +475,7 @@
       "w": 140,
       "h": 4500,
       "rot": 0,
-      "sig": "red",
+      "sig": "green",
       "auto": true,
       "id": "fmwubt7jh148",
       "x": 2110,
@@ -1005,7 +1005,7 @@
       "id": "fmwubwilm200",
       "x": 22890,
       "y": -14570,
-      "battery": 86
+      "battery": 100
     },
     {
       "type": "facBusStop",
@@ -2144,7 +2144,7 @@
           "w": 140,
           "h": 4500,
           "rot": 0,
-          "sig": "red",
+          "sig": "green",
           "auto": true,
           "id": "fmwubt7jh148",
           "x": 2110,
@@ -2674,7 +2674,7 @@
           "id": "fmwubwilm200",
           "x": 22890,
           "y": -14570,
-          "battery": 86
+          "battery": 100
         },
         {
           "type": "facBusStop",

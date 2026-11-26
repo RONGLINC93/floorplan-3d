@@ -8212,7 +8212,7 @@
           }
           const dpLabel = DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type)
             ? `DN${e.w || 110}${e.z ? ` 底${e.z}` : ''}${e.pitch ? ` 俯${Math.round(e.pitch)}°` : ''}` : extraName(e);
-          out.push(`<g data-extra="${e.id}" style="cursor:move">${inner}${e.type === 'tiecol' || e.type === 'facCrosswalk' || isMonitor(e.type) || PARK_EXT[e.type] || ui.layers.notes === false ? '' : T(e.x, e.y, dpLabel, col, DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? 190 : 180)}</g>`);   // 构造柱符号太小、斑马线与停车场配套为贴地标线 / 自带标识，不放名称标注；名称标注随「标注」图层显隐
+          out.push(`<g data-extra="${e.id}" style="cursor:move">${inner}${e.type === 'tiecol' || e.type === 'facCrosswalk' || isMonitor(e.type) || ui.layers.notes === false ? '' : T(e.x, e.y, dpLabel, col, DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? 190 : 180)}</g>`);   // 构造柱符号太小、斑马线为贴地标线不放名称；其余构件（含加油站配套）都显示名称标注，随「标注」图层显隐
           return;
         }
         const x0 = e.x - e.w / 2, y0 = e.y - e.d / 2, { w, d } = e;
