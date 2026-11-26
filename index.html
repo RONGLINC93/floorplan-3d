@@ -3617,6 +3617,18 @@
             <button class="btn chip" data-dt="facRotaryPark" title="垂直循环车库：点击放置；塔式循环停车，8~16 个载车板，占地约两个车位；总高 / 车位数可改" data-en-title="Rotary parking: tower with 8-16 pallets, footprint of about two stalls; edit height / stalls" data-en="Rotary parking"><i data-lucide="building-2"></i>垂直循环车库</button>
           </div>
           <div class="dtg">
+            <div class="dth" data-en="Fuel station">加油站配套</div>
+            <button class="btn chip" data-dt="facFuelPump" title="加油机：点击放置；面板先选联动油价牌、再选油品（默认 92#），3D 屏幕显示单价 / 升数 / 金额；点击机体（漫游按 E）开始走字、再点停止，重开归零；机身宽 / 高 / 厚可改" data-en-title="Fuel pump: click to place; pick linked price board and fuel grade in the panel (default 92#); screen shows unit price / litres / amount — click (E in walk) to start/stop the meter, resets on restart; edit size" data-en="Fuel pump"><i data-lucide="fuel"></i>加油机</button>
+            <button class="btn chip" data-dt="facFuelPrice" title="油价牌：点击放置；3D 立杆 LED 牌显示油价，面板可改牌宽 / 杆高 / 油价数字" data-en-title="Fuel price board: pole-mounted LED board; edit price and size" data-en="Fuel price"><i data-lucide="tag"></i>油价牌</button>
+            <button class="btn chip" data-dt="facFuelUnload" title="卸油口：点击放置；地面圆形井盖 + 快速接头，2D 画井盖与接口标记；井径可改" data-en-title="Unloading port: ground manhole with quick couplings" data-en="Unload port"><i data-lucide="circle-dot"></i>卸油口</button>
+            <button class="btn chip" data-dt="facVaporRecovery" title="油气回收装置：点击放置；箱体 + 管路 + 阀门，3D 点击（漫游按 E）切运行 / 待机" data-en-title="Vapor recovery unit: box with piping; click to toggle running / standby" data-en="Vapor recovery"><i data-lucide="wind"></i>油气回收</button>
+            <button class="btn chip" data-dt="facFireSand" title="消防沙池：点击放置；敞口沙池 + 消防铲，2D 画斜线沙面；宽 / 深 / 高可改" data-en-title="Fire sand pit: open pit with shovel, hatched sand in 2D" data-en="Fire sand"><i data-lucide="square"></i>消防沙池</button>
+            <button class="btn chip" data-dt="facFireExt" title="灭火器箱：点击放置；红色箱体 + 双灭火器，点击箱门（漫游按 E）开 / 关" data-en-title="Fire extinguisher cabinet: red box with two extinguishers; click to toggle door" data-en="Extinguisher"><i data-lucide="flame"></i>灭火器箱</button>
+            <button class="btn chip" data-dt="facFuelBollard" title="防撞柱：点击放置；黄黑警示短柱，柱径 / 高可改" data-en-title="Safety bollard: hazard-striped post; edit diameter and height" data-en="Bollard"><i data-lucide="rectangle-vertical"></i>防撞柱</button>
+            <button class="btn chip" data-dt="fuelCanopy" title="加油棚罩棚：两次点击对角点；默认 12000×6000，3D 为顶棚 + 立柱，可改净高 / 柱距" data-en-title="Fuel station canopy: click two opposite corners; roof slab with columns" data-en="Canopy"><i data-lucide="umbrella"></i>加油棚</button>
+            <button class="btn chip" data-dt="fuelTank" title="埋地储油罐：两次点击对角点；默认 6000×2500，3D 为卧式罐体 + 人孔井，可改容量" data-en-title="Underground fuel tank: click two opposite corners; horizontal tank with manhole" data-en="Fuel tank"><i data-lucide="database"></i>储油罐</button>
+          </div>
+          <div class="dtg">
             <div class="dth" data-en="Vehicles">车辆</div>
             <button class="btn chip" data-dt="carSedan" title="轿车：点击放置；2D 俯视画车身 / 前后风挡 / 天窗 / 四轮 / 后视镜 / 前后灯，3D 为车身 + 玻璃座舱 + 轮毂 + 灯组 + 格栅；车头朝当前朝向，右侧可改车长 / 车宽 / 车高 / 天窗玻璃长宽 / 车身色 / 朝向"
               data-en-title="Sedan: click to place; 2D plan shows body, windshields, sunroof, wheels, mirrors and lamps; 3D builds a glazed cabin with rims, lights and grille; edit length / width / height / sunroof glass size / colour / angle"
@@ -4160,7 +4172,7 @@
     /* 整体拖动类 drag.kind 白名单（svg pointermove 的轴锁判定用） */
     const MOVE_DRAG_KINDS = new Set(['move', 'multiMove', 'noteMove', 'dimMove', 'railMove', 'beamMove', 'levelMove', 'liftMove', 'northMove', 'slabMove', 'stairMove', 'pillarMove']);
     /* 2D 落点处「创建新构件」的绘制工具白名单（onSvgPointerDown 用）：提为 Set 常量，避免每次点击重建 130+ 项数组字面量；新增点式 / 绘制工具记得同步补进来 */
-    const DRAW_PLACE_TOOLS = new Set(['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'drainpipe', 'dpTee', 'dpE45', 'dpE90', 'dpTrap', 'dpRoute', 'dpCross', 'dpReducer', 'dpCoupling', 'dpCleanout', 'dpExpansion', 'dpValve', 'dpMeter', 'rainInlet', 'waterRiser', 'hydrantIn', 'sprinkler', 'manifold', 'venthole', 'sqventhole', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'barrier', 'streetlamp', 'solarlamp', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'lampFloorSw', 'pbox', 'wbox']);
+    const DRAW_PLACE_TOOLS = new Set(['wall', 'door', 'win', 'louver', 'cwin', 'bay', 'lbay', 'cornerwin', 'roller', 'elev', 'fwin', 'slid', 'sd', 'fold', 'yak', 'arch', 'niche', 'dble', 'zimu', 'hwin', 'dwin', 'hole', 'swin', 'room', 'entry', 'pillar', 'stair', 'stair2', 'stair3', 'stair3s', 'spiral', 'ramp', 'steps', 'esc', 'ladder', 'rail', 'part', 'drain', 'beam', 'level', 'slab', 'ceil', 'farea', 'topslab', 'stairwell', 'liftwell', 'slabhole', 'parapet', 'halfwall', 'canopy', 'balcony', 'ac', 'planter', 'well', 'flue', 'north', 'lift', 'text', 'dim', 'paint', 'axgrid', 'arcwall', 'roof', 'pergola', 'deck', 'pool', 'gate', 'park', 'pavilion', 'apron', 'retain', 'skylight', 'gutter', 'spout', 'drainpipe', 'dpTee', 'dpE45', 'dpE90', 'dpTrap', 'dpRoute', 'dpCross', 'dpReducer', 'dpCoupling', 'dpCleanout', 'dpExpansion', 'dpValve', 'dpMeter', 'rainInlet', 'waterRiser', 'hydrantIn', 'sprinkler', 'manifold', 'venthole', 'sqventhole', 'tiecol', 'lintel', 'seam', 'shaft', 'eave', 'sill', 'tree', 'path', 'lawn', 'well2', 'dormer', 'chimney', 'hatch', 'solar', 'equip', 'leader', 'section', 'auto', 'revolve', 'strip', 'seal', 'thresh', 'flash', 'band', 'signbd', 'flag', 'barrier', 'streetlamp', 'solarlamp', 'carport', 'lampCh', 'lampCeil', 'lampDown', 'lampSpot', 'lampFloor', 'lampWall', 'lampTube', 'lampBulb', 'lampSocket', 'lampNetwork', 'lampFloorSock', 'lampTrackSock', 'lampDeskSock', 'lampWallSw', 'lampSw', 'lampFloorSw', 'pbox', 'wbox', 'fuelCanopy', 'fuelTank']);
     const BOX_NAME = { pbox: ['强电箱', 'Power box'], wbox: ['弱电箱', 'Weak-current box'] };
     const SOCKET_STYLES = {
       dual: ['二三插（五孔）', '2+3 pin (5-hole)'], two: ['二插（两孔）', '2 pin'], three: ['三插 10A', '3 pin 10A'],
@@ -6559,6 +6571,7 @@
       dormer: ['老虎窗', 'Dormer'], hatch: ['检修口', 'Roof hatch'], solar: ['太阳能', 'Solar heater'], equip: ['设备基础', 'Equipment base'],
       tiecol: ['构造柱', 'Tie column'], chimney: ['烟囱', 'Chimney'], tree: ['景观树', 'Tree'],
       thresh: ['门槛石', 'Threshold'], flash: ['泛水线', 'Flashing'], band: ['檐口线脚', 'Cornice'], signbd: ['门头广告牌', 'Sign board'], flag: ['旗杆', 'Flagpole'], carport: ['电动车棚', 'Bike shed'],
+      fuelCanopy: ['加油棚', 'Fuel canopy'], fuelTank: ['埋地储油罐', 'Fuel tank'],
       barrier: ['路障', 'Barrier'], streetlamp: ['路灯', 'Street lamp'], solarlamp: ['太阳能路灯', 'Solar street lamp'],
       traflight: ['交通信号灯', 'Traffic light'], signdirect: ['交通指示牌', 'Traffic sign'], signspeed: ['限速标志', 'Speed limit sign'], signstop: ['停车让行', 'Stop sign'], signnoentry: ['禁止驶入', 'No entry'], signwarn: ['注意行人', 'Pedestrian warning'], signboard: ['指路牌', 'Guide board'],
       highway: ['高速公路', 'Highway'], road: ['公路', 'Highway road'], cityroad: ['城市道路', 'City road'],
@@ -6869,6 +6882,7 @@
       ['courtyard', '庭院灯', 'Courtyard lamp'], ['highpole', '高杆灯', 'High-mast lamp']
     ];
     const SOLAR_LAMP = { w: 180, h: 8000, arm: 2000, r: 12000, battery: 60, charge: 2.5, drain: 1.2 };   // 太阳能路灯默认：单臂 8m，电量 60%，白天每秒充 2.5%、夜晚开灯每秒耗 1.2%
+    const SOLAR_BEACON = { battery: 60, charge: 2.5, drain: 1.2 };   // 太阳能爆闪灯电池默认，充放电速度语义同太阳能路灯（%/秒）
     /* ===== GB 5768 道路交通标志扩展（配置驱动）=====
        每个 type 定义板形 shape / 配色 style / 2D 字形 glyph / Canvas 图案 art / 默认参数。
        警告=黄底黑边三角，禁令=白底红圈圆牌（停车类蓝底），指示=蓝底圆牌或矩形，指路服务=矩形。
@@ -6988,6 +7002,14 @@
       wtSump:      { zh:'污水收集池',   en:'Leachate sump',       w:3000,  h:600,  d:2000 },
       wtWash:      { zh:'洗车台',       en:'Truck wash platform', w:6000,  h:200,  d:3000 },
       facCarWash:  { zh:'自动洗车机',   en:'Auto car wash',       w:9000,  h:3000, d:3600 },
+      /* 加油站配套 7 件：点式设施，交互状态放 PARK_EXT.def（busy / on），尺寸按 w × d × h */
+      facFuelPump:     { zh:'加油机',       en:'Fuel pump',          w:500,  h:1600, d:400 },
+      facFuelPrice:    { zh:'油价牌',       en:'Fuel price board',   w:1200, h:3000, d:120 },
+      facFuelUnload:   { zh:'卸油口',       en:'Unloading port',     w:600,  h:120,  d:600 },
+      facVaporRecovery:{ zh:'油气回收装置', en:'Vapor recovery',     w:800,  h:1200, d:500 },
+      facFireSand:     { zh:'消防沙池',     en:'Fire sand pit',      w:1000, h:400,  d:1000 },
+      facFireExt:      { zh:'灭火器箱',     en:'Fire extinguisher',  w:600,  h:800,  d:250 },
+      facFuelBollard:  { zh:'防撞柱',       en:'Safety bollard',     w:150,  h:800 },
       /* 车辆：w = 车长（沿朝向的本地 +x），d = 车宽，h = 车高 */
       carSedan:    { zh:'轿车',         en:'Sedan',               w:4600,  h:1500, d:1800 },
       carSuv:      { zh:'越野车',       en:'SUV',                 w:4800,  h:1850, d:1950 },
@@ -7113,6 +7135,26 @@
       facCarWash: { wl:['机长','Length'], wmin:6000, wmax:15000, hl:['机高','Height'], hmin:2400, hmax:4000, dl:['轨道宽','Width'], dmin:3000, dmax:4500,
         nums:[['dur','清洗时长 (秒)','Wash duration',8,60,1]], def:{dur:14},
         tip:['自动洗车机：龙门式洗车机，底板 + 两侧行走轨道 + 龙门架（双立柱 + 顶梁 + 侧滚刷 × 2 + 顶滚刷 + 喷头排 + 泡沫管 + 风干风道，全部随架移动）+ 进 / 出导向箭头 + 状态灯；3D 点击机体（漫游按 E）启动洗车流程——龙门自动走完 预湿 → 泡沫 → 滚刷往复清洗 → 冲净 → 风干回位，洗车中状态灯蓝色闪烁、地面湿地反光；清洗时长 8~60 秒可设（默认 14 秒），机长 / 机高 / 轨道宽可改。','Gantry car wash: base slab, travel rails and a portal frame carrying side brushes, top brush, spray bar, foam pipe and dryer ducts (all gantry-mounted); click it in 3D (E in walk) to run the cycle — the gantry sweeps through pre-rinse, foam, brush passes, rinse and dry; wash duration 8–60 s (default 14); edit length / height / width.' ] },
+      /* ===== 加油站配套 7 件：面板元数据，交互件带 busy / on 开关（3D 点击 / 漫游 E） ===== */
+      facFuelPump: { wl:['机身宽','Width'], wmin:300, wmax:1000, hl:['机身高','Height'], hmin:1000, hmax:2200, dl:['机身厚','Depth'], dmin:250, dmax:700,
+        sels:[['fuel','油品','Fuel grade',[['92','92#','92#'],['95','95#','95#'],['98','98#','98#'],['0','0# 柴油','0# Diesel']]]], nums:[['nozzle','油枪数','Nozzles',1,4,1]], chks:[['busy','加油中（黄灯 · 3D 点击可切空闲绿灯）','Refueling (amber; click in 3D)']], def:{busy:false,nozzle:2,fuel:'92',linkBoard:''},
+        tip:['加油机：落地式加油机，3D 显示屏显示油号、单价、累计升数与金额；属性面板先选「联动油价牌」（可指定某块牌或自动取最近），再选油品（92# / 95# / 98# / 0# 柴油，默认 92#），油价牌改价即时联动。点击机体（漫游按 E）开始加油，表从 0 走字，再点一次关闭即停在当前读数，下次开启重新归零；带油枪与软管，油枪数 / 机身尺寸可改。','Fuel pump: pedestal dispenser whose screen shows grade, unit price, litres and amount; pick the linked price board in the panel (a specific board or auto-nearest) and then the fuel grade (92# / 95# / 98# / diesel, default 92#) — price changes update instantly; click in 3D (E in walk) to start the meter from zero, click again to stop, resets on next start; nozzles and size editable.' ] },
+      facFuelPrice: { wl:['牌宽','Board width'], wmin:600, wmax:3000, hl:['杆高','Pole height'], hmin:1800, hmax:6000, dl:['牌厚','Board depth'], dmin:60, dmax:300,
+        texts:[['p92','92# 油价','92#','7.68',6],['p95','95# 油价','95#','8.18',6],['p98','98# 油价','98#','9.28',6],['p0','0# 柴油','0#','7.12',6]], def:{p92:'7.68',p95:'8.18',p98:'9.28',p0:'7.12'},
+        tip:['油价牌：立杆 LED 油价牌，竖排显示 92# / 95# / 98# / 0# 柴油四种油价（面板可改数字），牌宽 / 杆高 / 牌厚可改。','Fuel price board: pole-mounted LED board showing four prices (92# / 95# / 98# / diesel) in vertical rows; edit width / height / depth.' ] },
+      facFuelUnload: { wl:['井径','Manhole ⌀'], wmin:300, wmax:1200, hl:['井深','Cover depth'], hmin:60, hmax:400,
+        chks:[['lidOpen','井盖开启（3D 点击井盖 / 漫游 E 也可切换）','Cover open (click lid in 3D / E in walk)']], def:{lidOpen:false},
+        tip:['卸油口：埋地油罐的地面卸油井，圆形井盖 + 快速接头 + 警示标识；井盖可掀开，井径 / 井深可改。','Unloading port: ground manhole for the underground tank with a round cover and quick couplings.' ] },
+      facVaporRecovery: { wl:['箱宽','Width'], wmin:400, wmax:1500, hl:['箱高','Height'], hmin:600, hmax:2000, dl:['箱厚','Depth'], dmin:250, dmax:900,
+        chks:[['on','运行中（绿灯 · 待机黄灯 · 3D 点击切换）','Running (green; standby amber · click in 3D)']], def:{on:false},
+        tip:['油气回收装置：箱体 + 进出气管 + 阀门，3D 点击（漫游按 E）在「运行绿灯 / 待机黄灯」间切换；宽 / 高 / 厚可改。','Vapor recovery unit: box with pipes and a valve; click in 3D (E in walk) to toggle running / standby.' ] },
+      facFireSand: { wl:['池宽','Width'], wmin:500, wmax:2500, hl:['池高','Rim height'], hmin:200, hmax:800, dl:['池深','Depth'], dmin:500, dmax:2500,
+        tip:['消防沙池：敞口沙池 + 消防铲，2D 俯视画斜线沙面；宽 / 深 / 池壁高可改，常设在加油机与油罐区旁。','Fire sand pit: open pit with a shovel, hatched sand in 2D; place near pumps and the tank area.' ] },
+      facFireExt: { wl:['箱宽','Width'], wmin:300, wmax:1000, hl:['箱高','Height'], hmin:500, hmax:1200, dl:['箱厚','Depth'], dmin:150, dmax:500,
+        chks:[['on','箱门打开（点击箱体 / 漫游 E 切换）','Door open (click / E to toggle)']], def:{on:false},
+        tip:['灭火器箱：红色箱体 + 两具灭火器，3D 点击箱体（漫游按 E）开 / 关门；宽 / 高 / 厚可改。','Fire extinguisher cabinet: red box with two extinguishers; click in 3D (E in walk) to open / close the door.' ] },
+      facFuelBollard: { wl:['柱径','Bollard ⌀'], wmin:100, wmax:300, hl:['柱高','Height'], hmin:400, hmax:1200,
+        tip:['防撞柱：黄黑警示条纹短柱，设在加油机岛角与通道口防止车辆碰撞；柱径 / 高可改。','Safety bollard: hazard-striped post protecting pump islands and aisle corners.' ] },
       carSedan: { wl:['车长','Length'], wmin:3000, wmax:6500, hl:['车高','Height'], hmin:1200, hmax:2000, dl:['车宽','Width'], dmin:1400, dmax:2400,
         nums:[['sunL','天窗玻璃长 (mm)','Sunroof glass length',300,1200,10],['sunW','天窗玻璃宽 (mm)','Sunroof glass width',300,1200,10],
               ['opDoor','四门玻璃不透明度 (%)','Door glass opacity',5,100,5],['opFront','前挡玻璃不透明度 (%)','Front windshield opacity',5,100,5],
@@ -7149,6 +7191,12 @@
       let r = `<label>${tr(...p.wl)} (mm)${num('exW', e.w ?? 1000, p.wmin, p.wmax, 10)}</label>`;
       if (p.dl) r += `<label>${tr(...p.dl)} (mm)${num('exD', e.d ?? 1200, p.dmin, p.dmax, 10)}</label>`;
       if (p.hl) r += `<label>${tr(...p.hl)} (mm)${num('exH', e.h ?? 1000, p.hmin, p.hmax, 10)}</label>`;
+      if (e.type === 'facFuelPump') {                                             // 加油机：选择联动的油价牌（自动取最近 / 指定某块牌）
+        const boards = (state.extras || []).filter(x => x.type === 'facFuelPrice');
+        let os = `<option value="" ${!e.linkBoard ? 'selected' : ''}>${tr('自动（最近）', 'Auto (nearest)')}</option>`;
+        boards.forEach((b, i) => { os += `<option value="${b.id}" ${String(e.linkBoard || '') === String(b.id) ? 'selected' : ''}>${tr('油价牌', 'Price board')} ${i + 1}</option>`; });
+        r += `<label>${tr('联动油价牌', 'Linked price board')}<select id="fx_linkBoard">${os}</select></label>`;
+      }
       (p.sels || []).forEach(([k, zh, en, opts]) => {
         r += `<label>${tr(zh, en)}<select id="fx_${k}">${opts.map(([v, z2, e2]) => `<option value="${v}" ${(e[k] || opts[0][0]) === v ? 'selected' : ''}>${tr(z2, e2)}</option>`).join('')}</select></label>`;
       });
@@ -7160,6 +7208,7 @@
         r += `<label class="chk"><input type="checkbox" id="fx_${k}" ${checked ? 'checked' : ''}> ${tr(zh, en)}</label>`;
       });
       r += `<label>${tr('转向', 'Turn')} (°)${num('exRot', Math.round(e.rot || 0), -360, 360, 15)}</label>
+        <label title="${tr('构件底部离地的标高，可为负（沉到地面以下）', 'Bottom level above the floor — negative values sink below floor level')}">${tr('底标高', 'Level')} (mm)${num('exZ', Math.round(e.z ?? 0), -1e6, 1e6, 50)}</label>
         <label>${tr('位置', 'Position')} X (mm)${num('exX', e.x, -1e6, 1e6, 10)}</label>
         <label>${tr('位置', 'Position')} Y (mm)${num('exY', e.y, -1e6, 1e6, 10)}</label>`;
       return r;
@@ -7174,15 +7223,18 @@
         };
       };
       if (p.dl) upd('exD', (e, v) => e.d = v, p.dmin, p.dmax);
+      upd('exZ', (e, v) => e.z = v, -1e6, 1e6);                                             // 底标高：整组在 3D 中抬高 / 下沉
       (p.nums || []).forEach(([k, , , mn, mx, st]) => {                          // 整数参数（层数 / 列数 / 余位数…）不按 10 取整
         const el = $('#fx_' + k); if (!el) return;
         el.onchange = () => { const v = parseInt(el.value, 10); if (isNaN(v)) return;
           mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e[k] = Math.max(mn, Math.min(mx, v)); }); };
       });
       (p.sels || []).forEach(([k]) => { const el = $('#fx_' + k); if (el) el.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e[k] = el.value; }); });
+      if (e0.type === 'facFuelPump') { const el = $('#fx_linkBoard'); if (el) el.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.linkBoard = el.value; }); }
       (p.texts || []).forEach(([k]) => { const el = $('#fx_' + k); if (el) el.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e[k] = (el.value || 'A').slice(0, 3); }); });
       (p.chks || []).forEach(([k]) => { const el = $('#fx_' + k); if (el) el.onchange = () => { mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) {
         const pm = /^port([0-2])$/.exec(k);                                                  // 回收站三口：勾选框写回 e.ports[i]（分类垃圾桶 binOpen 见下）
+        if (e.type === 'facFuelPump' && k === 'busy' && el.checked) window.resetPumpMeter?.(e.id);   // 面板开启加油同样重置表
         if (pm) { const ports = (Array.isArray(e.ports) ? e.ports : [e.on === true, e.on === true, e.on === true]).slice(); ports[+pm[1]] = el.checked; e.ports = ports; }
         else { e[k] = el.checked; if (e.type === 'sanSortBin' && k === 'on') e.binOpen = [el.checked, el.checked, el.checked, el.checked]; if (e.type === 'sanRecycleStation' && k === 'on') e.ports = [el.checked, el.checked, el.checked]; }
       } }); window.applyParkVisual?.(id); window.applyCarVisual?.(id); }; });
@@ -7206,7 +7258,7 @@
     const DP_WALL_TYPES = ['drainpipe', 'waterRiser', ...DP_FIT_TYPES];       // 给排水贴墙构件（含立管 / 管件）
     const DP_POINT_TYPES = ['rainInlet', 'hydrantIn', 'sprinkler', 'manifold']; // 给排水独立点构件（雨水斗 / 消防 / 分水器）
     const isExtraPt = t => ['spout', 'tiecol', 'chimney', 'tree', 'flag', 'barrier', 'streetlamp', 'solarlamp'].includes(t) || DP_WALL_TYPES.includes(t) || DP_POINT_TYPES.includes(t) || isTraffic(t) || isSecurity(t) || isFacility(t);
-    const extraRot = e => e && (e.type === 'park' || isCar(e.type) || ['ac', 'solar', 'equip'].includes(e.type)) ? ((+e.rot || 0) % 360) : 0;   // 车位 / 车辆 / 设备平台 / 太阳能 / 设备基础：随朝向旋转（包围盒 / 手柄同步）
+    const extraRot = e => e && (e.type === 'park' || isCar(e.type) || ['ac', 'solar', 'equip', 'fuelCanopy', 'fuelTank'].includes(e.type)) ? ((+e.rot || 0) % 360) : 0;   // 车位 / 车辆 / 设备平台 / 太阳能 / 设备基础 / 加油棚 / 储油罐：随朝向旋转（包围盒 / 手柄同步）
     function unrotPoint(x, y, cx, cy, deg) {                                                  // 屏幕坐标逆旋转到构件局部坐标（SVG 屏幕 y 向下）
       if (!deg) return { x, y };
       const a = deg * Math.PI / 180, c = Math.cos(-a), s = Math.sin(-a), dx = x - cx, dy = y - cy;
@@ -7331,6 +7383,20 @@
       if (e.type === 'facTicketMachine') return box(0, 0, W, D, '#dcd8cc', .95) + box(0, D * .16, W * .62, D * .18, '#2f6f9e', .9) + txt(0, -D * .22, '取', '#3a4a58', D * .4);
       if (e.type === 'facFindKiosk') return box(0, 0, W, D, '#dcd8cc', .95) + box(W * .1, 0, W * .55, D * .72, '#2a4a6e', .9) + txt(-W * .22, 0, '?', '#2a4a6e', D * .55);
       if (e.type === 'facEvCharger') return box(0, 0, W, D, '#e8e4da', .95) + txt(0, D * .1, '⚡', '#2f7fd0', W * .7) + `<circle cx="${(e.x + ux * W * .8).toFixed(1)}" cy="${(e.y + uy * W * .8).toFixed(1)}" r="${Math.max(26, W * .16)}" fill="${e.busy ? '#3f8fe0' : '#3cc46e'}" stroke="none"/>`;
+      /* 加油站配套 7 件：2D 俯视按类型画示意符号，交互件状态点随 busy / on 变色 */
+      if (e.type === 'facFuelPump') return box(0, 0, W, D, '#e6e2d8', .95) + box(W * .12, 0, W * .5, D * .58, '#20415e', .92) + txt(W * .12, 0, String(e.fuel || '92').replace(/#/g, '') + '#', '#fff', Math.min(W, D) * .34) + `<circle cx="${(e.x + ux * W * .9).toFixed(1)}" cy="${(e.y + uy * W * .9).toFixed(1)}" r="${Math.max(26, W * .14).toFixed(1)}" fill="${e.busy ? '#e8b44a' : '#3cc46e'}" stroke="none"/>`;
+      if (e.type === 'facFuelPrice') return `<g transform="translate(${e.x} ${e.y})">
+        <rect x="${(-W*.5).toFixed(1)}" y="${(-D*.5).toFixed(1)}" width="${W.toFixed(1)}" height="${D.toFixed(1)}" rx="24" fill="#20262b" fill-opacity=".92" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
+        ${[['92#', e.p92 || '7.68'], ['95#', e.p95 || '8.18'], ['98#', e.p98 || '9.28'], ['0#', e.p0 || '7.12']].map(([lb, pr], i) => {
+          const cy = (-D*.5 + D*(i+.5)/4).toFixed(1), fs = Math.max(26, D*.19).toFixed(0);
+          return `<text x="${(-W*.42).toFixed(1)}" y="${cy}" font-size="${fs}" fill="#ffd75e" text-anchor="start" dominant-baseline="middle">${lb}</text><text x="${(W*.42).toFixed(1)}" y="${cy}" font-size="${fs}" fill="#7ef0a0" text-anchor="end" dominant-baseline="middle">${pr}</text>`;
+        }).join('')}
+      </g>` + dot(Math.max(40, R * .3), col, .5);
+      if (e.type === 'facFuelUnload') return `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(60, W * .45).toFixed(1)}" fill="#6b7075" fill-opacity=".85" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>` + txt(0, 0, '卸', '#fff', Math.max(60, W * .5));
+      if (e.type === 'facVaporRecovery') return box(0, 0, W, D, '#c9c5b9', .95) + txt(0, 0, '回', '#3f6f8f', Math.min(W, D) * .62) + `<circle cx="${(e.x + ux * W * .85).toFixed(1)}" cy="${(e.y + uy * W * .85).toFixed(1)}" r="${Math.max(24, W * .12).toFixed(1)}" fill="${e.on ? '#3cc46e' : '#e8b44a'}" stroke="none"/>`;
+      if (e.type === 'facFireSand') return box(0, 0, W, D, '#c2b48c', .95) + txt(0, 0, '沙', '#8a6a4a', Math.min(W, D) * .6);
+      if (e.type === 'facFireExt') return box(0, 0, W, D, '#cf3126', .95) + txt(0, 0, '灭', '#fff', Math.min(W, D) * .65);
+      if (e.type === 'facFuelBollard') return `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(45, W * .6).toFixed(1)}" fill="#e8b44a" fill-opacity=".92" stroke="#1b1b1b" stroke-width="2" vector-effect="non-scaling-stroke"/><circle cx="${e.x}" cy="${e.y}" r="${Math.max(20, W * .3).toFixed(1)}" fill="#1b1b1b" stroke="none"/>`;
       if (e.type === 'facEntrySign')                          // 出入口指示牌：杆点 + 悬挑 + 牌面文字（字号按牌宽收敛，避免出界）
         return dot(Math.max(40, R * .32), col, .5) + box(Math.max(300, D) * .5, 0, Math.max(160, D * .16), W, '#1565a8', .88) + txt(Math.max(300, D) * .5, 0, e.side === 'out' ? '出口' : '入口', '#fff', Math.min(W * .5, Math.max(160, D * .16) * .42));
       if (e.type === 'facFreeSpace') return board(W, Math.max(120, D), '#20262b', 'P ' + Math.round(e.n ?? 88), '#7ef0a0');
@@ -7834,10 +7900,17 @@
               const scx=e.x+ux*t*.5, scy=e.y+uy*t*.5;
               const quad=(cx,cy,ww,dd)=>{const c=Math.cos(a),s2=Math.sin(a);return [[-ww/2,-dd/2],[ww/2,-dd/2],[ww/2,dd/2],[-ww/2,dd/2]].map(([dx,dy])=>`${(cx+dx*c-dy*s2).toFixed(1)},${(cy+dx*s2+dy*c).toFixed(1)}`).join(' ');};
               inner = `<polygon points="${quad(scx,scy,bw,t)}" fill="#1565a8" fill-opacity=".8" stroke="${col}" stroke-width="${on?2:1.2}" vector-effect="non-scaling-stroke"/>${T(scx,scy,'站','#fff',Math.max(120,t*1.6))}<circle cx="${e.x}" cy="${e.y}" r="${Math.max(40,R*.4)}" fill="${col}" fill-opacity=".55" stroke="none"/>`;
-            } else if (e.type === 'facFlashBeacon') {           // 爆闪灯：杆点 + 双黄灯点
+            } else if (e.type === 'facFlashBeacon') {           // 太阳能爆闪灯：杆点 + 双黄灯点（反相闪烁）+ 电量条 / 红色充电指示灯
+              const bat = Math.max(0, Math.min(100, +e.battery ?? 60));
+              const bcol = bat < 20 ? '#e5484d' : bat < 50 ? '#e8b44a' : '#3cc46e';
+              const lamp2 = (dx, dy, ph) => `<circle cx="${(e.x+dx).toFixed(1)}" cy="${(e.y+dy).toFixed(1)}" r="${Math.max(22,R*.3)}" fill="${bat>0?'#ffc233':'#4a3c14'}">${bat>0?`<animate attributeName="opacity" values="${ph>0?'1;.15;1':'.15;1;.15'}" dur=".8s" repeatCount="indefinite"/>`:''}</circle>`;
+              const bx = e.x - R * 1.3, by = e.y + R * 1.55, bw = R * 2.6;
               inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(45,R*.5)}" fill="${col}" fill-opacity=".5" stroke="none"/>
-                <circle cx="${e.x-uy*R*.7}" cy="${e.y+ux*R*.7}" r="${Math.max(22,R*.3)}" fill="#ffc233"><animate attributeName="opacity" values="1;.15;1" dur=".8s" repeatCount="indefinite"/></circle>
-                <circle cx="${e.x+uy*R*.7}" cy="${e.y-ux*R*.7}" r="${Math.max(22,R*.3)}" fill="#ffc233"><animate attributeName="opacity" values=".15;1;.15" dur=".8s" repeatCount="indefinite"/></circle>`;
+                ${lamp2(-uy*R*.7, ux*R*.7, 1)}${lamp2(uy*R*.7, -ux*R*.7, -1)}
+                <rect x="${bx.toFixed(1)}" y="${by.toFixed(1)}" width="${bw.toFixed(1)}" height="${Math.max(12,R*.16).toFixed(1)}" fill="#1f242b" fill-opacity=".85" stroke="#8a929b" stroke-width=".8" vector-effect="non-scaling-stroke"/>
+                <rect x="${(bx+2).toFixed(1)}" y="${(by+2).toFixed(1)}" width="${Math.max(0,(bw-4)*bat/100).toFixed(1)}" height="${Math.max(8,R*.16-4).toFixed(1)}" fill="${bcol}" stroke="none"/>
+                <text x="${e.x.toFixed(1)}" y="${(by+R*.62).toFixed(1)}" text-anchor="middle" font-size="${Math.max(30,R*.3).toFixed(0)}" fill="${bcol}">${Math.round(bat)}%</text>
+                <circle cx="${(e.x+R*.95).toFixed(1)}" cy="${(e.y-R*.95).toFixed(1)}" r="${Math.max(22,R*.16).toFixed(1)}" fill="#ff4438"><animate attributeName="opacity" values="1;.12;1" dur="1s" repeatCount="indefinite"/></circle>`;
             } else if (e.type === 'carTruck') {          // 卡车俯视：平头驾驶室 + 厢式货箱（后双开门，开启画外摆门）+ 六轮 + 前后灯（本地 +x 为车头）
               const L = Math.max(4500, +e.w || 6800), Wd = Math.max(1900, +e.d || 2400), L2 = L / 2, W2 = Wd / 2;
               const c = Math.cos(a), s2 = Math.sin(a);
@@ -8178,11 +8251,26 @@
           const ins = Math.min(w, d) * .14;
           inner += `<rect x="${x0 + ins}" y="${y0 + ins}" width="${Math.max(10, w - ins * 2)}" height="${Math.max(10, d - ins * 2)}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
             <line x1="${x0 + ins}" y1="${e.y}" x2="${x0 + w - ins}" y2="${e.y}" stroke="${col}" stroke-opacity=".45" stroke-width=".9" vector-effect="non-scaling-stroke"/>`;
+        } else if (e.type === 'fuelCanopy') {                      // 加油棚：顶棚轮廓 + 两排柱位 + 车道分隔线
+          const cols = Math.max(2, Math.min(10, Math.round(w / Math.max(2000, +e.col || 6000)) + 1));
+          for (let i = 0; i < cols; i++) {
+            const px = x0 + w * i / (cols - 1);
+            [-1, 1].forEach(sd => {
+              const cy = e.y + sd * d * .34, s = Math.max(60, Math.min(170, d * .06));
+              inner += `<rect x="${(px - s / 2).toFixed(1)}" y="${(cy - s / 2).toFixed(1)}" width="${s.toFixed(1)}" height="${s.toFixed(1)}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>`;
+            });
+          }
+          inner += `<line x1="${x0}" y1="${e.y}" x2="${x0 + w}" y2="${e.y}" stroke="${col}" stroke-opacity=".35" stroke-width="1" vector-effect="non-scaling-stroke"/>`;
+        } else if (e.type === 'fuelTank') {                        // 埋地储油罐：圆角罐体 + 人孔 + 灌顶管线
+          const rr = Math.min(w, d) * .22;
+          inner += `<rect x="${(x0 + d * .08).toFixed(1)}" y="${(y0 + d * .13).toFixed(1)}" width="${Math.max(10, w - d * .16).toFixed(1)}" height="${Math.max(10, d * .74).toFixed(1)}" rx="${rr.toFixed(1)}" fill="${col}" fill-opacity=".14" stroke="${col}" stroke-width="1.5" vector-effect="non-scaling-stroke"/>`;
+          [-1, 1].forEach(sd => inner += `<circle cx="${(e.x + sd * w * .27).toFixed(1)}" cy="${e.y}" r="${Math.max(30, d * .085).toFixed(1)}" fill="none" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`);
+          inner += `<line x1="${e.x}" y1="${y0}" x2="${e.x}" y2="${(y0 + d * .13).toFixed(1)}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
         }
         const dash = e.type === 'pavilion' || e.type === 'carport' ? ' stroke-dasharray="160 70"'
           : ['slabhole', 'skylight', 'dormer'].includes(e.type) ? ' stroke-dasharray="90 60"'
             : e.type === 'shaft' ? ' stroke-dasharray="200 90"' : '';
-        const parkRot = ['park', 'ac', 'solar', 'equip'].includes(e.type) ? norm(e.rot || 0) : 0;   // 车位 / 设备平台 / 太阳能 / 设备基础：整体随「转向」旋转
+        const parkRot = ['park', 'ac', 'solar', 'equip', 'fuelCanopy', 'fuelTank'].includes(e.type) ? norm(e.rot || 0) : 0;   // 车位 / 设备平台 / 太阳能 / 设备基础 / 加油棚 / 储油罐：整体随「转向」旋转
         const body = `<rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${col}" fill-opacity=".07" stroke="${col}" stroke-width="${on ? 2 : 1.1}"${dash} vector-effect="non-scaling-stroke"/>${inner}`;
         out.push(`<g data-extra="${e.id}" style="cursor:move">
           ${parkRot ? `<g transform="rotate(${parkRot} ${e.x} ${e.y})">${body}</g>` : body}
@@ -9229,9 +9317,10 @@
       if (t === 'solarlamp') { const s = SOLAR_LAMP; return { ...base, w: s.w, h: s.h, arm: s.arm, style: 'single', rot: 0, on: true, r: s.r, battery: s.battery, charge: s.charge, drain: s.drain }; }   // 太阳能路灯：额外带电量 / 充放电速度（%/秒）
       if (t === 'traflight') return { ...base, w: 140, h: 4500, rot: 0, sig: 'red', auto: true };   // 交通信号灯：杆径 / 杆高 / 朝向 / 当前信号 / 自动轮播
       if (t === 'facCrosswalk') return { ...base, w: FACILITY_DEFS[t].w, d: FACILITY_DEFS[t].h, h: 12, n: 6, rot: 0 };   // 斑马线：宽 w × 进深 d、条纹数 n，h=标线厚度（12mm）
+      if (t === 'facFlashBeacon') { const s = SOLAR_BEACON; return { ...base, w: FACILITY_DEFS[t].w, h: FACILITY_DEFS[t].h, rot: 0, battery: s.battery, charge: s.charge, drain: s.drain }; }   // 太阳能爆闪灯：带电量 / 充放电速度（%/秒）
       if (isFacility(t)) {                                      // 道路设施：默认尺寸 / 朝向 + 可选字段（保安亭/地感进深 d、道闸开合 open、车道灯信号 sig、停车场配套的样式 / 层列数等）
         const d = FACILITY_DEFS[t];
-        return { ...base, w: d.w, h: d.h, rot: 0, ...(d.d != null ? { d: d.d } : {}), ...(d.open != null ? { open: d.open } : {}), ...(d.sig != null ? { sig: d.sig } : {}), ...((PARK_EXT[t] && PARK_EXT[t].def) || {}) };
+        return { ...base, w: d.w, h: d.h, rot: 0, z: 0, ...(d.d != null ? { d: d.d } : {}), ...(d.open != null ? { open: d.open } : {}), ...(d.sig != null ? { sig: d.sig } : {}), ...((PARK_EXT[t] && PARK_EXT[t].def) || {}) };   // z=底标高：让移动工具显示竖直轴（向上箭头），可拖动改标高
       }
       if (isNewSign(t)) {                                  // 新增 GB 5768 标志：板宽 / 杆高 / 朝向 / 伸出，按配置表带动态参数
         const d = SIGN_DEFS[t];
@@ -9250,6 +9339,8 @@
       if (t === 'hatch') return { ...base, w: 700, d: 700, h: 250, z: 2800 };
       if (t === 'solar') return { ...base, w: 2000, d: 1600, h: 300, z: 2800, rot: 0, pitch: 26 };
       if (t === 'equip') return { ...base, w: 1500, d: 1000, h: 800, thick: 150, z: 0, rot: 0 };
+      if (t === 'fuelCanopy') return { ...base, w: 12000, d: 6000, h: 5500, thick: 350, col: 6000, z: 0, rot: 0 };   // 加油棚：宽 × 进深、净高 h、檐厚 thick、柱距 col
+      if (t === 'fuelTank') return { ...base, w: 6000, d: 2500, h: 1600, cap: 30000, z: 0, rot: 0 };                   // 埋地储油罐：长 × 宽、罐径 h、容量 cap(L)
       if (isRoadType(t)) return { ...base, w: ROAD_STYLES[t].w, h: ROAD_STYLES[t].h };
       if (isCamType(t)) return { ...base, w: t === 'camPTZ' ? 180 : t === 'camBullet' ? 90 : 120, h: 120, z: 2800, rot: 0, pitch: t === 'camDome' ? 48 : t === 'camPTZ' ? 30 : 14, fov: 80, mount: t === 'camBullet' ? 'wall' : t === 'camPTZ' ? 'pendant' : 'ceiling', drop: 400 };   // 摄像头：安装方式 / 高度 / 吊杆长 / 朝向 rot / 俯仰 pitch（默认沿用原硬编码 48/30/14）/ 视场角 fov
       if (isNVR(t)) return { ...base, w: 400, d: 380, h: 90, cams: [], mons: [] };   // 录像机：机箱尺寸 + 所接摄像机 / 显示器 id 列表
@@ -9330,6 +9421,15 @@
               <label>${tr('夜晚耗电速度', 'Night drain rate')} (%/s)<input type="number" id="exDrain" value="${+(e.drain ?? 1.2)}" min="0.1" max="20" step="0.1"></label>
             </div>`;
             })() : ''}` : ''}
+          ${e.type === 'facFlashBeacon' ? (() => {
+            const b = Math.max(0, Math.min(100, +e.battery ?? 60)), bc = b < 20 ? '#e5484d' : b < 50 ? '#e8b44a' : '#3cc46e'; return `<div class="full" style="margin-top:6px">
+            <div style="display:flex;justify-content:space-between;align-items:center"><b>${tr('电池电量', 'Battery')}</b><span id="exBatteryVal">${Math.round(b)}%</span></div>
+            <div style="height:8px;border-radius:4px;background:#222;overflow:hidden;margin:5px 0 8px"><div id="exBatteryBar" style="height:100%;width:${b}%;background:${bc}"></div></div>
+            <label>${tr('当前电量', 'Battery level')} (%)<input type="number" id="exBattery" value="${Math.round(b)}" min="0" max="100" step="1"></label>
+            <label>${tr('白天充电速度', 'Day charge rate')} (%/s)<input type="number" id="exCharge" value="${+(e.charge ?? 2.5)}" min="0.1" max="20" step="0.1"></label>
+            <label>${tr('夜晚耗电速度', 'Night drain rate')} (%/s)<input type="number" id="exDrain" value="${+(e.drain ?? 1.2)}" min="0.1" max="20" step="0.1"></label>
+          </div>`;
+          })() : ''}
           ${e.type === 'flag' ? `<label title="${tr('旗面朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Flag facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
             <label title="${tr('3D 场景中点击旗杆可在升起 / 降下之间切换', 'In 3D, click the flagpole to toggle raised / lowered')}">${tr('旗面顶标高', 'Flag top')} (mm)<input type="number" id="exFY" value="${Math.round(e.flagY ?? Math.round((e.h ?? 6000) * .9))}" min="500" max="12000" step="50"></label>` : ''}
           ${e.type === 'chimney' ? `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label>` : ''}
@@ -9388,7 +9488,9 @@
         if (e.type === 'hatch') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('翻边高', 'Curb')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 250)}" min="60" max="1000" step="10"></label>`;
         if (e.type === 'solar') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('支架高', 'Stand')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 300)}" min="80" max="2000" step="10"></label>`;
         if (e.type === 'equip') rows += `<label>${tr('基础厚', 'Base')} (mm)<input type="number" id="exT" value="${Math.round(e.thick ?? 150)}" min="60" max="600" step="10"></label><label>${tr('设备高', 'Unit height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 800)}" min="200" max="4000" step="50"></label><label>${tr('安装标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" min="-500" max="12000" step="50"></label>`;
-        if (['solar', 'equip', 'ac'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
+        if (e.type === 'fuelCanopy') rows += `<label>${tr('净高', 'Clear height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 5500)}" min="3000" max="9000" step="50"></label><label>${tr('檐厚', 'Roof thickness')} (mm)<input type="number" id="exT" value="${Math.round(e.thick ?? 350)}" min="100" max="800" step="10"></label><label>${tr('柱距', 'Column spacing')} (mm)<input type="number" id="exC" value="${Math.round(e.col ?? 6000)}" min="2000" max="12000" step="100"></label><label title="${tr('构件底部离地的标高，可为负（沉到地面以下）', 'Bottom level above the floor — negative values sink below floor level')}">${tr('底标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="50"></label>`;
+        if (e.type === 'fuelTank') rows += `<label>${tr('罐径', 'Tank ⌀')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 1600)}" min="800" max="3000" step="50"></label><label>${tr('容量', 'Capacity')} (L)<input type="number" id="exCap" value="${Math.round(e.cap ?? 30000)}" min="1000" max="100000" step="1000"></label><label title="${tr('罐底离地的标高，埋地时填负值（罐体沉到地面以下）', 'Tank bottom level above the floor — enter a negative value to bury it below grade')}">${tr('底标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="50"></label><label class="chk"><input type="checkbox" id="exLidOpen" ${e.lidOpen ? 'checked' : ''}> ${tr('人孔盖开启（3D 点击井盖 / 漫游 E 也可切换）', 'Manhole cover open (click lid in 3D / E in walk)')}</label>`;
+        if (['solar', 'equip', 'ac', 'fuelCanopy', 'fuelTank'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
         if (e.type === 'solar') rows += `<label title="${tr('集热板倾角（默认约 26°）', 'Collector tilt (default ≈26°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? 26)}" min="-360" max="375" step="15"></label>`;
       }
       const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式（壁装 / 立杆时此处为镜头中心高度，吸顶 / 吊装为吸顶盘标高，吊装另可改吊杆长）。2D 画镜头 + 视场扇形并带安装标记，3D 按类型生成半球 / 球形云台 / 枪型模型与对应支架。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装方式 / 高度 / 朝向 / 视场角均可改。', 'Camera: click to place; ceiling / pendant / wall / pole mounts (wall & pole use lens-center height, ceiling & pendant use the plate level, pendant adds a drop-rod length). 2D shows lens + view cone with mount marks, 3D builds dome / PTZ / bullet model with matching bracket. Add it to an NVR and the 3D feed renders live from its viewpoint. Edit mount / height / angle / FOV.')
@@ -9415,6 +9517,8 @@
                                             : e.type === 'hatch' ? tr('屋面检修口，2D 画内框，3D 为翻边与盖板。', 'Roof hatch with curb and cover.')
                                               : e.type === 'solar' ? tr('太阳能热水器，2D 画集热板分格与水箱，3D 为斜置集热板与水箱。', 'Solar water heater with tilted collector.')
                                                 : e.type === 'equip' ? tr('屋面设备基础，2D 画机组轮廓，3D 为基础与设备体量。', 'Rooftop equipment base and unit.')
+                                                : e.type === 'fuelCanopy' ? tr('加油棚：两次点击定对角，2D 画顶棚与两排柱位，3D 为顶棚 + 立柱（漫游可穿行柱间），净高 / 檐厚 / 柱距可改。', 'Fuel canopy: roof slab with two rows of columns; edit clear height, roof thickness and column spacing.')
+                                                  : e.type === 'fuelTank' ? tr('埋地储油罐：两次点击定对角，2D 画圆角罐体与人孔，3D 为卧式罐体 + 人孔井，罐径 / 容量可改。', 'Underground fuel tank: horizontal tank with manholes; edit diameter and capacity.')
                                                   : e.type === 'tiecol' ? tr('构造柱设在墙端 / 墙交角，长 / 宽分别设置做矩形截面（默认 240×240，旧数据按边长）。2D 实心方块加叉，3D 为通高柱。', 'Tie column at wall ends and corners; set length / width separately for a rectangular section (default 240×240; legacy data uses the single size).')
                                                     : e.type === 'chimney' ? tr('烟囱出屋面，2D 为实心方块加叉，3D 为方柱与压顶。', 'Chimney above the roof with a cap.')
                                                       : e.type === 'facBarrierGate' ? tr('自动道闸机点击放置：3D 点击机箱或闸杆升降（漫游按 E），2D 闸杆落下实线横跨、抬起虚线缩短；右侧可改闸杆长 / 机箱高 / 开合 / 朝向。可与地感线圈、车牌识别、收费机配合组成停车场入口。', 'Barrier gate: click to place; click the box or arm in 3D to raise / lower (E in walk); 2D shows a solid arm when lowered and a dashed short arm when raised. Edit arm length / box height / open state / angle in the panel.')
@@ -9558,7 +9662,7 @@
           if (eo.checked && isSolarLamp(e.type) && (e.battery ?? 0) <= 0) { eo.checked = false; toast(tr('电量不足，无法开灯', 'Battery empty — cannot switch on')); return; }
           e.on = eo.checked;
         });
-        if (isSolarLamp(e0.type)) {
+        if (isSolarLamp(e0.type) || e0.type === 'facFlashBeacon') {
           const bindSolarNum = (keyId, key, min, max) => {
             const el = $('#' + keyId); if (!el) return;
             el.onchange = () => { const v = parseFloat(el.value); if (isNaN(v)) return; mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e[key] = Math.max(min, Math.min(max, v)); }); };
@@ -9609,7 +9713,9 @@
         upd('exT', (e, v) => e.thick = v, 40, 600);
         upd('exZ', (e, v) => e.z = v);
         upd('exH', (e, v) => e.h = v, 10, 6000);
-        upd('exC', (e, v) => e.col = v, 60, 500);
+        upd('exC', (e, v) => e.col = v, 60, 12000);               // 柱径 / 柱距共用（加油棚柱距可达 12000）
+        upd('exCap', (e, v) => e.cap = v, 1000, 100000);
+        const lid = $('#exLidOpen'); if (lid) lid.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) { e.lidOpen = lid.checked; window.applyParkVisual?.(id); } });   // 储油罐人孔盖开合
         upd('exNo', (e, v) => e.no = v, 1, 999);
         upd('exDir', (e, v) => e.dir = ((Math.round(v) % 360) + 360) % 360);
       }
@@ -14319,7 +14425,7 @@
           }
           renderNotes(); return;
         }
-        if (['slabhole', 'ac', 'park', 'pavilion', 'skylight', 'shaft', 'lawn', 'well2', 'dormer', 'hatch', 'solar', 'equip', 'carport'].includes(ui.drawTool)) {  // 扩展矩形构件：两次点击定对角点
+        if (['slabhole', 'ac', 'park', 'pavilion', 'skylight', 'shaft', 'lawn', 'well2', 'dormer', 'hatch', 'solar', 'equip', 'carport', 'fuelCanopy', 'fuelTank'].includes(ui.drawTool)) {  // 扩展矩形构件：两次点击定对角点
           const kind = ui.drawTool, q = snapPoint(p, e.shiftKey);
           if (!ui.rectA) {
             ui.rectA = q; ui.rectCur = q; ui.rectKind = 'ex:' + kind; renderNotes();
@@ -16059,7 +16165,7 @@
       if (!isRoadType(dt) && dt !== 'dpRoute' && !['apron', 'retain', 'gutter', 'lintel', 'seam', 'eave', 'sill', 'path', 'thresh', 'flash', 'band', 'signbd'].includes(dt)) { ui.exA = null; ui.exCur = null; }
       if (!isRoadType(dt) && dt !== 'dpRoute') { ui.exPts = null; ui.exSnap = null; }   // 离开折线工具：放弃打到一半的拐点
       if (dt !== 'leader' && dt !== 'section') { ui.ldA = null; ui.ldCur = null; }
-      if (!['balcony', 'planter', 'well', 'slabhole', 'ac', 'park', 'pavilion', 'skylight', 'shaft', 'lawn', 'well2', 'dormer', 'hatch', 'solar', 'equip'].includes(dt)) { ui.rectA = null; ui.rectCur = null; ui.rectKind = null; }
+      if (!['balcony', 'planter', 'well', 'slabhole', 'ac', 'park', 'pavilion', 'skylight', 'shaft', 'lawn', 'well2', 'dormer', 'hatch', 'solar', 'equip', 'fuelCanopy', 'fuelTank'].includes(dt)) { ui.rectA = null; ui.rectCur = null; ui.rectKind = null; }
       syncSubToolUI();   // 子工具高亮 / data-subtool / 方向条统一由 ui.drawTool 驱动
       if (dt !== 'select' && dt !== 'move' && dt !== 'rotate') select(null);   // 切到创建类子工具时取消选中；选择 / 移动 / 旋转保留选中
       else renderSel();                       // 按当前选中对象重画手柄（房间顶点 / 家具手柄立即出现）
@@ -16801,10 +16907,45 @@
     const sanVisuals = new Map();                 // 环卫配套 12 件：id → { lamps, doors, water, binAnims, cpAnims, portAnims }，按 on / binOpen / cpOpen / ports 状态统一刷新
     const wtVisuals = new Map(), wtRuns = [];     // 垃圾转运站：id → { lamps, lids, mists, runs }；wtRuns 压缩机推杆等运行动画（loop 里每帧驱动）
     const washVisuals = new Map(), washRuns = new Map();   // 自动洗车机：id → 机体网格集；washRuns 进行中的洗车流程（start 时刻，loop 里按时间轴驱动）
+    const pumpMeters = new Map(), pumpScreens = new Map();  // 加油机：pumpMeters id → 表读数（跨重建保留），pumpScreens id → 屏幕画布 / 纹理绑定（重建时清空重绑）
 
     function startWash(id, durS) {                // 登记一次洗车流程（时长 e.dur 秒，默认 14），重建场景后按方案 busy 状态续播
       const k = String(id);
       if (!washRuns.has(k)) washRuns.set(k, { start: performance.now(), dur: Math.max(8, (+durS || 14)) * 1000 });
+    }
+    function fuelPriceFor(grade, px, py, boardId) {   // 加油机联动油价牌：优先指定牌，否则取最近的，都没有回退默认价
+      const no = String(grade || '').replace(/\D/g, '') || '92';
+      const key = no === '0' ? 'p0' : 'p' + no;
+      const def = { p92: 7.68, p95: 8.18, p98: 9.28, p0: 7.12 }[key] ?? 7.68;
+      if (boardId) {
+        const b = (state.extras || []).find(x => String(x.id) === String(boardId) && x.type === 'facFuelPrice');
+        return b ? (parseFloat(b[key]) || def) : def;
+      }
+      let best = Infinity, price = def;
+      (state.extras || []).forEach(x => {
+        if (x.type !== 'facFuelPrice') return;
+        const d = Math.hypot((x.x || 0) - (px || 0), (x.y || 0) - (py || 0));
+        if (d < best) { best = d; price = parseFloat(x[key]) || def; }
+      });
+      return price;
+    }
+    function drawPumpMeter(id) {                  // 重绘加油机屏幕：油号 + 单价 + 累计升数 + 金额（关闭保持，重开归零）
+      const s = pumpScreens.get(id); if (!s) return;
+      const g = s.g, cw = s.cv.width, ch = s.cv.height, amt = pumpMeters.get(id)?.amount || 0;
+      const price = s.price || fuelPriceFor(s.grade, s.x, s.y);
+      g.fillStyle = '#20415e'; g.fillRect(0, 0, cw, ch);
+      g.textAlign = 'center'; g.textBaseline = 'middle';
+      const put = (t, y, color, fs0) => {
+        let fs = fs0; g.font = `bold ${fs}px "Microsoft YaHei", sans-serif`;
+        const w = g.measureText(t).width;
+        if (w > cw * .92) { fs = Math.max(10, Math.floor(fs * cw * .92 / w)); g.font = `bold ${fs}px "Microsoft YaHei", sans-serif`; }
+        g.fillStyle = color; g.fillText(t, cw / 2, y);
+      };
+      put(s.grade, ch * .15, '#7ef0a0', 56);
+      put('¥' + price.toFixed(2) + '/L', ch * .34, '#9dc8e8', 52);
+      put(amt.toFixed(2) + ' L', ch * .60, '#ffd75e', 132);
+      put('¥' + (amt * price).toFixed(2), ch * .83, '#ffffff', 116);
+      s.tex.needsUpdate = true;
     }
     function carWashStep(now, dt) {               // 洗车时间轴（龙门自己走完全程，无示范车）：预湿(0-.18) → 泡沫(.18-.36) → 正刷(.36-.57) → 回刷(.57-.79) → 冲净(.79-.89) → 风干回位(.89-1)，按清洗时长等比缩放
       washRuns.forEach((run, id) => {
@@ -17426,6 +17567,11 @@
                   : k === 'sanSwitch' ? (ex.on ? tr('点击关灯（门边开关）', 'Click to turn off (wall switch)') : tr('点击开灯（门边开关）', 'Click to turn on (wall switch)'))
                   : k === 'sandoor' ? (ex.doorOpen !== false ? tr('点击关门', 'Click to close the door') : tr('点击开门', 'Click to open the door'))
                   : k === 'sancab' ? (ex.cabOpen === true ? tr('点击关上柜门', 'Click to close the cabinet door') : tr('点击打开柜门', 'Click to open the cabinet door'))
+                  : k === 'pump' ? (ex.busy ? tr('点击切为空闲 · 绿灯', 'Click to set idle · green') : tr('点击切为加油中 · 黄灯', 'Click to set refueling · amber'))
+                  : k === 'vapor' ? (ex.on ? tr('点击切为待机 · 黄灯', 'Click to standby · amber') : tr('点击切为运行 · 绿灯', 'Click to run · green'))
+                  : k === 'ext' ? (ex.on ? tr('点击关上灭火器箱门', 'Click to close the cabinet') : tr('点击打开灭火器箱门', 'Click to open the cabinet'))
+                  : k === 'tanklid' ? (ex.lidOpen ? tr('点击关上人孔盖', 'Click to close the manhole cover') : tr('点击打开人孔盖', 'Click to open the manhole cover'))
+                  : k === 'unloadlid' ? (ex.lidOpen ? tr('点击关上卸油口井盖', 'Click to close the unloading cover') : tr('点击打开卸油口井盖', 'Click to open the unloading cover'))
                   : (ex.busy ? tr('点击切为空闲 · 绿灯', 'Click to set idle · green') : tr('点击切为充电中 · 蓝灯', 'Click to set charging · blue'));
           } else {
             const empty = ex.type === 'solarlamp' && (ex.battery ?? 0) <= 0;
@@ -19870,7 +20016,7 @@
     }
     function updateSolarPanelUI() {                              // 只刷面板里的电量数字 / 进度条，不整块重绘，避免输入框失焦
       const sel = ui.sel, e = sel?.kind === 'extra' ? (state.extras || []).find(x => x.id === sel.id) : null;
-      if (!e || e.type !== 'solarlamp') return;
+      if (!e || (e.type !== 'solarlamp' && e.type !== 'facFlashBeacon')) return;
       const bat = Math.max(0, Math.min(100, +e.battery || 0));
       const val = document.querySelector('#exBatteryVal'); if (val) val.textContent = `${Math.round(bat)}%`;
       const bar = document.querySelector('#exBatteryBar');
@@ -19995,13 +20141,15 @@
     }
     function applyParkVisual(id) {                                 // 停车场配套：按状态刷新灯色 + 动画目标（升降柱 / 伸缩门 / 车位灯 / 充电桩）
       const e = (state.extras || []).find(x => String(x.id) === String(id)); if (!e) return;
-      const lamp = parkLamps.get('sensor' + e.id) || parkLamps.get('charger' + e.id);
+      const lamp = parkLamps.get('sensor' + e.id) || parkLamps.get('charger' + e.id) || parkLamps.get('pump' + e.id) || parkLamps.get('vapor' + e.id);
       if (lamp?.material?.color?.setHex) {
         if (e.type === 'facStallSensor') lamp.material.color.setHex(e.occ ? 0xe5484d : 0x3cc46e);
+        else if (e.type === 'facFuelPump') lamp.material.color.setHex(e.busy ? 0xe8b44a : 0x3cc46e);
+        else if (e.type === 'facVaporRecovery') lamp.material.color.setHex(e.on ? 0x3cc46e : 0xe8b44a);
         else lamp.material.color.setHex(e.busy ? 0x3f8fe0 : 0x3cc46e);
       }
       const a = parkAnims.find(x => String(x.id) === String(id) && x.kind !== 'wt');   // 转运站动画由 wtVisuals.lids 统一按 on 刷，避免这里误置为 e.open
-      if (a) a.open = e.type === 'facRisingBollard' ? e.up === true : e.open === true;
+      if (a) a.open = e.type === 'facRisingBollard' ? e.up === true : e.type === 'facFireExt' ? e.on === true : (e.type === 'fuelTank' || e.type === 'facFuelUnload') ? e.lidOpen === true : e.open === true;
       const sv = sanVisuals.get(String(id));                    // 环卫配套：按 on / binOpen 刷灯色 / 开合动画 / 水流
       if (sv) {
         sv.lamps.forEach(l => { if (l.mesh?.material?.color?.setHex) l.mesh.material.color.setHex(e.on ? l.onHex : l.offHex); });
@@ -20043,6 +20191,9 @@
       else if (p.kind === 'gate') e.open = e.open !== true;
       else if (p.kind === 'sensor') e.occ = e.occ !== true;
       else if (p.kind === 'charger') e.busy = e.busy !== true;
+      else if (p.kind === 'pump') { e.busy = e.busy !== true; if (e.busy) pumpMeters.set(String(e.id), { amount: 0 }); }   // 加油机：开始加油表归零，关闭停在当前读数
+      else if (p.kind === 'vapor' || p.kind === 'ext') e.on = e.on !== true;  // 油气回收 / 灭火器箱：运行 ⇄ 待机、开门 ⇄ 关门
+      else if (p.kind === 'tanklid' || p.kind === 'unloadlid') e.lidOpen = e.lidOpen !== true;   // 储油罐人孔 / 卸油口井盖开 / 关
       else if (p.kind === 'san') {
         if (e.type === 'sanSortBin' && p.part != null) {         // 分类垃圾桶：只切点中的那个桶，其余保持原状
           const bins = sanBinStates(e).slice();
@@ -20095,6 +20246,16 @@
       } else if (p.kind === 'wash') {
         zh = washBegan ? `自动洗车机：开始洗车 · 全程 ${e.dur || 14} 秒` : '自动洗车机：洗车进行中 · 请稍候';
         en = washBegan ? `Car wash: started · about ${e.dur || 14} s` : 'Car wash: in progress · please wait';
+      } else if (p.kind === 'pump') {
+        zh = e.busy ? '加油机：开始加油（黄灯）' : '加油机：空闲（绿灯）'; en = e.busy ? 'Fuel pump: refueling (amber)' : 'Fuel pump: idle (green)';
+      } else if (p.kind === 'vapor') {
+        zh = e.on ? '油气回收：运行中（绿灯）' : '油气回收：待机（黄灯）'; en = e.on ? 'Vapor recovery: running (green)' : 'Vapor recovery: standby (amber)';
+      } else if (p.kind === 'ext') {
+        zh = e.on ? '灭火器箱：箱门已打开' : '灭火器箱：箱门已关闭'; en = e.on ? 'Extinguisher cabinet: door opened' : 'Extinguisher cabinet: door closed';
+      } else if (p.kind === 'tanklid') {
+        zh = e.lidOpen ? '储油罐：人孔盖已打开' : '储油罐：人孔盖已关闭'; en = e.lidOpen ? 'Fuel tank: manhole cover opened' : 'Fuel tank: manhole cover closed';
+      } else if (p.kind === 'unloadlid') {
+        zh = e.lidOpen ? '卸油口：井盖已打开' : '卸油口：井盖已关闭'; en = e.lidOpen ? 'Unloading port: cover opened' : 'Unloading port: cover closed';
       } else if (p.kind === 'sandoor') {
         zh = e.doorOpen === false ? '门已关闭' : '门已打开'; en = e.doorOpen === false ? 'Door closed' : 'Door opened';
       } else if (p.kind === 'sancab') {
@@ -20112,6 +20273,7 @@
       toast(tr(zh, en));
     }
     window.applyParkVisual = applyParkVisual;                      // 供经典脚本的属性面板开关回调调用
+    window.resetPumpMeter = id => pumpMeters.set(String(id), { amount: 0 });   // 供面板勾选「加油中」重置表（pumpMeters 在 3D 模块内）
     const TRAFFIC_SEQ = ['red', 'green', 'yellow'];
     function updateTrafficLampVisual(id) {                       // 信号灯三灯颜色：当前信号常亮，其余暗色（每灯独立 MeshBasicMaterial，直接改色）
       if (!scene) return;
@@ -20134,10 +20296,48 @@
       toast(tr(`信号灯已切换到${zh}`, `Signal switched to ${zh}`));
     }
     let beaconPhase = 0;
-    function flashBeaconStep() {                                // 爆闪灯闪烁：切 3D 灯材质颜色（不重建、不入撤销栈）
+    function flashBeaconStep() {                                // 太阳能爆闪灯：白天充电 / 夜晚耗电 + 电量门控闪烁（每 500ms，只改数据不入撤销栈）
+      const night = !!opt.night, dt = .5;
+      let changed = false, wentEmpty = false;
+      (state.extras || []).forEach(e => {
+        if (e.type !== 'facFlashBeacon') return;
+        const charge = Math.max(.1, +e.charge || 2.5), drain = Math.max(.1, +e.drain || 1.2);
+        const cur = e.battery ?? 60;
+        const nb = night ? Math.max(0, cur - drain * dt) : Math.min(100, cur + charge * dt);
+        if (Math.abs(nb - cur) > .001) { e.battery = Math.round(nb * 10) / 10; changed = true; }
+        if (cur > 0 && (e.battery ?? 0) <= 0) wentEmpty = true;
+      });
+      if (changed) {
+        markDirty();
+        if (typeof renderExtras2 === 'function') renderExtras2();
+        updateSolarPanelUI();
+        if (wentEmpty) toast(tr('太阳能爆闪灯电量耗尽，已停止闪烁', 'Solar beacon battery empty — flashing stopped'));
+      }
       beaconPhase = 1 - beaconPhase;
       if (!scene || !scene.traverse) return;                    // scene 为同作用域的模块级变量
-      scene.traverse(o => { if (o.userData && o.userData.flashBeacon && o.material && o.material.color) o.material.color.setHex(beaconPhase ? 0xffc233 : 0x4a3c14); });
+      const blink = (performance.now() % 1000) < 500;
+      scene.traverse(o => {
+        const ud = o.userData || {};
+        if (ud.flashBeacon) {
+          const e = (state.extras || []).find(x => x.id === ud.flashBeacon);
+          const lit = (e?.battery ?? 0) > 0, side = ud.beaconSide ?? 1;   // 两盏灯反相闪烁，与 2D 一致
+          if (o.material?.color?.setHex) o.material.color.setHex(lit && (beaconPhase ? side > 0 : side < 0) ? 0xffc233 : 0x4a3c14);
+        }
+        if (ud.beaconIndicator) {
+          const e = (state.extras || []).find(x => x.id === ud.beaconIndicator);
+          const active = e && ((!opt.night && (e.battery ?? 0) < 100) || (e.battery ?? 0) < 20);
+          if (o.material?.emissiveIntensity !== undefined) o.material.emissiveIntensity = active && blink ? 2.6 : .08;
+          if (o.material?.color?.setHex) o.material.color.setHex(active && blink ? 0xff5a4a : 0x3b1210);
+        }
+        if (ud.beaconBatteryBar) {
+          const e = (state.extras || []).find(x => x.id === ud.beaconBatteryBar); if (!e) return;
+          const bat = Math.max(0, Math.min(100, +e.battery || 0)) / 100;
+          const L = ud.barLeft ?? -.08, H = ud.barHalf ?? .08;
+          o.scale.x = Math.max(.001, bat);
+          o.position.x = L + H * bat;
+          if (o.material?.color?.setHex) o.material.color.setHex(bat < .2 ? 0xe5484d : bat < .5 ? 0xe8b44a : 0x3cc46e);
+        }
+      });
     }
     let trafficClock = 0;
     function trafficStep() {                                     // 信号灯自动轮播：每 4s 切一相，只改当前数据不入撤销栈（每 500ms 调用）
@@ -21323,7 +21523,7 @@
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
       selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null; selMeshes = [];
-      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); stackCells.clear(); stackOps.length = 0; sanVisuals.clear(); wtVisuals.clear(); wtRuns.length = 0; washVisuals.clear(); colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();   // washRuns 保留：洗车流程跨重建续播，其余碰撞 / 动画登记必须随重建清空，否则其它楼层的碰撞会串到当前层挡人
+      clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); stackCells.clear(); stackOps.length = 0; sanVisuals.clear(); wtVisuals.clear(); wtRuns.length = 0; washVisuals.clear(); pumpScreens.forEach(s => s.tex?.dispose()); pumpScreens.clear(); colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();   // washRuns 保留：洗车流程跨重建续播，其余碰撞 / 动画登记必须随重建清空，否则其它楼层的碰撞会串到当前层挡人
       survRigs.forEach(r => r.rt && r.rt.dispose()); survRigs = []; survScreens = []; survScreenMeshes = []; survTexs.forEach(t => t.dispose()); survTexs = [];   // 安防监控：释放上一轮离屏渲染目标 / 屏幕纹理
       const top = opt.cut;
       allRooms().forEach(r => {
@@ -21618,13 +21818,14 @@
       }
       function buildPark3D(T3, e, ctx) {
         const grp = ctx.grp, P = ctx.P, colliders = ctx.colliders, px = ctx.px, pz = ctx.pz, ang = ctx.ang, W = ctx.W, h = ctx.h, poleM = ctx.poleM, darkM = ctx.darkM;
+        const z0 = M(e.z || 0); grp.position.y = z0;                 // 底标高：整组抬高 / 沉到地面以下（含门 / 灯等子部件）
         const D = Math.max(.2, M(e.d || 1200));
         const ca = Math.cos(ang), sa = Math.sin(ang), wp = (lx, lz) => [px + lx * ca - lz * sa, pz + lx * sa + lz * ca];
-        const foot = (w2, d2, y1) => {                            // 旋转后的整体占地（AABB）+ 高度
+        const foot = (w2, d2, y1) => {                            // 旋转后的整体占地（AABB）+ 高度；随底标高整体平移
           const ww = (w2 * Math.abs(ca) + d2 * Math.abs(sa)) / 2, dd = (w2 * Math.abs(sa) + d2 * Math.abs(ca)) / 2;
-          colliders.push([px - ww, pz - dd, px + ww, pz + dd, 0, y1]);
+          colliders.push([px - ww, pz - dd, px + ww, pz + dd, z0, z0 + y1]);
         };
-        const small = (lx, lz, r, y1) => { const q = wp(lx, lz); colliders.push([q[0] - r, q[1] - r, q[0] + r, q[1] + r, 0, y1]); };
+        const small = (lx, lz, r, y1) => { const q = wp(lx, lz); colliders.push([q[0] - r, q[1] - r, q[0] + r, q[1] + r, z0, z0 + y1]); };
         const steel = mat('#8d949a', { metalness: .55, roughness: .45 }), stone = mat('#b7b1a3', { roughness: .9 });
         const mk = (tex, w2, d2, y2) => {                         // 贴地贴图平面（局部 +x = 朝向，画布 x 沿朝向、y 横向）
           const m = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(.05, w2), Math.max(.05, d2)), oneMat(new THREE.MeshBasicMaterial({ map: tex, transparent: true, depthWrite: false, side: THREE.DoubleSide })));
@@ -21884,6 +22085,114 @@
            由 applyParkVisual 统一刷灯色 / 盖门开合 / 水流；开合动画进 parkAnims。 */
         if (isSan(T3)) { buildSan3D(T3, e, ctx, sanVisuals, parkAnims, oneMat, mat); return; }
         if (isWt(T3)) { buildWt3D(T3, e, ctx, wtVisuals, wtRuns, parkAnims, oneMat, mat, parkTex, txtTex); return; }
+        /* 加油站配套 7 件 3D：可交互件打 userData.park（kind = pump / vapor / ext），状态灯进 parkLamps */
+        if (['facFuelPump','facFuelPrice','facFuelUnload','facVaporRecovery','facFireSand','facFireExt','facFuelBollard'].includes(T3)) {
+          const fuelM = mat('#d8d4cb', { roughness:.6 }), steelF = mat('#9aa1a8', { metalness:.5, roughness:.5 });
+          const tagAll = kind => { grp.traverse(x => { if (x.isMesh) x.userData.park = { kind, id: e.id }; }); };   // 交互件整组打 park 标记：屏幕 / 灯 / 门扇等子部件点中也能触发动作
+          if (T3 === 'facFuelPump') {
+            P(new THREE.BoxGeometry(W + .1, .12, D + .1), stone, 0, .06, 0);
+            P(new THREE.BoxGeometry(W, h - .12, D), fuelM, 0, h / 2, 0);
+            P(new THREE.BoxGeometry(W * .55, h * .14, .03), mat('#20415e'), 0, h * .78, D / 2 + .02);
+            const grade = String(e.fuel || '92').replace(/#/g, '') + '#';
+            const cv = document.createElement('canvas'); cv.width = 640; cv.height = 520;
+            const scr = new THREE.CanvasTexture(cv); scr.colorSpace = THREE.SRGBColorSpace; scr.anisotropy = 4;
+            P(new THREE.PlaneGeometry(W * .53, h * .125), oneMat(new THREE.MeshBasicMaterial({ map: scr, toneMapped: false })), 0, h * .78, D / 2 + .045);
+            pumpScreens.set(String(e.id), { cv, g: cv.getContext('2d'), tex: scr, grade, x: e.x, y: e.y, price: fuelPriceFor(grade, e.x, e.y, e.linkBoard) });
+            drawPumpMeter(String(e.id));
+            const hoseM = mat('#23272b', { roughness:.92 });
+            const nz = Math.max(1, Math.min(4, +e.nozzle || 2));
+            for (let i = 0; i < nz; i++) {
+              const nx = -W * .4 + W * .8 * i / Math.max(1, nz - 1), sd = i % 2 ? 1 : -1;
+              const zf = D / 2 + .04, hangY = h * .55, gunY = hangY - .19, gunZ = zf + .13;
+              const portX = nx + sd * .09, portY = h * .33, portZ = D / 2 + .08;
+              P(new THREE.BoxGeometry(.075, .055, .05), steelF, nx, hangY, zf + .005);                   // 油枪挂座
+              P(new THREE.BoxGeometry(.055, .22, .055), darkM, nx, gunY, gunZ);                           // 握柄
+              P(new THREE.CylinderGeometry(.017, .022, .19, 10), steelF, nx + sd * .02, gunY + .16, gunZ + .035).rotation.x = Math.PI / 2;   // 枪管
+              P(new THREE.BoxGeometry(.012, .065, .012), steelF, nx - sd * .03, gunY + .02, gunZ + .04);  // 扳机
+              P(new THREE.CylinderGeometry(.026, .03, .1, 12), steelF, portX, portY, D / 2 + .04).rotation.x = Math.PI / 2;                 // 出油口：短管从机身伸出
+              P(new THREE.CylinderGeometry(.033, .033, .018, 12), darkM, portX, portY, portZ).rotation.x = Math.PI / 2;                    // 接头法兰
+              const hp = [[portX, portY, portZ], [portX + sd * .06, h * .26, portZ + .05], [nx + sd * .08, h * .2, gunZ + .05], [nx, gunY - .12, gunZ]]
+                .map(p2 => new THREE.Vector3(...p2));
+              const hose = new THREE.Mesh(new THREE.TubeGeometry(new THREE.CatmullRomCurve3(hp, false, 'centripetal'), 24, .016, 8), hoseM);
+              hose.castShadow = true; grp.add(hose);                                                     // 软管从机身接口垂下接到油枪
+            }
+            const lamp = P(new THREE.SphereGeometry(.06, 12, 8), oneMat(new THREE.MeshBasicMaterial({ color: e.busy ? 0xe8b44a : 0x3cc46e })), W * .42, h * .88, D / 2 + .04);
+            lamp.userData.park = { kind:'pump', id:e.id }; parkLamps.set('pump' + e.id, lamp);
+            colliders.push([px - W/2, pz - D/2, px + W/2, pz + D/2, z0, z0 + h]);
+            tagAll('pump');
+          } else if (T3 === 'facFuelPrice') {
+            P(new THREE.CylinderGeometry(.08, .11, .2, 12), stone, 0, .1, 0);
+            P(new THREE.CylinderGeometry(.045, .06, h - .2, 12), poleM, 0, h / 2, 0);
+            const ph = Math.max(.4, W * .72);                                                              // 竖排四行：牌面高度按宽度放大
+            P(new THREE.BoxGeometry(W, ph, .1), mat('#20262b'), 0, h - ph / 2, .06);                       // 纯几何构件：不打 park 标记，点击仅选中
+            const rows = [['92#', e.p92 || '7.68'], ['95#', e.p95 || '8.18'], ['98#', e.p98 || '9.28'], ['0#', e.p0 || '7.12']];
+            const tex = parkTex('fuelPriceV2' + e.id + rows.map(r => r.join(':')).join('|'), W * 1000, ph * 1000, (g, cw, ch) => {
+              g.fillStyle = '#20262b'; g.fillRect(0, 0, cw, ch); g.textBaseline = 'middle';
+              const rowH = ch / rows.length, fs = rowH * .56;
+              rows.forEach(([label, price], i) => { const cy = rowH * (i + .5);
+                g.fillStyle = '#ffd75e'; g.font = `bold ${fs.toFixed(0)}px sans-serif`; g.textAlign = 'left'; g.fillText(label, cw * .08, cy);
+                g.fillStyle = '#7ef0a0'; g.font = `bold ${(fs * 1.08).toFixed(0)}px sans-serif`; g.textAlign = 'right'; g.fillText(price, cw * .92, cy);
+              });
+            });
+            const face = P(new THREE.PlaneGeometry(W * .94, ph * .94), oneMat(new THREE.MeshBasicMaterial({ map:tex, toneMapped:false })), 0, h - ph / 2, .115);
+            face.castShadow = false;
+            colliders.push([px - .12, pz - .12, px + .12, pz + .12, z0, z0 + Math.min(h, 2.2)]);
+          } else if (T3 === 'facFuelUnload') {
+            P(new THREE.CylinderGeometry(W/2, W/2, Math.max(.06, M(e.h || 120)), 20), mat('#6b7075', { roughness:.8 }), 0, .03, 0);
+            const hinge = new THREE.Group(); hinge.position.set(0, .08, W * .42); grp.add(hinge);
+            const cover = new THREE.Mesh(new THREE.CylinderGeometry(W * .42, W * .42, .04, 20), mat('#c9c3b5', { metalness:.4 }));
+            cover.position.set(0, 0, -W * .42); cover.castShadow = true; hinge.add(cover);                              // 卸油口井盖挂后侧铰链
+            hinge.traverse(o => { if (o.isMesh) o.userData.park = { kind: 'unloadlid', id: e.id }; });                  // 点井盖可开合
+            parkAnims.push({ id: e.id, kind: 'unloadlid', open: e.lidOpen === true, cur: e.lidOpen === true ? 1 : 0, apply: k => { hinge.rotation.x = 1.35 * k; } });
+            parkAnims[parkAnims.length - 1].apply(parkAnims[parkAnims.length - 1].cur);
+            [-1, 0, 1].forEach(k => { const a2 = k * Math.PI / 3; P(new THREE.CylinderGeometry(.035, .035, .12, 8), steelF, Math.cos(a2) * W * .2, .07, Math.sin(a2) * W * .2); });   // 快接口固定在井底，开盖后露出接软管
+          } else if (T3 === 'facVaporRecovery') {
+            P(new THREE.BoxGeometry(W, h, D), fuelM, 0, h / 2, 0);
+            P(new THREE.BoxGeometry(W * .86, h * .9, D + .02), mat('#c5c9cc', { metalness:.3 }), 0, h / 2, 0);
+            [-1, 1].forEach(sd => { const pipe = P(new THREE.CylinderGeometry(.05, .05, h * .4, 10), steelF, sd * W * .45, h * 1.08, 0); pipe.rotation.z = Math.PI / 2; });
+            const lamp = P(new THREE.SphereGeometry(.07, 12, 8), oneMat(new THREE.MeshBasicMaterial({ color: e.on ? 0x3cc46e : 0xe8b44a })), 0, h * .85, D / 2 + .05);
+            lamp.userData.park = { kind:'vapor', id:e.id }; parkLamps.set('vapor' + e.id, lamp);
+            colliders.push([px - W/2, pz - D/2, px + W/2, pz + D/2, z0, z0 + h]);
+            tagAll('vapor');
+          } else if (T3 === 'facFireSand') {
+            const sh = Math.max(.2, M(e.h || 400));
+            P(new THREE.BoxGeometry(W, sh, D), mat('#b8a87e', { roughness:.95 }), 0, sh / 2, 0);
+            P(new THREE.BoxGeometry(W * .85, .03, D * .85), mat('#c2b48c', { roughness:1 }), 0, sh + .01, 0);
+            P(new THREE.CylinderGeometry(.02, .02, .5, 8), steelF, W * .3, sh + .25, 0);       // 消防铲柄
+          } else if (T3 === 'facFireExt') {
+            const shellM = mat('#cf3126', { roughness:.6 }), innerM = mat('#7a1c17', { roughness:.85 }), t = Math.min(.03, W * .06);
+            P(new THREE.BoxGeometry(W, h, t), shellM, 0, h / 2, -D / 2 + t / 2);                                   // 背板
+            P(new THREE.BoxGeometry(t, h, D), shellM, -W / 2 + t / 2, h / 2, 0);                                   // 左侧板
+            P(new THREE.BoxGeometry(t, h, D), shellM, W / 2 - t / 2, h / 2, 0);                                    // 右侧板
+            P(new THREE.BoxGeometry(W, t, D), shellM, 0, t / 2, 0);                                                // 底板
+            P(new THREE.BoxGeometry(W, t, D), shellM, 0, h - t / 2, 0);                                            // 顶板
+            P(new THREE.BoxGeometry(W * .92, h * .9, .01), innerM, 0, h / 2, -D / 2 + t + .01);                    // 内腔暗色背衬
+            const door = new THREE.Group(); door.position.set(-W / 2, 0, D / 2); grp.add(door);
+            const leaf = new THREE.Mesh(new THREE.BoxGeometry(W * .96, h * .94, t), shellM);
+            leaf.position.set(W * .48, h * .5, 0); leaf.castShadow = true; door.add(leaf);
+            const lblTex = parkTex('fireExtLbl' + Math.round(W * 100) + Math.round(h * 100), W * 960, h * 300, (g, cw, ch) => {
+              g.fillStyle = '#b92520'; g.fillRect(0, 0, cw, ch);
+              g.fillStyle = '#fff'; g.textAlign = 'center'; g.textBaseline = 'middle'; g.font = `bold ${Math.round(ch * .72)}px sans-serif`; g.fillText('灭火器', cw / 2, ch / 2);
+            });
+            const lbl = new THREE.Mesh(new THREE.PlaneGeometry(W * .84, h * .26), oneMat(new THREE.MeshBasicMaterial({ map: lblTex, toneMapped:false })));
+            lbl.position.set(W * .48, h * .62, t / 2 + .004); door.add(lbl);                            // 门扇正面「灭火器」字样，随门一起开合
+            const knob = new THREE.Mesh(new THREE.SphereGeometry(.022, 10, 8), mat('#d8c27a', { metalness:.6 }));
+            knob.position.set(W * .32, h * .48, t / 2 + .02); door.add(knob);                           // 门把手跟着门转
+            parkAnims.push({ id: e.id, kind: 'fuelDoor', open: e.on === true, cur: e.on === true ? 1 : 0, apply: k => { door.rotation.y = -1.3 * k; } });
+            parkAnims[parkAnims.length - 1].apply(parkAnims[parkAnims.length - 1].cur);
+            [-1, 1].forEach(sd => {                                                                                  // 两具灭火器置于内腔，开门可见
+              P(new THREE.CylinderGeometry(.055, .055, h * .6, 12), mat('#d4342c'), sd * W * .2, h * .42, 0);
+              P(new THREE.CylinderGeometry(.018, .018, .12, 8), steelF, sd * W * .2, h * .78, 0);                    // 喷管 / 压把
+            });
+            colliders.push([px - W/2, pz - D/2, px + W/2, pz + D/2, z0, z0 + h]);
+            tagAll('ext');
+          } else if (T3 === 'facFuelBollard') {
+            P(new THREE.CylinderGeometry(W/2, W/2, h, 12), mat('#e8b44a', { roughness:.6 }), 0, h / 2, 0);
+            P(new THREE.CylinderGeometry(W * .49, W * .49, h * .14, 12), mat('#1b1b1b'), 0, h * .7, 0);
+            colliders.push([px - W/2, pz - W/2, px + W/2, pz + W/2, z0, z0 + h]);
+          }
+          return;
+        }
         if (T3 === 'facCarWash') { buildWash3D(e, ctx, washVisuals, oneMat, mat); return; }
       }
       /* 环卫配套 12 件 3D 建模：统一在主体打 park 标记；开盖 / 开门 / 水流进 parkAnims 动画，
@@ -22705,12 +23014,30 @@
         } else if (T3 === 'facFlashBeacon') {                   // 太阳能爆闪灯：立杆 + 顶部光伏板 + 双侧黄色爆闪灯
           P(new THREE.CylinderGeometry(.07, .1, .2, 12), mat('#8f8a7e'), 0, .1, 0);
           P(new THREE.CylinderGeometry(.035, .055, h - .2, 12), poleM, 0, .1 + (h - .2) / 2, 0);
-          const panel = P(new THREE.BoxGeometry(.9, .06, .5), mat('#243b5a', { metalness:.3 }), 0, h + .05, 0);
+          const panel = P(new THREE.BoxGeometry(.9, .06, .5), mat('#243b5a', { metalness:.3 }), 0, h - .07, 0);   // 杆顶在 h-.1，板下表面压住杆顶
           panel.rotation.x = -.35;
-          [-.16, .16].forEach(z => {
-            const lamp = P(new THREE.CylinderGeometry(.09, .09, .06, 12), oneMat(new THREE.MeshBasicMaterial({ color: 0xffc233 })), 0, h - .35, z, Math.PI / 2);
-            lamp.userData.flashBeacon = e.id; lamp.castShadow = false;
+          const gridM = mat('#aebfd2', { roughness:.5, metalness:.35 });                 // 电池片栅线：浅银白，随板倾角一起转
+          for (let i = 1; i < 5; i++) { const l = new THREE.Mesh(new THREE.BoxGeometry(.006, .003, .47), gridM); l.position.set(-.45 + i * .18, .0315, 0); panel.add(l); }
+          for (let i = 1; i < 3; i++) { const l = new THREE.Mesh(new THREE.BoxGeometry(.87, .003, .006), gridM); l.position.set(0, .0315, -.25 + i / 3 * .5); panel.add(l); }
+          [-.06, .06].forEach(z => {
+            const lamp = P(new THREE.CylinderGeometry(.09, .09, .06, 12), oneMat(new THREE.MeshBasicMaterial({ color: 0xffc233 })), 0, h - .35, z);
+            lamp.rotation.x = Math.PI / 2;                    // 圆柱默认沿 Y，绕 X 转 90° 灯面才朝本地 ±z（法向），与 2D 双灯左右分布一致
+            lamp.userData.flashBeacon = e.id; lamp.userData.beaconSide = z > 0 ? 1 : -1; lamp.castShadow = false;
           });
+          const bY = h - .75, bZ = .06;                                       // 控制盒挂在双灯下方、贴杆正面
+          const box = new THREE.Mesh(new THREE.BoxGeometry(.28, .12, .06), darkM);
+          box.position.set(0, bY, bZ); box.castShadow = true; grp.add(box);
+          const redMat = oneMat(new THREE.MeshStandardMaterial({ color: 0x3b1210, emissive: 0xff2a1f, emissiveIntensity: .1, roughness: .5 }));
+          const led = new THREE.Mesh(new THREE.SphereGeometry(.04, 12, 8), redMat);
+          led.position.set(-.09, bY, bZ + .035); led.castShadow = false; grp.add(led);
+          led.userData.beaconIndicator = e.id;                                // 充电 / 低电时闪烁
+          const slot = new THREE.Mesh(new THREE.BoxGeometry(.18, .04, .01), darkM);
+          slot.position.set(.035, bY, bZ + .032); grp.add(slot);
+          const bat0 = Math.max(0, Math.min(100, +e.battery ?? 60));
+          const bcol = bat0 < 20 ? 0xe5484d : bat0 < 50 ? 0xe8b44a : 0x3cc46e;
+          const fill = new THREE.Mesh(new THREE.BoxGeometry(.16, .03, .012), oneMat(new THREE.MeshBasicMaterial({ color: bcol })));
+          fill.position.set(-.045, bY, bZ + .036); fill.castShadow = false; grp.add(fill);
+          fill.userData.beaconBatteryBar = e.id; fill.userData.barLeft = -.045; fill.userData.barHalf = .08;
           colliders.push([px - .12, pz - .12, px + .12, pz + .12, 0, Math.min(h, 2.2)]);
         } else if (T3 === 'facBusStop') {                       // 公交站牌：立杆 + 顶部站名牌（Canvas 图案）
           P(new THREE.CylinderGeometry(.07, .1, .2, 12), mat('#8f8a7e'), 0, .1, 0);
@@ -24227,6 +24554,59 @@
             wrapPtRot(e, rotStart, rotCol, cx, cz);              // 设备机组随「转向」整体旋转
             return;
           }
+          if (T3 === 'fuelCanopy') {                             // 加油棚：顶棚 + 檐口色带 + 两排立柱（随「转向」整体旋转）
+            const rotStart = archUp.children.length, rotCol = colliders.length;
+            const y = M(e.z || 0), hh = Math.max(2.5, M(e.h || 5500));
+            const th = Math.max(.1, M(e.thick || 350)), colN = Math.max(2, Math.min(10, Math.round(w / Math.max(2, M(e.col || 6000))) + 1));
+            const roofM = mat('#e8e6e0', { roughness:.65 }), trimM = mat('#cf3126', { roughness:.5 }), postM = mat('#b8bcc0', { metalness:.4, roughness:.5 });
+            box(w, th, d, cx, y + hh + th / 2, cz, roofM);
+            [-1, 1].forEach(sd => box(w, .18, .12, cx, y + hh + th * .5, cz + sd * d / 2, trimM));   // 前后檐口红带
+            const cr = Math.max(.09, Math.min(.2, M(e.col || 6000) * .03));
+            for (let i = 0; i < colN; i++) {
+              const px = x0 + w * i / (colN - 1);
+              [-1, 1].forEach(sd => { const pz = cz + sd * d * .34; box(cr, hh, cr, px, y + hh / 2, pz, postM); colliders.push([px-cr, pz-cr, px+cr, pz+cr, y, y+hh]); });
+            }
+            wrapPtRot(e, rotStart, rotCol, cx, cz);
+            return;
+          }
+          if (T3 === 'fuelTank') {                               // 埋地储油罐：卧式罐体 + 人孔井 + 罐顶接管（随「转向」整体旋转）
+            const rotStart = archUp.children.length, rotCol = colliders.length;
+            const y = M(e.z || 0), rr = Math.max(.4, M(e.h || 1600) / 2);
+            const tankMat = mat('#8a9298', { metalness:.5, roughness:.5, side: THREE.DoubleSide });
+            const wh = rr * .55, wt = Math.min(.04, wh * .12);                                                        // 井筒外径 / 壁厚
+            const segHalf = Math.max(.06, (wh / 2 - wt) * .92), halfGap = Math.asin(Math.min(.9, (wh / 2 - wt) / rr)) * .92;   // 开口按井筒内径收，边缘被井筒壁盖住
+            [-w/2, -w*.27 - segHalf, -w*.27 + segHalf, w*.27 - segHalf, w*.27 + segHalf, w/2].reduce((pairs, v, i, arr) => { if (i < arr.length - 1) pairs.push([arr[i], arr[i+1], i === 1 || i === 3]); return pairs; }, []).forEach(([a2, b2, hole]) => {
+              const len = b2 - a2; if (len < .02) return;
+              const geo = new THREE.CylinderGeometry(rr, rr, len, 24, 1, true, hole ? Math.PI / 2 + halfGap : 0, hole ? Math.PI * 2 - 2 * halfGap : Math.PI * 2);
+              const seg = new THREE.Mesh(geo, tankMat); seg.rotation.z = Math.PI / 2; seg.position.set(cx + (a2 + b2) / 2, y + rr, cz); seg.castShadow = seg.receiveShadow = true; archUp.add(seg);
+            });                                                                                            // 罐壁分五段：两处井口上方切去顶部扇区，视线可直通罐内
+            [-1, 1].forEach(s => { const cap = new THREE.Mesh(new THREE.CircleGeometry(rr, 24), mat('#9aa1a7', { metalness:.4, roughness:.5, side: THREE.DoubleSide }));
+              cap.position.set(cx + s * w / 2, y + rr, cz); cap.rotation.y = s * Math.PI / 2; cap.castShadow = true; archUp.add(cap); });   // 两端封头
+            const innerM = mat('#2b3138', { roughness:.85, side: THREE.BackSide });
+            [-w/2, -w*.27 - segHalf, -w*.27 + segHalf, w*.27 - segHalf, w*.27 + segHalf, w/2].reduce((pairs, v, i, arr) => { if (i < arr.length - 1) pairs.push([arr[i], arr[i+1], i === 1 || i === 3]); return pairs; }, []).forEach(([a2, b2, hole]) => {
+              const len = b2 - a2; if (len < .02) return;
+              const geo = new THREE.CylinderGeometry(rr * .97, rr * .97, len, 24, 1, true, hole ? Math.PI / 2 + halfGap : 0, hole ? Math.PI * 2 - 2 * halfGap : Math.PI * 2);
+              const seg = new THREE.Mesh(geo, innerM); seg.rotation.z = Math.PI / 2; seg.position.set(cx + (a2 + b2) / 2, y + rr, cz); archUp.add(seg);
+            });                                                                                            // 内壁同样在井口位置开口，看到的是罐内空腔而非暗壁挡视线
+            const lids = [];
+            [-.27, .27].forEach(f => {
+              const hx = cx + w * f, sw = rr * .55, sht = Math.min(.04, sw * .12), wellM = mat('#6b7075', { roughness:.8 });
+              box(sw, .3, sht, hx, y + rr * 2 + .1, cz - sw / 2 + sht / 2, wellM);                                    // 人孔井筒：四面薄板（空心，可从井口看进罐内）
+              box(sw, .3, sht, hx, y + rr * 2 + .1, cz + sw / 2 - sht / 2, wellM);
+              box(sht, .3, sw - sht * 2, hx - sw / 2 + sht / 2, y + rr * 2 + .1, cz, wellM);
+              box(sht, .3, sw - sht * 2, hx + sw / 2 - sht / 2, y + rr * 2 + .1, cz, wellM);
+              const hinge = new THREE.Group(); hinge.position.set(hx, y + rr * 2 + .25, cz + rr * .3); archUp.add(hinge);
+              const cover = new THREE.Mesh(new THREE.CylinderGeometry(rr * .3, rr * .3, .06, 16), mat('#c9c3b5', { metalness:.4, roughness:.5 }));
+              cover.position.set(0, .03, -rr * .3); cover.castShadow = true; hinge.add(cover);                        // 圆井盖挂在后侧铰链上
+              hinge.traverse(o => { if (o.isMesh) o.userData.park = { kind: 'tanklid', id: e.id }; });                 // 点井盖可开合
+              lids.push(hinge);
+            });
+            parkAnims.push({ id: e.id, kind: 'tanklid', open: e.lidOpen === true, cur: e.lidOpen === true ? 1 : 0, apply: k => { lids.forEach(g => g.rotation.x = 1.35 * k); } });   // 正值：盖沿后侧铰链向上掀开（负值会翻进井里）
+            parkAnims[parkAnims.length - 1].apply(parkAnims[parkAnims.length - 1].cur);
+            colliders.push([x0, z0, x0 + w, z0 + d, y, y + rr * 2]);
+            wrapPtRot(e, rotStart, rotCol, cx, cz);
+            return;
+          }
         } finally { markNew(s0, 'extra', e.id); }
       });
       roadJunctions().forEach(pd => {                         // 路口补丁：盖住接头缺口、路面描边与穿过路口的标线
@@ -24982,7 +25362,11 @@
       if ((sel.kind === 'pbox' || sel.kind === 'wbox') && o.wall) return false;   // 电箱吸附墙体
       return true;
     };
-    const axYOK = sels => sels.length > 0 && sels.every(sel => sel.kind !== 'furn' && (() => { const o = axFindObj(sel); return !!o && typeof o.z === 'number'; })());
+    const axYOK = sels => sels.length > 0 && sels.every(sel => sel.kind !== 'furn' && (() => {
+      const o = axFindObj(sel); if (!o) return false;
+      if (typeof o.z === 'number') return true;
+      return sel.kind === 'extra' && !!PARK_EXT[o.type];   // 旧方案里的设施无 z 字段，按 0 兜底也显示竖直轴（拖动时写入 z）
+    })());
     function axHitTest(e) {                                       // 屏幕点 → 命中的轴线（隐形粗圆柱命中带），无则 null
       if (!axGizmo || !axGizmo.visible || axdrag) return null;
       const r = renderer.domElement.getBoundingClientRect();
@@ -26352,6 +26736,11 @@
                         const S = WT_TOAST[ex.type] || ['开启', '关闭', 'On', 'Off']; const zh = ex.on ? S[1] : S[0], en2 = ex.on ? S[3] : S[2]; return tap ? tr(`点按${zh}`, `Tap: ${en2}`) : tr(`E ${zh}`, `E: ${en2}`);
                       })()
                     : k === 'wash' ? (ex.busy ? tr('洗车进行中 · 请稍候', 'Washing · please wait') : (tap ? tr('点按启动洗车', 'Tap to start the wash') : tr('E 启动洗车', 'Press E to start the wash')))
+                    : k === 'pump' ? (ex.busy ? (tap ? tr('点按切为空闲 · 绿灯', 'Tap: idle · green') : tr('E 切为空闲 · 绿灯', 'E: idle · green')) : (tap ? tr('点按切为加油中 · 黄灯', 'Tap: refueling · amber') : tr('E 切为加油中 · 黄灯', 'E: refueling · amber')))
+                    : k === 'vapor' ? (ex.on ? (tap ? tr('点按切为待机 · 黄灯', 'Tap: standby · amber') : tr('E 切为待机 · 黄灯', 'E: standby · amber')) : (tap ? tr('点按切为运行 · 绿灯', 'Tap: run · green') : tr('E 切为运行 · 绿灯', 'E: run · green')))
+                    : k === 'ext' ? (ex.on ? (tap ? tr('点按关上箱门', 'Tap: close cabinet') : tr('E 关上箱门', 'E: close cabinet')) : (tap ? tr('点按打开箱门', 'Tap: open cabinet') : tr('E 打开箱门', 'E: open cabinet')))
+                    : k === 'tanklid' ? (ex.lidOpen ? (tap ? tr('点按关上人孔盖', 'Tap: close manhole') : tr('E 关上人孔盖', 'E: close manhole')) : (tap ? tr('点按打开人孔盖', 'Tap: open manhole') : tr('E 打开人孔盖', 'E: open manhole')))
+                    : k === 'unloadlid' ? (ex.lidOpen ? (tap ? tr('点按关上卸油口井盖', 'Tap: close unloading cover') : tr('E 关上卸油口井盖', 'E: close unloading cover')) : (tap ? tr('点按打开卸油口井盖', 'Tap: open unloading cover') : tr('E 打开卸油口井盖', 'E: open unloading cover')))
                       : (ex.busy ? (tap ? tr('点按切为空闲 · 绿灯', 'Tap to set idle · green') : tr('E 切为空闲 · 绿灯', 'Press E to set idle · green')) : (tap ? tr('点按切为充电中 · 蓝灯', 'Tap to set charging · blue') : tr('E 切为充电中 · 蓝灯', 'Press E to set charging · blue')));
           }
           else {
@@ -26426,6 +26815,7 @@
         p.g.position.set(p.px + p.ax * p.dist * k, (p.ay || 0) * r, p.pz + p.az * p.dist * k); }); else if (d.slat) d.grp.scale.y = Math.max(.02, d.cur); else if (d.fold) d.parts.forEach(p => p.g.rotation.y = p.a * d.cur); else d.pivot.rotation[d.axis || 'y'] = d.cur; });   // slide = 平移门（电梯门双扇同步 / 轿车天窗两段式）/ slat = 卷帘门向上卷收 / fold = 折叠门折起 / axis:z = 轿车机盖与尾门绕横轴掀起
       gateArms.forEach(g => { const tg = g.open ? g.a1 : g.a0; g.cur += (tg - g.cur) * Math.min(1, dt * 4); if (g.pivot) g.pivot.rotation.z = g.cur; });   // 道闸机闸杆升降动画：落下 0 → 抬起 +1.35rad（向上）
       parkAnims.forEach(a => { const tg = a.open ? 1 : 0; a.cur += (tg - a.cur) * Math.min(1, dt * 5); a.apply(a.cur); });   // 停车场配套：升降柱上下 / 伸缩门收拢展开
+      pumpScreens.forEach((s, id) => { const e = (state.extras || []).find(x => String(x.id) === id); if (!e) return; const grade = String(e.fuel || '92').replace(/#/g, '') + '#'; if (grade !== s.grade) { s.grade = grade; s.dirty = true; } const price = fuelPriceFor(grade, e.x, e.y, e.linkBoard); if (price !== s.price) { s.price = price; s.dirty = true; } let m = pumpMeters.get(id); if (e.busy === true) { if (!m) { m = { amount: 0 }; pumpMeters.set(id, m); } m.amount += dt; s.dirty = true; } if (s.dirty) { drawPumpMeter(id); s.dirty = false; } });   // 加油机：油号 / 单价实时联动油价牌，加油中表按 60 L/min 走字，关闭保持读数
       wtRuns.forEach(r => { if (r.g) r.g.position.x = r.on ? r.x0 + Math.abs(Math.sin(now * .0035)) * r.range : r.x0; });   // 垃圾转运站：压缩机运行中推杆往复，停止时复位
       carWashStep(now, dt);                                     // 自动洗车机：按洗车时间轴驱动龙门 / 滚刷 / 水雾 / 车辆
       for (let i = stackOps.length - 1; i >= 0; i--) { const o = stackOps[i]; o.t += dt; const k = Math.min(1, o.t / o.dur); stackApply(o, k); if (k >= 1) stackOps.splice(i, 1); }   // 立体车库：载车板下降换车再升回
