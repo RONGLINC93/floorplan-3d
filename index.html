@@ -7668,7 +7668,7 @@
           return;
         }
         if (isExtraPt(e.type)) {                                  // 点构件：雨水管 / 构造柱 / 烟囱 / 景观树
-          const minR = e.type === 'spout' || e.type === 'drainpipe' || DP_FIT_TYPES.includes(e.type) ? 40 : 60;              // 雨水管 / 排水管（件）平面符号最小显示半径 ⌀80（⌀80 以上按真实直径画，改直径能直接看到大小变化）
+          const minR = e.type === 'spout' || e.type === 'drainpipe' || e.type === 'waterRiser' || DP_FIT_TYPES.includes(e.type) ? 40 : 60;              // 雨水管 / 排水管（件）平面符号最小显示半径 ⌀80（⌀80 以上按真实直径画，改直径能直接看到大小变化）
           const r = Math.max(minR, (+e.w || (e.type === 'tree' ? 900 : 100)) / 2);
           let inner = '';
           if (e.type === 'tree') {                                // 树冠双层圆 + 树心
@@ -8064,12 +8064,23 @@
                 <line x1="${e.x - r * 1.5}" y1="${e.y}" x2="${e.x + r * 1.5}" y2="${e.y}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
                 <line x1="${e.x}" y1="${e.y - r * 1.5}" x2="${e.x}" y2="${e.y + r * 1.5}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
             }
-          } else if (DP_FIT_TYPES.includes(e.type)) {             // 管件：圆 + 十字 + 支管方向短线（方向 = 墙法线 + 转向）
+          } else if (DP_FIT_TYPES.includes(e.type)) {             // 管件：每类独立 2D 符号（方向 = 墙法线 + 转向），不再全部画成同一个十字
             const a2 = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180, sx = Math.cos(a2), sy = Math.sin(a2);
-            inner = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".12" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
-              <line x1="${e.x - r * 1.3}" y1="${e.y}" x2="${e.x + r * 1.3}" y2="${e.y}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
-              <line x1="${e.x}" y1="${e.y - r * 1.3}" x2="${e.x}" y2="${e.y + r * 1.3}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
-              <line x1="${e.x + sx * r}" y1="${e.y + sy * r}" x2="${e.x + sx * r * 2.4}" y2="${e.y + sy * r * 2.4}" stroke="${col}" stroke-width="2" vector-effect="non-scaling-stroke"/>`;
+            const ln = (x1, y1, x2, y2, w2 = 1.2) => `<line x1="${e.x + x1}" y1="${e.y + y1}" x2="${e.x + x2}" y2="${e.y + y2}" stroke="${col}" stroke-width="${w2}" vector-effect="non-scaling-stroke"/>`;
+            const base = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".1" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>`;
+            let g = '';
+            if (e.type === 'dpTee') g = ln(0, -r * 1.5, 0, r * 1.5) + ln(sx * r * .3, sy * r * .3, sx * r * 2.4, sy * r * 2.4, 2);
+            else if (e.type === 'dpCross') g = ln(0, -r * 1.5, 0, r * 1.5) + ln(-r * 1.5, 0, r * 1.5, 0) + ln(sx * r, sy * r, sx * r * 2.2, sy * r * 2.2);
+            else if (e.type === 'dpE90') g = `<path d="M ${e.x} ${e.y - r * 1.5} Q ${e.x + r * 1.5} ${e.y - r * 1.5} ${e.x + r * 1.5} ${e.y}" fill="none" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>` + ln(sx * r * .5, sy * r * .5, sx * r * 2.2, sy * r * 2.2);
+            else if (e.type === 'dpE45') g = ln(0, -r * 1.4, 0, r * .3) + ln(sx * r * .2, sy * r * .2, sx * r * 2.1 - sy * r * 1.2, sy * r * 2.1 + sx * r * 1.2, 1.6);
+            else if (e.type === 'dpTrap') g = ln(-r * .5, -r * 1.4, -r * .5, r * .6) + `<path d="M ${e.x - r * .5} ${e.y + r * .6} Q ${e.x} ${e.y + r * 1.5} ${e.x + r * .5} ${e.y + r * .6}" fill="none" stroke="${col}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>` + ln(r * .5, r * .6, sx * r * 1.6 + r * .5, sy * r * 1.6 + r * .6);
+            else if (e.type === 'dpReducer') g = `<circle cx="${e.x}" cy="${e.y}" r="${r * .55}" fill="none" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>` + ln(-r * 1.4, -r * .55, -r * 1.4, r * .55) + ln(r * 1.4, -r * .25, r * 1.4, r * .25);
+            else if (e.type === 'dpCoupling') g = ln(-r * .5, -r * 1.3, -r * .5, r * 1.3, 1.6) + ln(r * .5, -r * 1.3, r * .5, r * 1.3, 1.6);
+            else if (e.type === 'dpCleanout') g = ln(0, -r * 1.3, 0, r * 1.3) + `<rect x="${e.x + sx * r * 1.5 - r * .45}" y="${e.y + sy * r * 1.5 - r * .45}" width="${r * .9}" height="${r * .9}" fill="${col}" fill-opacity=".4" stroke="${col}" stroke-width="1"/>`;
+            else if (e.type === 'dpExpansion') g = [-.5, 0, .5].map(t => ln(-r * 1.3, t * r, r * 1.3, t * r, 1.3)).join('');
+            else if (e.type === 'dpValve') g = `<polygon points="${e.x - r},${e.y - r * .8} ${e.x},${e.y} ${e.x - r},${e.y + r * .8}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1"/><polygon points="${e.x + r},${e.y - r * .8} ${e.x},${e.y} ${e.x + r},${e.y + r * .8}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1"/>` + ln(0, -r * 1.6, 0, -r * .6);
+            else g = `<circle cx="${e.x}" cy="${e.y}" r="${r * .6}" fill="none" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text x="${e.x}" y="${e.y + r * .25}" font-size="${Math.max(120, r)}" text-anchor="middle" fill="${col}" pointer-events="none">M</text>`;
+            inner = base + g;
           } else if (DP_POINT_TYPES.includes(e.type)) {           // 雨水斗 / 消火栓 / 喷淋 / 分水器：各自符号
             const R = Math.max(90, r), a2 = ((+e.rot || 0) % 360) * Math.PI / 180, ca = Math.cos(a2), sa = Math.sin(a2);
             const rotRect = (w2, d2) => [[-w2 / 2, -d2 / 2], [w2 / 2, -d2 / 2], [w2 / 2, d2 / 2], [-w2 / 2, d2 / 2]]
@@ -8094,6 +8105,7 @@
             }
           } else {                                                // 雨水管：圆 + 中心十字
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${r}" fill="${col}" fill-opacity=".18" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
+              ${e.type === 'spout' || e.type === 'waterRiser' ? `<circle cx="${e.x}" cy="${e.y}" r="${r * .68}" fill="none" stroke="${col}" stroke-opacity=".8" stroke-width="1" vector-effect="non-scaling-stroke"/>` : ''}
               <line x1="${e.x - r * 1.5}" y1="${e.y}" x2="${e.x + r * 1.5}" y2="${e.y}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>
               <line x1="${e.x}" y1="${e.y - r * 1.5}" x2="${e.x}" y2="${e.y + r * 1.5}" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
           }
@@ -9009,7 +9021,7 @@
       if (t === 'rainInlet') return { ...base, w: 110, h: 180, z: 0, linkId: null };
       if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0 };
       if (t === 'sprinkler') return { ...base, w: 25, h: 120, z: 2600 };
-      if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, n: 4 };
+      if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, n: 4, dn: 32 };
       if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0 };   // 管件：默认 ⌀110、件高 300；放置时记录贴墙法线方向 nrot 与到墙距离 edist
       if (t === 'tiecol') return { ...base, w: 240, d: 240, h: 2800 };   // 构造柱：长(X) × 宽(Y) 独立可设，默认 240×240
       if (t === 'chimney') return { ...base, w: 400, h: 1200, z: 2800 };
@@ -9061,17 +9073,17 @@
       let rows = '';
       if (lin) {
         const L = Math.round(roadLen(e));
-        const wl = isRoadType(e.type) ? tr('路宽', 'Road width') : e.type === 'retain' ? tr('墙厚', 'Thickness') : e.type === 'seam' ? tr('缝宽', 'Joint width') : e.type === 'sill' ? tr('板宽', 'Board width') : tr('宽度', 'Width');
+        const wl = e.type === 'dpRoute' ? tr('管径', 'Pipe ⌀') : isRoadType(e.type) ? tr('路宽', 'Road width') : e.type === 'retain' ? tr('墙厚', 'Thickness') : e.type === 'seam' ? tr('缝宽', 'Joint width') : e.type === 'sill' ? tr('板宽', 'Board width') : tr('宽度', 'Width');
         const hl = isRoadType(e.type) ? tr('路面厚', 'Pavement thickness') : e.type === 'seam' ? tr('缝深', 'Joint depth') : (e.type === 'eave' || e.type === 'sill') ? tr('板厚', 'Thickness') : tr('高度', 'Height');
         rows += `${isRoadType(e.type) ? `<label>${tr('道路类型', 'Road type')}<select id="exRoadType">${ROAD_TYPES.map(([v, zh, en]) => `<option value="${v}" ${e.type === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('')}</select></label>` : ''}
           ${isRoadType(e.type) && ROAD_STYLES[e.type].laneW ? `<label>${tr('每向车道数', 'Lanes / direction')}<input type="number" id="exLanes" value="${roadLayout(e).lanes}" min="1" max="8" step="1"></label>` : ''}
           ${isRoadType(e.type) && e.pts && e.pts.length > 2 ? `<label>${tr('圆角半径', 'Corner radius')} (mm)<input type="number" id="exFillet" value="${Math.round(e.fillet ?? 3000)}" min="0" max="50000" step="100"></label>` : ''}
           <label>${tr('长度', 'Length')} (mm)<input type="number" id="exL" value="${L}" min="100" max="${isRoadType(e.type) ? 1000000 : 30000}" step="10"></label>
           <label>${wl} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 300)}" min="30" max="${isRoadType(e.type) ? 60000 : 3000}" step="10"></label>
-          <label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 1000)}" min="20" max="4000" step="10"></label>
+          ${e.type === 'dpRoute' ? '' : `<label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 1000)}" min="20" max="4000" step="10"></label>`}
           ${['lintel', 'eave', 'sill', 'band', 'signbd', 'flash', 'thresh'].includes(e.type) ? `<label>${tr('底标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2100)}" min="-500" max="15000" step="50"></label>` : ''}
-          ${e.type === 'dpRoute' ? `<label title="${tr('管中心距地面的标高，沿坡度方向逐段抬升', 'Pipe center level above the floor; rises along the slope')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2500)}" step="10"></label>
-            <label title="${tr('每米管道抬升的毫米数；0.5% = 每米 5mm', 'Rise per metre; 0.5% = 5 mm per metre')}">${tr('坡度', 'Slope')} (%)<input type="number" id="exSlope" value="${+(e.slope ?? 0.5)}" min="0" max="5" step="0.1"></label>
+          ${e.type === 'dpRoute' ? `<label title="${tr('管中心距地面的标高，沿打点方向按坡度抬升；可为负', 'Pipe center level above the floor; rises along the drawn direction, may be negative')}">${tr('中心标高', 'Center level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2500)}" step="10"></label>
+            <label title="${tr('每米管道抬升的毫米数；负值表示顺着打点方向下降', 'Rise per metre; a negative value falls along the drawn direction')}">${tr('坡度', 'Slope')} (%)<input type="number" id="exSlope" value="${+(e.slope ?? 0.5)}" min="-5" max="5" step="0.1"></label>
             <div class="full muted" style="font-size:11px">${tr('共 ', '')}${Math.max(0, e.pts.length - 1)}${tr(' 段 · ', ' segments · ')}${(roadLen(e) / 1000).toFixed(2)} m · ${tr('净高', 'Clearance')} ${Math.round((ceilAtPoint(e.x ?? e.a[0][0], e.y ?? e.a[0][1]) || 2800) - (e.z ?? 2500) - (e.w ?? 110) / 2)} mm</div>` : ''}
           <label>${tr('起点', 'Start')} X (mm)<input type="number" id="exAX" value="${Math.round(e.a[0])}" step="10"></label>
           <label>${tr('起点', 'Start')} Y (mm)<input type="number" id="exAY" value="${Math.round(e.a[1])}" step="10"></label>`;
@@ -9106,14 +9118,14 @@
       } else if (isFacility(e.type) && PARK_EXT[e.type]) {          // 停车场配套：通用面板（尺寸 / 参数 / 开关 / 朝向 / 位置）
         rows += parkRows(e);
       } else if (pt) {
-        const wl = e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : isStreetLamp(e.type) ? tr('杆径', 'Pole ⌀') : e.type === 'traflight' ? tr('杆径', 'Pole ⌀') : isTrafficSign(e.type) ? tr('板宽', 'Board width') : isFacility(e.type) ? (e.type === 'facCrosswalk' || e.type === 'facGuardBooth' || e.type === 'facLoopDetector' ? tr('宽度', 'Width') : e.type === 'facBarrierGate' ? tr('闸杆长', 'Arm length') : e.type === 'facPayMachine' ? tr('机身宽', 'Width') : e.type === 'facPlateCam' || e.type === 'facLaneLight' ? tr('杆径', 'Pole ⌀') : e.type === 'facHeightGate' || e.type === 'facSpeedBump' ? tr('长度', 'Length') : e.type === 'facBusStop' ? tr('站牌宽', 'Board width') : tr('直径', 'Diameter')) : e.type === 'tiecol' ? tr('长（X 向）', 'Length (X)') : e.type === 'chimney' ? tr('边长', 'Size') : tr('直径', 'Diameter');
+        const wl = e.type === 'manifold' ? tr('集管长', 'Header length') : e.type === 'tree' ? tr('冠幅', 'Canopy') : e.type === 'flag' ? tr('杆径', 'Pole ⌀') : e.type === 'barrier' ? tr('底宽', 'Base width') : isStreetLamp(e.type) ? tr('杆径', 'Pole ⌀') : e.type === 'traflight' ? tr('杆径', 'Pole ⌀') : isTrafficSign(e.type) ? tr('板宽', 'Board width') : isFacility(e.type) ? (e.type === 'facCrosswalk' || e.type === 'facGuardBooth' || e.type === 'facLoopDetector' ? tr('宽度', 'Width') : e.type === 'facBarrierGate' ? tr('闸杆长', 'Arm length') : e.type === 'facPayMachine' ? tr('机身宽', 'Width') : e.type === 'facPlateCam' || e.type === 'facLaneLight' ? tr('杆径', 'Pole ⌀') : e.type === 'facHeightGate' || e.type === 'facSpeedBump' ? tr('长度', 'Length') : e.type === 'facBusStop' ? tr('站牌宽', 'Board width') : tr('直径', 'Diameter')) : e.type === 'tiecol' ? tr('长（X 向）', 'Length (X)') : e.type === 'chimney' ? tr('边长', 'Size') : tr('直径', 'Diameter');
         const hl = e.type === 'tree' ? tr('树高', 'Tree height') : e.type === 'chimney' ? tr('出屋面高', 'Above roof') : e.type === 'facGuardBooth' ? tr('高度', 'Height') : e.type === 'facBarrierGate' ? tr('机箱高', 'Box height') : e.type === 'facPayMachine' ? tr('高度', 'Height') : e.type === 'facLoopDetector' ? tr('线框厚', 'Loop thickness') : isStreetLamp(e.type) || isTraffic(e.type) ? tr('杆高', 'Pole height') : tr('高度', 'Height');
         rows += `${e.type === 'streetlamp' ? `<label>${tr('路灯类型', 'Lamp type')}<select id="exLampType">${STREET_LAMP_TYPES.map(([v, zh, en]) => `<option value="${v}" ${(e.style || 'single') === v ? 'selected' : ''}>${tr(zh, en)}</option>`).join('')}</select></label>` : ''}
-          <label>${wl} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 100)}" min="60" max="${isStreetLamp(e.type) ? 800 : isFacility(e.type) ? 20000 : 4000}" step="10"></label>
+          <label>${wl} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 100)}" min="${e.type === 'sprinkler' ? 20 : e.type === 'waterRiser' ? 30 : e.type === 'hydrantIn' ? 400 : e.type === 'manifold' ? 200 : 60}" max="${isStreetLamp(e.type) ? 800 : isFacility(e.type) ? 20000 : e.type === 'hydrantIn' ? 1500 : e.type === 'manifold' ? 3000 : 4000}" step="10"></label>
           ${e.type === 'tiecol' ? `<label>${tr('宽（Y 向）', 'Width (Y)')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? e.w ?? 240)}" min="60" max="4000" step="10"></label>` : ''}
           ${e.type === 'facCrosswalk' || e.type === 'facGuardBooth' || e.type === 'facLoopDetector' ? `<label>${tr('进深', 'Depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? (e.type === 'facGuardBooth' ? 2000 : 3000))}" min="${e.type === 'facLoopDetector' ? 400 : 500}" max="20000" step="100"></label>` : ''}
           ${e.type === 'facCrosswalk' ? `<label>${tr('条纹数', 'Stripes')}<input type="number" id="exN" value="${Math.round(e.n ?? 6)}" min="2" max="20" step="1"></label>`
-            : `<label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2800)}" min="${isFacility(e.type) ? 40 : 300}" max="30000" step="${isFacility(e.type) ? 10 : 50}"></label>`}
+            : `<label>${hl} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 2800)}" min="${isFacility(e.type) || e.type === 'sprinkler' || e.type === 'rainInlet' ? 40 : 300}" max="${DP_FIT_TYPES.includes(e.type) ? 3000 : 30000}" step="${isFacility(e.type) ? 10 : 50}"></label>`}
           ${e.type === 'facBarrierGate' ? `<label class="chk"><input type="checkbox" id="exOpen" ${e.open !== false ? 'checked' : ''}> ${tr('闸杆抬起（3D 点击闸杆 / 机箱也可切换）', 'Arm raised (click the arm / box in 3D to toggle)')}</label>` : ''}
           ${e.type === 'facLaneLight' ? `<label>${tr('当前信号', 'Signal')}<select id="exSig">${[['red', tr('红灯 · 禁行', 'Red · stop')], ['green', tr('绿灯 · 通行', 'Green · go')]].map(([v, t]) => `<option value="${v}" ${(e.sig || 'red') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>` : ''}
           ${isStreetLamp(e.type) ? `<label>${tr('悬臂长', 'Arm length')} (mm)<input type="number" id="exArm" value="${Math.round(e.arm ?? 0)}" min="0" max="8000" step="100"></label>
@@ -9139,8 +9151,11 @@
           ${DP_FIT_TYPES.includes(e.type) ? `<label title="${tr('管件底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Fitting base level above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
             ${e.type === 'dpReducer' ? `<label>${tr('变径后直径', 'Outlet ⌀')} (mm)<input type="number" id="exDn2" value="${Math.round(e.dn2 ?? 110)}" min="30" max="2000" step="10"></label>` : ''}` : ''}
+          ${e.type === 'waterRiser' ? `<label title="${tr('给水立管底部离地高度；3D 按设定高度生成，默认与墙同高', 'Riser bottom above the floor')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
+            <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           ${e.type === 'hydrantIn' ? `<label>${tr('箱体进深', 'Cabinet depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? 240)}" min="100" max="600" step="10"></label>` : ''}
-          ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>` : ''}
+          ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>
+            <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>` : ''}
           ${e.type === 'rainInlet' && e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}
           ${DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? `<div class="full muted" style="font-size:11px">${tr('净高', 'Clearance')} ${Math.round((ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)))} mm${(ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)) < 100 ? ` · ${tr('低于 100mm，建议调整标高', 'Below 100 mm — adjust the level')}` : ''}</div>` : ''}
           ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
@@ -9267,7 +9282,7 @@
         upd('exFillet', (e, v) => e.fillet = v, 0, 50000);        // 折线道路：拐角圆角半径
         const sl = $('#exSlope'); if (sl) sl.onchange = ev => {
           const v = parseFloat(ev.target.value); if (!isFinite(v)) return;
-          mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.slope = Math.max(0, Math.min(5, v)); });
+          mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.slope = Math.max(-5, Math.min(5, v)); });
         };
         upd('exW', (e, v) => e.w = v, 30, isRoadType(e0.type) ? 60000 : 3000);
         upd('exH', (e, v) => e.h = v, 10, 4000);
@@ -9312,7 +9327,7 @@
           if ((e.arm ?? old.arm) === old.arm) e.arm = nw.arm;
           renderPanel();                                          // 重绘面板，露出 / 收起悬臂长控件
         });
-        upd('exW', (e, v) => e.w = v, 60, isStreetLamp(e0.type) ? 800 : isFacility(e0.type) ? 20000 : 4000);
+        upd('exW', (e, v) => e.w = v, e0.type === 'sprinkler' ? 20 : e0.type === 'waterRiser' ? 30 : e0.type === 'hydrantIn' ? 400 : e0.type === 'manifold' ? 200 : 60, isStreetLamp(e0.type) ? 800 : isFacility(e0.type) ? 20000 : e0.type === 'hydrantIn' ? 1500 : e0.type === 'manifold' ? 3000 : 4000);
         const exw = $('#exW');                                   // 排水管（件）直径：自定义绑定——精确整数（不按 10 取整，50 / 75 等标准管径不跳动），并同步到墙距离（管面保持距墙 30mm）
         if (exw && (DP_WALL_TYPES.includes(e0.type) || DP_POINT_TYPES.includes(e0.type))) exw.onchange = () => mutate(() => {
           const e = (state.extras || []).find(x => x.id === id); if (!e) return;
@@ -9321,7 +9336,8 @@
         });
         if (e0.type === 'tiecol' || e0.type === 'hydrantIn') upd('exD', (e, v) => e.d = v, 60, 4000);   // 构造柱宽（Y 向）/ 消火栓箱进深
         if (e0.type === 'manifold') { const nx = $('#exN'); if (nx) nx.onchange = ev => { const v = parseInt(ev.target.value, 10); if (isNaN(v)) return; mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.n = Math.max(2, Math.min(12, v)); }); }; }
-        if (e0.type === 'dpReducer') upd('exDn2', (e, v) => e.dn2 = v, 30, 2000);
+        upd('exDn', (e, v) => e.dn = v, 15, 110);
+        if (e0.type === 'dpReducer') { const d2 = $('#exDn2'); if (d2) d2.onchange = ev => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.dn2 = Math.max(30, Math.min(Math.max(40, (+e.w || 160) - 10), Math.round(+ev.target.value || 110))); }); }
         if (e0.type === 'facCrosswalk') {   // 斑马线：进深（按 10 取整）/ 条纹数（整数，不取整）
           upd('exD', (e, v) => e.d = v, 500, 20000);
           const nex = $('#exN'); if (nex) nex.onchange = ev => {
@@ -9332,7 +9348,7 @@
         if (e0.type === 'facGuardBooth' || e0.type === 'facLoopDetector') upd('exD', (e, v) => e.d = v, e0.type === 'facLoopDetector' ? 400 : 500, 20000);   // 保安亭 / 地感：进深
         if (e0.type === 'facBarrierGate') { const eo = $('#exOpen'); if (eo) eo.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.open = eo.checked; renderPanel(); }); }
         if (e0.type === 'facLaneLight') { const es = $('#exSig'); if (es) es.onchange = () => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.sig = es.value; renderPanel(); }); }
-        upd('exH', (e, v) => e.h = v, isFacility(e0.type) ? 40 : 300, 30000);
+        upd('exH', (e, v) => e.h = v, isFacility(e0.type) || e0.type === 'sprinkler' || e0.type === 'rainInlet' ? 40 : 300, DP_FIT_TYPES.includes(e0.type) ? 3000 : 30000);
         upd('exZ', (e, v) => e.z = v);
         upd('exX', (e, v) => e.x = v);
         upd('exY', (e, v) => e.y = v);
@@ -14740,7 +14756,7 @@
       const p0 = pts[0], ceil = ceilAtPoint(p0[0], p0[1]) || 2800;
       const top = (e.z ?? 0) + (e.dir === 'h' ? (+e.w || 110) : Math.min(+e.h || 300, 2800));
       const notes = [];
-      if (top > ceil - 100) notes.push(tr('净高不足 100mm', 'clearance under 100 mm'));
+      if ((e.dir === 'h' || e.type === 'dpRoute' || e.type === 'sprinkler' || e.type === 'hydrantIn') && top > ceil - 100) notes.push(tr('净高不足 100mm', 'clearance under 100 mm'));
       const near = Math.max(160, (+e.w || 110) + 60);
       (state.extras || []).forEach(q => {
         if (q.id === e.id || !isDp(q) || Math.abs((q.z ?? 0) - (e.z ?? 0)) > 200) return;
@@ -16095,21 +16111,37 @@
 
     /* 自动保存：改动后 2 秒写入当前方案——已命名的方案直接回写自身，未命名 / 草稿仍写「自动保存」槽位（静默进行，失败不打扰，下次改动再试） */
     const AUTO_NAME = '自动保存';
-    let autoSaveT = null, autoSaved = '', autoSavedName = '';
+    const AUTO_LOCAL_PREFIX = 'floorplan3d.autosave.';
+    let autoSaveT = null, autoSaved = '', autoSavedName = '', autoServerDownUntil = 0, autoFallbackNotified = false;
     const autoTarget = () => (planName && planName !== AUTO_NAME ? planName : AUTO_NAME);
+    const localKey = n => AUTO_LOCAL_PREFIX + n;
     function scheduleAutoSave() { clearTimeout(autoSaveT); autoSaveT = setTimeout(autoSave, 2000); }
+    function autoSaveLocal(name, cur) {                             // 服务器不可达时写浏览器本地存储，避免改动丢失；不刷控制台
+      try {
+        localStorage.setItem(localKey(name), cur);
+        autoSaved = cur; autoSavedName = name;
+        if (name !== AUTO_NAME && serializePlan() === cur) markDirty(false);
+        if (!autoFallbackNotified) {
+          autoFallbackNotified = true;
+          toast(tr('服务器未连接，已先自动保存到本地浏览器（可在方案列表里打开）', 'Server unavailable — autosaved locally; open it from the plan list'));
+        }
+      } catch (e) { /* 浏览器禁用本地存储：彻底静默，下次改动再试 */ }
+    }
     async function autoSave() {
       const name = autoTarget();
       const cur = serializePlan();
       if (cur === autoSaved && name === autoSavedName) return;
+      if (Date.now() < autoServerDownUntil) { autoSaveLocal(name, cur); return; }   // 一分钟内不再请求，避免网络异常时反复刷错误
       try {
         const r = await fetch(planURL(name), { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: cur, keepalive: true });
         if (r.ok) {
-          autoSaved = cur; autoSavedName = name;
+          autoServerDownUntil = 0; autoSaved = cur; autoSavedName = name;
           if (name !== AUTO_NAME && serializePlan() === cur) markDirty(false);   // 已回写到方案里，去掉未保存高亮
-          if (document.visibilityState !== 'hidden') toast(tr('已自动保存', 'Autosaved'));   // 自动保存也给出提示
-        } else console.warn('自动保存失败：HTTP', r.status, name);   // 静默重试设计不变，但留日志便于排查服务器端问题
-      } catch (e) { console.warn('自动保存请求失败（服务器未启动 / 网络异常）', e); }
+          if (document.visibilityState !== 'hidden') toast(tr('已自动保存', 'Autosaved'));
+        } else if (r.status === 404 || r.status === 405 || r.status === 501) {
+          autoServerDownUntil = Date.now() + 60000; autoSaveLocal(name, cur);   // 静态服务器 / 后端未启动：走本地兜底
+        } else console.warn('自动保存失败：HTTP', r.status, name);
+      } catch (e) { autoServerDownUntil = Date.now() + 60000; autoSaveLocal(name, cur); }
     }
     /* 关闭 / 切走页面时把未写入的改动立即落盘（keepalive 让请求在页面关闭后仍能发完） */
     addEventListener('beforeunload', () => { if (autoSaveT) { clearTimeout(autoSaveT); autoSaveT = null; autoSave(); } });
@@ -16275,9 +16307,9 @@
 
     /* 欢迎界面：方案卡片网格 + 新建/导入入口；silent=true 时不弹错误提示（用于启动时） */
     async function showWelcome(silent = false) {
-      let plans;
+      let plans = [], serverOK = true;
       try { const r = await fetch('/api/plans'); if (!r.ok) throw 0; plans = await r.json(); }
-      catch (e) { if (!silent) cloudFail(); return; }
+      catch (e) { serverOK = false; autoServerDownUntil = Date.now() + 60000; if (!silent) cloudFail(); if (silent) return; }
       const mask = cloudMask('open');
       mask.querySelector('#cloudTitle').textContent = tr('户型装修设计', 'Floor Plan Designer');
       mask.querySelector('#cloudSub').textContent = tr('欢迎回来！选择一个方案继续创作，或从空白开始', 'Welcome back — pick a plan to continue, or start from scratch');
@@ -16325,6 +16357,20 @@
             const r = await fetch(planURL(p.name)); if (!r.ok) throw 0;
             cloudLoad(await r.json(), p.name); mask.classList.remove('open');
           } catch (e) { toast(tr('读取失败', 'Failed to load')); }
+        };
+        plansEl.appendChild(card);
+      }
+      const localRaw = (() => { try { return localStorage.getItem(localKey(AUTO_NAME)); } catch (e) { return null; } })();
+      if (localRaw) {                                               // 服务器不可达时写入的本地自动保存，始终在方案列表里可恢复
+        const card = document.createElement('div'); card.className = 'plan-card';
+        card.innerHTML = `<div class="pc-thumb"><span>${tr('本地', 'Local')}</span></div><div class="pc-nm"></div><div class="pc-tm"></div>`;
+        card.querySelector('.pc-nm').textContent = tr('本地自动保存', 'Local autosave');
+        card.querySelector('.pc-tm').textContent = serverOK ? tr('服务器未连接时保存的备份', 'Backup written while the server was unreachable') : tr('服务器未启动，可从这里恢复', 'Server unavailable — restore from here');
+        card.onclick = () => {
+          try {
+            const s = JSON.parse(localRaw); if (!Array.isArray(s.furniture)) throw 0;
+            cloudLoad(s, AUTO_NAME); mask.classList.remove('open'); toast(tr('已恢复本地自动保存', 'Local autosave restored'));
+          } catch (e) { toast(tr('本地自动保存数据损坏', 'Local autosave data is invalid')); }
         };
         plansEl.appendChild(card);
       }
@@ -20276,16 +20322,21 @@
         const smKey = o.sleeveMat || 'pvc', ext = Math.max(0, Math.min(.3, M(o.sleeveExt ?? 25))), tubeLen = TT + ext * 2;
         const slvMat3 = mat(smKey === 'steel' ? '#8a9198' : smKey === 'flex' ? '#6f7e86' : smKey === 'fire' ? '#a8553f' : '#b9b3a5', { roughness: smKey === 'pvc' ? .75 : .45, metalness: smKey === 'pvc' ? .1 : .5 });
         const sleeveGrp = new THREE.Group(); sleeveGrp.position.set(mx, c, mz); sleeveGrp.rotation.y = rot;   // 随墙朝向，本地 Z = 墙法线
-        const nSlv = Math.max(1, Math.min(6, +o.sleeveN || 1));
-        if (nSlv === 1) {
-          const sleeve = new THREE.Mesh(new THREE.CylinderGeometry(d / 2 - .004, d / 2 - .004, tubeLen, 28, 1, true), slvMat3);
-          sleeve.rotation.x = Math.PI / 2; sleeveGrp.add(sleeve);
-        } else {                                                      // 多管共孔：孔内按圆周排布 n 根小套管
+        const nSlv = Math.max(1, Math.min(6, +o.sleeveN || 1)), svWT = Math.min(.006, d / 2 * .18);
+        const slvShell = (rr, x, y) => {                              // 空心套管：外壁 + 内壁 + 两端环面（可见管腔）
+          const s = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, tubeLen, 24, 1, true), slvMat3);
+          s.rotation.x = Math.PI / 2; s.position.set(x, y, 0); sleeveGrp.add(s);
+          const bi = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(.004, rr - svWT), Math.max(.004, rr - svWT), tubeLen, 24, 1, true), mat('#5f676d', { side: THREE.BackSide, roughness: .75 }));
+          bi.rotation.x = Math.PI / 2; bi.position.set(x, y, 0); sleeveGrp.add(bi);
+          [-tubeLen / 2, tubeLen / 2].forEach(z => {
+            const rg = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, rr - svWT), rr, 24), mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide }));
+            rg.position.set(x, y, z); sleeveGrp.add(rg);
+          });
+        };
+        if (nSlv === 1) slvShell(d / 2 - .004, 0, 0);
+        else {                                                        // 多管共孔：孔内按圆周排布 n 根空心小套管
           const rr = Math.max(.012, d / 2 / Math.sqrt(nSlv) * .78), off = Math.max(0, d / 2 - rr - .006);
-          for (let i = 0; i < nSlv; i++) {
-            const a = i * Math.PI * 2 / nSlv, s = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, tubeLen, 16, 1, true), slvMat3);
-            s.rotation.x = Math.PI / 2; s.position.set(Math.cos(a) * off, Math.sin(a) * off, 0); sleeveGrp.add(s);
-          }
+          for (let i = 0; i < nSlv; i++) { const a = i * Math.PI * 2 / nSlv; slvShell(rr, Math.cos(a) * off, Math.sin(a) * off); }
         }
         if (o.firestop) [-(TT / 2 + .006), TT / 2 + .006].forEach(z => {
           const fs = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, d / 2 - .02), d / 2 + .012, 28), mat('#a8553f', { roughness: .85 }));
@@ -20324,17 +20375,19 @@
         plate(L, th, 0, dh / 2 - th / 2); plate(L, th, 0, -dh / 2 + th / 2);   // 上 / 下壁（跨整个孔宽）
         plate(th, dh - th * 2, L / 2 - th / 2, 0); plate(th, dh - th * 2, -L / 2 + th / 2, 0);   // 左 / 右壁（净高）
         const nSlv = Math.max(1, Math.min(6, +o.sleeveN || 1));
-        if (nSlv > 1) {                                               // 多管共孔：孔内排布 n 根小方风管
+        const sqShell = (w2, h2, x, y, len, mm) => {                  // 空心方风管：四片壁板围成，管腔贯通
+          const t2 = Math.max(.004, Math.min(w2, h2) * .12);
+          [[w2, t2, 0, h2 / 2 - t2 / 2], [w2, t2, 0, -h2 / 2 + t2 / 2], [t2, h2 - t2 * 2, w2 / 2 - t2 / 2, 0], [t2, h2 - t2 * 2, -w2 / 2 + t2 / 2, 0]]
+            .forEach(([aw, ah, ax, ay]) => { const m = new THREE.Mesh(new THREE.BoxGeometry(aw, ah, len), mm); m.position.set(x + ax, y + ay, 0); sleeveGrp.add(m); });
+        };
+        if (nSlv > 1) {                                               // 多管共孔：孔内排布 n 根空心小方风管
           const sw = L / nSlv * .8, sh = dh / nSlv * .8;
-          for (let i = 0; i < nSlv; i++) {
-            const dx = -L / 2 + (i + .5) * L / nSlv;
-            const m = new THREE.Mesh(new THREE.BoxGeometry(sw, sh, tube), slvMat3);
-            m.position.set(dx, 0, 0); sleeveGrp.add(m);
-          }
+          for (let i = 0; i < nSlv; i++) sqShell(sw, sh, -L / 2 + (i + .5) * L / nSlv, 0, tube, slvMat3);
         }
         if (o.firestop) [-(TT / 2 + .006), TT / 2 + .006].forEach(z => {
-          const fs = new THREE.Mesh(new THREE.BoxGeometry(L, dh, .012), mat('#a8553f', { roughness: .85 }));
-          fs.position.z = z; sleeveGrp.add(fs);
+          const fm = mat('#a8553f', { roughness: .85 }), fw = Math.max(.012, Math.min(L, dh) * .1);
+          [[L, fw, 0, dh / 2 - fw / 2], [L, fw, 0, -dh / 2 + fw / 2], [fw, dh - fw * 2, L / 2 - fw / 2, 0], [fw, dh - fw * 2, -L / 2 + fw / 2, 0]]
+            .forEach(([aw, ah, ax, ay]) => { const fs = new THREE.Mesh(new THREE.BoxGeometry(aw, ah, .012), fm); fs.position.set(ax, ay, z); sleeveGrp.add(fs); });
         });
         archUp.add(sleeveGrp);
         pushWallCollider(P0, P1, T, top);                    // 方孔很小，整墙仍挡人（不因开孔可穿行）
@@ -23121,6 +23174,33 @@
               }
               return;
             }
+            const PLM = { p: mat('#c9cdd1', { metalness: .2, roughness: .55 }), b: mat('#5f676d', { metalness: .15, roughness: .75, side: THREE.BackSide }), r: mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide }) };
+            const pWT = rr => Math.min(.008, rr * .22);
+            const pTube = (A, B, rr, mm = PLM) => {              // 通用空心圆管：外壁 + BackSide 内腔 + 两端管口环面
+              const dx = B[0] - A[0], dy = B[1] - A[1], dz = B[2] - A[2], L = Math.hypot(dx, dy, dz);
+              if (L < .002) return;
+              const g = new THREE.Group(); g.position.set(A[0], A[1], A[2]); g.rotation.order = 'YZX';
+              g.rotation.z = Math.asin(dy / L); g.rotation.y = Math.atan2(-dz, dx); archUp.add(g);
+              const wt = pWT(rr);
+              const o = new THREE.Mesh(new THREE.CylinderGeometry(rr, rr, L, 16, 1, true), mm.p); o.rotation.z = Math.PI / 2; o.position.x = L / 2; o.castShadow = true; g.add(o);
+              const b = new THREE.Mesh(new THREE.CylinderGeometry(rr - wt, rr - wt, L, 16, 1, true), mm.b); b.rotation.z = Math.PI / 2; b.position.x = L / 2; g.add(b);
+              [0, L].forEach(lx => { const rim = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, rr - wt), rr, 16), mm.r); rim.rotation.y = Math.PI / 2; rim.position.x = lx; g.add(rim); });
+            };
+            const pTaper = (cx, cz, y0, y1, rTop, rBot, mm = PLM) => {  // 竖直异径空心管：内锥 + 上下管口环
+              const L = Math.max(.01, y1 - y0), wt = pWT(Math.max(rTop, rBot));
+              const o = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(.012, rTop), Math.max(.012, rBot), L, 16, 1, true), mm.p);
+              o.position.set(cx, (y0 + y1) / 2, cz); o.castShadow = true; archUp.add(o);
+              const b = new THREE.Mesh(new THREE.CylinderGeometry(Math.max(.004, rTop - wt), Math.max(.004, rBot - wt), L, 16, 1, true), mm.b);
+              b.position.set(cx, (y0 + y1) / 2, cz); archUp.add(b);
+              [[y0, rBot], [y1, rTop]].forEach(([y, rr]) => { const rim = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, rr - wt), rr, 16), mm.r); rim.rotation.x = -Math.PI / 2; rim.position.set(cx, y, cz); archUp.add(rim); });
+            };
+            const pJoint = (P, rr, mm = PLM) => {                // 转角接头：外壳只渲染正面，内球用 BackSide，从管口看进去仍是空腔
+              const wt = pWT(rr);
+              const o = new THREE.Mesh(new THREE.SphereGeometry(rr, 16, 12), mat('#c9cdd1', { metalness: .2, roughness: .55, side: THREE.FrontSide }));
+              o.position.set(P[0], P[1], P[2]); o.castShadow = true; archUp.add(o);
+              const b = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, rr - wt), 16, 12), mm.b);
+              b.position.set(P[0], P[1], P[2]); archUp.add(b);
+            };
             if (T3 === 'drainpipe' || T3 === 'waterRiser') {     // 排水管 / 给水立管：空心圆管贴墙 30mm，每隔 1 米一道固定卡扣
               const r = Math.max(.025, M(e.w || 110) / 2), zb = M(e.z || 0);   // zb = 管底标高（自由值，可为负：管底沉到地面以下）
               if (e.dir === 'h') {                              // 横向：沿墙走向水平敷设（中心标高 = 底标高 + 管半径），卡扣沿管每 1m 一道
@@ -23196,10 +23276,7 @@
                 const xs = pts.map(p2 => p2[0]), zs = pts.map(p2 => p2[2]);
                 colliders.push([Math.min(...xs) - r, Math.min(...zs) - r, Math.max(...xs) + r, Math.max(...zs) + r, zbF, Math.max(yTop, zbF + .1)]);
               };
-              const joint = P => {                              // 折线拐点球形接头：填满两段平切圆柱对接留下的三角缺口（外壁 + 内腔，保持空心观感）
-                const s = new THREE.Mesh(new THREE.SphereGeometry(r, 16, 12), pMat); s.position.set(P[0], P[1], P[2]); s.castShadow = true; archUp.add(s);
-                const si = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, r - wtF), 16, 12), bMat); si.position.set(P[0], P[1], P[2]); archUp.add(si);
-              };
+              const joint = P => pJoint(P, r);                   // 拐点用空心球壳，管口往里看仍能看到内腔
               if (T3 === 'dpTee') {                             // 三通：竖向主管贯通 + 中部水平支管（朝墙外）
                 const br = r * 3, B = [px + dirx * br, zbF + h / 2, pz + dirz * br];
                 dpTube([px, zbF, pz], [px, zbF + h, pz]); dpTube([px, zbF + h / 2, pz], B);
@@ -23225,44 +23302,48 @@
                 dpTube([px, zbF, pz], [px, zbF + yb, pz]); dpTube([px, zbF + yb, pz], B);
                 joint([px, zbF + yb, pz]);
                 fitCol([[px, zbF, pz], B], Math.max(h, yb + ob * c) + zbF);
-              } else if (T3 === 'dpCross') {                    // 四通：竖向贯通 + 双向水平支管
+              } else if (T3 === 'dpCross') {                    // 四通：竖向贯通 + 双向水平支管（碰撞盒覆盖两侧）
                 const br = r * 2.8, y = zbF + h / 2;
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
                 dpTube([px - dirx * br, y, pz - dirz * br], [px + dirx * br, y, pz + dirz * br]);
-                joint([px, y, pz]); fitCol([[px, zbF, pz], [px, zbF + h, pz], [px + dirx * br, y, pz + dirz * br]], zbF + h);
-              } else if (T3 === 'dpReducer') {                  // 异径管：大径 → 小径过渡
-                const r2 = Math.max(.012, r * Math.min(2, Math.max(.25, (+e.dn2 || 110) / (+e.w || 160))));
-                const c = new THREE.Mesh(new THREE.CylinderGeometry(r, r2, h, 16, 1, true), pMat); c.position.set(px, zbF + h / 2, pz); c.castShadow = true; archUp.add(c);
-                [zbF, zbF + h].forEach((y, i) => { const rim = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, (i ? r2 : r) - wtF), i ? r2 : r, 16), rMat); rim.rotation.x = -Math.PI / 2; rim.position.set(px, y, pz); archUp.add(rim); });
+                joint([px, y, pz]); fitCol([[px, zbF, pz], [px, zbF + h, pz], [px - dirx * br, y, pz - dirz * br], [px + dirx * br, y, pz + dirz * br]], zbF + h);
+              } else if (T3 === 'dpReducer') {                  // 异径管：同心空心锥管（内锥 + 两端管口环），小径始终小于大径
+                const r2 = Math.max(.012, Math.min(r * .96, r * Math.min(2, Math.max(.25, (+e.dn2 || 110) / (+e.w || 160)))));
+                pTaper(px, pz, zbF, zbF + h, r, r2);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpCoupling') {                  // 管箍：中段加厚套筒
+              } else if (T3 === 'dpCoupling') {                  // 管箍：外套空心短节，两端露出管口，不堵管腔
+                const mm = { p: mat('#8a9198', { metalness: .6, roughness: .4 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
-                const c = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.35, r * 1.35, h * .42, 16), mat('#8a9198', { metalness: .6, roughness: .4 }));
-                c.position.set(px, zbF + h / 2, pz); c.castShadow = true; archUp.add(c);
+                pTube([px, yc - h * .21, pz], [px, yc + h * .21, pz], r * 1.35, mm);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpCleanout') {                  // 检查口：竖向主管 + 侧向可拆盖板
+              } else if (T3 === 'dpCleanout') {                  // 检查口：主管 + 侧支管 + 可拆盖板（带底座环）
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
                 const yc = zbF + h * .55, o = r * 1.8, cap = new THREE.Mesh(new THREE.CylinderGeometry(r * .9, r * .9, .03, 16), mat('#8a9198', { metalness: .5, roughness: .4 }));
                 dpTube([px, yc, pz], [px + dirx * o, yc, pz + dirz * o]);
+                const seat = new THREE.Mesh(new THREE.TorusGeometry(r * .92, .012, 8, 16), mat('#9aa1a6', { metalness: .4, roughness: .5 }));
+                seat.position.set(px + dirx * (o + .008), yc, pz + dirz * (o + .008)); seat.rotation.y = -wr + Math.PI / 2; archUp.add(seat);
                 cap.position.set(px + dirx * (o + .02), yc, pz + dirz * (o + .02)); cap.rotation.z = Math.PI / 2; cap.rotation.y = -wr; archUp.add(cap);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz], [px + dirx * o, yc, pz + dirz * o]], zbF + h);
-              } else if (T3 === 'dpExpansion') {                 // 伸缩节：波纹补偿环
+              } else if (T3 === 'dpExpansion') {                 // 伸缩节：波纹补偿环（波纹在外，管腔贯通）
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
                 for (let i = 1; i <= 4; i++) { const t = new THREE.Mesh(new THREE.TorusGeometry(r * 1.12, r * .16, 8, 16), mat('#8a9198', { metalness: .5, roughness: .45 })); t.rotation.x = Math.PI / 2; t.position.set(px, zbF + h * i / 5, pz); archUp.add(t); }
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpValve') {                     // 阀门：阀体 + 阀杆 + 手轮
-                dpTube([px, zbF, pz], [px, zbF + h, pz]);
-                box(r * 2.4, h * .34, r * 2.4, px, zbF + h / 2, pz, mat('#7d8489', { metalness: .55, roughness: .4 }));
+              } else if (T3 === 'dpValve') {                     // 阀门：空心阀体 + 阀杆 + 水平手轮
+                const mm = { p: mat('#7d8489', { metalness: .55, roughness: .4 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
+                dpTube([px, zbF, pz], [px, yc - h * .17, pz]);
+                pTube([px, yc - h * .17, pz], [px, yc + h * .17, pz], r * 1.25, mm);
+                dpTube([px, yc + h * .17, pz], [px, zbF + h, pz]);
                 box(.018, h * .3, .018, px, zbF + h * .84, pz, mat('#8a9198', { metalness: .6, roughness: .4 }));
                 const wh = new THREE.Mesh(new THREE.TorusGeometry(r * 1.2, .012, 8, 20), mat('#b5653a', { metalness: .3, roughness: .6 }));
-                wh.position.set(px, zbF + h, pz); archUp.add(wh);
+                wh.rotation.x = Math.PI / 2; wh.position.set(px, zbF + h, pz); archUp.add(wh);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpMeter') {                     // 水表：表体 + 表盘
-                dpTube([px, zbF, pz], [px, zbF + h, pz]);
-                const body = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.3, r * 1.3, h * .5, 16), mat('#c4ccd2', { metalness: .35, roughness: .5 }));
-                body.position.set(px, zbF + h / 2, pz); body.castShadow = true; archUp.add(body);
+              } else if (T3 === 'dpMeter') {                     // 水表：空心表壳 + 表盘（不遮断管腔）
+                const mm = { p: mat('#c4ccd2', { metalness: .35, roughness: .5 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
+                pTube([px, yc - h * .25, pz], [px, yc + h * .25, pz], r * 1.3, mm);
+                dpTube([px, zbF, pz], [px, yc - h * .25, pz]);
+                dpTube([px, yc + h * .25, pz], [px, zbF + h, pz]);
                 const dial = new THREE.Mesh(new THREE.CircleGeometry(r * .8, 20), mat('#eef2f4', { roughness: .8 }));
-                dial.position.set(px + dirx * (r * 1.31), zbF + h / 2, pz + dirz * (r * 1.31)); dial.rotation.y = -wr + Math.PI / 2; archUp.add(dial);
+                dial.position.set(px + dirx * (r * 1.31), yc, pz + dirz * (r * 1.31)); dial.rotation.y = -wr + Math.PI / 2; archUp.add(dial);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
               } else {                                          // 蓄水弯（S 弯水封）：竖落 → 底横 → 竖升（水封段）→ 出水横管（朝墙外）
                 const ylow = Math.max(r * 1.6, h - r * 3.4), ymid = Math.min(h - .02, ylow + r * 1.8), o1 = r * 1.2, o2 = r * 3;
@@ -23276,15 +23357,15 @@
               }
               return;
             }
-            const r = Math.max(.02, M(e.w || 100) / 2);
+            const r = Math.max(.02, M(e.w || 100) / 2), spoutM = { p: mat('#9aa1a6', { metalness: .5, roughness: .45 }), b: PLM.b, r: PLM.r };
             colliders.push([px - r - .02, pz - r - .02, px + r + .02, pz + r + .02, 0, h]);   // 雨水管细管也占碰撞
-            const pipeMat = mat('#9aa1a6', { metalness: .5, roughness: .45 });
-            const p = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16), pipeMat);
-            p.position.set(px, h / 2, pz); p.castShadow = true; archUp.add(p);
+            pTube([px, 0, pz], [px, h, pz], r, spoutM);          // 空心落水管：外壁 + 内腔 + 两端管口
             [h * .3, h * .72].forEach(y => box(.09, .04, .05, px, y, pz, mat('#7d8489', { metalness: .5, roughness: .5 })));
-            if (e.hopper) {                                     // 顶部落水斗：上大下小两节方斗
-              box(r * 5, .14, r * 5, px, h + .07, pz, pipeMat);
-              box(r * 3, .1, r * 3, px, h + .16, pz, pipeMat);
+            if (e.hopper) {                                     // 顶部落水斗：上大下小的开口斗（不盖住管口）
+              const hp = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.5, r * .9, .24, 16, 1, true), spoutM.p);
+              hp.position.set(px, h + .12, pz); hp.castShadow = true; archUp.add(hp);
+              const lip = new THREE.Mesh(new THREE.TorusGeometry(r * 2.5, .018, 8, 20), spoutM.r);
+              lip.rotation.x = Math.PI / 2; lip.position.set(px, h + .24, pz); archUp.add(lip);
             }
             return;
           }
@@ -23293,8 +23374,10 @@
             if (T3 === 'rainInlet') {                            // 雨水斗：漏斗 + 格栅，连最近雨水管
               const top = zb + Math.max(.12, M(e.h || 180)), funnel = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.2, r * .8, top - zb, 16, 1, true), mat('#9fb9c4', { metalness: .35, roughness: .5, side: THREE.DoubleSide }));
               funnel.position.set(px, (zb + top) / 2, pz); funnel.castShadow = true; archUp.add(funnel);
-              const grate = new THREE.Mesh(new THREE.CylinderGeometry(r * 2.25, r * 2.25, .025, 16), mat('#7d8489', { metalness: .6, roughness: .4 }));
-              grate.position.set(px, top, pz); archUp.add(grate);
+              const gm = mat('#7d8489', { metalness: .6, roughness: .4 });
+              const rimG = new THREE.Mesh(new THREE.TorusGeometry(r * 2.2, .02, 8, 24), gm);
+              rimG.rotation.x = Math.PI / 2; rimG.position.set(px, top, pz); archUp.add(rimG);
+              for (let i = 0; i < 3; i++) box(r * 4.3, .016, .022, px, top, pz, gm, -i * 60);   // 三根格栅条：雨水可落入斗内
               const link = (state.extras || []).find(o => o.id === e.linkId && o.type === 'spout');
               if (link) { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px, top, pz), new THREE.Vector3(wx(link.x), top, wz(link.y))]); archUp.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0x2a667c, transparent: true, opacity: .45 }))); }
               colliders.push([px - r * 2.3, pz - r * 2.3, px + r * 2.3, pz + r * 2.3, zb, top + .03]);
@@ -23314,10 +23397,15 @@
               colliders.push([px - r * 1.6, pz - r * 1.6, px + r * 1.6, pz + r * 1.6, y0, y0 + top]);
             } else {                                            // 分水器：集管 + 多路支管阀
               const n = Math.max(2, Math.min(12, +e.n || 4)), w = Math.max(.3, M(e.w || 400)), hh = Math.max(.15, M(e.h || 350));
-              const hb = new THREE.Mesh(new THREE.CylinderGeometry(r * .8, r * .8, w, 14), mat('#b9c2c8', { metalness: .6, roughness: .4 }));
-              hb.rotation.z = Math.PI / 2; hb.position.set(px, zb + hh / 2, pz); archUp.add(hb);
-              for (let i = 0; i < n; i++) { const x = px - w / 2 + (i + .5) * w / n; box(.03, hh * .6, .03, x, zb + hh * .75, pz, mat('#7d8489', { metalness: .6, roughness: .4 })); }
-              colliders.push([px - w / 2, pz - r, px + w / 2, pz + r, zb, zb + hh]);
+              const rr = Math.max(.02, M(e.dn || 32) / 2), mm = { p: mat('#b9c2c8', { metalness: .6, roughness: .4 }), b: PLM.b, r: PLM.r };
+              pTube([px - w / 2, zb + hh / 2, pz], [px + w / 2, zb + hh / 2, pz], rr, mm);   // 空心集管，两端可见管口
+              for (let i = 0; i < n; i++) {
+                const x = px - w / 2 + (i + .5) * w / n;
+                pTube([x, zb + hh / 2, pz], [x, zb + hh * .92, pz], rr * .7, mm);            // 空心支管
+                const hv = new THREE.Mesh(new THREE.TorusGeometry(rr * 1.1, .008, 8, 14), mat('#b5653a', { metalness: .3, roughness: .6 }));
+                hv.rotation.x = Math.PI / 2; hv.position.set(x, zb + hh * .92, pz); archUp.add(hv);
+              }
+              colliders.push([px - w / 2, pz - rr, px + w / 2, pz + rr, zb, zb + hh]);
             }
             return;
           }
@@ -23326,25 +23414,34 @@
             const L = Math.hypot(B[0] - A[0], B[1] - A[1]); if (L < .1 && !(isRoadType(T3) && e.pts && e.pts.length > 2)) return;   // 折线道路首尾可能很近，按总长判断
             const rot = wallAngle(e.a, e.b), mx = (A[0] + B[0]) / 2, mz = (A[1] + B[1]) / 2;
             const w = Math.max(.04, M(e.w || (T3 === 'retain' ? 300 : T3 === 'seam' ? 40 : 600))), h = Math.max(.02, M(e.h || 60));
-            if (T3 === 'dpRoute') {                             // 连续画管：折线空心管段 + 转角球形接头，按坡度抬升
+            if (T3 === 'dpRoute') {                             // 连续画管：折线空心管段 + 空心转角接头，按坡度抬升
               const pts = roadPts(e), zb = M(e.z ?? 2500), slope = (+e.slope || 0) / 100, r = Math.max(.025, w / 2);
-              const pMat = mat('#c9cdd1', { metalness: .2, roughness: .55 });
-              const jMat = mat('#9aa1a6', { metalness: .3, roughness: .5 });
+              const pm = mat('#c9cdd1', { metalness: .2, roughness: .55 }), bm = mat('#5f676d', { side: THREE.BackSide, metalness: .15, roughness: .75 });
+              const rm = mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide }), wt = Math.min(.008, r * .22), jr = r * 1.15;
+              const tube = (A, B) => {
+                const g = new THREE.Group(); g.position.set(A[0], A[1], A[2]); g.rotation.order = 'YZX';
+                const dx = B[0] - A[0], dy = B[1] - A[1], dz = B[2] - A[2], L = Math.hypot(dx, dy, dz);
+                if (L < .002) return;
+                g.rotation.z = Math.asin(dy / L); g.rotation.y = Math.atan2(-dz, dx); archUp.add(g);
+                const o = new THREE.Mesh(new THREE.CylinderGeometry(r, r, L, 12, 1, true), pm); o.rotation.z = Math.PI / 2; o.position.x = L / 2; o.castShadow = true; g.add(o);
+                const b = new THREE.Mesh(new THREE.CylinderGeometry(r - wt, r - wt, L, 12, 1, true), bm); b.rotation.z = Math.PI / 2; b.position.x = L / 2; g.add(b);
+                [0, L].forEach(lx => { const rg = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, r - wt), r, 12), rm); rg.rotation.y = Math.PI / 2; rg.position.x = lx; g.add(rg); });
+              };
               let acc = 0, prev = null;
               pts.forEach((p, i) => {
                 if (i) acc += Math.hypot(p[0] - pts[i - 1][0], p[1] - pts[i - 1][1]);
                 const q = new THREE.Vector3(wx(p[0]), zb + acc * slope, wz(p[1]));
                 if (prev) {
-                  const d = new THREE.Vector3().subVectors(q, prev), len = d.length();
-                  if (len > .005) {
-                    const t = new THREE.Mesh(new THREE.CylinderGeometry(r, r, len, 12, 1, true), pMat);
-                    t.position.copy(prev).add(q).multiplyScalar(.5);
-                    t.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), d.normalize());
-                    t.castShadow = true; archUp.add(t);
+                  if (q.distanceTo(prev) > .005) {
+                    tube([prev.x, prev.y, prev.z], [q.x, q.y, q.z]);
                     colliders.push([Math.min(prev.x, q.x) - r, Math.min(prev.z, q.z) - r, Math.max(prev.x, q.x) + r, Math.max(prev.z, q.z) + r, Math.min(prev.y, q.y) - r, Math.max(prev.y, q.y) + r]);
                   }
                 }
-                if (i && i < pts.length - 1) { const j = new THREE.Mesh(new THREE.SphereGeometry(r * 1.15, 12, 8), jMat); j.position.copy(q); archUp.add(j); }
+                if (i && i < pts.length - 1) {
+                  const so = new THREE.Mesh(new THREE.SphereGeometry(jr, 12, 8), mat('#c9cdd1', { metalness: .2, roughness: .55, side: THREE.FrontSide }));
+                  so.position.copy(q); archUp.add(so);
+                  const bi = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, jr - wt), 12, 8), bm); bi.position.copy(q); archUp.add(bi);
+                }
                 prev = q;
               });
               return;
@@ -23578,8 +23675,13 @@
             return;
           }
           if (T3 === 'well2') {                                 // 雨水井：井圈 + 井盖（篦子样式为 4 条篦条）
-            const r = Math.min(w, d) / 2 * .82;
-            const rim = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.12, r * 1.12, .12, 20), mat('#b3ac9c', { roughness: .95 }));
+            const r = Math.min(w, d) * .34, dep = Math.max(.2, M(e.h || 900)), rr0 = r * 1.12, wwt0 = Math.min(.008, rr0 * .22);
+            const wp = mat('#b3ac9c', { roughness: .95 }), wb = mat('#5f676d', { side: THREE.BackSide, roughness: .75 }), wr = mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide });
+            const shaft = new THREE.Group(); shaft.position.set(cx, .06, cz); archUp.add(shaft);
+            const so = new THREE.Mesh(new THREE.CylinderGeometry(rr0, rr0, dep, 20, 1, true), wp); so.position.y = -dep / 2; shaft.add(so);
+            const si = new THREE.Mesh(new THREE.CylinderGeometry(rr0 - wwt0, rr0 - wwt0, dep, 20, 1, true), wb); si.position.y = -dep / 2; shaft.add(si);
+            [0, -dep].forEach(y => { const rg = new THREE.Mesh(new THREE.RingGeometry(Math.max(.004, rr0 - wwt0), rr0, 20), wr); rg.rotation.x = -Math.PI / 2; rg.position.y = y; shaft.add(rg); });
+            const rim = new THREE.Mesh(new THREE.CylinderGeometry(rr0, rr0, .12, 20, 1, true), wp);
             rim.position.set(cx, .06, cz); rim.receiveShadow = true; archUp.add(rim);
             if (e.style === 'grate') {
               const gm = mat('#6e6a60', { metalness: .4, roughness: .6 });
