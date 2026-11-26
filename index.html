@@ -7384,7 +7384,20 @@
       if (e.type === 'facFindKiosk') return box(0, 0, W, D, '#dcd8cc', .95) + box(W * .1, 0, W * .55, D * .72, '#2a4a6e', .9) + txt(-W * .22, 0, '?', '#2a4a6e', D * .55);
       if (e.type === 'facEvCharger') return box(0, 0, W, D, '#e8e4da', .95) + txt(0, D * .1, '⚡', '#2f7fd0', W * .7) + `<circle cx="${(e.x + ux * W * .8).toFixed(1)}" cy="${(e.y + uy * W * .8).toFixed(1)}" r="${Math.max(26, W * .16)}" fill="${e.busy ? '#3f8fe0' : '#3cc46e'}" stroke="none"/>`;
       /* 加油站配套 7 件：2D 俯视按类型画示意符号，交互件状态点随 busy / on 变色 */
-      if (e.type === 'facFuelPump') return box(0, 0, W, D, '#e6e2d8', .95) + box(W * .12, 0, W * .5, D * .58, '#20415e', .92) + txt(W * .12, 0, String(e.fuel || '92').replace(/#/g, '') + '#', '#fff', Math.min(W, D) * .34) + `<circle cx="${(e.x + ux * W * .9).toFixed(1)}" cy="${(e.y + uy * W * .9).toFixed(1)}" r="${Math.max(26, W * .14).toFixed(1)}" fill="${e.busy ? '#e8b44a' : '#3cc46e'}" stroke="none"/>`;
+      if (e.type === 'facFuelPump') {
+        const nc = Math.max(1, Math.min(4, +e.nozzle || 2)), gy = D / 2 + Math.max(30, D * .1);
+        let o = box(0, 0, W, D, '#e6e2d8', .95);                                             // 机身
+        o += box(0, -D * .1, W * .46, D * .54, '#20415e', .95);                               // 显示屏
+        o += txt(0, -D * .1, String(e.fuel || '92').replace(/#/g, '') + '#', '#fff', Math.min(W, D) * .32);
+        for (let i = 0; i < nc; i++) {
+          const lx = nc === 1 ? 0 : -W * .3 + W * .6 * i / Math.max(1, nc - 1), sd = i % 2 ? 1 : -1;
+          o += `<polyline points="${poly([[lx, D / 2], [lx + sd * 18, gy - 24], [lx, gy]])}" fill="none" stroke="#262b30" stroke-width="7" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"/>`;   // 软管
+          o += `<polygon points="${poly([[lx - 13, gy - 13], [lx + 13, gy - 13], [lx + 13, gy + 13], [lx - 13, gy + 13]])}" fill="#3a4046" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>`;   // 油枪
+        }
+        const q = P(W * .42, -D * .42).split(',');
+        o += `<circle cx="${q[0]}" cy="${q[1]}" r="${Math.max(16, W * .05).toFixed(1)}" fill="${e.busy ? '#e8b44a' : '#3cc46e'}" stroke="none"/>`;
+        return o;
+      }
       if (e.type === 'facFuelPrice') return `<g transform="translate(${e.x} ${e.y})">
         <rect x="${(-W*.5).toFixed(1)}" y="${(-D*.5).toFixed(1)}" width="${W.toFixed(1)}" height="${D.toFixed(1)}" rx="24" fill="#20262b" fill-opacity=".92" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
         ${[['92#', e.p92 || '7.68'], ['95#', e.p95 || '8.18'], ['98#', e.p98 || '9.28'], ['0#', e.p0 || '7.12']].map(([lb, pr], i) => {
