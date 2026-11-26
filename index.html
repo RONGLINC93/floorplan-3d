@@ -3460,7 +3460,7 @@
             <button class="btn chip" data-dt="waterRiser" title="给水立管：点击墙边放置，自动吸附距墙面 30mm、与墙同高；管径 / 底标高在右侧改"
               data-en-title="Water riser: click beside a wall to place — snaps 30 mm off the wall and matches wall height; edit diameter / base level in the panel"
               data-en="Water riser"><i data-lucide="cylinder"></i>给水立管</button>
-            <button class="btn chip" data-dt="hydrantIn" title="室内消火栓：点击放置，3D 为箱体 + 水带卷盘；箱宽 / 高 / 底标高在右侧改"
+            <button class="btn chip" data-dt="hydrantIn" title="室内消火栓：点击放置，2D 为带水带卷盘与栓口的壁挂箱，3D 为红箱 + 门框观察窗 + 水带卷盘 + 水枪；箱宽 / 高 / 底标高在右侧改"
               data-en-title="Indoor hydrant: click to place, 3D cabinet with hose reel; edit size / base level in the panel"
               data-en="Indoor hydrant"><i data-lucide="droplet"></i>室内消火栓</button>
             <button class="btn chip" data-dt="sprinkler" title="喷淋头：点击放置，3D 为下垂喷头 + 溅水盘；口径 / 吊顶下标高在右侧改"
@@ -8092,9 +8092,17 @@
                    <circle cx="${e.x}" cy="${e.y}" r="${R * .6}" fill="none" stroke="${col}" stroke-opacity=".7" stroke-width=".9" vector-effect="non-scaling-stroke"/>`;
               for (let i = -2; i <= 2; i++) inner += `<line x1="${e.x + i * R * .3}" y1="${e.y - R * .6}" x2="${e.x + i * R * .3}" y2="${e.y + R * .6}" stroke="${col}" stroke-opacity=".55" stroke-width=".7" vector-effect="non-scaling-stroke"/>`;
             } else if (e.type === 'hydrantIn') {
-              inner = `<polygon points="${rotRect(Math.max(500, +e.w || 650), Math.max(240, +e.d || 240))}" fill="${col}" fill-opacity=".16" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
-                <circle cx="${e.x}" cy="${e.y}" r="${R * .45}" fill="none" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>
-                <text x="${e.x}" y="${e.y + R * .18}" font-size="180" text-anchor="middle" fill="${col}" pointer-events="none">H</text>`;
+              const hw = Math.max(500, +e.w || 650), hd = Math.max(240, +e.d || 240);
+              const rp = (dx, dy) => [e.x + dx * ca - dy * sa, e.y + dx * sa + dy * ca];
+              const reel = rp(-hw * .22, 0), noz = rp(hw * .26, 0), mid = rp(0, -hd * .28);
+              const rr = Math.max(48, hd * .24);
+              inner = `<polygon points="${rotRect(hw, hd)}" fill="${col}" fill-opacity=".14" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
+                <polygon points="${rotRect(hw * .86, hd * .74)}" fill="none" stroke="${col}" stroke-opacity=".65" stroke-width=".8" vector-effect="non-scaling-stroke"/>
+                <line x1="${rp(0, -hd * .37)[0]}" y1="${rp(0, -hd * .37)[1]}" x2="${rp(0, hd * .37)[0]}" y2="${rp(0, hd * .37)[1]}" stroke="${col}" stroke-opacity=".55" stroke-width=".8" vector-effect="non-scaling-stroke"/>
+                <circle cx="${reel[0]}" cy="${reel[1]}" r="${rr}" fill="none" stroke="${col}" stroke-width="1.1" vector-effect="non-scaling-stroke"/>
+                <circle cx="${reel[0]}" cy="${reel[1]}" r="${rr * .28}" fill="${col}" fill-opacity=".45" stroke="none"/>
+                <rect x="${noz[0] - hd * .1}" y="${noz[1] - hd * .17}" width="${hd * .2}" height="${hd * .34}" fill="${col}" fill-opacity=".28" stroke="${col}" stroke-width=".9"/>
+                <text x="${mid[0]}" y="${mid[1]}" font-size="${Math.max(130, hd * .55)}" text-anchor="middle" fill="${col}" pointer-events="none">消火栓</text>`;
             } else if (e.type === 'sprinkler') {
               inner = `<circle cx="${e.x}" cy="${e.y}" r="${R * .5}" fill="#e8f2f5" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>`;
               for (let i = 0; i < 4; i++) { const t = i * Math.PI / 2; inner += `<line x1="${e.x + Math.cos(t) * R * .55}" y1="${e.y + Math.sin(t) * R * .55}" x2="${e.x + Math.cos(t) * R * 1.3}" y2="${e.y + Math.sin(t) * R * 1.3}" stroke="${col}" stroke-width="1" vector-effect="non-scaling-stroke"/>`; }
@@ -23381,12 +23389,26 @@
               const link = (state.extras || []).find(o => o.id === e.linkId && o.type === 'spout');
               if (link) { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px, top, pz), new THREE.Vector3(wx(link.x), top, wz(link.y))]); archUp.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0x2a667c, transparent: true, opacity: .45 }))); }
               colliders.push([px - r * 2.3, pz - r * 2.3, px + r * 2.3, pz + r * 2.3, zb, top + .03]);
-            } else if (T3 === 'hydrantIn') {                    // 室内消火栓：箱体 + 水带卷盘 + 栓口
+            } else if (T3 === 'hydrantIn') {                    // 室内消火栓：壁挂红箱 + 门框观察窗 + 水带卷盘 + 栓口水枪
               const w = Math.max(.4, M(e.w || 650)), d = Math.max(.2, M(e.d || 240)), hh = Math.max(.5, M(e.h || 1000));
-              box(w, hh, d, px, zb + hh / 2, pz, mat('#b4463c', { roughness: .55 }));
-              const reel = new THREE.Mesh(new THREE.TorusGeometry(Math.min(w, hh) * .3, .035, 10, 20), mat('#f0ece2', { roughness: .8 }));
-              reel.position.set(px, zb + hh * .55, pz - d / 2 - .02); archUp.add(reel);
-              box(.12, .12, .16, px + w * .3, zb + hh * .3, pz - d / 2 - .08, mat('#8a9198', { metalness: .6, roughness: .4 }));
+              const bodyM = mat('#a83b31', { roughness: .6 }), doorM = mat('#d34c41', { roughness: .5 }), trimM = mat('#7d2f28', { roughness: .65 });
+              const metalM = mat('#9aa1a6', { metalness: .6, roughness: .4 }), zf = pz - d / 2 - .016;
+              box(w, hh, d, px, zb + hh / 2, pz, bodyM);           // 箱体
+              box(w * .88, hh * .88, .022, px, zb + hh / 2, zf, doorM);   // 箱门
+              box(w * .5, hh * .36, .012, px + w * .14, zb + hh * .63, zf - .014, mat('#a9c8d8', { roughness: .2, metalness: .1 }));  // 观察窗
+              box(w * .9, .026, .028, px, zb + hh * .945, zf - .018, trimM);
+              box(w * .9, .026, .028, px, zb + hh * .055, zf - .018, trimM);
+              box(.026, hh * .9, .028, px - w * .45, zb + hh / 2, zf - .018, trimM);
+              box(.026, hh * .9, .028, px + w * .45, zb + hh / 2, zf - .018, trimM);
+              const rx = px - w * .22, ry = zb + hh * .5, rr = Math.min(w, hh) * .18;
+              const reel = new THREE.Mesh(new THREE.TorusGeometry(rr, .026, 10, 24), mat('#f0ece2', { roughness: .8 }));
+              reel.position.set(rx, ry, zf - .03); archUp.add(reel);
+              const hose = new THREE.Mesh(new THREE.TorusGeometry(rr * .72, .018, 8, 20), mat('#d8d2c4', { roughness: .85 }));
+              hose.position.set(rx, ry, zf - .045); archUp.add(hose);
+              const hub = new THREE.Mesh(new THREE.CylinderGeometry(.045, .045, .04, 16), metalM);
+              hub.rotation.x = Math.PI / 2; hub.position.set(rx, ry, zf - .055); archUp.add(hub);
+              box(.11, .11, .16, px + w * .27, zb + hh * .3, zf - .07, metalM);       // 栓口
+              box(.055, .2, .055, px + w * .27, zb + hh * .48, zf - .07, metalM);      // 水枪
               colliders.push([px - w / 2, pz - d / 2, px + w / 2, pz + d / 2, zb, zb + hh]);
             } else if (T3 === 'sprinkler') {                    // 喷淋头：下垂短管 + 溅水盘
               const top = Math.max(.05, M(e.h || 120)), y0 = Math.max(0, zb - top);
