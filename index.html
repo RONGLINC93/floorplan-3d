@@ -16984,6 +16984,17 @@
       };
       host.addEventListener('pointerdown', e => {
         if (e.target !== cv || !e.isPrimary || anim || opt.mode !== 'orbit' || m3dPreview || (ui.tool === 'draw' && ui.drawTool !== 'move') || (!ui.sel && !ui.multi.length)) return;   // 仅「移动」工具可按住已选对象拖动（硬性约定：选择只选中 / 改尺寸），其余交给镜头旋转
+        const axk = axHitTest(e);
+        if (axk) {                                                  // 按住轴线：沿该轴拖动（X / Z 沿地面投影，Y 竖直），松手写回方案
+          const g = groundAt(e.clientX, e.clientY), sels = axSels().slice();
+          axdrag = {
+            pid: e.pointerId, ax: axk, sx: e.clientX, sy: e.clientY, gx: g ? g.x : 0, gy: g ? g.y : 0, dx: 0, dy: 0, dz: 0, moved: false,
+            allowY: axYOK(sels), sels,
+            targets: selMeshes.map(o => ({ o, x: o.position.x, y: o.position.y, z: o.position.z }))
+          };
+          orbit.enabled = false; fly = null; cv.setPointerCapture(e.pointerId);
+          return;
+        }
         const h = pick(e), g = groundAt(e.clientX, e.clientY);
         if (!g) return;
         if (!ui.sel && ui.multi.length > 1) {                       // 多选：按住组内任一对象 = 整组移动（无需 Ctrl）
@@ -17036,6 +17047,22 @@
         orbit.enabled = false; fly = null; cv.setPointerCapture(e.pointerId);
       }, true);
       cv.addEventListener('pointermove', e => {
+        if (axdrag && e.pointerId === axdrag.pid) {
+          if (!axdrag.moved && Math.hypot(e.clientX - axdrag.sx, e.clientY - axdrag.sy) < TAP) return;
+          axdrag.moved = true; cv.style.cursor = 'move';
+          const step = e.shiftKey ? 50 : 10;
+          if (axdrag.ax === 'y') {                                  // Y 轴：屏幕竖直像素 → 世界高度（按轴线锚点处每像素对应的世界尺寸换算）
+            const wpp = 2 * camera.position.distanceTo(axGizmo.position) * Math.tan(camera.fov * Math.PI / 360) / renderer.domElement.clientHeight;
+            axdrag.dz = Math.round((axdrag.sy - e.clientY) * wpp * 1000 / step) * step;
+            axdrag.targets.forEach(t => { t.o.position.y = t.y + axdrag.dz / 1000; });   // 先挪模型，松手写回标高
+            return;
+          }
+          const g = groundAt(e.clientX, e.clientY); if (!g) return;
+          const dx = Math.round((g.x - axdrag.gx) / step) * step, dy = Math.round((g.y - axdrag.gy) / step) * step;
+          if (axdrag.ax === 'x') axdrag.dx = dx; else axdrag.dy = dy;
+          axdrag.targets.forEach(t => { t.o.position.x = t.x + axdrag.dx / 1000; t.o.position.z = t.z + axdrag.dy / 1000; });   // 先挪模型，松手写回方案
+          return;
+        }
         if (mdrag && e.pointerId === mdrag.pid) {
           if (!mdrag.moved && Math.hypot(e.clientX - mdrag.sx, e.clientY - mdrag.sy) < TAP) return;
           const g = groundAt(e.clientX, e.clientY); if (!g) return;
@@ -17090,6 +17117,18 @@
       });
       const endF = e => {
         if (e.type === 'pointerup' && e.button !== 0) return;          // 右键 / 中键松手不当作点击（右键另有平移 / 取消绘制）
+        if (axdrag && e.pointerId === axdrag.pid) {
+          const d = axdrag; axdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool(); axSetHover(null);
+          if (d.moved && (d.dx || d.dy || d.dz)) {
+            mutate(() => d.sels.forEach(sel => {                       // 松手写回方案：X / Z 平移构件，Y 调整标高 z（进撤销栈）
+              if (sel.kind === 'furn') { const f = getF(sel.id); if (f) { f.cx += d.dx; f.cy += d.dy; } return; }
+              const o = find3dObj(sel.kind, sel.id); if (!o) return;
+              if (d.dz) o.z = Math.round((o.z ?? 0) + d.dz);
+              else move3dObj(o, d.dx, d.dy);
+            }));
+          } else d.targets.forEach(t => { t.o.position.set(t.x, t.y, t.z); });   // 未拖动 / 取消：还原模型位置
+          return;
+        }
         if (mdrag && e.pointerId === mdrag.pid) {
           const d = mdrag; mdrag = null; orbit.enabled = true; cv.style.cursor = cursorForTool();
           if (d.moved && (d.dx || d.dy)) {
@@ -17236,12 +17275,16 @@
       window.clearDoorHover = clearDoorHover;
       window.clearDoorHi = () => { if (doorHover) { doorHi.removeFromParent(); doorHi.visible = false; doorHover = null; } };   // 只清高亮框、保留提示气泡（交互高亮开关用）
       cv.addEventListener('pointermove', e => {
-        if (fdrag || objdrag) return;                           // 拖动中保留工具光标，不被悬停逻辑清掉
+        if (fdrag || objdrag || axdrag) return;                 // 拖动中保留工具光标，不被悬停逻辑清掉
         const baseCur = cursorForTool();
         if (!active || anim || opt.mode !== 'orbit' || e.pointerType !== 'mouse' || !matchMedia('(hover:hover)').matches) { cv.style.cursor = baseCur; doorTip.classList.remove('open'); return; }
         const h = pick(e);
-        if (baseCur === 'move') {                               // 移动工具：四向箭头
-          clearDoorHover(); cv.style.cursor = 'move'; return;
+        if (baseCur === 'move') {                               // 移动工具：四向箭头；悬停轴线提亮并提示可沿轴拖动
+          clearDoorHover();
+          const ax = axHitTest(e);
+          axSetHover(ax);
+          cv.style.cursor = ax ? 'grab' : 'move';
+          return;
         }
         if (baseCur === 'crosshair') {                          // 其它绘制工具：十字
           clearDoorHover(); cv.style.cursor = 'crosshair'; return;
@@ -21258,7 +21301,7 @@
 
     function buildArch() {
       window.clearDoorHover?.();                                   // 门被重建后悬停高亮引用已失效，立即清除
-      selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null;
+      selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = null; selMeshes = [];
       clearGroup(archFloor); clearGroup(archUp); lampG.clear(); doors.length = 0; gateArms.length = 0; parkAnims.length = 0; parkLamps.clear(); stackCells.clear(); stackOps.length = 0; sanVisuals.clear(); wtVisuals.clear(); wtRuns.length = 0; washVisuals.clear(); colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = []; lampGlowMats.length = 0; liftRides.clear(); liftDisp.clear();   // washRuns 保留：洗车流程跨重建续播，其余碰撞 / 动画登记必须随重建清空，否则其它楼层的碰撞会串到当前层挡人
       survRigs.forEach(r => r.rt && r.rt.dispose()); survRigs = []; survScreens = []; survScreenMeshes = []; survTexs.forEach(t => t.dispose()); survTexs = [];   // 安防监控：释放上一轮离屏渲染目标 / 屏幕纹理
       const top = opt.cut;
@@ -24444,7 +24487,7 @@
         const bb = new THREE.Box3().setFromObject(g), y0 = Number.isFinite(bb.min.y) ? bb.min.y : 0, y1 = Number.isFinite(bb.max.y) ? bb.max.y : 0;
         furnCols.push([cx - hw, cz - hh, cx + hw, cz + hh, y0, y1]);
       });
-      furnG.visible = opt.furn; selKey = null; selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; applyGrow();
+      furnG.visible = opt.furn; selKey = null; selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selMeshes = []; applyGrow();
     }
 
     function buildLabels() {
@@ -24896,9 +24939,76 @@
       };
       return line;
     }
+    /* ======================= 移动工具 XYZ 轴线 ======================= */
+    // 选中对象后（移动工具）在选区中心显示三根轴线：X 红 / Y 绿 / Z 蓝，按住某根轴线沿该轴拖动，松手写回方案。
+    // Y 轴只对方案里已存标高 z 的构件开放（家具贴地、门窗 / 壁装灯具 / 电箱贴墙滑动，都走原拖动逻辑，不出轴线）。
+    let selMeshes = [], axGizmo = null, axdrag = null, axHoverKey = null;
+    const axPickMeshes = [], axMats = {}, axCols = { x: 0xe5484d, y: 0x2ea44f, z: 0x368bf2 }, axColsHi = { x: 0xff7074, y: 0x51cf80, z: 0x74a9ff };
+    const axSels = () => ui.multi.length ? ui.multi : (ui.sel?.id != null ? [ui.sel] : []);
+    const axFindObj = sel => {                                    // 外层用共享查找（内层 find3dObj 在 init 作用域，这里访问不到）
+      if (sel.kind === 'furn') return getF(sel.id);
+      if (sel.kind === 'wall' || sel.kind === 'arcwall') {        // 自画墙 id 带 CW / AW 前缀，原始墙（wN）固定不可拖
+        const pre = sel.kind === 'wall' ? 'CW' : 'AW', arr = state[sel.kind === 'wall' ? 'walls' : 'arcWalls'] || [];
+        return String(sel.id).startsWith(pre) ? arr.find(o => pre + o.id === sel.id) : null;
+      }
+      return findObj(sel.kind, sel.id);
+    };
+    const axMovableSel = sel => {                                 // 该选中项能否走轴线自由拖动（家具 / find3dObj 可解析且不贴墙的构件）
+      if (sel.kind === 'furn') return !!getF(sel.id);
+      if (sel.kind === 'open' || sel.kind === 'bopen') return false;             // 门窗沿墙滑动，保持原拖动方式
+      const o = axFindObj(sel); if (!o) return false;
+      if (sel.kind === 'lamp' && o.wall) return false;                            // 壁装灯具吸附墙体
+      if ((sel.kind === 'pbox' || sel.kind === 'wbox') && o.wall) return false;   // 电箱吸附墙体
+      return true;
+    };
+    const axYOK = sels => sels.length > 0 && sels.every(sel => sel.kind !== 'furn' && (() => { const o = axFindObj(sel); return !!o && typeof o.z === 'number'; })());
+    function axHitTest(e) {                                       // 屏幕点 → 命中的轴线（隐形粗圆柱命中带），无则 null
+      if (!axGizmo || !axGizmo.visible || axdrag) return null;
+      const r = renderer.domElement.getBoundingClientRect();
+      ptr.set((e.clientX - r.left) / r.width * 2 - 1, -(e.clientY - r.top) / r.height * 2 + 1);
+      ray.setFromCamera(ptr, camera);
+      const h = ray.intersectObjects(axPickMeshes.filter(p => p.parent.visible), false)[0];
+      return h ? h.object.userData.ax : null;
+    }
+    function axSetHover(k) {                                      // 悬停轴线提亮
+      if (axHoverKey === k) return;
+      Object.keys(axMats).forEach(key => axMats[key].color.setHex(key === k ? axColsHi[key] : axCols[key]));
+      axHoverKey = k;
+    }
+    function buildAxGizmo() {
+      axGizmo = new THREE.Group(); axGizmo.visible = false; scene.add(axGizmo);
+      [['x', new THREE.Vector3(1, 0, 0)], ['y', new THREE.Vector3(0, 1, 0)], ['z', new THREE.Vector3(0, 0, 1)]].forEach(([k, dir]) => {
+        const g = new THREE.Group(); g.userData.ax = k;
+        axMats[k] = new THREE.LineBasicMaterial({ color: axCols[k], transparent: true, opacity: .95, depthTest: false });
+        const line = new THREE.Line(new THREE.BufferGeometry().setFromPoints([dir.clone().multiplyScalar(.15), dir.clone().multiplyScalar(1)]), axMats[k]);
+        const cone = new THREE.Mesh(new THREE.ConeGeometry(.035, .14, 12), new THREE.MeshBasicMaterial({ color: axCols[k], depthTest: false }));
+        cone.position.copy(dir.clone().multiplyScalar(1.07));
+        cone.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+        const pickM = new THREE.Mesh(new THREE.CylinderGeometry(.1, .1, 1.25, 8), new THREE.MeshBasicMaterial({ visible: false }));   // 隐形命中带：好点不遮挡
+        pickM.position.copy(dir.clone().multiplyScalar(.55));
+        pickM.quaternion.setFromUnitVectors(new THREE.Vector3(0, 1, 0), dir);
+        pickM.userData.ax = k; axPickMeshes.push(pickM);
+        g.add(line, cone, pickM); axGizmo.add(g);
+      });
+    }
+    function updateAxisGizmo() {                                  // 逐帧：定位到选区包围盒中心，随镜头距离缩放；拖动中跟随
+      if (!axGizmo) buildAxGizmo();                               // scene 初始化完成后才能挂到场景，惰性构建
+      const editing = active && !anim && opt.mode === 'orbit' && !m3dPreview;
+      const show = editing && (axdrag || (orbit.enabled && ui.tool === 'draw' && ui.drawTool === 'move' && selMeshes.length && axSels().length && axSels().every(axMovableSel)));   // 拖动（含家具 / 多选 / 沿墙）时 orbit 被关掉，轴线随之隐藏；轴线拖动中仍跟随
+      if (!show) { axGizmo.visible = false; axSetHover(null); return; }
+      const box = new THREE.Box3();
+      (axdrag ? axdrag.targets.map(t => t.o) : selMeshes).forEach(o => box.expandByObject(o));
+      if (box.isEmpty()) { axGizmo.visible = false; return; }
+      box.getCenter(axGizmo.position);
+      axGizmo.scale.setScalar(THREE.MathUtils.clamp(camera.position.distanceTo(axGizmo.position) * .16, .5, 2.2));
+      const yOk = axdrag ? axdrag.allowY : axYOK(axSels());
+      axGizmo.children.forEach(c => { if (c.userData.ax === 'y') c.visible = yOk; });
+      axGizmo.visible = true;
+    }
     function updateSel() {                                       // 家具 / 墙 / 柱 / 楼梯等选中对象统一橙色包围盒（单选与多选都高亮）
       if (m3dPreview || opt.mode === 'walk') {                   // 3D 预览 / 漫游态：不显示编辑用的选中包围盒（只看效果，进这些模式前残留的选中线也一并清掉）
         if (selHelpers.length) { selHelpers.forEach(h => { scene.remove(h); h.geometry.dispose(); }); selHelpers = []; selKey = ''; }
+        selMeshes = []; if (axGizmo) axGizmo.visible = false;
         return;
       }
       const key = (ui.sel?.id != null ? ui.sel.kind + ':' + ui.sel.id : '') + '|' + (ui.multi || []).map(s => s.kind + ':' + s.id).join(',');
@@ -24919,6 +25029,7 @@
             });
           }
         });
+        selMeshes = targets;
         targets.forEach(o => {
           let h;
           const ex = o.userData.pick3d && state.extras?.find(x => String(x.id) === String(o.userData.pick3d.id));
@@ -24928,6 +25039,7 @@
         });
       }
       selHelpers.forEach(h => h.update && h.update());
+      updateAxisGizmo();
     }
 
     /* ======================= 漫游 ======================= */

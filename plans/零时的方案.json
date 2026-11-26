@@ -475,7 +475,7 @@
       "w": 140,
       "h": 4500,
       "rot": 0,
-      "sig": "yellow",
+      "sig": "red",
       "auto": true,
       "id": "fmwubt7jh148",
       "x": 2110,
@@ -1082,8 +1082,8 @@
       "d": 2400,
       "on": false,
       "id": "fmwufgtk4149",
-      "x": 33130,
-      "y": -5510
+      "x": 33580,
+      "y": -5800
     },
     {
       "type": "sanToilet",
@@ -1093,7 +1093,7 @@
       "d": 2400,
       "on": false,
       "id": "fmwuflj5d148",
-      "x": 25470,
+      "x": 25070,
       "y": -7100,
       "doorOpen": true
     },
@@ -2143,7 +2143,7 @@
           "w": 140,
           "h": 4500,
           "rot": 0,
-          "sig": "yellow",
+          "sig": "red",
           "auto": true,
           "id": "fmwubt7jh148",
           "x": 2110,
@@ -2750,8 +2750,8 @@
           "d": 2400,
           "on": false,
           "id": "fmwufgtk4149",
-          "x": 33130,
-          "y": -5510
+          "x": 33580,
+          "y": -5800
         },
         {
           "type": "sanToilet",
@@ -2761,7 +2761,7 @@
           "d": 2400,
           "on": false,
           "id": "fmwuflj5d148",
-          "x": 25470,
+          "x": 25070,
           "y": -7100,
           "doorOpen": true
         },
