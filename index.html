@@ -3460,7 +3460,7 @@
             <button class="btn chip" data-dt="waterRiser" title="给水立管：点击墙边放置，自动吸附距墙面 30mm、与墙同高；管径 / 底标高在右侧改"
               data-en-title="Water riser: click beside a wall to place — snaps 30 mm off the wall and matches wall height; edit diameter / base level in the panel"
               data-en="Water riser"><i data-lucide="cylinder"></i>给水立管</button>
-            <button class="btn chip" data-dt="hydrantIn" title="室内消火栓：点击放置，2D 为带水带卷盘与栓口的壁挂箱，3D 为红箱 + 门框观察窗 + 水带卷盘 + 水枪；箱宽 / 高 / 底标高在右侧改"
+            <button class="btn chip" data-dt="hydrantIn" title="室内消火栓：点击放置，2D 为带水带卷盘与栓口的壁挂箱，3D 为红箱 + 门框观察窗，箱内有水带卷盘与水枪，箱门可开合；箱宽 / 高 / 底标高在右侧改"
               data-en-title="Indoor hydrant: click to place, 3D cabinet with hose reel; edit size / base level in the panel"
               data-en="Indoor hydrant"><i data-lucide="droplet"></i>室内消火栓</button>
             <button class="btn chip" data-dt="sprinkler" title="喷淋头：点击放置，3D 为下垂喷头 + 溅水盘；口径 / 吊顶下标高在右侧改"
@@ -9162,10 +9162,14 @@
           ${e.type === 'waterRiser' ? `<label title="${tr('给水立管底部离地高度；3D 按设定高度生成，默认与墙同高', 'Riser bottom above the floor')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
           ${e.type === 'hydrantIn' ? `<label>${tr('箱体进深', 'Cabinet depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? 240)}" min="100" max="600" step="10"></label>
+            <label title="${tr('箱底离地面的高度，用于壁挂高位安装；自由输入，可为负', 'Cabinet bottom above the floor — for high wall mounting; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('箱门开合状态；设计态 / 预览态点击 3D 箱门也可开合', 'Door state; click the 3D cabinet door in design / preview mode to toggle')}">${tr('箱门开启', 'Door open')}<input type="checkbox" id="exDoorOpen" ${e.doorOpen ? 'checked' : ''}></label>` : ''}
+          ${e.type === 'sprinkler' ? `<label title="${tr('喷头安装面（吊顶下）离地高度，喷头自该高度下垂', 'Mounting level (below ceiling) of the head above the floor; the pendant head hangs down from it')}">${tr('安装标高', 'Mounting level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2600)}" step="10"></label>` : ''}
           ${e.type === 'manifold' ? `<label>${tr('支路数', 'Branches')}<input type="number" id="exN" value="${Math.round(e.n ?? 4)}" min="2" max="12" step="1"></label>
-            <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>` : ''}
-          ${e.type === 'rainInlet' && e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}
+            <label>${tr('支管口径', 'Branch ⌀')} (mm)<input type="number" id="exDn" value="${Math.round(e.dn ?? 32)}" min="15" max="110" step="5"></label>
+            <label title="${tr('集管底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Header base above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>` : ''}
+          ${e.type === 'rainInlet' ? `<label title="${tr('雨水斗底部离地（屋面）高度；自由输入，可为负', 'Funnel bottom above the floor / roof; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
+            ${e.linkId ? `<div class="full muted" style="font-size:11px">${tr('已关联最近雨水管；移动后如需改关联可在右侧管道工程量表核对', 'Linked to the nearest downspout; check the pipe quantity table after moving')}</div>` : ''}` : ''}
           ${DP_WALL_TYPES.includes(e.type) || DP_POINT_TYPES.includes(e.type) ? `<div class="full muted" style="font-size:11px">${tr('净高', 'Clearance')} ${Math.round((ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)))} mm${(ceilAtPoint(e.x, e.y) || 2800) - (e.z ?? 0) - (e.dir === 'h' ? (+e.w || 110) : (+e.h || 300)) < 100 ? ` · ${tr('低于 100mm，建议调整标高', 'Below 100 mm — adjust the level')}` : ''}</div>` : ''}
           ${e.type === 'barrier' ? `<label>${tr('样式', 'Style')}<select id="exStyle">${[['cone', tr('交通锥', 'Traffic cone')], ['water', tr('水马', 'Water barrier')], ['horse', tr('铁马', 'Steel horse')], ['stone', tr('石墩', 'Concrete block')]].map(([v, t]) => `<option value="${v}" ${(e.style || 'cone') === v ? 'selected' : ''}>${t}</option>`).join('')}</select></label>
             <label>${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>` : ''}
@@ -23223,7 +23227,7 @@
                 const link = (state.extras || []).find(o => o.id === e.linkId && o.type === 'spout');
                 if (link) { const g = new THREE.BufferGeometry().setFromPoints([new THREE.Vector3(px, top, pz), new THREE.Vector3(wx(link.x), top, wz(link.y))]); archUp.add(new THREE.Line(g, new THREE.LineBasicMaterial({ color: 0x2a667c, transparent: true, opacity: .45 }))); }
                 colliders.push([px - r * 2.3, pz - r * 2.3, px + r * 2.3, pz + r * 2.3, zb, top + .03]);
-              } else if (T3 === 'hydrantIn') {                    // 室内消火栓：壁挂红箱 + 可开合箱门（门内侧水带卷盘 / 栓口水枪随门转出）
+              } else if (T3 === 'hydrantIn') {                    // 室内消火栓：壁挂红箱 + 可开合箱门（水带卷盘 / 栓口水枪固定在箱内，门板干净）
                 const w = Math.max(.4, M(e.w || 650)), d = Math.max(.2, M(e.d || 240)), hh = Math.max(.5, M(e.h || 1000));
                 const bodyM = mat('#a83b31', { roughness: .6 }), doorM = mat('#d34c41', { roughness: .5 }), trimM = mat('#7d2f28', { roughness: .65 });
                 const metalM = mat('#9aa1a6', { metalness: .6, roughness: .4 }), zf = pz - d / 2 - .016;
@@ -23250,8 +23254,8 @@
                 const gx = dx + w * .14, gy = hh * .13, gw = w * .5, gh = hh * .36;   // 观察窗（偏门右上）
                 const winTop = gy + gh / 2, winBot = gy - gh / 2, winL = gx - gw / 2, winR = gx + gw / 2;
                 const halfW = w * .44, halfH = hh * .44;
-                P(new THREE.BoxGeometry(winL - (dx - halfW), hh * .88, .022), doorM, ((dx - halfW) + winL) / 2, 0, 0);   // 门板左段（实体，挂卷盘）
-                P(new THREE.BoxGeometry((dx + halfW) - winR, hh * .88, .022), doorM, (winR + dx + halfW) / 2, 0, 0);   // 门板右段（实体，挂栓口 / 水枪）
+                P(new THREE.BoxGeometry(winL - (dx - halfW), hh * .88, .022), doorM, ((dx - halfW) + winL) / 2, 0, 0);   // 门板左段（实体）
+                P(new THREE.BoxGeometry((dx + halfW) - winR, hh * .88, .022), doorM, (winR + dx + halfW) / 2, 0, 0);   // 门板右段（实体）
                 P(new THREE.BoxGeometry(gw, halfH - winTop, .022), doorM, gx, (winTop + halfH) / 2, 0);                  // 门板窗上段
                 P(new THREE.BoxGeometry(gw, winBot + halfH, .022), doorM, gx, (winBot - halfH) / 2, 0);                 // 门板窗下段
                 const glass = P(new THREE.BoxGeometry(gw, gh, .01), mat('#a9c8d8', { roughness: .2, metalness: .1, transparent: true, opacity: .55, depthWrite: false }), gx, gy, -.012);   // 半透明观察窗：关门也能看到箱内，不再像实心色块
@@ -23263,13 +23267,6 @@
                 P(new THREE.BoxGeometry(w * .9, .026, .028), trimM, dx, -hh * .445, -.018);
                 P(new THREE.BoxGeometry(.026, hh * .9, .028), trimM, dx - w * .45, 0, -.018);
                 P(new THREE.BoxGeometry(.026, hh * .9, .028), trimM, dx + w * .45, 0, -.018);
-                const rr = Math.min(w, hh) * .18, rx = dx - w * .22;
-                P(new THREE.TorusGeometry(rr, .022, 10, 24), mat('#e8e4da', { roughness: .8 }), rx, 0, -.03);
-                P(new THREE.TorusGeometry(rr * .72, .016, 8, 20), mat('#5b6168', { roughness: .9 }), rx, 0, -.045);   // 深灰水带
-                const hub = P(new THREE.CylinderGeometry(rr * .42, rr * .42, .04, 16), metalM, rx, 0, -.055);   // 轮毂盖住中心红底
-                hub.rotation.x = Math.PI / 2;
-                P(new THREE.BoxGeometry(.11, .11, .16), metalM, dx + w * .27, -hh * .2, -.07);       // 栓口
-                P(new THREE.BoxGeometry(.055, .2, .055), metalM, dx + w * .27, -hh * .02, -.07);      // 水枪
                 P(new THREE.BoxGeometry(.03, .12, .03), metalM, dx + w * .43, -hh * .08, -.055);      // 门把手
                 const dr = {                                           // 注册为交互门：复用 doors 每帧插值 + 点击 / 悬停 / 漫游链路
                   kind: 'hydrant', id: e.id, part: 'doorOpen', field: 'doorOpen',
