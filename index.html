@@ -3070,8 +3070,8 @@
           <div class="dtg">
             <div class="dth" data-en="General">通用操作</div>
             <button class="btn chip on" data-dt="select"
-              title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙（Ctrl+D 复制、Delete 删除；按住 Alt 拖动可从任意位置起手）"
-              data-en-title="Click to edit; drag on empty space or inside a room to marquee-select furniture / stairs / columns / walls (Ctrl+D duplicates, Delete removes, Alt+drag starts anywhere)"
+              title="点选墙 / 门 / 窗 / 家具：拖动、改尺寸、删除；单选或框选后都能在右侧面板复制、复制到 / 移动到指定楼层、删除（Ctrl+D 复制、Delete 删除）；在空白处 / 房间内按住左键拖出矩形可框选家具、楼梯、柱子、自画墙、原始墙体与原始门窗，按住 Alt 拖动可从任意位置起手"
+              data-en-title="Click to edit; single or marquee selection supports duplicate / copy to floor / move to floor / delete in the right panel (Ctrl+D duplicates, Delete removes); drag on empty space or inside a room to marquee-select furniture, stairs, columns, custom walls and original walls / openings, Alt+drag starts anywhere"
               data-en="Select"><i data-lucide="mouse-pointer-2"></i>选择</button>
             <button class="btn chip" data-dt="move" title="移动：按住家具 / 墙 / 门窗 / 构件等拖动位置，多选后按住其中任一对象可整组移动；轻点仍可选中"
               data-en-title="Move: drag furniture / walls / openings / structures to reposition; drag any selected item to move the whole group"
@@ -4587,9 +4587,12 @@
       else if (ui.sel?.kind === 'north' && !state.north) ui.sel = null;
       const alive = s => s.kind === 'furn' ? !!state.furniture.find(f => f.id === s.id)
         : s.kind === 'stair' ? !!(state.stairs || []).find(x => x.id === s.id)
-          : s.kind === 'wall' ? state.walls.some(w => 'CW' + w.id === s.id)
-            : s.kind === 'room' ? allRooms().some(r => r.id === s.id && state.rooms[r.id])
-              : !!(state.pillars || []).find(x => x.id === s.id);
+          : s.kind === 'wall' ? (isBuiltinWall(s.id)
+            ? (!!WALLS[+String(s.id).slice(1)] && !state.deletedWalls.includes(s.id) && !state.demolished.includes(s.id))
+            : state.walls.some(w => 'CW' + w.id === s.id))
+            : s.kind === 'bopen' ? (!!bopenRect(s.id) && !bopenRemoved(s.id) && !bopenOnDeadWall(s.id))
+              : s.kind === 'room' ? allRooms().some(r => r.id === s.id && state.rooms[r.id])
+                : !!(state.pillars || []).find(x => x.id === s.id);
       if (ui.multi.length) {                                      // 撤销 / 重做后，多选里被删掉的对象一并去掉
         ui.multi = ui.multi.filter(alive);
         if (ui.multi.length === 1) { const one = ui.multi[0]; ui.multi = []; if (!ui.sel) ui.sel = one; }
@@ -9289,7 +9292,7 @@
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
 
-    function renderPanel() {
+    function renderPanelInner() {
       const __p = $('#panel'), __ae = document.activeElement;
       if (__ae && __p && __p.contains(__ae)) { try { __ae.blur(); } catch (e) { console.warn('面板失焦处理失败', e); } }   // 面板输入框还带焦点（如点画布切换选中）：先移走焦点——blur / change 处理器可能同步改 DOM，若留着焦点直接替换 innerHTML，节点在移除途中被移走会抛 NotFoundError
       renderFab();
@@ -10420,9 +10423,12 @@
         if (s.kind === 'furn') { label = getF(s.id)?.name || ''; kind = tr('家具', 'Furniture'); }
         else if (s.kind === 'stair') { label = tr('楼梯', 'Stair'); kind = tr('楼梯', 'Stair'); }
         else if (s.kind === 'wall') {
-          const w = getW(s.id), len = w ? Math.round(Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1])) : 0;
-          label = tr(`墙体 ${len} mm`, `Wall ${len} mm`); kind = tr('墙体', 'Wall');
+          const w = getW(s.id), r = isBuiltinWall(s.id) ? wallRectOf(+String(s.id).slice(1)) : null;
+          const len = w ? Math.round(Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1])) : r ? Math.round(Math.max(r[2] - r[0], r[3] - r[1])) : 0;
+          label = tr(`${isBuiltinWall(s.id) ? '原始墙' : '墙体'} ${len} mm`, `${isBuiltinWall(s.id) ? 'Original wall' : 'Wall'} ${len} mm`);
+          kind = isBuiltinWall(s.id) ? tr('原始墙', 'Original wall') : tr('墙体', 'Wall');
         }
+        else if (s.kind === 'bopen') { label = bopenName(s.id); kind = tr('原始门窗', 'Original opening'); }
         else if (s.kind === 'room') {
           const r = allRooms().find(x => x.id === s.id);
           label = `${state.rooms[s.id] ? nm(state.rooms[s.id].name) : ''} ${r ? fmt(area(r.poly), 1) + ' m²' : ''}`.trim();
@@ -10473,20 +10479,54 @@
     <button class="btn" id="multiCopyFloor" ${noFloor} title="${tr('复制选中对象到指定楼层，当前层保留原件', 'Copy selected objects to the target floor, keeping originals')}">${tr('复制到指定楼层', 'Copy to floor')}</button>
     <button class="btn danger" id="multiMoveFloor" ${noFloor} title="${tr('移动选中对象到指定楼层，当前层删除原件', 'Move selected objects to the target floor, removing originals')}">${tr('移动到指定楼层', 'Move to floor')}</button>
   </div>
-  <div class="muted" style="font-size:11px;margin-top:6px">${tr('墙上的门窗会随墙一起转移；电梯与轴网为整栋共享，不参与跨层转移。', 'Openings on a wall move with it. Lifts and axis grids are shared by the whole building and are not transferred.')}</div></section>`;
+  <div class="muted" style="font-size:11px;margin-top:6px">${tr('墙上的门窗会随墙一起转移；原始墙 / 原始门窗复制或跨层后会变成可编辑的自画对象；电梯与轴网为整栋共享，不参与跨层转移。', 'Openings on a wall move with it. Original walls / openings become editable custom objects when duplicated or transferred. Lifts and axis grids are shared by the whole building and are not transferred.')}</div></section>`;
     }
     function bindMultiPanel() {
       const c = $('#multiCopy'), d = $('#multiDel'), fl = $('#multiFloor');
       if (c) c.onclick = () => duplicateSel();
       if (d) d.onclick = () => deleteSel();
-      const cf = $('#multiCopyFloor'), mf = $('#multiMoveFloor');
-      if (cf) cf.onclick = () => { if (fl?.value) transferMultiToFloor('copy', fl.value); };
+      bindFloorOps(fl, 'multiCopyFloor', 'multiMoveFloor', tr('把已框选对象', 'Move the selected objects'));
+    }
+
+    // 单选对象同样提供复制 / 删除 / 跨楼层转移，与框选面板保持一致
+    function selOpsPanel() {
+      const others = (state.floors || []).filter(f => f.id !== state.activeFloor);
+      const flOpts = others.map(f => `<option value="${esc(f.id)}">${esc(f.name)}</option>`).join('');
+      const noFloor = others.length ? '' : 'disabled';
+      return `<section><h3>${tr('对象操作', 'Object actions')}</h3>
+  <div class="actions"><button class="btn" id="selCopy">${tr('复制', 'Duplicate')} (Ctrl+D)</button>
+    <button class="btn danger" id="selDel">${tr('删除', 'Delete')}</button></div>
+  <div class="actions" style="margin-top:8px;align-items:center">
+    <label style="display:flex;align-items:center;gap:6px">${tr('目标楼层', 'Target floor')}
+      <select id="selFloor" ${noFloor}>${flOpts || `<option>${tr('无其它楼层', 'No other floor')}</option>`}</select></label>
+    <button class="btn" id="selCopyFloor" ${noFloor} title="${tr('复制选中对象到指定楼层，当前层保留原件', 'Copy the selected object to the target floor, keeping the original')}">${tr('复制到指定楼层', 'Copy to floor')}</button>
+    <button class="btn danger" id="selMoveFloor" ${noFloor} title="${tr('移动选中对象到指定楼层，当前层删除原件', 'Move the selected object to the target floor, removing the original')}">${tr('移动到指定楼层', 'Move to floor')}</button>
+  </div>
+  <div class="muted" style="font-size:11px;margin-top:6px">${tr('墙上的门窗会随墙一起转移；原始墙 / 原始门窗复制或跨层后会变成可编辑的自画对象；电梯与轴网为整栋共享，不参与跨层转移。', 'Openings on a wall move with it. Original walls / openings become editable custom objects when duplicated or transferred. Lifts and axis grids are shared by the whole building and are not transferred.')}</div></section>`;
+    }
+    function bindSelOps() {
+      const c = $('#selCopy'), d = $('#selDel');
+      if (c) c.onclick = () => duplicateSel();
+      if (d) d.onclick = () => deleteSel();
+      bindFloorOps($('#selFloor'), 'selCopyFloor', 'selMoveFloor', tr('把选中对象', 'Move the selected object'));
+    }
+    function bindFloorOps(fl, copyId, moveId, subject) {
+      const cf = $('#' + copyId), mf = $('#' + moveId);
+      if (cf) cf.onclick = () => { if (fl?.value) transferSelToFloor('copy', fl.value); };
       if (mf) mf.onclick = async () => {
         if (!fl?.value) return;
         const f = (state.floors || []).find(x => x.id === fl.value);
-        if (!await uiConfirm(tr(`把已框选对象移动到「${f?.name || fl.value}」？当前层的这些对象将被移除，可 Ctrl+Z 撤销。`, `Move selected objects to "${f?.name || fl.value}"? They will be removed from the current floor (Ctrl+Z to undo).`), tr('移动', 'Move'))) return;
-        transferMultiToFloor('move', fl.value);
+        if (!await uiConfirm(tr(`${subject}移动到「${f?.name || fl.value}」？当前层的这些对象将被移除，可 Ctrl+Z 撤销。`, `Move to "${f?.name || fl.value}"? They will be removed from the current floor (Ctrl+Z to undo).`), tr('移动', 'Move'))) return;
+        transferSelToFloor('move', fl.value);
       };
+    }
+
+    function renderPanel() {
+      renderPanelInner();
+      if (ui.multi.length > 1 || !ui.sel) return;                  // 多选已有专属面板；无选中显示概览
+      const p = $('#panel'); if (!p) return;
+      p.insertAdjacentHTML('beforeend', selOpsPanel());
+      bindSelOps();
     }
 
     function overviewPanel() {
@@ -11709,6 +11749,46 @@
     const getS = id => (state.stairs || []).find(x => x.id === id);
     const getP = id => (state.pillars || []).find(x => x.id === id);
     const getW = id => state.walls.find(w => 'CW' + w.id === id);
+    const isBuiltinWall = id => /^w\d+$/.test(String(id));
+    // 原始墙 / 原始门窗升级为可编辑的自画对象：只在新副本里生成，绝不改动 WALLS / WINS 等原始数据
+    function builtinWallAsCustom(id, d) {
+      const s = String(id); if (!isBuiltinWall(s)) return null;
+      const i = +s.slice(1), r = wallRectOf(i);
+      if (!r || state.deletedWalls.includes(s) || state.demolished.includes(s)) return null;
+      const g = builtinSeg(i);
+      const n = { id: uid(), a: [Math.round(g.A[0]), Math.round(g.A[1])], b: [Math.round(g.B[0]), Math.round(g.B[1])], t: Math.max(60, Math.min(600, Math.round(g.T / 10) * 10)), k: wallTypeOf(i) };
+      const hv = (state.wallH || {})[s];
+      if (hv != null) { const t = d || state; t.wallH = t.wallH || {}; t.wallH[n.id] = hv; }
+      return n;
+    }
+    function builtinOpenAsCustom(id) {
+      const s = String(id), t = s[0], i = +s.slice(1);
+      if (!'wds'.includes(t) || bopenRemoved(s) || bopenOnDeadWall(s)) return null;
+      const r = bopenRect(s); if (!r) return null;
+      const bay = t === 'w' && i >= 6;
+      const kind = t === 'd' ? 'door' : t === 's' ? 'slid' : bay ? 'bay' : 'window';
+      const cx = (r[0] + r[2]) / 2, cy = (r[1] + r[3]) / 2;
+      let wall = null, c = 0, w = 0, bd = Infinity;
+      for (let j = 0; j < WALLS.length; j++) {
+        const ref = 'w' + j;
+        if (state.deletedWalls.includes(ref) || state.demolished.includes(ref)) continue;
+        const g = openingWallGeom(ref); if (!g) continue;
+        const px = cx - g.A[0], py = cy - g.A[1];
+        const along = px * g.u[0] + py * g.u[1], off = Math.abs(py * g.u[0] - px * g.u[1]);
+        if (along < -100 || along > g.L + 100 || off > g.T / 2 + 800 || off >= bd) continue;
+        bd = off; wall = ref;
+        w = Math.round(Math.abs(g.u[0]) > Math.abs(g.u[1]) ? r[2] - r[0] : r[3] - r[1]);
+        c = Math.round(along - w / 2);
+      }
+      if (!wall) return null;
+      const o = bov(s), n = { id: uid(), kind, wall, c: Math.max(0, c), w: Math.max(300, w) };
+      if (o.flip) n.flip = true;
+      if (o.hflip) n.hflip = true;
+      if (kind === 'window') Object.assign(n, { sill: 900, wh: 1800, grille: true, th: 500 });
+      if (kind === 'bay') Object.assign(n, { sill: 500, wh: 1200, bayDepth: 600, panes: 3 });
+      if (t === 'd') { const dd = DOORS[i]; if (dd?.dh) n.dh = dd.dh; }
+      return n;
+    }
     function objBBox(it) {                                          // 单个对象的轴对齐包围盒 [x0,y0,x1,y1]（世界坐标）
       if (it.kind === 'furn') {
         const f = getF(it.id); if (!f) return null;
@@ -11725,9 +11805,17 @@
         return [x0, y0, x1, y1];
       }
       if (it.kind === 'wall') {
+        if (isBuiltinWall(it.id)) {                                 // 原始墙：矩形即轮廓
+          const r = wallRectOf(+String(it.id).slice(1));
+          return (r && !state.deletedWalls.includes(it.id)) ? [r[0], r[1], r[2], r[3]] : null;
+        }
         const w = getW(it.id); if (!w) return null;
         const t = cwT(w) / 2;
         return [Math.min(w.a[0], w.b[0]) - t, Math.min(w.a[1], w.b[1]) - t, Math.max(w.a[0], w.b[0]) + t, Math.max(w.a[1], w.b[1]) + t];
+      }
+      if (it.kind === 'bopen') {                                    // 原始门窗：与单选框同一矩形
+        const r = bopenRect(it.id);
+        return (r && !bopenRemoved(it.id) && !bopenOnDeadWall(it.id)) ? [r[0], r[1], r[2], r[3]] : null;
       }
       if (it.kind === 'room') {                                     // 房间区域（地面）
         const r = allRooms().find(x => x.id === it.id); if (!r || !state.rooms[it.id]) return null;
@@ -11799,13 +11887,14 @@
       const c0 = getP(it.id); if (!c0) return null;
       const r = c0.w / 2; return [c0.x - r, c0.y - r, c0.x + r, c0.y + r];
     }
-    function objectsInRect(mq) {                                    // 框选命中：家具 / 楼梯 / 柱子 / 自画墙（相交即选）+ 房间区域（整间框住才选）
+    function objectsInRect(mq) {                                    // 框选命中：家具 / 楼梯 / 柱子 / 自画墙 + 原始墙 / 门窗（相交即选）+ 房间区域（整间框住才选）
       const x0 = Math.min(mq.x0, mq.x1), x1 = Math.max(mq.x0, mq.x1), y0 = Math.min(mq.y0, mq.y1), y1 = Math.max(mq.y0, mq.y1);
       const out = [], hit = it => { const b = objBBox(it); return b && b[0] <= x1 && b[2] >= x0 && b[1] <= y1 && b[3] >= y0; };
       state.furniture.forEach(f => { const it = { kind: 'furn', id: f.id }; if (hit(it)) out.push(it); });
       (state.stairs || []).forEach(s => { const it = { kind: 'stair', id: s.id }; if (hit(it)) out.push(it); });
       (state.pillars || []).forEach(c => { const it = { kind: 'pillar', id: c.id }; if (hit(it)) out.push(it); });
-      state.walls.forEach(w => { const it = { kind: 'wall', id: 'CW' + w.id }; if (hit(it)) out.push(it); });   // 只框自画墙（内置墙是结构墙，不参与整组搬移）
+      state.walls.forEach(w => { const it = { kind: 'wall', id: 'CW' + w.id }; if (hit(it)) out.push(it); });
+      WALLS.forEach((_, i) => { const id = 'w' + i; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return; const it = { kind: 'wall', id }; if (hit(it)) out.push(it); });
       const add = (kind, arr) => (arr || []).forEach(o => { const it = { kind, id: o.id }; if (hit(it)) out.push(it); });
       add('note', state.notes); add('dim', state.dims); add('rail', state.rails); add('beam', state.beams);
       add('level', state.levels); add('slab', state.slabs); add('parapet', state.parapets); add('canopy', state.canopies);
@@ -11813,7 +11902,10 @@
       add('pbox', state.powerBoxes); add('wbox', state.weakBoxes);
       add('lamp', state.lamps);
       add('gate', state.gates); add('arcwall', state.arcWalls); add('axgrid', state.axes);
-      add('open', state.openings);                                   // 门窗（含 转角飘窗）也可框选
+      add('open', state.openings);                                   // 自画门窗（含 转角飘窗）
+      [['w', WINS.length], ['d', DOORS.length], ['s', SLIDES.length]].forEach(([t, n]) => {
+        for (let i = 0; i < n; i++) { const id = t + i; if (bopenRemoved(id) || bopenOnDeadWall(id)) continue; const it = { kind: 'bopen', id }; if (hit(it)) out.push(it); }
+      });
       add('extra', state.extras);                                   // 预留洞 / 设备平台 / 室外场地 / 屋面细节等扩展构件
       ['roof', 'pergola', 'deck', 'pool'].forEach(kind => add(kind, outArr(kind)));
       allRooms().forEach(r => {                                     // 房间地面要整间框住才选入，免得随便框两件家具把地面也带走
@@ -11823,7 +11915,7 @@
       });
       return out;
     }
-    const MULTI_ATTR = [['fid', 'furn'], ['stair', 'stair'], ['pillar', 'pillar'], ['room', 'room'], ['wall', 'wall'], ['open', 'open'],
+    const MULTI_ATTR = [['fid', 'furn'], ['stair', 'stair'], ['pillar', 'pillar'], ['room', 'room'], ['wall', 'wall'], ['open', 'open'], ['bopen', 'bopen'],
     ['note', 'note'], ['dim', 'dim'], ['rail', 'rail'], ['beam', 'beam'], ['level', 'level'], ['slab', 'slab'],
     ['parapet', 'parapet'], ['canopy', 'canopy'], ['balcony', 'balcony'], ['planter', 'planter'], ['flue', 'flue'],
     ['lift', 'lift'], ['gate', 'gate'], ['arcwall', 'arcwall'], ['axgrid', 'axgrid'], ['lamp', 'lamp'],
@@ -11914,6 +12006,8 @@
       addAll('lamp', state.lamps);
       addAll('gate', state.gates); addAll('arcwall', state.arcWalls); addAll('axgrid', state.axes);
       addAll('open', state.openings);
+      WALLS.forEach((_, i) => { const id = 'w' + i; if (!state.deletedWalls.includes(id) && !state.demolished.includes(id)) all.push({ kind: 'wall', id }); });
+      [['w', WINS.length], ['d', DOORS.length], ['s', SLIDES.length]].forEach(([t, n]) => { for (let i = 0; i < n; i++) { const id = t + i; if (!bopenRemoved(id) && !bopenOnDeadWall(id)) all.push({ kind: 'bopen', id }); } });
       addAll('extra', state.extras);
       ['roof', 'pergola', 'deck', 'pool'].forEach(k => addAll(k, outArr(k)));
       if (!all.length) return toast(tr('没有可选的家具 / 楼梯 / 柱子 / 墙体', 'Nothing to select'));
@@ -11921,12 +12015,15 @@
       ui.sel = null; ui.multi = all; renderSel(); renderPanel();
     }
     function deleteSel() {
+      if (ui.multi.length === 1 && !ui.sel) { ui.sel = ui.multi[0]; ui.multi = []; }
       if (ui.multi.length > 1) {                                    // 多选：一次删掉
         const n = ui.multi.length;
         const fids = new Set(ui.multi.filter(s => s.kind === 'furn').map(s => s.id));
         const sids = new Set(ui.multi.filter(s => s.kind === 'stair').map(s => s.id));
         const pids = new Set(ui.multi.filter(s => s.kind === 'pillar').map(s => s.id));
         const wids = new Set(ui.multi.filter(s => s.kind === 'wall').map(s => s.id));
+        const bwids = new Set(ui.multi.filter(s => s.kind === 'wall' && isBuiltinWall(s.id)).map(s => s.id));
+        const bids = new Set(ui.multi.filter(s => s.kind === 'bopen').map(s => s.id));
         const rids = new Set(ui.multi.filter(s => s.kind === 'room').map(s => s.id));
         const KINDS = {
           dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls',
@@ -11943,6 +12040,8 @@
           state.pillars = (state.pillars || []).filter(x => !pids.has(x.id));
           state.openings = state.openings.filter(o => !oids.has(o.id) && !wids.has(o.wall));      // 墙上的门窗跟着墙一起删
           state.walls = state.walls.filter(w => !wids.has('CW' + w.id));
+          bwids.forEach(id => { if (!state.deletedWalls.includes(id)) state.deletedWalls.push(id); });   // 原始墙只能记入删除表
+          bids.forEach(id => { if (!state.removedB.includes(id)) state.removedB.push(id); });           // 原始门窗同上
           state.roomsExtra = state.roomsExtra.filter(r => !rids.has(r.id));    // 房间地面：自画房间连几何一起删
           rids.forEach(id => { delete state.rooms[id]; delete state.bover['R' + id]; });
           Object.keys(KINDS).forEach(k => { const ids = kidSets[k]; if (ids.size) state[KINDS[k]] = (state[KINDS[k]] || []).filter(x => !ids.has(x.id)); });
@@ -12063,7 +12162,7 @@
       });
       return true;
     }
-    /* 跨楼层搬运多选对象：复制到 / 移动到指定楼层；电梯 / 轴网为整栋共享，不参与搬运 */
+    /* 跨楼层搬运用到的构件类型映射（不含电梯 / 轴网等整栋共享构件） */
     const XFLOOR_KEYS = {
       furn: 'furniture', stair: 'stairs', pillar: 'pillars', wall: 'walls', open: 'openings',
       note: 'notes', dim: 'dims', rail: 'rails', beam: 'beams', level: 'levels', slab: 'slabs',
@@ -12097,43 +12196,62 @@
       if (!copy && !exists) return s;
       return String(uid());
     }
-    function transferMultiToFloor(mode, targetId) {
+    // 当前生效的选择：框选（>1）优先，否则用单选 ui.sel；复制 / 跨层搬运 / 删除共用
+    function activeSelection() {
+      if (ui.multi.length > 1) return ui.multi.slice();
+      if (ui.sel) return [ui.sel];
+      return ui.multi.slice();
+    }
+    /* 跨楼层搬运所选对象（单选或框选）：复制到 / 移动到指定楼层；电梯 / 轴网为整栋共享，不参与搬运 */
+    function transferSelToFloor(mode, targetId) {
       const tf = (state.floors || []).find(f => f.id === targetId);
       if (!tf || targetId === state.activeFloor) return toast(tr('请选择其它楼层', 'Please choose another floor'));
       const alive = s => {
-        if (s.kind === 'wall') return !!getW(s.id);
+        if (s.kind === 'wall') return isBuiltinWall(s.id)
+          ? (!!WALLS[+String(s.id).slice(1)] && !state.deletedWalls.includes(s.id) && !state.demolished.includes(s.id))
+          : !!getW(s.id);
+        if (s.kind === 'bopen') return !!bopenRect(s.id) && !bopenRemoved(s.id) && !bopenOnDeadWall(s.id);
         if (s.kind === 'open') return (state.openings || []).some(o => String(o.id) === String(s.id));
         if (s.kind === 'room') return !!state.rooms[s.id];
         const key = XFLOOR_KEYS[s.kind];
         return !!(key && (state[key] || []).some(o => String(o.id) === String(s.id)));
       };
-      const items = ui.multi.filter(alive);
-      const sharedSkip = ui.multi.filter(s => s.kind === 'lift' || s.kind === 'axgrid').length;
+      const sel = activeSelection();
+      const items = sel.filter(alive);
+      const sharedSkip = sel.filter(s => s.kind === 'lift' || s.kind === 'axgrid').length;
       if (!items.length) return toast(tr('所选对象不能跨楼层转移（电梯 / 轴网为整栋共享）', 'Selected objects cannot move between floors (lifts / axes are shared)'));
 
       const b = snap();
       const d = xfloorBucket(targetId);
       const copy = mode === 'copy';
-      const wallSel = items.filter(s => s.kind === 'wall').map(s => getW(s.id)).filter(Boolean);
-      const openSel = items.filter(s => s.kind === 'open').map(s => (state.openings || []).find(o => String(o.id) === String(s.id))).filter(Boolean);
+      const origWallItems = items.filter(s => s.kind === 'wall' && isBuiltinWall(s.id));
+      const origOpenItems = items.filter(s => s.kind === 'bopen');
+      const normalItems = items.filter(s => !origWallItems.includes(s) && !origOpenItems.includes(s));
+      const wallSel = normalItems.filter(s => s.kind === 'wall').map(s => getW(s.id)).filter(Boolean);
+      const openSel = normalItems.filter(s => s.kind === 'open').map(s => (state.openings || []).find(o => String(o.id) === String(s.id))).filter(Boolean);
       const wallRefs = new Set(wallSel.map(w => 'CW' + w.id));
       const openAll = openSel.slice();
       (state.openings || []).forEach(o => { if (wallRefs.has(String(o.wall)) && !openAll.some(x => x.id === o.id)) openAll.push(o); });
-      const otherItems = items.filter(s => !['wall', 'open', 'room'].includes(s.kind));
-      const roomItems = items.filter(s => s.kind === 'room');
+      const otherItems = normalItems.filter(s => !['wall', 'open', 'room'].includes(s.kind));
+      const roomItems = normalItems.filter(s => s.kind === 'room');
+      const builtinWalls = origWallItems.map(s => ({ src: String(s.id), obj: builtinWallAsCustom(s.id, d) })).filter(x => x.obj);
+      const builtinOpens = origOpenItems.map(s => ({ src: String(s.id), obj: builtinOpenAsCustom(s.id) })).filter(x => x.obj);
 
       const map = {};
       const reg = (a, c) => { if (a != null && c != null && String(a) !== String(c)) map[String(a)] = String(c); };
       wallSel.forEach(w => { const n = xfloorNewId(d, 'walls', w.id, copy); reg(w.id, n); reg('CW' + w.id, 'CW' + n); });
+      builtinWalls.forEach(x => reg(x.src, 'CW' + x.obj.id));        // 原始墙升级后的自画墙引用（带 CW），供门窗改挂
       openAll.forEach(o => reg(o.id, xfloorNewId(d, 'openings', o.id, copy)));
       otherItems.forEach(s => { const key = XFLOOR_KEYS[s.kind]; if (key) reg(s.id, xfloorNewId(d, key, s.id, copy)); });
       roomItems.forEach(s => { if (String(s.id).startsWith('X')) reg(s.id, xfloorNewId(d, 'rooms', s.id, copy)); });
 
-      let added = 0, skipped = sharedSkip;
-      const transferredOpenIds = new Set();
+      let added = 0, skipped = sharedSkip + origWallItems.length - builtinWalls.length + origOpenItems.length - builtinOpens.length;
+      const transferredOpenIds = new Set(), transferredBuiltinOpens = new Set();
       const push = (key, o) => { if (!Array.isArray(d[key])) d[key] = []; d[key].push(xfloorRemap(o, map)); added++; };
 
       wallSel.forEach(w => push('walls', w));                        // 墙先落位，门窗再按新墙 id 改引用
+      builtinWalls.forEach(x => push('walls', x.obj));               // 原始墙升级为自画墙落位
+      builtinOpens.forEach(x => { if (!xfloorHasWall(d, x.obj.wall)) { skipped++; return; } push('openings', x.obj); transferredBuiltinOpens.add(x.src); });   // 目标层没有宿主墙则跳过
       if (wallSel.length) {                                          // 单墙高度一起搬运，按新墙 id 重挂
         d.wallH = d.wallH || {};
         wallSel.forEach(w => { const v = (state.wallH || {})[w.id]; if (v != null) d.wallH[map[w.id] || String(w.id)] = v; });
@@ -12165,6 +12283,8 @@
         const wallIds = new Set(wallSel.map(w => String(w.id)));
         state.walls = (state.walls || []).filter(w => !wallIds.has(String(w.id)));
         wallSel.forEach(w => { const ref = 'CW' + w.id; state.deletedWalls = (state.deletedWalls || []).filter(x => x !== ref); state.demolished = (state.demolished || []).filter(x => x !== ref); if (state.wallH) delete state.wallH[w.id]; });
+        builtinWalls.forEach(x => { if (!state.deletedWalls.includes(x.src)) state.deletedWalls.push(x.src); });
+        transferredBuiltinOpens.forEach(id => { if (!state.removedB.includes(id)) state.removedB.push(id); });
         state.openings = (state.openings || []).filter(o => !transferredOpenIds.has(String(o.id)));
         const byKey = {};
         otherItems.forEach(s => { const key = XFLOOR_KEYS[s.kind]; if (key) (byKey[key] || (byKey[key] = new Set())).add(String(s.id)); });
@@ -12181,58 +12301,79 @@
         `${verb} ${tf.name}: ${added} object(s)${skipped ? `, ${skipped} skipped` : ''} · Ctrl+Z to undo`));
     }
     function duplicateSel() {
-      if (ui.multi.length > 1) {                                    // 多选：整组复制，偏移 200mm 后选中新副本
-        const added = [];
-        let wallSkipped = 0;
-        mutate(() => {
-          ui.multi.forEach(s => {
-            if (s.kind === 'furn') { const f = getF(s.id); if (!f) return; const n = { ...f, id: uid(), cx: f.cx + 200, cy: f.cy + 200 }; state.furniture.push(n); added.push({ kind: 'furn', id: n.id }); }
-            else if (s.kind === 'stair') { const s0 = getS(s.id); if (!s0) return; const n = { ...s0, id: uid(), x: s0.x + 200, y: s0.y + 200 }; state.stairs.push(n); added.push({ kind: 'stair', id: n.id }); }
-            else if (s.kind === 'wall') {                       // 复制墙体时，墙上的门窗一起复制到新墙上
-              const w = getW(s.id); if (!w) return;
-              const a = clampToWalls({ x: w.a[0] + 200, y: w.a[1] + 200 }), b = clampToWalls({ x: w.b[0] + 200, y: w.b[1] + 200 });   // 端点压墙：与画墙同一套融合
-              if (Math.hypot(b.x - a.x, b.y - a.y) < 100) { wallSkipped++; return; }     // 压墙后退化：跳过
-              if (wallOverlaps(a, b)) { wallSkipped++; return; }                          // 与现有墙叠画：跳过（此前 Ctrl+D 可复制出叠墙）
-              const nw = { ...w, id: uid(), a: [Math.round(a.x), Math.round(a.y)], b: [Math.round(b.x), Math.round(b.y)] };
-              state.walls.push(nw);
-              state.openings.filter(o => o.wall === s.id && o.kind !== 'lbay').forEach(o => state.openings.push({ ...o, id: uid(), wall: 'CW' + nw.id }));
-              added.push({ kind: 'wall', id: 'CW' + nw.id });
+      const items = activeSelection();
+      if (!items.length) return;
+      const isMulti = items.length > 1;
+      const added = [];
+      let wallSkipped = 0, openSkipped = 0;
+      mutate(() => {
+        items.forEach(s => {
+          if (s.kind === 'furn') { const f = getF(s.id); if (!f) return; const n = { ...f, id: uid(), cx: f.cx + 200, cy: f.cy + 200 }; state.furniture.push(n); added.push({ kind: 'furn', id: n.id }); }
+          else if (s.kind === 'stair') { const s0 = getS(s.id); if (!s0) return; const n = { ...s0, id: uid(), x: s0.x + 200, y: s0.y + 200 }; state.stairs.push(n); added.push({ kind: 'stair', id: n.id }); }
+          else if (s.kind === 'wall' && isBuiltinWall(s.id)) {   // 原始墙复制后升级为可编辑的自画墙
+            const src = builtinWallAsCustom(s.id); if (!src) return;
+            const a = clampToWalls({ x: src.a[0] + 200, y: src.a[1] + 200 }), b = clampToWalls({ x: src.b[0] + 200, y: src.b[1] + 200 });
+            if (Math.hypot(b.x - a.x, b.y - a.y) < 100 || wallOverlaps(a, b)) { wallSkipped++; return; }
+            src.a = [Math.round(a.x), Math.round(a.y)]; src.b = [Math.round(b.x), Math.round(b.y)];
+            state.walls.push(src); added.push({ kind: 'wall', id: 'CW' + src.id });
+          }
+          else if (s.kind === 'wall') {                         // 复制墙体时，墙上的门窗一起复制到新墙上
+            const w = getW(s.id); if (!w) return;
+            const a = clampToWalls({ x: w.a[0] + 200, y: w.a[1] + 200 }), b = clampToWalls({ x: w.b[0] + 200, y: w.b[1] + 200 });   // 端点压墙：与画墙同一套融合
+            if (Math.hypot(b.x - a.x, b.y - a.y) < 100) { wallSkipped++; return; }     // 压墙后退化：跳过
+            if (wallOverlaps(a, b)) { wallSkipped++; return; }                          // 与现有墙叠画：跳过（此前 Ctrl+D 可复制出叠墙）
+            const nw = { ...w, id: uid(), a: [Math.round(a.x), Math.round(a.y)], b: [Math.round(b.x), Math.round(b.y)] };
+            state.walls.push(nw);
+            state.openings.filter(o => o.wall === s.id && o.kind !== 'lbay').forEach(o => state.openings.push({ ...o, id: uid(), wall: 'CW' + nw.id }));
+            added.push({ kind: 'wall', id: 'CW' + nw.id });
+          }
+          else if (s.kind === 'pillar') { const c = getP(s.id); if (!c) return; const n = { ...c, id: uid(), x: c.x + 200, y: c.y + 200 }; state.pillars.push(n); added.push({ kind: 'pillar', id: n.id }); }
+          else if (s.kind === 'room') return;                      // 房间地面不复制（地面跟墙体走，不重复叠加）
+          else if (s.kind === 'bopen') {                            // 原始门窗复制后升级为自画门窗（仍贴在原墙上）
+            const o = builtinOpenAsCustom(s.id); if (!o) { openSkipped++; return; }
+            const g = openingWallGeom(o.wall); if (!g) { openSkipped++; return; }
+            o.c = Math.max(0, Math.min(Math.max(0, g.L - o.w), o.c + 200));
+            if ((state.openings || []).some(q => q.wall === o.wall && o.c < q.c + q.w + 60 && q.c - 60 < o.c + o.w)) { openSkipped++; return; }
+            state.openings.push(o); added.push({ kind: 'open', id: o.id });
+          }
+          else if (s.kind === 'open' && !isMulti) {                // 单选门窗：沿同一面墙错开 200mm 复制，洞口重叠则跳过
+            const o = (state.openings || []).find(x => String(x.id) === String(s.id)); if (!o) return;
+            const g = openingWallGeom(o.wall); if (!g || o.kind === 'lbay') { openSkipped++; return; }
+            const c = Math.max(0, Math.min(Math.max(0, g.L - o.w), (+o.c || 0) + 200));
+            if ((state.openings || []).some(q => String(q.id) !== String(o.id) && q.wall === o.wall && c < q.c + q.w + 60 && q.c - 60 < c + o.w)) { openSkipped++; return; }
+            const n = { ...o, id: uid(), c };
+            state.openings.push(n); added.push({ kind: 'open', id: n.id });
+          }
+          else if (s.kind === 'open') return;                      // 多选时门窗属于墙体，不随整组复制（避免墙上开洞冲突）
+          else if (['dim', 'rail', 'beam', 'parapet', 'canopy', 'gate', 'arcwall'].includes(s.kind)) {   // 线状构件
+            const key = { dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls' }[s.kind];
+            const o = (state[key] || []).find(x => x.id === s.id); if (!o) return;
+            const n = { ...o, id: uid(), a: [o.a[0] + 200, o.a[1] + 200], b: [o.b[0] + 200, o.b[1] + 200] };
+            state[key].push(n); added.push({ kind: s.kind, id: n.id });
+          }
+          else if (s.kind === 'extra') {                           // 扩展构件：线性两端偏移，其余中心偏移
+            const o = (state.extras || []).find(x => x.id === s.id); if (!o) return;
+            const n = isExtraLin(o.type) ? { ...o, id: uid(), a: [o.a[0] + 200, o.a[1] + 200], b: [o.b[0] + 200, o.b[1] + 200] } : { ...o, id: uid(), x: o.x + 200, y: o.y + 200 };
+            state.extras.push(n); added.push({ kind: 'extra', id: n.id });
+          }
+          else {                                                   // 文字 / 标高 / 楼板 / 阳台 / 花坛 / 烟道 / 电梯 / 轴网 / 室外构件
+            const key = BOX_ARR[s.kind] || { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[s.kind];
+            const arr = key ? state[key] : outArr(s.kind);
+            const o = (arr || []).find(x => x.id === s.id); if (!o) return;
+            const n = { ...o, id: uid(), x: o.x + 200, y: o.y + 200 };
+            if (BOX_ARR[s.kind] && n.wall) {                       // 电箱复制后仍沿墙贴附（偏移 200mm）
+              const g = openingWallGeom(n.wall);
+              if (g) { n.c = Math.max(0, Math.min(g.L, (n.c ?? 0) + 200)); const q = boxWallPos(n); if (q) { n.x = q.x; n.y = q.y; } }
             }
-            else if (s.kind === 'pillar') { const c = getP(s.id); if (!c) return; const n = { ...c, id: uid(), x: c.x + 200, y: c.y + 200 }; state.pillars.push(n); added.push({ kind: 'pillar', id: n.id }); }
-            else if (s.kind === 'room') return;                    // 房间地面不复制（地面跟墙体走，不重复叠加）
-            else if (s.kind === 'open') return;                    // 门窗属于墙体，不随整组复制（避免墙上开洞冲突）
-            else if (['dim', 'rail', 'beam', 'parapet', 'canopy', 'gate', 'arcwall'].includes(s.kind)) {   // 线状构件
-              const key = { dim: 'dims', rail: 'rails', beam: 'beams', parapet: 'parapets', canopy: 'canopies', gate: 'gates', arcwall: 'arcWalls' }[s.kind];
-              const o = (state[key] || []).find(x => x.id === s.id); if (!o) return;
-              const n = { ...o, id: uid(), a: [o.a[0] + 200, o.a[1] + 200], b: [o.b[0] + 200, o.b[1] + 200] };
-              state[key].push(n); added.push({ kind: s.kind, id: n.id });
-            }
-            else if (s.kind === 'extra') {                         // 扩展构件：线性两端偏移，其余中心偏移
-              const o = (state.extras || []).find(x => x.id === s.id); if (!o) return;
-              const n = isExtraLin(o.type) ? { ...o, id: uid(), a: [o.a[0] + 200, o.a[1] + 200], b: [o.b[0] + 200, o.b[1] + 200] } : { ...o, id: uid(), x: o.x + 200, y: o.y + 200 };
-              state.extras.push(n); added.push({ kind: 'extra', id: n.id });
-            }
-            else {                                                 // 文字 / 标高 / 楼板 / 阳台 / 花坛 / 烟道 / 电梯 / 轴网 / 室外构件
-              const key = BOX_ARR[s.kind] || { note: 'notes', level: 'levels', slab: 'slabs', balcony: 'balconies', planter: 'planters', flue: 'flues', lift: 'lifts', axgrid: 'axes', lamp: 'lamps' }[s.kind];
-              const arr = key ? state[key] : outArr(s.kind);
-              const o = (arr || []).find(x => x.id === s.id); if (!o) return;
-              const n = { ...o, id: uid(), x: o.x + 200, y: o.y + 200 };
-              if (BOX_ARR[s.kind] && n.wall) {                   // 电箱复制后仍沿墙贴附（偏移 200mm）
-                const g = openingWallGeom(n.wall);
-                if (g) { n.c = Math.max(0, Math.min(g.L, (n.c ?? 0) + 200)); const q = boxWallPos(n); if (q) { n.x = q.x; n.y = q.y; } }
-              }
-              arr.push(n); added.push({ kind: s.kind, id: n.id });
-            }
-          });
+            arr.push(n); added.push({ kind: s.kind, id: n.id });
+          }
         });
-        ui.sel = null; ui.multi = added; renderSel(); renderPanel();
-        toast(tr(`已复制 ${added.length} 个对象${wallSkipped ? ` · ${wallSkipped} 面墙与现有墙体重叠未复制` : ''} · Ctrl+Z 可撤销`,
-          `${added.length} objects duplicated${wallSkipped ? ` · ${wallSkipped} wall(s) skipped (overlap)` : ''} · Ctrl+Z to undo`));
-        return;
-      }
-      if (ui.sel?.kind !== 'furn') return;
-      const f = getF(ui.sel.id), n = { ...f, id: uid(), cx: f.cx + 200, cy: f.cy + 200 };
-      ui.sel = { kind: 'furn', id: n.id }; mutate(() => state.furniture.push(n));
+      });
+      if (isMulti) { ui.sel = null; ui.multi = added; } else { ui.sel = added[0] || null; ui.multi = []; }
+      renderSel(); renderPanel();
+      if (!added.length) return toast(tr('该对象暂不支持原地复制（房间地面随墙，门窗依附墙体）', 'This object cannot be duplicated in place'));
+      toast(tr(`已复制 ${added.length} 个对象${wallSkipped ? ` · ${wallSkipped} 面墙与现有墙体重叠未复制` : ''}${openSkipped ? ` · ${openSkipped} 处门窗重叠 / 无宿主墙未复制` : ''} · Ctrl+Z 可撤销`,
+        `${added.length} objects duplicated${wallSkipped ? ` · ${wallSkipped} wall(s) skipped (overlap)` : ''}${openSkipped ? ` · ${openSkipped} opening(s) skipped (clash / no host wall)` : ''} · Ctrl+Z to undo`));
     }
     // 新放下的家具若压在墙 / 窗上，沿穿透较浅的方向推出来，刚好贴墙
     function pushOut(f) {
