@@ -106,23 +106,22 @@
       "h": 8000,
       "arm": 2000,
       "style": "single",
-      "rot": 0,
+      "rot": 90,
       "on": true,
       "r": 12000,
-      "id": "fmwxeb2la99",
-      "x": 2660,
-      "y": 3540
+      "id": "fmwxelkqq99",
+      "x": 2180,
+      "y": 3060
     },
     {
-      "type": "sanToolCabinet",
-      "w": 1200,
-      "h": 1900,
+      "type": "flag",
+      "w": 120,
+      "h": 6000,
+      "flagY": 5400,
       "rot": 0,
-      "d": 500,
-      "on": false,
-      "id": "fmwxec8hw100",
-      "x": 7060,
-      "y": 4680
+      "id": "fmwxell99100",
+      "x": 4130,
+      "y": 3060
     }
   ],
   "leaders": [],
@@ -249,23 +248,22 @@
           "h": 8000,
           "arm": 2000,
           "style": "single",
-          "rot": 0,
+          "rot": 90,
           "on": true,
           "r": 12000,
-          "id": "fmwxeb2la99",
-          "x": 2660,
-          "y": 3540
+          "id": "fmwxelkqq99",
+          "x": 2180,
+          "y": 3060
         },
         {
-          "type": "sanToolCabinet",
-          "w": 1200,
-          "h": 1900,
+          "type": "flag",
+          "w": 120,
+          "h": 6000,
+          "flagY": 5400,
           "rot": 0,
-          "d": 500,
-          "on": false,
-          "id": "fmwxec8hw100",
-          "x": 7060,
-          "y": 4680
+          "id": "fmwxell99100",
+          "x": 4130,
+          "y": 3060
         }
       ],
       "leaders": [],

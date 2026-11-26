@@ -5656,7 +5656,8 @@
         const showR = !!ui.layers.lightRadius;                  // 图层开关「灯光半径」：打开则所有灯（含关着的）都画照亮半径圈
         const range = !isSw && !isElec && (on || showR) ? `<circle cx="${l.x}" cy="${l.y}" r="${Math.max(300, l.r || 3000)}" fill="rgba(232,197,106,.05)" stroke="#e8c56a" stroke-opacity="${showR && !on ? '.28' : '.4'}" stroke-width="1" stroke-dasharray="6 4" vector-effect="non-scaling-stroke" pointer-events="none"/>` : '';
         const hit = `<circle cx="${l.x}" cy="${l.y}" r="${isElec ? 220 : 300}" fill="#fff" fill-opacity="0"/>`;
-        return range + `<g class="lamp" data-lamp="${l.id}">${hit}${body}</g>`;
+        const rotT = !wq && +l.rot ? ` transform="rotate(${+l.rot} ${l.x} ${l.y})"` : '';   // 非壁装灯具：符号随转向一起转
+        return range + `<g class="lamp" data-lamp="${l.id}">${hit}<g${rotT}>${body}</g></g>`;
       }).join('');
     }
     function pillarShape(c) { return c.shape || (c.round ? 'round' : 'rect'); }   // 兼容旧方案：无 shape 时按 round 布尔
@@ -7722,11 +7723,12 @@
               inner = `<circle cx="${e.x}" cy="${e.y}" r="${R * .85}" fill="${col}" fill-opacity=".32" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
                 <circle cx="${e.x}" cy="${e.y}" r="${R * .34}" fill="none" stroke="${col}" stroke-width=".9" stroke-dasharray="30 20" vector-effect="non-scaling-stroke"/>`;
             }
-          } else if (e.type === 'flag') {                         // 旗杆：杆点 + 旗面三角
-            const fs2 = Math.max(220, r * 3);
+          } else if (e.type === 'flag') {                         // 旗杆：杆点 + 旗面三角（旗面朝向随「转向」）
+            const fs2 = Math.max(220, r * 3), fa = (+e.rot || 0) * Math.PI / 180;
+            const fx = e.x + Math.cos(fa) * fs2 * .7, fy = e.y - fs2 + Math.sin(fa) * fs2 * .7;
             inner = `<circle cx="${e.x}" cy="${e.y}" r="${Math.max(30, r * .5)}" fill="${col}" stroke="none"/>
               <line x1="${e.x}" y1="${e.y}" x2="${e.x}" y2="${e.y - fs2}" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>
-              <polygon points="${e.x},${e.y - fs2} ${e.x + fs2 * .7},${e.y - fs2 + fs2 * .16} ${e.x},${e.y - fs2 + fs2 * .32}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
+              <polygon points="${e.x},${e.y - fs2} ${fx},${fy} ${e.x + Math.cos(fa) * 0},${e.y - fs2 + fs2 * .32}" fill="${col}" fill-opacity=".55" stroke="${col}" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
           } else if (e.type === 'streetlamp' || e.type === 'solarlamp') {   // 路灯 / 太阳能路灯俯视：底座圆 + 悬臂 + 灯头（按样式，亮 / 灭两态）
             const st = e.style || 'single', a = ((+e.rot || 0) % 360) * Math.PI / 180;
             const R = Math.max(150, r * 1.5), lit = e.on !== false && (!isSolarLamp(e.type) || (e.battery ?? 0) > 0);
@@ -8195,7 +8197,7 @@
         const dash = e.type === 'pavilion' || e.type === 'carport' ? ' stroke-dasharray="160 70"'
           : ['slabhole', 'skylight', 'dormer'].includes(e.type) ? ' stroke-dasharray="90 60"'
             : e.type === 'shaft' ? ' stroke-dasharray="200 90"' : '';
-        const parkRot = e.type === 'park' ? ((+e.rot || 0) % 360) : 0;   // 整车位旋转：框 / 入口线 / 箭头 / 挡轮杆 / 编号一起转，dir 仍只控制箭头
+        const parkRot = ['park', 'ac', 'solar', 'equip'].includes(e.type) ? norm(e.rot || 0) : 0;   // 车位 / 设备平台 / 太阳能 / 设备基础：整体随「转向」旋转
         const body = `<rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${col}" fill-opacity=".07" stroke="${col}" stroke-width="${on ? 2 : 1.1}"${dash} vector-effect="non-scaling-stroke"/>${inner}`;
         out.push(`<g data-extra="${e.id}" style="cursor:move">
           ${parkRot ? `<g transform="rotate(${parkRot} ${e.x} ${e.y})">${body}</g>` : body}
@@ -8310,12 +8312,14 @@
       if (K === 'lift') { const l = (state.lifts || []).find(x => x.id === sel.id); return l ? { kind: K, id: l.id, x: l.x, y: l.y, dir: +l.dir || 0 } : null; }
       if (BOX_ARR[K]) { const b = (state[BOX_ARR[K]] || []).find(x => x.id === sel.id); return b ? { kind: K, id: b.id, x: b.x, y: b.y, dir: +b.dir || 0 } : null; }
       if (K === 'flue') { const f = (state.flues || []).find(x => x.id === sel.id); return f ? { kind: K, id: f.id, x: f.x, y: f.y } : null; }
+      if (K === 'lamp') { const l = (state.lamps || []).find(x => x.id === sel.id); return l && !WALL_LAMP_TYPES.includes(l.type) ? { kind: K, id: l.id, x: l.x, y: l.y, rot: +l.rot || 0 } : null; }
       if (K === 'extra') {
         const o = (state.extras || []).find(x => x.id === sel.id); if (!o) return null;
         if (o.type === 'barrier' || o.type === 'drainpipe' || o.type === 'waterRiser' || DP_FIT_TYPES.includes(o.type) || DP_POINT_TYPES.includes(o.type))
           return { kind: K, id: o.id, x: o.x, y: o.y, rot: +o.rot || 0 };   // 路障 / 给排水贴墙件与点构件：原地转向
         if (o.type === 'gutter' && o.a && o.b) return { kind: K, id: o.id, a: o.a.slice(), b: o.b.slice() };   // 天沟：线性两端点
         if (o.type === 'dpRoute' && o.pts) return { kind: K, id: o.id, pts: o.pts.map(p => p.slice()) };      // 连续画管：整条折线
+        if (o.rot != null) return { kind: K, id: o.id, x: o.x, y: o.y, rot: +o.rot || 0, spin: true };        // 其余有朝向的扩展构件（设施 / 标志 / 摄像头 / 路灯 / 停车位 / 车辆）：位置与朝向一起转
         return null;
       }
       if (ROT_LINEAR[K]) {
@@ -8366,6 +8370,9 @@
         } else if (t.kind === 'flue') {
           const o = (state.flues || []).find(x => x.id === t.id); if (!o) return;
           const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y;
+        } else if (t.kind === 'lamp') {
+          const l = (state.lamps || []).find(x => x.id === t.id); if (!l) return;
+          const [X, Y] = rq(t.x, t.y); l.x = X; l.y = Y; l.rot = norm(t.rot + deg);
         } else if (t.kind === 'extra') {
           const o = (state.extras || []).find(x => x.id === t.id); if (!o) return;
           if (o.type === 'barrier') {                          // 路障：位置与朝向一起转
@@ -8376,6 +8383,9 @@
             o.a = rq(t.a[0], t.a[1]); o.b = rq(t.b[0], t.b[1]);
           } else if (o.type === 'drainpipe' || o.type === 'waterRiser' || DP_FIT_TYPES.includes(o.type) || DP_POINT_TYPES.includes(o.type))
             o.rot = norm((+o.rot || 0) + deg);                 // 给排水贴墙件 / 点构件：原地转向（贴墙位置与法线不变）
+          else if (t.spin) {                                  // 设施 / 标志 / 摄像头 / 路灯 / 停车位 / 车辆：位置与朝向一起转
+            const [X, Y] = rq(t.x, t.y); o.x = X; o.y = Y; o.rot = norm(t.rot + deg);
+          }
         } else if (ROT_LINEAR[t.kind]) {
           const o = (state[ROT_LINEAR[t.kind]] || []).find(x => x.id === t.id); if (!o) return;
           o.a = rq(t.a[0], t.a[1]); o.b = rq(t.b[0], t.b[1]);
@@ -9044,7 +9054,7 @@
     function extraDefaults(t) {
       const base = { type: t };
       if (t === 'slabhole') return { ...base, w: 800, d: 800, thick: 0, z: 0 };
-      if (t === 'ac') return { ...base, w: 1200, d: 700, thick: 100, z: 0 };
+      if (t === 'ac') return { ...base, w: 1200, d: 700, thick: 100, z: 0, rot: 0 };
       if (t === 'park') return { ...base, w: 2500, d: 5000, no: 1, dir: 0, rot: 0 };
       if (t === 'pavilion') return { ...base, w: 3000, d: 3000, h: 2600, col: 150 };
       if (t === 'skylight') return { ...base, w: 1200, d: 1200, z: 2800, h: 350 };
@@ -9072,7 +9082,7 @@
       if (t === 'flash') return { ...base, w: 300, h: 60, z: 0 };
       if (t === 'band') return { ...base, w: 200, h: 150, z: 2000 };
       if (t === 'signbd') return { ...base, w: 120, h: 800, z: 2800 };
-      if (t === 'flag') return { ...base, w: 120, h: 6000, flagY: 5400 };
+      if (t === 'flag') return { ...base, w: 120, h: 6000, flagY: 5400, rot: 0 };
       if (t === 'barrier') return { ...base, w: 500, h: 750, style: 'cone', rot: 0 };   // 路障：默认交通锥（底宽 500 / 高 750），样式与朝向可在面板改
       if (t === 'streetlamp') { const s = LAMP_STYLES.single; return { ...base, w: s.w, h: s.h, arm: s.arm, style: 'single', rot: 0, on: true, r: 12000 }; }   // 路灯：默认单臂路灯、默认开灯，r=夜景照亮半径（mm）；样式 / 尺寸 / 朝向 / 开关可在面板改
       if (t === 'solarlamp') { const s = SOLAR_LAMP; return { ...base, w: s.w, h: s.h, arm: s.arm, style: 'single', rot: 0, on: true, r: s.r, battery: s.battery, charge: s.charge, drain: s.drain }; }   // 太阳能路灯：额外带电量 / 充放电速度（%/秒）
@@ -9097,10 +9107,10 @@
       if (t === 'well2') return { ...base, w: 700, d: 700, h: 900, z: 0 };
       if (t === 'dormer') return { ...base, w: 1200, d: 1500, h: 900, z: 2800 };
       if (t === 'hatch') return { ...base, w: 700, d: 700, h: 250, z: 2800 };
-      if (t === 'solar') return { ...base, w: 2000, d: 1600, h: 300, z: 2800 };
-      if (t === 'equip') return { ...base, w: 1500, d: 1000, h: 800, thick: 150, z: 0 };
+      if (t === 'solar') return { ...base, w: 2000, d: 1600, h: 300, z: 2800, rot: 0, pitch: 26 };
+      if (t === 'equip') return { ...base, w: 1500, d: 1000, h: 800, thick: 150, z: 0, rot: 0 };
       if (isRoadType(t)) return { ...base, w: ROAD_STYLES[t].w, h: ROAD_STYLES[t].h };
-      if (isCamType(t)) return { ...base, w: t === 'camPTZ' ? 180 : t === 'camBullet' ? 90 : 120, h: 120, z: 2800, rot: 0, fov: 80, mount: t === 'camBullet' ? 'wall' : t === 'camPTZ' ? 'pendant' : 'ceiling', drop: 400 };   // 摄像头：安装方式（默认半球吸顶 / 球形吊装 / 枪型壁装）、安装高度 z、吊杆长 drop、朝向 rot、视场角 fov
+      if (isCamType(t)) return { ...base, w: t === 'camPTZ' ? 180 : t === 'camBullet' ? 90 : 120, h: 120, z: 2800, rot: 0, pitch: t === 'camDome' ? 48 : t === 'camPTZ' ? 30 : 14, fov: 80, mount: t === 'camBullet' ? 'wall' : t === 'camPTZ' ? 'pendant' : 'ceiling', drop: 400 };   // 摄像头：安装方式 / 高度 / 吊杆长 / 朝向 rot / 俯仰 pitch（默认沿用原硬编码 48/30/14）/ 视场角 fov
       if (isNVR(t)) return { ...base, w: 400, d: 380, h: 90, cams: [], mons: [] };   // 录像机：机箱尺寸 + 所接摄像机 / 显示器 id 列表
       if (isMonitor(t)) return { ...base, w: 800, h: 450, z: 400, rot: 0 };          // 显示器：屏幕宽高 + 中心标高 + 朝向
       return base;
@@ -9137,6 +9147,7 @@
             ${mnt === 'pendant' ? `<label>${tr('吊杆长', 'Drop rod')} (mm)<input type="number" id="exDrop" value="${Math.round(e.drop ?? 400)}" min="100" max="3000" step="50"></label>` : ''}
             <label>${tr('镜头尺寸', 'Lens size')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 120)}" min="40" max="600" step="10"></label>
             <label title="${tr('取景方向，决定 3D 实时画面的朝向', 'Viewing direction, decides the live 3D feed heading')}">${tr('朝向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>
+            <label title="${tr('镜头俯仰角（默认半球 48° / 球形 30° / 枪型 14°）', 'Lens tilt (defaults: dome 48° / PTZ 30° / bullet 14°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? (e.type === 'camDome' ? 48 : e.type === 'camPTZ' ? 30 : 14))}" min="-360" max="360" step="15"></label>
             <label title="${tr('摄像机取景视场角，越大看得越广', 'Camera field of view; larger sees wider')}">${tr('视场角', 'Field of view')} (°)<input type="number" id="exFov" value="${Math.round(e.fov ?? 80)}" min="30" max="150" step="5"></label>`;
         } else if (isNVR(e.type)) {
           rows += `<label>${tr('机箱宽', 'Width')} (mm)<input type="number" id="exW" value="${Math.round(e.w ?? 400)}" min="150" max="1200" step="10"></label>
@@ -9235,6 +9246,8 @@
         if (e.type === 'hatch') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('翻边高', 'Curb')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 250)}" min="60" max="1000" step="10"></label>`;
         if (e.type === 'solar') rows += `<label>${tr('屋面标高', 'Roof level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 2800)}" min="0" max="15000" step="50"></label><label>${tr('支架高', 'Stand')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 300)}" min="80" max="2000" step="10"></label>`;
         if (e.type === 'equip') rows += `<label>${tr('基础厚', 'Base')} (mm)<input type="number" id="exT" value="${Math.round(e.thick ?? 150)}" min="60" max="600" step="10"></label><label>${tr('设备高', 'Unit height')} (mm)<input type="number" id="exH" value="${Math.round(e.h ?? 800)}" min="200" max="4000" step="50"></label><label>${tr('安装标高', 'Level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" min="-500" max="12000" step="50"></label>`;
+        if (['flag', 'solar', 'equip', 'ac'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="360" step="15"></label>`;
+        if (e.type === 'solar') rows += `<label title="${tr('集热板倾角（默认约 26°）', 'Collector tilt (default ≈26°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? 26)}" min="-360" max="360" step="15"></label>`;
       }
       const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式（壁装 / 立杆时此处为镜头中心高度，吸顶 / 吊装为吸顶盘标高，吊装另可改吊杆长）。2D 画镜头 + 视场扇形并带安装标记，3D 按类型生成半球 / 球形云台 / 枪型模型与对应支架。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装方式 / 高度 / 朝向 / 视场角均可改。', 'Camera: click to place; ceiling / pendant / wall / pole mounts (wall & pole use lens-center height, ceiling & pendant use the plate level, pendant adds a drop-rod length). 2D shows lens + view cone with mount marks, 3D builds dome / PTZ / bullet model with matching bracket. Add it to an NVR and the 3D feed renders live from its viewpoint. Edit mount / height / angle / FOV.')
         : isNVR(e.type) ? tr('录像机是监控系统的中枢：在上方勾选「添加的摄像机」登记要录像的镜头，再勾选「连接的显示器」指定把画面送到哪些屏幕。只有既被录像机添加、又连到显示器的摄像机画面才会出现在 3D 屏幕上。', 'NVR is the hub: check "Cameras" to register feeds, then check "Connected monitors" to route them. A camera appears on a 3D screen only if it is added here and that monitor is connected.')
@@ -11452,6 +11465,8 @@
       if (isWall) fields.push(`<label title="${tr('面板中心沿墙到墙起点的距离（0 到墙长）', 'Distance from wall start along the wall (0 to wall length)')}">${tr('沿墙位置', 'Along wall')} (mm)<input type="number" id="lC" value="${Math.round(l.c ?? 0)}" min="0" max="${Math.max(0, Math.round(wL))}" step="10"></label>`);
       if (!isPassive) fields.push(`<label>${tr('初始为开', 'Starts on')}<select id="lOn"><option value="1" ${l.on !== false ? 'selected' : ''}>${tr('开', 'On')}</option><option value="0" ${l.on === false ? 'selected' : ''}>${tr('关', 'Off')}</option></select></label>`);
       if (!isWall) fields.push(`<label>X (mm)<input type="number" id="lX" value="${Math.round(l.x)}" step="10"></label>`, `<label>Y (mm)<input type="number" id="lY" value="${Math.round(l.y)}" step="10"></label>`);
+      if (!isWall && !isPassive && !isAnySw) fields.push(`<label title="${tr('灯体水平朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Fixture heading — with it selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="lRot" value="${Math.round(l.rot || 0)}" min="-360" max="360" step="15"></label>`);
+      if (!isWall && ['spot', 'down', 'ceil', 'chandelier', 'floor'].includes(l.type)) fields.push(`<label title="${tr('灯头俯仰角（0 = 垂直向下、正 = 偏向外侧、负 = 反向）', 'Head pitch (0 = straight down, positive = tilt outward, negative = inward)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="lPitch" value="${Math.round(l.pitch || 0)}" min="-360" max="360" step="15"></label>`);
       if (isAnySw) {                                    // 控制方式 + 控制半径同行（各占一列），在灯具列表上方
         fields.push(`<label title="${tr('按半径：控制半径内的灯；指定灯具：只控制下面勾选的灯', 'By radius: lamps within range; Selected lamps: only the checked lamps below')}">${tr('控制方式', 'Control mode')}<select id="lMode"><option value="radius" ${listMode ? '' : 'selected'}>${tr('按半径', 'By radius')}</option><option value="list" ${listMode ? 'selected' : ''}>${tr('指定灯具', 'Selected lamps')}</option></select></label>`);
         if (!listMode) fields.push(`<label title="${tr('3D 里点这个开关时，这个范围内的灯一起开 / 关', 'Clicking this switch in 3D toggles lamps within this radius')}">${tr('控制半径', 'Control radius')} (mm)<input type="number" id="lR" value="${Math.round(l.r ?? 6000)}" min="1000" max="10000" step="100"></label>`);
@@ -11549,6 +11564,8 @@
           });
         };
       });
+      angleWrap($('#lRot'), g, 'rot');                              // 灯具转向：0 往下 → 360 → 345…（跨界循环）
+      angleWrap($('#lPitch'), g, 'pitch');                           // 灯具俯仰：同上
       const on = $('#lOn'); if (on) on.onchange = e => mutate(() => { const l = g(); if (l) l.on = e.target.value === '1'; });
       const style = $('#lStyle'); if (style) style.onchange = e => mutate(() => { const l = g(); if (l) l.style = e.target.value; });   // 插座型号切换：2D / 3D 符号随 style 重建
       const pm = $('#lPanelMat'); if (pm) pm.onchange = e => mutate(() => { const l = g(); if (l) l.panelMat = e.target.value; });   // 面板材质：塑料 / 木纹 / 不锈钢 / 玻璃
@@ -14277,7 +14294,7 @@
           const q = snapPoint(p, e.shiftKey);
           const ceilMM = ceilAtPoint(q.x, q.y);                           // 吸顶 / 筒灯 / 射灯默认贴住所在房间的天花（室外 / 挑空回落默认高度）
           const z = ['ceil', 'down', 'spot'].includes(T[0]) && ceilMM ? Math.max(300, Math.min(8000, Math.round((ceilMM - 150) / 50) * 50)) : T[2];
-          mutate(() => (state.lamps = state.lamps || []).push({ id, type: T[0], x: Math.round(q.x / 10) * 10, y: Math.round(q.y / 10) * 10, r: T[1], z, on: true, ...(PASSIVE_STYLES[T[0]] ? { style: PASSIVE_STYLES[T[0]][1] } : {}) }));
+          mutate(() => (state.lamps = state.lamps || []).push({ id, type: T[0], x: Math.round(q.x / 10) * 10, y: Math.round(q.y / 10) * 10, r: T[1], z, on: true, rot: 0, pitch: 0, ...(PASSIVE_STYLES[T[0]] ? { style: PASSIVE_STYLES[T[0]][1] } : {}) }));
           select({ kind: 'lamp', id });
           toast(ui.drawTool === 'lampFloorSock'
             ? tr('已放地插座 · 弹出式五孔（可选带 USB），右侧可改型号', 'Floor socket placed · pop-up 5-hole (optional USB), model editable in the panel')
@@ -19417,6 +19434,7 @@
         return;
       }
       const g = new THREE.Group(); g.position.set(X, 0, Z);
+      if (+l.rot) g.rotation.y = -l.rot * Math.PI / 180;            // 灯具转向：绕竖直轴（与 2D SVG rotate 同向）
       if (l.type === 'floorSocket' || l.type === 'deskSocket') {   // 地插 / 桌面插座：水平面面板 + 顶面插孔
         const fl = l.type === 'floorSocket';
         const W = fl ? .3 : .34, D = fl ? .3 : .14;
@@ -19484,10 +19502,13 @@
         pole.position.y = (Y - .12) / 2 + .04; pole.castShadow = true; g.add(pole);
         colliders.push([X - .18, Z - .18, X + .18, Z + .18, 0, Y + .1]);
       }
+      const headG = new THREE.Group(); headG.position.set(0, Y, 0);
+      if (+l.pitch) headG.rotation.x = l.pitch * Math.PI / 180;   // 灯头俯仰：绕侧轴上下倾斜
+      g.add(headG);
       const shade = new THREE.Mesh(new THREE.CylinderGeometry(R * .55, R, l.type === 'down' ? .05 : .14, 24), headMat('#ddd3c0'));
-      shade.position.y = Y + (l.type === 'floor' ? .06 : 0); shade.castShadow = true; g.add(shade);
+      shade.position.y = l.type === 'floor' ? .06 : 0; shade.castShadow = true; headG.add(shade);
       const bulb = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.03, R * .6), 16, 12), glow);
-      bulb.position.y = Y - (l.type === 'floor' ? .02 : .08); g.add(bulb);
+      bulb.position.y = l.type === 'floor' ? -.02 : -.08; headG.add(bulb);
       tagPick(g, 'lamp', l.id);
       archUp.add(g);
       if (lampG.children.filter(o => o.isPointLight).length < 28) {   // 实时光源数量上限：太多会拖垮帧率，超出的灯具只发光不照明
@@ -23009,7 +23030,7 @@
                 const rc = new THREE.PerspectiveCamera(Math.max(30, Math.min(150, +e.fov || 80)), W / Hh, .05, 120);
                 const lensY = attachY - (T3 === 'camBullet' ? .17 : T3 === 'camPTZ' ? .25 : .16);
                 rc.position.set(px + Math.cos(ang) * .12, lensY, pz + Math.sin(ang) * .12);
-                const pitch = (T3 === 'camDome' ? 48 : T3 === 'camPTZ' ? 30 : 14) * Math.PI / 180, D = 5;
+                const pitch = (+e.pitch ?? (T3 === 'camDome' ? 48 : T3 === 'camPTZ' ? 30 : 14)) * Math.PI / 180, D = 5;
                 rc.lookAt(px + Math.cos(ang) * D, lensY - Math.tan(pitch) * D, pz + Math.sin(ang) * D);
                 const sc = document.createElement('canvas'); sc.width = W; sc.height = Hh;
                 const sctx = sc.getContext('2d', { willReadFrequently: true });
@@ -23072,9 +23093,11 @@
               pole.position.set(px, .45 + (h - .45) / 2, pz); pole.castShadow = true; pole.userData.flagId = e.id; pole.userData.flagPoleFor = e.id; archUp.add(pole);   // flagPoleFor 供漫游高亮整杆
               const ball = new THREE.Mesh(new THREE.SphereGeometry(r * 1.8, 10, 8), mat('#c8a45a', { metalness: .6, roughness: .35 }));
               ball.position.set(px, h + r * 1.6, pz); ball.userData.flagId = e.id; archUp.add(ball);
-              const fw = Math.max(.5, h * .1), fh = fw * .62;   // 竖直旗面：宽 fw、高 fh，薄面朝 z，顶部贴旗面顶标高（可升降）
+              const fw = Math.max(.5, h * .1), fh = fw * .62;   // 竖直旗面：宽 fw、高 fh，顶部贴旗面顶标高（可升降）
               const fy = Math.min(h - .5, Math.max(.5, M(e.flagY ?? Math.round(h * 1000 * .9))));
-              const fb = box(fw, fh, .02, px + fw / 2 + r, fy - fh / 2, pz, mat('#a44e3d', { roughness: .8 }));
+              const fa = (+e.rot || 0) * Math.PI / 180, fx = px + Math.cos(fa) * (fw / 2 + r), fz = pz - Math.sin(fa) * (fw / 2 + r);
+              const fb = box(fw, fh, .02, fx, fy - fh / 2, fz, mat('#a44e3d', { roughness: .8 }));
+              fb.rotation.y = -fa;                                   // 旗面朝向随「转向」变化
               fb.userData.flagId = e.id; fb.userData.flagMeshFor = e.id;   // flagMeshFor 供升降动画逐帧定位
               return;
             }
@@ -23724,8 +23747,8 @@
             box(.04, .06, d + .06, x0 - .02, y + .03, cz, rim); box(.04, .06, d + .06, x0 + w + .02, y + .03, cz, rim);
             return;
           }
-          if (T3 === 'ac') {                                    // 设备平台：混凝土挑板 + 三面百叶围板
-            const th = Math.max(.04, M(e.thick || 100)), y = M(e.z || 0);
+          if (T3 === 'ac') {                                    // 设备平台：混凝土挑板 + 三面百叶围板（随「转向」整体旋转）
+            const rotStart = archUp.children.length, rotCol = colliders.length, th = Math.max(.04, M(e.thick || 100)), y = M(e.z || 0);
             box(w, th, d, cx, y + th / 2, cz, mat('#c6bfae', { roughness: .95 }));
             const lv = mat('#d9d4c8', { roughness: .8 }), n = Math.max(3, Math.round(d / .12));
             const panel = (px, pz, pw, ry) => {
@@ -23738,6 +23761,7 @@
             };
             panel(cx, z0 + .02, w, 0); panel(cx, z0 + d - .02, w, 0);
             panel(x0 + .02, cz, d, Math.PI / 2); panel(x0 + w - .02, cz, d, Math.PI / 2);
+            wrapPtRot(e, rotStart, rotCol, cx, cz);              // 复用整件旋转：百叶围板随「转向」一起转
             return;
           }
           if (T3 === 'park') {                                  // 停车位：地面标线（四条边线 + 入口横线，标准黄色）
@@ -23865,13 +23889,16 @@
           }
           if (T3 === 'solar') {                                 // 太阳能：斜置集热板 + 支架 + 顶部水箱（水箱在高边）
             const y = Math.max(0, M(e.z || 2800)), sh = Math.max(.08, M(e.h || 300));
-            const a = Math.PI / 7;                              // 集热板倾角 ~25.7°
+            const a = (+e.pitch ?? 26) * Math.PI / 180;         // 集热板俯仰角（默认约 25.7°）
+            const sr = (+e.rot || 0) * Math.PI / 180;            // 整体转向
             const Wp = Math.max(.4, w * .9), Dp = Math.max(.4, d * .8), t = .05;
-            const frontZ = cz - d / 2 + Dp / 2;                 // 前檐（低边）在地面的投影 z
+            const pz0 = -d / 2 + Dp / 2;                        // 前檐相对构件中心的 z（局部系）
             const backRise = Dp * Math.sin(a);                  // 后檐比前檐抬高
             const g = new THREE.Group();
-            g.position.set(cx, y + sh, frontZ);                 // 组原点 = 面板前檐中点
-            const panel = new THREE.Group();                    // 以「前檐底沿」为枢轴倾斜
+            g.position.set(cx, y + sh, cz);                     // 组原点 = 构件中心高度（集热板前檐标高）
+            g.rotation.y = -sr;                                 // 整套太阳能随「转向」绕竖直轴转
+            const lb = (bw, bh, bd, x, yy, z, m) => { const b = new THREE.Mesh(new THREE.BoxGeometry(bw, bh, bd), m); b.position.set(x, yy, z); g.add(b); return b; };
+            const panel = new THREE.Group(); panel.position.z = pz0;   // 以「前檐底沿」为枢轴倾斜
             const pn = new THREE.Mesh(new THREE.BoxGeometry(Wp, t, Dp), mat('#2f4a6b', { metalness: .4, roughness: .3 }));
             pn.position.set(0, t / 2, Dp / 2); pn.castShadow = pn.receiveShadow = true; panel.add(pn);
             for (let i = 0; i < 8; i++) {                       // 集热板面上的真空管 / 板芯分格
@@ -23881,19 +23908,21 @@
             panel.rotation.x = -a; g.add(panel);
             const tank = new THREE.Mesh(new THREE.CylinderGeometry(.2, .2, Wp * .92, 18), mat('#c9ccd0', { metalness: .55, roughness: .32 }));
             tank.rotation.z = Math.PI / 2;                        // 横置，沿 x 方向
-            tank.position.set(0, backRise + .22, Dp * Math.cos(a)); tank.castShadow = true; g.add(tank);
+            tank.position.set(0, backRise + .22, pz0 + Dp * Math.cos(a)); tank.castShadow = true; g.add(tank);
             const legM = mat('#8d9095', { metalness: .5, roughness: .5 });
-            [[-1, 0], [1, 0]].forEach(([sd]) => box(.05, sh, .05, cx + sd * (Wp / 2 - .08), y + sh / 2, frontZ - .02, legM));
-            [[-1], [1]].forEach(([sd]) => box(.05, sh + backRise, .05, cx + sd * (Wp / 2 - .08), y + (sh + backRise) / 2, frontZ + Dp * Math.cos(a) + .02, legM));
+            [-1, 1].forEach(sd => lb(.05, sh, .05, sd * (Wp / 2 - .08), -sh / 2, pz0 - .02, legM));
+            [-1, 1].forEach(sd => lb(.05, sh + backRise, .05, sd * (Wp / 2 - .08), (backRise - sh) / 2, pz0 + Dp * Math.cos(a) + .02, legM));
             archUp.add(g);
             return;
           }
-          if (T3 === 'equip') {                                 // 设备基础：混凝土基础 + 机组体量
+          if (T3 === 'equip') {                                 // 设备基础：混凝土基础 + 机组体量（随「转向」整体旋转）
+            const rotStart = archUp.children.length, rotCol = colliders.length;
             const t = Math.max(.06, M(e.thick || 150)), y = M(e.z || 0), h = Math.max(.2, M(e.h || 800));
             if (y < .3) colliders.push([x0, z0, x0 + w, z0 + d, y, y + t + h]);   // 落地设备基础挡人；架设在屋面（z 高）时不挡地面
             box(w, t, d, cx, y + t / 2, cz, mat('#c6bfae', { roughness: .95 }));
             box(w * .78, h, d * .78, cx, y + t + h / 2, cz, mat('#b8bcbf', { metalness: .35, roughness: .5 }));
             [-.28, 0, .28].forEach(f => box(w * .7, .02, .02, cx, y + t + h * (.45 + f), cz - d * .39 - .01, mat('#8b9094', { metalness: .4, roughness: .5 })));
+            wrapPtRot(e, rotStart, rotCol, cx, cz);              // 设备机组随「转向」整体旋转
             return;
           }
         } finally { markNew(s0, 'extra', e.id); }
