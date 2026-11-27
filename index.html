@@ -3527,6 +3527,8 @@
             <button class="btn chip" data-dt="signContCurve" title="连续弯路：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Continuous curves: click to place; edit face / height / width / angle in the panel" data-en="Continuous curves"><i data-lucide="git-branch"></i>连续弯路</button>
             <button class="btn chip" data-dt="signSteepUp" title="上陡坡：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Steep uphill: click to place; edit face / height / width / angle in the panel" data-en="Steep uphill"><i data-lucide="trending-up"></i>上陡坡</button>
             <button class="btn chip" data-dt="signSteepDown" title="下陡坡：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Steep downhill: click to place; edit face / height / width / angle in the panel" data-en="Steep downhill"><i data-lucide="trending-down"></i>下陡坡</button>
+            <button class="btn chip" data-dt="signContSteepUp" title="连续上陡坡：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Continuous steep uphill: click to place; edit face / height / width / angle in the panel" data-en="Continuous steep uphill"><i data-lucide="trending-up"></i>连续上陡坡</button>
+            <button class="btn chip" data-dt="signContSteepDown" title="连续下陡坡：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Continuous steep downhill: click to place; edit face / height / width / angle in the panel" data-en="Continuous steep downhill"><i data-lucide="trending-down"></i>连续下陡坡</button>
             <button class="btn chip" data-dt="signNarrow" title="路两侧变窄：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Road narrows on both sides: click to place; edit face / height / width / angle in the panel" data-en="Road narrows on both sides"><i data-lucide="shrink"></i>路两侧变窄</button>
             <button class="btn chip" data-dt="signNarrowBridge" title="窄桥：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Narrow bridge: click to place; edit face / height / width / angle in the panel" data-en="Narrow bridge"><i data-lucide="columns-3"></i>窄桥</button>
             <button class="btn chip" data-dt="signNarrowLeft" title="路左侧变窄：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Road narrows on left: click to place; edit face / height / width / angle in the panel" data-en="Road narrows on left"><i data-lucide="shrink"></i>路左侧变窄</button>
@@ -6915,6 +6917,8 @@
       signContCurve:   { zh:'连续弯路',     en:'Continuous curves',    shape:'tri',  style:'warn', glyph:'弯', art:'contCurve',   c2:'#e9b53a' },
       signSteepUp:     { zh:'上陡坡',       en:'Steep uphill',         shape:'tri',  style:'warn', glyph:'上', art:'steepUp',     c2:'#e9b53a' },
       signSteepDown:   { zh:'下陡坡',       en:'Steep downhill',       shape:'tri',  style:'warn', glyph:'下', art:'steepDown',   c2:'#e9b53a' },
+      signContSteepUp: { zh:'连续上陡坡',   en:'Continuous steep uphill',  shape:'tri', style:'warn', glyph:'连上', art:'contSteepUp',   c2:'#e9b53a' },
+      signContSteepDown:{ zh:'连续下陡坡',  en:'Continuous steep downhill',shape:'tri', style:'warn', glyph:'连下', art:'contSteepDown', c2:'#e9b53a' },
       signNarrow:      { zh:'路两侧变窄',   en:'Road narrows both sides',shape:'tri', style:'warn', glyph:'窄', art:'narrow',      c2:'#e9b53a' },
       signNarrowBridge:{ zh:'窄桥',         en:'Narrow bridge',        shape:'tri',  style:'warn', glyph:'桥', art:'narrowBridge',c2:'#e9b53a' },
       signNarrowLeft:  { zh:'路左侧变窄',   en:'Road narrows on left', shape:'tri',  style:'warn', glyph:'左', art:'narrowLeft',  c2:'#e9b53a' },
@@ -6946,7 +6950,7 @@
       signMotorLane:   { zh:'机动车行驶',   en:'Motor vehicles',       shape:'circle',style:'ind', glyph:'机', art:'motorDriving', c2:'#2a7fc9' },
       signNonMotorLane:{ zh:'非机动车道',   en:'Non-motor lane',       shape:'circle',style:'ind', glyph:'非', art:'nonMotorLane', c2:'#2a7fc9' },
       signNonMotor:    { zh:'非机动车行驶', en:'Non-motor vehicles',   shape:'circle',style:'ind', glyph:'自', art:'nonMotor',    c2:'#2a7fc9' },
-      signMinSpeed:    { zh:'最低限速',     en:'Minimum speed',        shape:'circle',style:'ind', glyph:'速', art:'minSpeed',    c2:'#2a7fc9', dyn:'limit', def:50 },
+      signMinSpeed:    { zh:'最低限速',     en:'Minimum speed',        shape:'circle',style:'ind', glyph:'速', art:'minSpeed',    c2:'#2a7fc9', dyn:'limit', def:60 },
       // 指示标志（方形 / 车道类）
       signMeetAhead:   { zh:'会车先行',     en:'Meet with priority',   shape:'square',style:'ind', glyph:'先', art:'meetAhead',    c2:'#2a7fc9', w:800 },
       signLaneRight:   { zh:'右转车道',     en:'Right-turn lane',      shape:'square',style:'ind', glyph:'右', art:'laneRight',    c2:'#2a7fc9', w:800 },
@@ -8195,10 +8199,19 @@
             else if (e.type === 'dpE45') g = ln(0, -r * 1.4, 0, r * .3) + ln(sx * r * .2, sy * r * .2, sx * r * 2.1 - sy * r * 1.2, sy * r * 2.1 + sx * r * 1.2, 1.6);
             else if (e.type === 'dpTrap') g = ln(-r * .5, -r * 1.4, -r * .5, r * .6) + `<path d="M ${e.x - r * .5} ${e.y + r * .6} Q ${e.x} ${e.y + r * 1.5} ${e.x + r * .5} ${e.y + r * .6}" fill="none" stroke="${col}" stroke-width="1.3" vector-effect="non-scaling-stroke"/>` + ln(r * .5, r * .6, sx * r * 1.6 + r * .5, sy * r * 1.6 + r * .6);
             else if (e.type === 'dpReducer') g = `<circle cx="${e.x}" cy="${e.y}" r="${r * .55}" fill="none" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>` + ln(-r * 1.4, -r * .55, -r * 1.4, r * .55) + ln(r * 1.4, -r * .25, r * 1.4, r * .25);
-            else if (e.type === 'dpCoupling') g = ln(-r * .5, -r * 1.3, -r * .5, r * 1.3, 1.6) + ln(r * .5, -r * 1.3, r * .5, r * 1.3, 1.6);
+            else if (e.type === 'dpCoupling') g = `<circle cx="${e.x}" cy="${e.y}" r="${r * 1.6}" fill="#2b2b2b" fill-opacity=".55" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/><circle cx="${e.x}" cy="${e.y}" r="${r * 1.3}" fill="none" stroke="${col}" stroke-opacity=".7" stroke-width="1" vector-effect="non-scaling-stroke"/>`;   // 俯视：黑色套筒凸缘外圈 + 收腰内圈，管子从中心穿出
             else if (e.type === 'dpCleanout') g = ln(0, -r * 1.3, 0, r * 1.3) + `<rect x="${e.x + sx * r * 1.5 - r * .45}" y="${e.y + sy * r * 1.5 - r * .45}" width="${r * .9}" height="${r * .9}" fill="${col}" fill-opacity=".4" stroke="${col}" stroke-width="1"/>`;
             else if (e.type === 'dpExpansion') g = [-.5, 0, .5].map(t => ln(-r * 1.3, t * r, r * 1.3, t * r, 1.3)).join('');
             else if (e.type === 'dpValve') g = `<polygon points="${e.x - r},${e.y - r * .8} ${e.x},${e.y} ${e.x - r},${e.y + r * .8}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1"/><polygon points="${e.x + r},${e.y - r * .8} ${e.x},${e.y} ${e.x + r},${e.y + r * .8}" fill="${col}" fill-opacity=".25" stroke="${col}" stroke-width="1"/>` + ln(0, -r * 1.6, 0, -r * .6);
+            else if (e.type === 'dpMeter') {                   // 水表：表壳 + 朝向墙外的表盘（刻度 / 指针 / 读数），外圈透明命中带避免缩小视图点不中
+              const dr = r * .66, ticks = Array.from({ length: 10 }, (_, i) => { const a = i * Math.PI / 5 - Math.PI / 2; return `<line x1="${e.x + Math.cos(a) * dr * .74}" y1="${e.y + Math.sin(a) * dr * .74}" x2="${e.x + Math.cos(a) * dr * .93}" y2="${e.y + Math.sin(a) * dr * .93}" stroke="${col}" stroke-width="${i % 2 ? .8 : 1.2}" vector-effect="non-scaling-stroke"/>`; }).join('');
+              const rd = Math.max(0, Math.min(999999, Math.round(+e.reading || 0))), a = (rd % 10) / 10 * Math.PI * 2 - Math.PI / 2;
+              g = `<circle cx="${e.x}" cy="${e.y}" r="${dr}" fill="#fff" fill-opacity=".75" stroke="${col}" stroke-width="1.4" vector-effect="non-scaling-stroke"/>${ticks}
+                <line x1="${e.x}" y1="${e.y}" x2="${e.x + Math.cos(a) * dr * .68}" y2="${e.y + Math.sin(a) * dr * .68}" stroke="#c0392b" stroke-width="1.8" vector-effect="non-scaling-stroke"/>
+                <circle cx="${e.x}" cy="${e.y}" r="${Math.max(14, r * .12)}" fill="${col}"/>
+                <text x="${e.x}" y="${e.y + dr * 1.3}" font-size="${Math.max(100, r * 1.5)}" text-anchor="middle" fill="${col}" pointer-events="none">${rd}</text>`
+                + `<circle cx="${e.x}" cy="${e.y}" r="${r * 1.25}" fill="none" stroke="transparent" stroke-width="${COARSE ? 320 : 200}" pointer-events="stroke"/>`;
+            }
             else g = `<circle cx="${e.x}" cy="${e.y}" r="${r * .6}" fill="none" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/><text x="${e.x}" y="${e.y + r * .25}" font-size="${Math.max(120, r)}" text-anchor="middle" fill="${col}" pointer-events="none">M</text>`;
             inner = base + g;
           } else if (DP_POINT_TYPES.includes(e.type)) {           // 雨水斗 / 消火栓 / 喷淋 / 分水器：各自符号
@@ -9346,7 +9359,7 @@
       if (t === 'hydrantIn') return { ...base, w: 650, h: 1000, d: 240, z: 0, rot: 0, doorOpen: false };
       if (t === 'sprinkler') return { ...base, w: 25, h: 120, z: 2600, rot: 0 };
       if (t === 'manifold') return { ...base, w: 400, h: 350, z: 0, rot: 0, n: 4, dn: 32 };
-      if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0, rot: 0, pitch: 0 };   // 管件：默认 ⌀110、件高 300；nrot=贴墙法线、rot=转向、pitch=俯仰
+      if (DP_FIT_TYPES.includes(t)) return { ...base, w: t === 'dpReducer' ? 160 : 110, dn2: t === 'dpReducer' ? 110 : 110, h: 300, z: 0, nrot: 0, rot: 0, pitch: 0, ...(t === 'dpMeter' ? { reading: 0 } : {}) };   // 管件：默认 ⌀110、件高 300；nrot=贴墙法线、rot=转向、pitch=俯仰；水表另带读数
       if (t === 'tiecol') return { ...base, w: 240, d: 240, h: 2800 };   // 构造柱：长(X) × 宽(Y) 独立可设，默认 240×240
       if (t === 'chimney') return { ...base, w: 400, h: 1200, z: 2800 };
       if (t === 'tree') return { ...base, w: 900, h: 3000 };
@@ -9489,7 +9502,8 @@
           ${DP_FIT_TYPES.includes(e.type) ? `<label title="${tr('管件底部离地面的高度，可整体抬高或沉到地面以下；自由输入，可为负', 'Fitting base level above the floor — raise it or sink below floor level; free input, negative values allowed')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('支管 / 出水口相对墙面法线的偏转角（0 = 朝墙外）；也可选中后按 R 键每次转 90°（Shift 反向）', 'Branch / outlet angle offset from the wall normal (0 = facing away); with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>
             <label title="${tr('支管 / 出水口相对墙外方向的上下俯仰角（0 = 水平、正 = 朝上、负 = 朝下）', 'Branch / outlet pitch relative to the wall normal (0 = horizontal, positive = up, negative = down)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch || 0)}" min="-360" max="375" step="15"></label>
-            ${e.type === 'dpReducer' ? `<label>${tr('变径后直径', 'Outlet ⌀')} (mm)<input type="number" id="exDn2" value="${Math.round(e.dn2 ?? 110)}" min="30" max="2000" step="10"></label>` : ''}` : ''}
+            ${e.type === 'dpReducer' ? `<label>${tr('变径后直径', 'Outlet ⌀')} (mm)<input type="number" id="exDn2" value="${Math.round(e.dn2 ?? 110)}" min="30" max="2000" step="10"></label>` : ''}
+            ${e.type === 'dpMeter' ? `<label title="${tr('字轮读数（m³），同步显示在 2D 符号与 3D 表盘上', 'Register reading (m³), shown on both the 2D symbol and the 3D dial')}">${tr('读数', 'Reading')} (m³)<input type="number" id="exReading" value="${Math.max(0, Math.round(+e.reading || 0))}" min="0" max="999999" step="1"></label>` : ''}` : ''}
           ${e.type === 'waterRiser' ? `<label title="${tr('给水立管底部离地高度；3D 按设定高度生成，默认与墙同高', 'Riser bottom above the floor')}">${tr('底标高', 'Base level')} (mm)<input type="number" id="exZ" value="${Math.round(e.z ?? 0)}" step="10"></label>
             <label title="${tr('立管固定卡扣朝向的偏转角', 'Clamp direction offset')}">${tr('转向', 'Turn')} (°)<input type="number" id="exNR" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>` : ''}
           ${e.type === 'hydrantIn' ? `<label>${tr('箱体进深', 'Cabinet depth')} (mm)<input type="number" id="exD" value="${Math.round(e.d ?? 240)}" min="100" max="600" step="10"></label>
@@ -9689,6 +9703,7 @@
         if (e0.type === 'manifold') { const nx = $('#exN'); if (nx) nx.onchange = ev => { const v = parseInt(ev.target.value, 10); if (isNaN(v)) return; mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.n = Math.max(2, Math.min(12, v)); }); }; }
         upd('exDn', (e, v) => e.dn = v, 15, 110);
         if (e0.type === 'dpReducer') { const d2 = $('#exDn2'); if (d2) d2.onchange = ev => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.dn2 = Math.max(30, Math.min(Math.max(40, (+e.w || 160) - 10), Math.round(+ev.target.value || 110))); }); }
+        if (e0.type === 'dpMeter') { const rd = $('#exReading'); if (rd) rd.onchange = ev => mutate(() => { const e = (state.extras || []).find(x => x.id === id); if (e) e.reading = Math.max(0, Math.min(999999, Math.round(+ev.target.value || 0))); }); }   // 水表读数：写回方案 / 进撤销栈 / 重绘 2D 符号与 3D 表盘
         if (e0.type === 'facCrosswalk') {   // 斑马线：进深（按 10 取整）/ 条纹数（整数，不取整）
           upd('exD', (e, v) => e.d = v, 500, 20000);
           const nex = $('#exN'); if (nex) nex.onchange = ev => {
@@ -18747,8 +18762,50 @@
         g.strokeStyle = _endSpd ? INK : RED;
         g.lineWidth = _endSpd ? 22 : 26;                       // 解除限速按国标为醒目粗黑圈
         g.beginPath(); g.arc(W / 2, H / 2, _endSpd ? W / 2 - 17 : W / 2 - 20, 0, Math.PI * 2); g.stroke();
+      } else if (def.art === 'minSpeed') {                    // 最低限速：完整蓝圆 + 下方水平留白
+        g.save(); g.beginPath(); g.arc(W / 2, H / 2, W / 2 - 6, 0, Math.PI * 2); g.clip();
+        g.fillStyle = BLUE; g.fillRect(0, 0, W, H);
+        g.fillStyle = '#fff'; g.fillRect(0, H * .78, W, H); g.restore();
       } else if (def.style === 'ind') {                       // 指示圆牌：蓝底
         g.fillStyle = BLUE; g.beginPath(); g.arc(W / 2, H / 2, W / 2 - 6, 0, Math.PI * 2); g.fill();
+      }
+      if (mode === 'board' && (def.art === 'steepUp' || def.art === 'steepDown' || def.art === 'contSteepUp' || def.art === 'contSteepDown')) {   // 陡坡：黑色坡面四周收进牌面，与黑边框之间留出黄色间隙；连续陡坡为两级阶梯坡面 + 黄底黑箭头
+        const up = def.art === 'steepUp' || def.art === 'contSteepUp';
+        const cont = def.art === 'contSteepUp' || def.art === 'contSteepDown';
+        g.save();
+        g.beginPath(); g.moveTo(128, 34); g.lineTo(232, 241); g.lineTo(24, 241); g.closePath(); g.clip();   // 图案再向内收一档，与边框之间留出均匀黄缝
+        if (cont) {
+          const X = x => up ? x : 256 - x;                                       // 下陡坡 = 上陡坡水平镜像
+          g.fillStyle = INK; g.beginPath();                                      // 黑色阶梯坡面：左侧高台 → 中平台 → 右侧低台（下坡反向）
+          g.moveTo(X(88), 130); g.lineTo(X(88), 260); g.lineTo(X(200), 260);
+          g.lineTo(X(156), 184); g.lineTo(X(118), 184); g.closePath(); g.fill();
+          const arrows = up ? [[[132, 170], [104, 126]], [[214, 224], [182, 184]]]   // 逐段沿坡向上的两枚黑箭头（尾 → 尖）
+                            : [[[152, 126], [124, 170]], [[74, 184], [42, 224]]];    // 下坡：逐段沿坡向下（左下）
+          for (const [tail, tip] of arrows) {
+            const a = Math.atan2(tip[1] - tail[1], tip[0] - tail[0]), ux = Math.cos(a), uy = Math.sin(a), px = -uy, py = ux;
+            const hl = 25, hw = 18, w = 5, bx = tip[0] - ux * hl, by = tip[1] - uy * hl;
+            g.fillStyle = INK; g.beginPath(); g.moveTo(tip[0], tip[1]);
+            g.lineTo(bx + px * hw, by + py * hw); g.lineTo(bx + px * w, by + py * w);
+            g.lineTo(tail[0] + px * w, tail[1] + py * w); g.lineTo(tail[0] - px * w, tail[1] - py * w);
+            g.lineTo(bx - px * w, by - py * w); g.lineTo(bx - px * hw, by - py * hw);
+            g.closePath(); g.fill();
+          }
+        } else {
+          g.fillStyle = INK; g.beginPath();
+          if (up) { g.moveTo(82, 125); g.lineTo(340, 324); g.lineTo(340, 340); g.lineTo(-40, 340); g.lineTo(-40, 31); }
+          else { g.moveTo(174, 125); g.lineTo(-84, 324); g.lineTo(-84, 340); g.lineTo(296, 340); g.lineTo(296, 31); }
+          g.closePath(); g.fill();
+          const tip = up ? [93, 166] : [89, 212], tail = up ? [163, 209] : [167, 169];   // 上坡箭头指左上、下坡箭头指左下
+          const a = Math.atan2(tip[1] - tail[1], tip[0] - tail[0]), ux = Math.cos(a), uy = Math.sin(a), px = -uy, py = ux;
+          const hl = 25, hw = 16, w = 6, bx = tip[0] - ux * hl, by = tip[1] - uy * hl;
+          g.fillStyle = YEL; g.beginPath();
+          g.moveTo(tip[0], tip[1]);
+          g.lineTo(bx + px * hw, by + py * hw); g.lineTo(bx + px * w, by + py * w);
+          g.lineTo(tail[0] + px * w, tail[1] + py * w); g.lineTo(tail[0] - px * w, tail[1] - py * w);
+          g.lineTo(bx - px * w, by - py * w); g.lineTo(bx - px * hw, by - py * hw);
+          g.closePath(); g.fill();
+        }
+        g.restore();
       }
       if (mode === 'board') return;
       const cx = W / 2, cy = H / 2, uni = def.style === 'warn' ? INK : '#fff';
@@ -18789,19 +18846,38 @@
       const laneBoard = () => {                                  // 车道类指示牌：蓝底方牌内的白色虚线车道边
         g.fillStyle = '#fff'; for (let y = 34; y < 226; y += 36) { g.fillRect(28, y, 10, 22); g.fillRect(218, y, 10, 22); }
       };
-      const laneArrow = (dir, x, y, col) => {                    // 车道导向箭头：直行 / 左转 / 右转 / 掉头
-        col = col || '#fff'; g.save(); g.strokeStyle = col; g.fillStyle = col; g.lineWidth = 18; g.lineCap = 'butt'; g.lineJoin = 'round';
-        const head = pts => { const [px, py] = pts[pts.length - 2], [hx, hy] = pts[pts.length - 1], a = Math.atan2(hy - py, hx - px);
-          g.beginPath(); g.moveTo(hx, hy); g.lineTo(hx - 30 * Math.cos(a - .5), hy - 30 * Math.sin(a - .5)); g.lineTo(hx - 30 * Math.cos(a + .5), hy - 30 * Math.sin(a + .5)); g.closePath(); g.fill(); };
+      const laneArrow = (dir, x, y, col, sc) => {                // 车道导向箭头：粗杆 + 大三角头，支持组合牌缩小
+        col = col || '#fff'; sc = sc || 1; const lw = 24 * sc, hl = 42 * sc, hw = 24 * sc;
+        g.save(); g.strokeStyle = col; g.fillStyle = col; g.lineWidth = lw; g.lineCap = 'butt'; g.lineJoin = 'round';
+        const head = (hx, hy, a) => { g.beginPath(); g.moveTo(hx, hy);
+          g.lineTo(hx - hl * Math.cos(a) - hw * Math.sin(a), hy - hl * Math.sin(a) + hw * Math.cos(a));
+          g.lineTo(hx - hl * Math.cos(a) + hw * Math.sin(a), hy - hl * Math.sin(a) - hw * Math.cos(a)); g.closePath(); g.fill(); };
         if (dir === 'uturn') {
-          g.beginPath(); g.moveTo(x + 36, y + 62); g.lineTo(x + 36, y - 8); g.arc(x, y - 8, 36, 0, Math.PI, true); g.lineTo(x - 36, y + 62); g.stroke();
-          head([[x - 36, y + 36], [x - 36, y + 62]]);
+          const r = 36 * sc, top = y - 8 * sc, bot = y + 62 * sc, base = bot - hl;
+          g.beginPath(); g.moveTo(x + r, bot); g.lineTo(x + r, top); g.arc(x, top, r, 0, Math.PI, true); g.lineTo(x - r, base); g.stroke();
+          head(x - r, bot, Math.PI / 2);
+        } else if (dir === 'uturnLeft') {
+          const xR = x + 40 * sc, xM = x + 4 * sc, yTop = y - 28 * sc, bot = y + 74 * sc;
+          const tipL = x - 62 * sc, baseL = tipL + hl;
+          g.beginPath(); g.moveTo(xR, bot); g.lineTo(xR, yTop + 16 * sc); g.quadraticCurveTo(xR, yTop, xR - 18 * sc, yTop); g.lineTo(baseL, yTop); g.stroke();
+          g.beginPath(); g.moveTo(xM, yTop); g.lineTo(xM, bot - hl); g.stroke();
+          head(tipL, yTop, Math.PI); head(xM, bot, Math.PI / 2);
+        } else if (dir === 'straightLeft' || dir === 'straightRight') {
+          const side = dir === 'straightLeft' ? -1 : 1;
+          const tipY = y - 56 * sc, baseY = tipY + hl, bot = y + 62 * sc, by = y + 16 * sc;
+          const tipX = x + side * 88 * sc, baseX = tipX - side * hl;
+          g.beginPath(); g.moveTo(x, bot); g.lineTo(x, baseY); g.stroke();       // 主杆直行
+          g.beginPath(); g.moveTo(x, by - 12 * sc); g.quadraticCurveTo(x, by, x + side * 18 * sc, by); g.lineTo(baseX, by); g.stroke(); // 中段分叉
+          head(x, tipY, -Math.PI / 2); head(tipX, by, side > 0 ? 0 : Math.PI);
         } else {
-          const pts = dir === 'straight' ? [[x, y + 62], [x, y - 44]]
-            : dir === 'down' ? [[x, y - 52], [x, y + 52]]
-            : dir === 'right' ? [[x, y + 62], [x, y - 18], [x + 46, y - 18]]
-            : [[x, y + 62], [x, y - 18], [x - 46, y - 18]];
-          g.beginPath(); g.moveTo(pts[0][0], pts[0][1]); for (let i = 1; i < pts.length; i++) g.lineTo(pts[i][0], pts[i][1]); g.stroke(); head(pts);
+          const pts = dir === 'straight' ? [[x, y + 62 * sc], [x, y - 44 * sc]]
+            : dir === 'down' ? [[x, y - 52 * sc], [x, y + 52 * sc]]
+            : dir === 'right' ? [[x, y + 62 * sc], [x, y - 18 * sc], [x + 46 * sc, y - 18 * sc]]
+            : [[x, y + 62 * sc], [x, y - 18 * sc], [x - 46 * sc, y - 18 * sc]];
+          const [px, py] = pts[pts.length - 2], [hx, hy] = pts[pts.length - 1], a = Math.atan2(hy - py, hx - px);
+          const shaft = pts.slice(0, -1).concat([[hx - hl * Math.cos(a), hy - hl * Math.sin(a)]]);
+          g.beginPath(); g.moveTo(shaft[0][0], shaft[0][1]); for (let i = 1; i < shaft.length; i++) g.lineTo(shaft[i][0], shaft[i][1]); g.stroke();
+          head(hx, hy, a);
         }
         g.restore();
       };
@@ -18828,20 +18904,12 @@
       }
       switch (def.art) {
         // ---- 警告 ----
-        case 'cross': g.fillStyle = INK; g.fillRect(cx - 20, 92, 40, 100); g.fillRect(cx - 60, 130, 120, 30); break;
-        case 'tcross': g.fillStyle = INK; g.fillRect(cx - 20, 96, 40, 72); g.fillRect(cx - 62, 92, 124, 30); break;
+        case 'cross': g.fillStyle = INK; g.fillRect(cx - 8, 106, 16, 96); g.fillRect(cx - 48, 146, 96, 16); break;  // 十字交叉：横竖臂等长、笔画等宽，避免画成粗肥的医药十字
+        case 'tcross': g.fillStyle = INK; g.fillRect(cx - 41, 112, 82, 20); g.fillRect(cx - 10, 132, 20, 60); break; // T 形交叉：横杠在顶部居中，竖杠从杠下居中向下
         case 'curveL': bendArrow([[108, 206], [176, 140], [94, 98]], INK); break;  // 左下→右上圆角折点→左上凹口宽箭头
         case 'curveR': bendArrow([[148, 206], [80, 140], [162, 98]], INK); break;  // 与左弯镜像
         case 'revCurve': bendArrow([[150, 200], [150, 146], [104, 146], [104, 84]], INK, 24, 44, 44); break;
         case 'contCurve': bendArrow([[170, 198], [170, 150], [110, 150], [110, 92]], INK, 24, 44, 44); text('≫', cx - 4, 66, 40, INK); break;
-        case 'steepUp': {                                      // 上陡坡：黑色坡面放大居中，坡面上画粗白箭头（箭身 + 实心箭头整体落在黑坡内），远距离也看得清
-          g.fillStyle = INK; g.beginPath(); g.moveTo(34, 210); g.lineTo(166, 96); g.lineTo(214, 210); g.closePath(); g.fill();
-          bigArrow(64, 198, 160, 118, '#fff'); break;
-        }
-        case 'steepDown': {                                    // 下陡坡：坡面左高右低，粗箭头沿坡面指向右下
-          g.fillStyle = INK; g.beginPath(); g.moveTo(222, 210); g.lineTo(90, 96); g.lineTo(42, 210); g.closePath(); g.fill();
-          bigArrow(96, 118, 192, 198, '#fff'); break;
-        }
         case 'narrow': {                                        // 路两侧变窄：两侧粗折线，上端向内收、下端向外张
           g.save(); g.strokeStyle = INK; g.lineWidth = 22; g.lineCap = 'butt'; g.lineJoin = 'round';
           g.beginPath(); g.moveTo(104, 86); g.lineTo(104, 120); g.lineTo(78, 146); g.lineTo(78, 200);
@@ -19009,7 +19077,7 @@
           }
           break;
         }
-        case 'allowUTurn': g.strokeStyle = '#fff'; g.lineWidth = 22; g.beginPath(); g.moveTo(cx - 52, 196); g.lineTo(cx - 52, 120); g.arc(cx, 120, 52, Math.PI, 0); g.lineTo(cx + 52, 172); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(cx + 52, 224); g.lineTo(cx + 22, 168); g.lineTo(cx + 82, 168); g.closePath(); g.fill(); break;
+        case 'allowUTurn': g.strokeStyle = '#fff'; g.lineWidth = 22; g.beginPath(); g.moveTo(cx + 52, 196); g.lineTo(cx + 52, 120); g.arc(cx, 120, 52, 0, Math.PI, true); g.lineTo(cx - 52, 172); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(cx - 52, 224); g.lineTo(cx - 22, 168); g.lineTo(cx - 82, 168); g.closePath(); g.fill(); break;
         case 'crosswalk': {                                     // 人行横道：蓝底方牌 + 白色正三角 + 黑色行人和斜斑马线
           g.fillStyle = '#fff'; g.beginPath(); g.moveTo(cx, 32); g.lineTo(214, 214); g.lineTo(42, 214); g.closePath(); g.fill();
           g.strokeStyle = INK; g.fillStyle = INK; g.lineWidth = 14; g.lineCap = 'butt'; g.beginPath();
@@ -19029,15 +19097,15 @@
         case 'laneRight': laneBoard(); laneArrow('right', cx, 128); break;
         case 'laneLeft': laneBoard(); laneArrow('left', cx, 128); break;
         case 'laneStraight': laneBoard(); laneArrow('straight', cx, 128); break;
-        case 'laneStraightRight': laneBoard(); laneArrow('straight', cx - 24, 128); laneArrow('right', cx + 24, 128); break;
-        case 'laneStraightLeft': laneBoard(); laneArrow('straight', cx + 24, 128); laneArrow('left', cx - 24, 128); break;
+        case 'laneStraightRight': laneBoard(); laneArrow('straightRight', cx - 26, 128, '#fff', .85); break;
+        case 'laneStraightLeft': laneBoard(); laneArrow('straightLeft', cx + 26, 128, '#fff', .85); break;
         case 'laneUTurn': laneBoard(); laneArrow('uturn', cx, 128); break;
-        case 'laneUTurnLeft': laneBoard(); laneArrow('uturn', cx - 24, 128); laneArrow('left', cx + 24, 128); break;
-        case 'motorVehicleLane': laneBoard(); frontCar(cx, 102, .78, '#fff', BLUE); laneArrow('down', cx, 184); break;
-        case 'smallCarLane': laneBoard(); carBody(cx, 96, 1.25, '#fff'); laneArrow('down', cx, 178); break;
-        case 'busLane': laneBoard(); busBody(cx, 100, .85, '#fff', BLUE); laneArrow('down', cx, 180); break;
-        case 'brtLane': laneBoard(); text('BRT', cx, 60, 40, '#fff'); busBody(cx, 114, .8, '#fff', BLUE); laneArrow('down', cx, 186); break;
-        case 'tramLane': laneBoard(); busBody(cx, 108, .85, '#fff', BLUE); g.strokeStyle = '#fff'; g.lineWidth = 8; g.beginPath(); g.moveTo(cx - 18, 72); g.lineTo(cx, 52); g.lineTo(cx + 18, 72); g.stroke(); laneArrow('down', cx, 184); break;
+        case 'laneUTurnLeft': laneBoard(); laneArrow('uturnLeft', cx, 128, '#fff', .85); break;
+        case 'motorVehicleLane': laneBoard(); frontCar(cx, 102, .78, '#fff', BLUE); laneArrow('down', cx, 178, '#fff', .78); break;
+        case 'smallCarLane': laneBoard(); carBody(cx, 96, 1.25, '#fff'); laneArrow('down', cx, 176, '#fff', .8); break;
+        case 'busLane': laneBoard(); busBody(cx, 100, .85, '#fff', BLUE); laneArrow('down', cx, 176, '#fff', .75); break;
+        case 'brtLane': laneBoard(); text('BRT', cx, 58, 38, '#fff'); busBody(cx, 110, .8, '#fff', BLUE); laneArrow('down', cx, 182, '#fff', .65); break;
+        case 'tramLane': laneBoard(); busBody(cx, 108, .85, '#fff', BLUE); g.strokeStyle = '#fff'; g.lineWidth = 8; g.beginPath(); g.moveTo(cx - 18, 72); g.lineTo(cx, 52); g.lineTo(cx + 18, 72); g.stroke(); laneArrow('down', cx, 182, '#fff', .68); break;
         case 'nonMotorLane': case 'nonMotor': g.strokeStyle = '#fff'; g.lineWidth = 11; g.beginPath(); g.arc(cx - 40, 172, 34, 0, 7); g.arc(cx + 42, 172, 34, 0, 7); g.stroke(); g.beginPath(); g.moveTo(cx - 40, 172); g.lineTo(cx - 6, 118); g.lineTo(cx + 22, 118); g.lineTo(cx + 42, 172); g.moveTo(cx - 6, 118); g.lineTo(cx + 42, 172); g.stroke(); g.beginPath(); g.arc(cx + 24, 92, 13, 0, 7); g.stroke(); break;
         case 'minSpeed': text(String(e.limit ?? def.def), cx, cy + 10, 104, '#fff'); break;
         case 'oneWay': g.strokeStyle = '#fff'; g.lineWidth = 26; g.beginPath(); g.moveTo(cx, 396); g.lineTo(cx, 200); g.stroke(); g.fillStyle = '#fff'; g.beginPath(); g.moveTo(cx, 116); g.lineTo(cx - 56, 208); g.lineTo(cx + 56, 208); g.closePath(); g.fill(); break;
@@ -24152,6 +24220,28 @@
               return;
             }
             const PLM = { p: mat('#c9cdd1', { metalness: .2, roughness: .55 }), b: mat('#5f676d', { metalness: .15, roughness: .75, side: THREE.BackSide }), r: mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide }) };
+            const meterFaceTex = reading => {                     // 水表表盘贴图：刻度 + 指针 + 字轮读数，按读数缓存（最多 64 张，避免反复修改读数时纹理无限增长）
+              const rd = Math.max(0, Math.min(999999, Math.round(+reading || 0)));
+              meterFaceTex.cache ||= new Map();
+              if (meterFaceTex.cache.has(rd)) return meterFaceTex.cache.get(rd);
+              const c = document.createElement('canvas'); c.width = c.height = 256;
+              const g2 = c.getContext('2d');
+              g2.fillStyle = '#f5f2e8'; g2.fillRect(0, 0, 256, 256);
+              g2.strokeStyle = '#2b2b2b'; g2.lineWidth = 4; g2.beginPath(); g2.arc(128, 128, 120, 0, Math.PI * 2); g2.stroke();
+              for (let i = 0; i < 50; i++) { const ang = i * Math.PI * 2 / 50 - Math.PI / 2, big = i % 5 === 0, r0 = big ? 94 : 104;
+                g2.strokeStyle = '#333'; g2.lineWidth = big ? 3 : 1.4; g2.beginPath();
+                g2.moveTo(128 + Math.cos(ang) * r0, 128 + Math.sin(ang) * r0); g2.lineTo(128 + Math.cos(ang) * 114, 128 + Math.sin(ang) * 114); g2.stroke(); }
+              g2.fillStyle = '#222'; g2.font = 'bold 19px Arial'; g2.textAlign = 'center'; g2.textBaseline = 'middle';
+              for (let i = 0; i < 10; i++) { const ang = i * Math.PI / 5 - Math.PI / 2; g2.fillText(String(i), 128 + Math.cos(ang) * 77, 128 + Math.sin(ang) * 77); }
+              const pa = (rd % 10) / 10 * Math.PI * 2 - Math.PI / 2;
+              g2.strokeStyle = '#c0392b'; g2.lineWidth = 5; g2.lineCap = 'round'; g2.beginPath(); g2.moveTo(128, 128); g2.lineTo(128 + Math.cos(pa) * 72, 128 + Math.sin(pa) * 72); g2.stroke();
+              g2.fillStyle = '#1a1a1a'; g2.beginPath(); g2.arc(128, 128, 8, 0, Math.PI * 2); g2.fill();
+              g2.fillStyle = '#161616'; g2.fillRect(70, 173, 116, 34); g2.fillStyle = '#f5f2e8'; g2.font = 'bold 25px monospace'; g2.fillText(String(rd).padStart(6, '0'), 128, 190);
+              g2.fillStyle = '#444'; g2.font = 'bold 12px Arial'; g2.fillText('m³', 128, 56);
+              const t = new THREE.CanvasTexture(c); t.colorSpace = THREE.SRGBColorSpace; t.anisotropy = 4;
+              if (meterFaceTex.cache.size > 64) meterFaceTex.cache.clear();
+              meterFaceTex.cache.set(rd, t); return t;
+            };
             const pWT = rr => Math.min(.008, rr * .22);
             const pTube = (A, B, rr, mm = PLM) => {              // 通用空心圆管：外壁 + BackSide 内腔 + 两端管口环面
               const dx = B[0] - A[0], dy = B[1] - A[1], dz = B[2] - A[2], L = Math.hypot(dx, dy, dz);
@@ -24375,10 +24465,15 @@
                 const r2 = Math.max(.012, Math.min(r * .96, r * Math.min(2, Math.max(.25, (+e.dn2 || 110) / (+e.w || 160)))));
                 pTaper(px, pz, zbF, zbF + h, r, r2);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
-              } else if (T3 === 'dpCoupling') {                  // 管箍：外套空心短节，两端露出管口，不堵管腔
-                const mm = { p: mat('#8a9198', { metalness: .6, roughness: .4 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
+              } else if (T3 === 'dpCoupling') {                  // 管箍：黑色橡胶柔性接头——两端外扩凸缘、中间收腰的空心套筒，套在贯通灰管上不堵管腔
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
-                pTube([px, yc - h * .21, pz], [px, yc + h * .21, pz], r * 1.35, mm);
+                const yc = zbF + h / 2, ch = h * .62, rip = r * 1.02;   // 套筒内孔略大于管外径，管子从中穿过
+                const prof = [[rip, -ch / 2], [r * 1.45, -ch / 2], [r * 1.62, -ch * .44], [r * 1.62, -ch * .36],
+                  [r * 1.33, -ch * .26], [r * 1.29, 0], [r * 1.33, ch * .26], [r * 1.62, ch * .36],
+                  [r * 1.62, ch * .44], [r * 1.45, ch / 2], [rip, ch / 2], [rip, -ch / 2]];
+                const sleeve = new THREE.Mesh(new THREE.LatheGeometry(prof.map(([rr, yy]) => new THREE.Vector2(rr, yy)), 24),
+                  mat('#262626', { roughness: .88, metalness: .04, side: THREE.DoubleSide }));
+                sleeve.position.set(px, yc, pz); sleeve.castShadow = true; archUp.add(sleeve);
                 fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
               } else if (T3 === 'dpCleanout') {                  // 检查口：主管 + 侧支管 + 可拆盖板（带底座环）
                 dpTube([px, zbF, pz], [px, zbF + h, pz]);
@@ -24410,14 +24505,25 @@
                 hub.position.set(px, wy, pz); archUp.add(hub);   // 手轮轮毂
                 for (let i = 0; i < 3; i++) box(r * 2.1, .012, .022, px, wy, pz, mat('#b5653a', { metalness: .3, roughness: .6 }), i * 60);   // 手轮三根辐条
                 fitCol([[fx, yl, fz], [px, yl, pz], [ex, yl, ez]], wy + .02);
-              } else if (T3 === 'dpMeter') {                     // 水表：空心表壳 + 表盘（不遮断管腔）
-                const mm = { p: mat('#c4ccd2', { metalness: .35, roughness: .5 }), b: PLM.b, r: PLM.r }, yc = zbF + h / 2;
-                pTube([px, yc - h * .25, pz], [px, yc + h * .25, pz], r * 1.3, mm);
-                dpTube([px, zbF, pz], [px, yc - h * .25, pz]);
-                dpTube([px, yc + h * .25, pz], [px, zbF + h, pz]);
-                const dial = new THREE.Mesh(new THREE.CircleGeometry(r * .8, 20), mat('#eef2f4', { roughness: .8 }));
-                dial.position.set(px + dirx * (r * 1.31), yc, pz + dirz * (r * 1.31)); dial.rotation.y = -wr + Math.PI / 2; archUp.add(dial);
-                fitCol([[px, zbF, pz], [px, zbF + h, pz]], zbF + h);
+              } else if (T3 === 'dpMeter') {                     // 水表：黄铜表壳 + 上下六角活接 + 朝墙外的表盘（刻度 / 指针 / 字轮读数 / 玻璃罩），管腔全程贯通
+                const brass = mat('#b08d57', { metalness: .6, roughness: .4 }), dark = mat('#6f6452', { metalness: .5, roughness: .5 });
+                const mm = { p: brass, b: PLM.b, r: PLM.r }, yc = zbF + h / 2, y0 = yc - h * .25, y1 = yc + h * .25;
+                pTube([px, y0, pz], [px, y1, pz], r * 1.3, mm);                                          // 加粗表壳（空心，不遮断管腔）
+                dpTube([px, zbF, pz], [px, y0, pz]); dpTube([px, y1, pz], [px, zbF + h, pz]);             // 上下接管
+                [y0, y1].forEach(y => {                                                                 // 六角活接螺母（带内孔的空心六棱柱）
+                  const nut = new THREE.Mesh(new THREE.CylinderGeometry(r * 1.5, r * 1.5, r * .45, 6, 1, true), brass);
+                  nut.position.set(px, y, pz); nut.castShadow = true; archUp.add(nut);
+                  const rim = new THREE.Mesh(new THREE.RingGeometry(r * 1.28, r * 1.5, 6), mm.r);
+                  rim.rotation.x = -Math.PI / 2; rim.position.set(px, y + r * .225, pz); archUp.add(rim);
+                  const rim2 = rim.clone(); rim2.rotation.x = Math.PI / 2; rim2.position.y = y - r * .225; archUp.add(rim2);
+                });
+                const g = new THREE.Group(); g.position.set(px + dirx * (r * 1.33), yc, pz + dirz * (r * 1.33)); g.rotation.y = -wr + Math.PI / 2; archUp.add(g);   // 表盘局部系：+Z 朝墙外
+                const plate = new THREE.Mesh(new THREE.CircleGeometry(r * .82, 32), new THREE.MeshBasicMaterial({ map: meterFaceTex(e.reading), toneMapped: false }));
+                plate.position.z = .002; g.add(plate);                                                  // 表盘面（Canvas 贴图：刻度 / 指针 / 读数）
+                const bezel = new THREE.Mesh(new THREE.TorusGeometry(r * .86, r * .1, 8, 24), dark); bezel.position.z = .004; g.add(bezel);   // 金属压圈
+                const glass = new THREE.Mesh(new THREE.CircleGeometry(r * .82, 32), new THREE.MeshPhysicalMaterial({ color: '#ffffff', transparent: true, opacity: .18, roughness: .05, metalness: 0, depthWrite: false }));
+                glass.position.z = .008; glass.userData.pickGlass = true; g.add(glass);                 // 玻璃罩：半透明，不挡拾取
+                fitCol([[px, zbF, pz], [px, zbF + h, pz], [px + dirx * r * 1.5, yc, pz + dirz * r * 1.5]], zbF + h);
               } else {                                          // 蓄水弯（S 弯水封）：竖落 → 底横 → 竖升（水封段）→ 出水横管（朝墙外）
                 const ylow = Math.max(r * 1.6, h - r * 3.4), ymid = Math.min(h - .02, ylow + r * 1.8), o1 = r * 1.2, o2 = r * 3;
                 const P = [
