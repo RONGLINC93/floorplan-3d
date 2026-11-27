@@ -172,6 +172,29 @@
       flex: 1
     }
 
+    /* 顶栏第二行：上下文工具条（视角 / 图层开关），仿设计软件选项栏 */
+    #subbar {
+      order: 1;
+      flex-basis: 100%;
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin-top: 2px;
+      padding-top: 8px;
+      border-top: 1px dashed var(--line)
+    }
+
+    /* 宽屏：视图切换居中于主栏，仿设计软件标题栏 */
+    @media (min-width:1300px) {
+      header #viewSeg {
+        position: absolute;
+        left: 50%;
+        top: 8px;
+        transform: translateX(-50%)
+      }
+    }
+
     aside {
       background: var(--panel);
       overflow: auto;
@@ -2615,8 +2638,8 @@
       }
 
       /* 非核心工具收进第二行；再次点击「⋯ 工具」收起 */
-      #mainTools,
-      #mainTools>*,
+      #subbar,
+      #editGrp,
       #langSel,
       #fullscreen,
       header details.menu {
@@ -2624,12 +2647,21 @@
         display: none
       }
 
-      header.show-tools #mainTools,
-      header.show-tools #mainTools>* {
-        display: contents
+      #subbar {
+        min-width: 0;
+        max-width: 100%
       }
 
-      header.show-tools #mainTools>.grp {
+      #subbar .grp {
+        flex-wrap: wrap;
+        max-width: 100%
+      }
+
+      header.show-tools #subbar {
+        display: flex
+      }
+
+      header.show-tools #editGrp {
         display: flex
       }
 
@@ -2950,12 +2982,15 @@
             id="planTag"></span></div><span id="subtitle">原始户型 1:60 ·
           尺寸单位 mm</span>
       </div>
+      <div class="spacer"></div>
       <div class="grp seg" id="viewSeg" title="切换 2D / 3D (T)" data-en-title="Switch 2D / 3D (T)">
         <span class="pill"></span>
         <button class="btn" data-view="2d" data-short="2D" data-en="2D Plan">2D 平面</button>
         <button class="btn" data-view="3d" data-short="3D" data-en="3D Scene">3D 场景</button>
       </div>
-      <div id="mainTools">
+      <div class="spacer"></div>
+      <div id="subbar">
+        <div id="mainTools">
         <div class="grp only3d" id="modes3d">
           <button class="btn on" data-mode="orbit" data-en="Orbit">鸟瞰</button>
           <button class="btn" data-mode="walk" data-en="Walk">漫游</button>
@@ -2963,13 +2998,6 @@
         <div class="grp only3d">
           <button class="btn" id="vIso" data-en="Iso">斜视</button>
           <button class="btn" id="vTop" data-en="Top">俯视</button>
-        </div>
-        <div class="grp" id="editGrp">
-          <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo">撤销</button>
-          <button class="btn" id="redo" title="重做 (Ctrl+Shift+Z)" data-en-title="Redo (Ctrl+Shift+Z)"
-            data-en="Redo">重做</button>
-          <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）"
-            data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
         </div>
         <div class="grp only2d" id="layers">
           <button class="btn chip on" data-layer="dims" data-en="Dims">尺寸</button>
@@ -3004,14 +3032,14 @@
             data-en-title="Show an orange highlight when hovering interactive objects (doors / windows / lamps / lift buttons...); turn off for a clean view — tooltips, click actions and walk-aim tips are unaffected">交互高亮</button>
         </div>
       </div>
-      <div class="spacer"></div>
-      <div class="grp" id="langSel" role="group" aria-label="Language / 语言">
-        <button class="btn chip" data-lang="zh" title="简体中文">简</button>
-        <button class="btn chip" data-lang="zht" title="繁體中文">繁</button>
-        <button class="btn chip" data-lang="en" title="English">EN</button>
       </div>
-      <button class="btn" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff">⛶
-        全屏</button>
+      <div class="grp" id="editGrp">
+        <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo">撤销</button>
+        <button class="btn" id="redo" title="重做 (Ctrl+Shift+Z)" data-en-title="Redo (Ctrl+Shift+Z)"
+          data-en="Redo">重做</button>
+        <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）"
+          data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
+      </div>
       <button class="btn" id="quickSave" title="保存方案 (Ctrl+S)" data-en="Save"
         style="border:1px solid var(--line);background:#fff">保存</button>
       <details class="menu">
@@ -3029,6 +3057,13 @@
           <button class="btn danger" id="reset" data-en="Reset to default">重置为默认方案</button>
         </div>
       </details>
+      <div class="grp" id="langSel" role="group" aria-label="Language / 语言">
+        <button class="btn chip" data-lang="zh" title="简体中文">简</button>
+        <button class="btn chip" data-lang="zht" title="繁體中文">繁</button>
+        <button class="btn chip" data-lang="en" title="English">EN</button>
+      </div>
+      <button class="btn" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff">⛶
+        全屏</button>
       <button class="btn mobile-only" id="mobileMore" aria-expanded="false" data-en="More">⋯ 工具</button>
       <div class="mobile-break" aria-hidden="true"></div>
       <input type="file" id="fileIn" accept=".json,application/json" hidden>

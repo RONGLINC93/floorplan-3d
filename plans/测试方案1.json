@@ -1,5 +1,17 @@
 {
-  "furniture": [],
+  "furniture": [
+    {
+      "id": "fmwz4wxub148",
+      "type": "sofa",
+      "name": "双人沙发",
+      "cx": 13860,
+      "cy": -8040,
+      "w": 1700,
+      "d": 880,
+      "rot": 0,
+      "color": "#1abc76"
+    }
+  ],
   "rooms": {},
   "demolished": [],
   "measures": [],
@@ -305,12 +317,12 @@
     {
       "type": "signNoPass",
       "w": 700,
-      "h": 2200,
-      "rot": 0,
-      "off": 0,
+      "h": 3600,
+      "rot": 75,
+      "off": -950,
       "id": "fmwyga47i154",
-      "x": 13970,
-      "y": -5060
+      "x": 15410,
+      "y": -9490
     },
     {
       "type": "signNoLongPark",
@@ -444,7 +456,7 @@
       "id": "fmwysjeua152",
       "x": 10900,
       "y": -8350,
-      "color": "#3e281d"
+      "color": "#d7bc0f"
     },
     {
       "type": "dpTerminal",
@@ -511,7 +523,19 @@
   "activeFloor": "f1",
   "byFloor": {
     "f1": {
-      "furniture": [],
+      "furniture": [
+        {
+          "id": "fmwz4wxub148",
+          "type": "sofa",
+          "name": "双人沙发",
+          "cx": 13860,
+          "cy": -8040,
+          "w": 1700,
+          "d": 880,
+          "rot": 0,
+          "color": "#1abc76"
+        }
+      ],
       "rooms": {},
       "demolished": [],
       "measures": [],
@@ -815,12 +839,12 @@
         {
           "type": "signNoPass",
           "w": 700,
-          "h": 2200,
-          "rot": 0,
-          "off": 0,
+          "h": 3600,
+          "rot": 75,
+          "off": -950,
           "id": "fmwyga47i154",
-          "x": 13970,
-          "y": -5060
+          "x": 15410,
+          "y": -9490
         },
         {
           "type": "signNoLongPark",
@@ -954,7 +978,7 @@
           "id": "fmwysjeua152",
           "x": 10900,
           "y": -8350,
-          "color": "#3e281d"
+          "color": "#d7bc0f"
         },
         {
           "type": "dpTerminal",
