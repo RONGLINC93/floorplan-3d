@@ -3527,8 +3527,10 @@
             <button class="btn chip" data-dt="signContCurve" title="连续弯路：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Continuous curves: click to place; edit face / height / width / angle in the panel" data-en="Continuous curves"><i data-lucide="git-branch"></i>连续弯路</button>
             <button class="btn chip" data-dt="signSteepUp" title="上陡坡：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Steep uphill: click to place; edit face / height / width / angle in the panel" data-en="Steep uphill"><i data-lucide="trending-up"></i>上陡坡</button>
             <button class="btn chip" data-dt="signSteepDown" title="下陡坡：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Steep downhill: click to place; edit face / height / width / angle in the panel" data-en="Steep downhill"><i data-lucide="trending-down"></i>下陡坡</button>
-            <button class="btn chip" data-dt="signNarrow" title="窄路：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Narrow road: click to place; edit face / height / width / angle in the panel" data-en="Narrow road"><i data-lucide="shrink"></i>窄路</button>
+            <button class="btn chip" data-dt="signNarrow" title="路两侧变窄：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Road narrows on both sides: click to place; edit face / height / width / angle in the panel" data-en="Road narrows on both sides"><i data-lucide="shrink"></i>路两侧变窄</button>
             <button class="btn chip" data-dt="signNarrowBridge" title="窄桥：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Narrow bridge: click to place; edit face / height / width / angle in the panel" data-en="Narrow bridge"><i data-lucide="columns-3"></i>窄桥</button>
+            <button class="btn chip" data-dt="signNarrowLeft" title="路左侧变窄：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Road narrows on left: click to place; edit face / height / width / angle in the panel" data-en="Road narrows on left"><i data-lucide="shrink"></i>路左侧变窄</button>
+            <button class="btn chip" data-dt="signNarrowRight" title="路右侧变窄：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Road narrows on right: click to place; edit face / height / width / angle in the panel" data-en="Road narrows on right"><i data-lucide="shrink"></i>路右侧变窄</button>
             <button class="btn chip" data-dt="signTwoWay" title="双向交通：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Two-way traffic: click to place; edit face / height / width / angle in the panel" data-en="Two-way traffic"><i data-lucide="arrow-left-right"></i>双向交通</button>
             <button class="btn chip" data-dt="signChildren" title="注意儿童：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Children: click to place; edit face / height / width / angle in the panel" data-en="Children"><i data-lucide="baby"></i>注意儿童</button>
             <button class="btn chip" data-dt="signSignal" title="注意信号灯：点击放置；右侧可改牌面 / 杆高 / 板宽 / 朝向" data-en-title="Traffic signals: click to place; edit face / height / width / angle in the panel" data-en="Traffic signals"><i data-lucide="traffic-cone"></i>注意信号灯</button>
@@ -6900,8 +6902,10 @@
       signContCurve:   { zh:'连续弯路',     en:'Continuous curves',    shape:'tri',  style:'warn', glyph:'弯', art:'contCurve',   c2:'#e9b53a' },
       signSteepUp:     { zh:'上陡坡',       en:'Steep uphill',         shape:'tri',  style:'warn', glyph:'上', art:'steepUp',     c2:'#e9b53a' },
       signSteepDown:   { zh:'下陡坡',       en:'Steep downhill',       shape:'tri',  style:'warn', glyph:'下', art:'steepDown',   c2:'#e9b53a' },
-      signNarrow:      { zh:'窄路',         en:'Narrow road',          shape:'tri',  style:'warn', glyph:'窄', art:'narrow',      c2:'#e9b53a' },
+      signNarrow:      { zh:'路两侧变窄',   en:'Road narrows both sides',shape:'tri', style:'warn', glyph:'窄', art:'narrow',      c2:'#e9b53a' },
       signNarrowBridge:{ zh:'窄桥',         en:'Narrow bridge',        shape:'tri',  style:'warn', glyph:'桥', art:'narrowBridge',c2:'#e9b53a' },
+      signNarrowLeft:  { zh:'路左侧变窄',   en:'Road narrows on left', shape:'tri',  style:'warn', glyph:'左', art:'narrowLeft',  c2:'#e9b53a' },
+      signNarrowRight: { zh:'路右侧变窄',   en:'Road narrows on right',shape:'tri',  style:'warn', glyph:'右', art:'narrowRight', c2:'#e9b53a' },
       signTwoWay:      { zh:'双向交通',     en:'Two-way traffic',      shape:'tri',  style:'warn', glyph:'双', art:'twoWay',      c2:'#e9b53a' },
       signChildren:    { zh:'注意儿童',     en:'Children',             shape:'tri',  style:'warn', glyph:'儿', art:'children',    c2:'#e9b53a' },
       signSignal:      { zh:'注意信号灯',   en:'Traffic signals',      shape:'tri',  style:'warn', glyph:'灯', art:'signal',      c2:'#e9b53a' },
@@ -18694,13 +18698,13 @@
     const signFaceCache = new Map();
     /* ===== 新增 GB 5768 标志牌面绘制（256×256 圆/三角/倒三角，横矩形 512×200，竖矩形 256×512）=====
        统一先铺板形底色与边框，再按 art 画简笔图案；仅依赖 def，新增标志只需在 SIGN_DEFS 加一行 + 一个 art 分支。 */
-    function drawNewSignFace(g, e, def) {
+    function drawNewSignFace(g, e, def, mode) {                // mode: 'board' 只画板形 / 'icon' 只画图案 / 默认整套
       const S = 256, BLUE = '#1a6db5', RED = '#cf3126', YEL = '#f7c948', GRY = '#8a8f94', INK = '#161616';
       const wide = def.shape === 'rect', portrait = !!def.portrait;
       const W = portrait ? 256 : (wide ? 512 : S), H = portrait ? 512 : (wide ? 200 : S);
       g.clearRect(0, 0, W, H);
       // 板形底色 / 边框
-      if (def.shape === 'tri') {
+      if (mode !== 'icon') if (def.shape === 'tri') {
         // 三角贴图画满整幅画布：3D 板形 uv 归一化到 0..1，若这里留白会让牌面边缘一圈漏空（约 30%）
         g.fillStyle = YEL; g.strokeStyle = INK; g.lineWidth = 20; g.lineJoin = 'round';
         g.beginPath(); g.moveTo(W / 2, 0); g.lineTo(W, H); g.lineTo(0, H); g.closePath(); g.fill(); g.stroke();
@@ -18719,6 +18723,7 @@
       } else if (def.style === 'ind') {                       // 指示圆牌：蓝底
         g.fillStyle = BLUE; g.beginPath(); g.arc(W / 2, H / 2, W / 2 - 6, 0, Math.PI * 2); g.fill();
       }
+      if (mode === 'board') return;
       const cx = W / 2, cy = H / 2, uni = def.style === 'warn' ? INK : '#fff';
       g.lineJoin = 'round'; g.lineCap = 'round';
       const text = (t, x, y, size, col) => { g.fillStyle = col || uni; g.font = `bold ${size}px "Microsoft YaHei", Arial`; g.textAlign = 'center'; g.textBaseline = 'middle'; g.fillText(t, x, y); };
@@ -18728,6 +18733,30 @@
         g.fillStyle = col; g.beginPath(); g.moveTo(x2, y2);
         g.lineTo(x2 - hs * Math.cos(a - .5), y2 - hs * Math.sin(a - .5));
         g.lineTo(x2 - hs * Math.cos(a + .5), y2 - hs * Math.sin(a + .5)); g.closePath(); g.fill();
+      };
+      const bigArrow = (x1, y1, x2, y2, col) => {             // 整块填充的粗箭头：粗杆 + 大三角箭头，缩放后仍是完整箭头而不是一根白棒
+        const a = Math.atan2(y2 - y1, x2 - x1), ux = Math.cos(a), uy = Math.sin(a), px = -uy, py = ux;
+        const w = 13, hw = 30, back = 46, bx = x2 - ux * back, by = y2 - uy * back;
+        g.fillStyle = col; g.beginPath();
+        g.moveTo(x1 + px * w, y1 + py * w); g.lineTo(bx + px * w, by + py * w);
+        g.lineTo(bx + px * hw, by + py * hw); g.lineTo(x2, y2);
+        g.lineTo(bx - px * hw, by - py * hw); g.lineTo(bx - px * w, by - py * w);
+        g.lineTo(x1 - px * w, y1 - py * w); g.closePath(); g.fill();
+      };
+      const bendArrow = (pts, col, lw, headLen, headW) => {     // GB 5768 弯路类粗箭头：折点圆角、箭杆只画到凹口，末端是带 V 形凹口的宽箭头头
+        col = col || uni; lw = lw || 26; headLen = headLen || 56; headW = headW || 54;
+        const tip = pts[pts.length - 1], prev = pts[pts.length - 2];
+        const a = Math.atan2(tip[1] - prev[1], tip[0] - prev[0]) + Math.PI; // 箭尖指向来杆的方向
+        const cos = Math.cos(a), sin = Math.sin(a);
+        const rot = (x, y) => [tip[0] + x * cos - y * sin, tip[1] + x * sin + y * cos];
+        const T = tip, U = rot(headLen, -headW / 2), N = rot(headLen * .72, 0), L = rot(headLen, headW / 2);
+        g.save();
+        g.strokeStyle = col; g.fillStyle = col; g.lineWidth = lw; g.lineCap = 'butt'; g.lineJoin = 'round';
+        g.beginPath(); g.moveTo(pts[0][0], pts[0][1]);
+        for (let i = 1; i < pts.length - 1; i++) g.lineTo(pts[i][0], pts[i][1]);
+        g.lineTo(N[0], N[1]); g.stroke();
+        g.beginPath(); g.moveTo(T[0], T[1]); g.lineTo(U[0], U[1]); g.lineTo(N[0], N[1]); g.lineTo(L[0], L[1]); g.closePath(); g.fill();
+        g.restore();
       };
       const carBody = (x, y, sc, col) => { g.fillStyle = col; g.fillRect(x - 34 * sc, y - 12 * sc, 68 * sc, 26 * sc); g.beginPath(); g.arc(x - 20 * sc, y + 15 * sc, 9 * sc, 0, 7); g.arc(x + 20 * sc, y + 15 * sc, 9 * sc, 0, 7); g.fill(); };
       const slash = (col, one) => { g.strokeStyle = col; g.lineWidth = 24; if (one) { g.beginPath(); g.moveTo(58, W - 58); g.lineTo(W - 58, 58); g.stroke(); } else { g.beginPath(); g.moveTo(58, 58); g.lineTo(W - 58, W - 58); g.moveTo(W - 58, 58); g.lineTo(58, W - 58); g.stroke(); } };
@@ -18740,21 +18769,99 @@
         // ---- 警告 ----
         case 'cross': g.fillStyle = INK; g.fillRect(cx - 20, 92, 40, 100); g.fillRect(cx - 60, 130, 120, 30); break;
         case 'tcross': g.fillStyle = INK; g.fillRect(cx - 20, 96, 40, 72); g.fillRect(cx - 62, 92, 124, 30); break;
-        case 'curveL': arrow(160, 200, 160, 130, INK); arrow(160, 130, 88, 110, INK); break;
-        case 'curveR': arrow(96, 200, 96, 130, INK); arrow(96, 130, 168, 110, INK); break;
-        case 'revCurve': arrow(150, 200, 150, 140, INK); arrow(150, 140, 104, 140, INK); arrow(104, 140, 104, 82, INK); break;
-        case 'contCurve': arrow(170, 198, 170, 150, INK); arrow(170, 150, 110, 150, INK); arrow(110, 150, 110, 92, INK); text('≫', cx - 4, 66, 40, INK); break;
-        case 'steepUp': g.fillStyle = INK; g.beginPath(); g.moveTo(54, 198); g.lineTo(202, 92); g.lineTo(202, 198); g.closePath(); g.fill(); arrow(90, 176, 168, 122, '#fff', 16); break;
-        case 'steepDown': g.fillStyle = INK; g.beginPath(); g.moveTo(54, 92); g.lineTo(202, 198); g.lineTo(54, 198); g.closePath(); g.fill(); arrow(88, 118, 166, 172, '#fff', 16); break;
-        case 'narrow': g.strokeStyle = INK; g.lineWidth = 16; g.beginPath(); g.moveTo(58, 200); g.lineTo(108, 84); g.moveTo(198, 200); g.lineTo(148, 84); g.stroke(); break;
-        case 'narrowBridge': g.strokeStyle = INK; g.lineWidth = 14; g.strokeRect(78, 96, 100, 96); g.beginPath(); g.moveTo(78, 120); g.lineTo(178, 120); g.moveTo(78, 168); g.lineTo(178, 168); g.stroke(); break;
-        case 'twoWay': arrow(96, 190, 96, 92, INK, 16); arrow(160, 92, 160, 190, INK, 16); break;
-        case 'children': g.fillStyle = INK; g.beginPath(); g.arc(100, 96, 20, 0, 7); g.arc(160, 108, 16, 0, 7); g.fill(); g.fillRect(86, 118, 28, 62); g.fillRect(148, 126, 24, 52); break;
-        case 'signal': g.fillStyle = INK; g.fillRect(cx - 26, 76, 52, 106); g.fillStyle = YEL; [98, 128, 158].forEach(y => { g.beginPath(); g.arc(cx, y, 12, 0, 7); g.fill(); }); break;
-        case 'rock': g.fillStyle = INK; [[96, 92, 22], [154, 106, 18], [124, 148, 26]].forEach(([x, y, r]) => { g.beginPath(); g.moveTo(x, y - r); g.lineTo(x + r, y + r); g.lineTo(x - r, y + r); g.closePath(); g.fill(); }); break;
-        case 'tunnel': g.strokeStyle = INK; g.lineWidth = 16; g.beginPath(); g.arc(cx, 190, 74, Math.PI, 0); g.stroke(); g.beginPath(); g.moveTo(cx - 74, 190); g.lineTo(cx - 74, 214); g.moveTo(cx + 74, 190); g.lineTo(cx + 74, 214); g.stroke(); break;
+        case 'curveL': bendArrow([[108, 206], [176, 140], [94, 98]], INK); break;  // 左下→右上圆角折点→左上凹口宽箭头
+        case 'curveR': bendArrow([[148, 206], [80, 140], [162, 98]], INK); break;  // 与左弯镜像
+        case 'revCurve': bendArrow([[150, 200], [150, 146], [104, 146], [104, 84]], INK, 24, 44, 44); break;
+        case 'contCurve': bendArrow([[170, 198], [170, 150], [110, 150], [110, 92]], INK, 24, 44, 44); text('≫', cx - 4, 66, 40, INK); break;
+        case 'steepUp': {                                      // 上陡坡：黑色坡面放大居中，坡面上画粗白箭头（箭身 + 实心箭头整体落在黑坡内），远距离也看得清
+          g.fillStyle = INK; g.beginPath(); g.moveTo(34, 210); g.lineTo(166, 96); g.lineTo(214, 210); g.closePath(); g.fill();
+          bigArrow(64, 198, 160, 118, '#fff'); break;
+        }
+        case 'steepDown': {                                    // 下陡坡：坡面左高右低，粗箭头沿坡面指向右下
+          g.fillStyle = INK; g.beginPath(); g.moveTo(222, 210); g.lineTo(90, 96); g.lineTo(42, 210); g.closePath(); g.fill();
+          bigArrow(96, 118, 192, 198, '#fff'); break;
+        }
+        case 'narrow': {                                        // 路两侧变窄：两侧粗折线，上端向内收、下端向外张
+          g.save(); g.strokeStyle = INK; g.lineWidth = 22; g.lineCap = 'butt'; g.lineJoin = 'round';
+          g.beginPath(); g.moveTo(104, 86); g.lineTo(104, 120); g.lineTo(78, 146); g.lineTo(78, 200);
+          g.moveTo(152, 86); g.lineTo(152, 120); g.lineTo(178, 146); g.lineTo(178, 200); g.stroke(); g.restore(); break;
+        }
+        case 'narrowBridge': {                                  // 窄桥：两侧各两段折线，先向内收再向外张，形成桥面收窄轮廓
+          g.save(); g.strokeStyle = INK; g.lineWidth = 22; g.lineCap = 'butt'; g.lineJoin = 'round';
+          g.beginPath(); g.moveTo(104, 88); g.lineTo(104, 116); g.lineTo(114, 132); g.lineTo(114, 148); g.lineTo(104, 164); g.lineTo(104, 200);
+          g.moveTo(152, 88); g.lineTo(152, 116); g.lineTo(142, 132); g.lineTo(142, 148); g.lineTo(152, 164); g.lineTo(152, 200); g.stroke(); g.restore(); break;
+        }
+        case 'narrowLeft': {                                    // 路左侧变窄：仅左侧折线内收，右侧保持直线
+          g.save(); g.strokeStyle = INK; g.lineWidth = 22; g.lineCap = 'butt'; g.lineJoin = 'round';
+          g.beginPath(); g.moveTo(104, 86); g.lineTo(104, 120); g.lineTo(78, 146); g.lineTo(78, 200);
+          g.moveTo(152, 86); g.lineTo(152, 200); g.stroke(); g.restore(); break;
+        }
+        case 'narrowRight': {                                   // 路右侧变窄：仅右侧折线内收，左侧保持直线
+          g.save(); g.strokeStyle = INK; g.lineWidth = 22; g.lineCap = 'butt'; g.lineJoin = 'round';
+          g.beginPath(); g.moveTo(104, 86); g.lineTo(104, 200);
+          g.moveTo(152, 86); g.lineTo(152, 120); g.lineTo(178, 146); g.lineTo(178, 200); g.stroke(); g.restore(); break;
+        }
+        case 'twoWay': bigArrow(100, 84, 100, 178, INK); bigArrow(156, 178, 156, 84, INK); break;  // 双向交通：左粗箭头向下、右粗箭头向上，整块填充的大箭头头
+
+        case 'children': {                                      // 注意儿童：两个向右行走的儿童剪影，右侧孩子手拿书包/书本
+          g.save(); g.fillStyle = INK; g.strokeStyle = INK; g.lineCap = 'round'; g.lineJoin = 'round';
+          g.beginPath(); g.arc(100, 106, 13, 0, 7); g.fill();
+          g.lineWidth = 13; g.beginPath();
+          g.moveTo(100, 122); g.lineTo(96, 156);
+          g.moveTo(98, 132); g.lineTo(76, 146);
+          g.moveTo(98, 132); g.lineTo(122, 140);
+          g.moveTo(96, 156); g.lineTo(76, 178);
+          g.moveTo(96, 156); g.lineTo(116, 184); g.stroke();
+          g.beginPath(); g.arc(154, 118, 12, 0, 7); g.fill();
+          g.lineWidth = 12; g.beginPath();
+          g.moveTo(153, 132); g.lineTo(149, 162);
+          g.moveTo(151, 140); g.lineTo(132, 152);
+          g.moveTo(151, 140); g.lineTo(174, 144);
+          g.moveTo(149, 162); g.lineTo(132, 180);
+          g.moveTo(149, 162); g.lineTo(168, 188); g.stroke();
+          g.save(); g.translate(176, 144); g.rotate(-.12); g.fillRect(0, -9, 18, 18); g.restore();
+          g.restore(); break;
+        }
+        case 'signal': {                                        // 注意信号灯：黑灯箱 + 红 / 黄 / 绿三色灯窗
+          g.fillStyle = INK; g.fillRect(cx - 26, 76, 52, 106);
+          [[98, RED], [128, YEL], [158, '#2fa84f']].forEach(([y, col]) => { g.fillStyle = col; g.beginPath(); g.arc(cx, y, 12, 0, 7); g.fill(); });
+          break;
+        }
+        case 'rock': {                                          // 注意落石：左侧山体剪影 + 右侧散落石块（按用户图样）
+          g.fillStyle = INK; g.beginPath();
+          g.moveTo(100, 74); g.lineTo(36, 214); g.lineTo(148, 214); g.lineTo(148, 192);
+          g.lineTo(138, 184); g.lineTo(136, 168); g.lineTo(126, 156); g.lineTo(126, 142);
+          g.lineTo(118, 130); g.lineTo(112, 116); g.lineTo(104, 102); g.lineTo(98, 86);
+          g.closePath(); g.fill();
+          g.beginPath(); g.moveTo(132, 92); g.lineTo(150, 100); g.lineTo(146, 110); g.lineTo(128, 102); g.closePath(); g.fill();
+          g.beginPath(); g.moveTo(150, 118); g.lineTo(170, 124); g.lineTo(176, 142); g.lineTo(162, 150); g.lineTo(148, 138); g.closePath(); g.fill();
+          g.beginPath(); g.arc(182, 152, 6, 0, 7); g.fill();
+          g.beginPath(); g.moveTo(166, 168); g.arc(166, 186, 18, -Math.PI / 2, 0); g.lineTo(166, 186); g.closePath(); g.fill();
+          break;
+        }
+        case 'tunnel': {                                        // 隧道：双层拱形门洞 + 洞内道路透视（整体缩小，避免拱顶与两侧戳出三角牌面）
+          g.save(); g.translate(cx, 158); g.scale(.82, .82); g.translate(-cx, -158);
+          g.strokeStyle = INK; g.lineCap = 'butt'; g.lineJoin = 'round';
+          g.lineWidth = 14; g.beginPath(); g.moveTo(62, 210); g.lineTo(62, 138); g.arc(cx, 138, 66, Math.PI, 0); g.lineTo(194, 210); g.stroke();
+          g.lineWidth = 12; g.beginPath(); g.moveTo(82, 210); g.lineTo(82, 142); g.arc(cx, 142, 46, Math.PI, 0); g.lineTo(174, 210); g.stroke();
+          g.fillStyle = INK; g.beginPath(); g.moveTo(100, 160); g.lineTo(100, 130); g.arc(cx, 130, 28, Math.PI, 0); g.lineTo(156, 160); g.lineTo(174, 206); g.lineTo(82, 206); g.closePath(); g.fill();
+          g.fillStyle = YEL; g.beginPath(); g.moveTo(112, 160); g.lineTo(112, 134); g.arc(cx, 134, 16, Math.PI, 0); g.lineTo(144, 160); g.closePath(); g.fill();
+          g.strokeStyle = YEL; g.lineWidth = 8; g.beginPath(); g.moveTo(112, 160); g.lineTo(84, 204); g.moveTo(144, 160); g.lineTo(172, 204); g.stroke();
+          g.restore(); break;
+        }
         case 'construction': g.fillStyle = YEL; g.fillRect(96, 132, 64, 56); g.fillStyle = INK; for (let i = 0; i < 3; i++) g.fillRect(100 + i * 20, 188, 14, 12); text('施', cx, 102, 54, INK); break;
-        case 'village': g.fillStyle = INK; g.fillRect(68, 128, 52, 60); g.fillRect(140, 112, 50, 76); g.fillStyle = YEL; g.fillRect(88, 154, 14, 34); g.fillRect(158, 144, 14, 44); break;
+        case 'village': {                                       // 村庄：左侧坡顶房屋（四格黄窗）+ 右侧分层针叶树
+          g.fillStyle = INK;
+          g.fillRect(64, 132, 74, 72);                          // 房屋墙体
+          g.beginPath(); g.moveTo(50, 144); g.lineTo(101, 88); g.lineTo(152, 144); g.closePath(); g.fill(); // 坡屋顶
+          g.beginPath();                                        // 针叶树（分层枝叶 + 树干）
+          g.moveTo(166, 92); g.lineTo(146, 126); g.lineTo(156, 126); g.lineTo(138, 150); g.lineTo(150, 150);
+          g.lineTo(132, 176); g.lineTo(158, 176); g.lineTo(158, 202); g.lineTo(174, 202); g.lineTo(174, 176);
+          g.lineTo(200, 176); g.lineTo(182, 150); g.lineTo(194, 150); g.lineTo(176, 126); g.lineTo(186, 126);
+          g.closePath(); g.fill();
+          g.fillStyle = YEL; [[76, 154], [100, 154], [76, 176], [100, 176]].forEach(([x, y]) => g.fillRect(x, y, 14, 14));
+          break;
+        }
         case 'slow': text('慢', cx, 170, 92, INK); break;
         // ---- 禁令 ----
         case 'noPass': break;                                  // 红圈空心即图案本身
@@ -18858,6 +18965,30 @@
       }
       if (def.shape === 'tri') g.restore();
     }
+    function drawCenteredSignFace(g, e, def) {                  // 板形与图案分层绘制，图案按实际像素边界居中（统一修掉各标志图案偏上/偏左/偏下）
+      const W = def.portrait ? 256 : (def.shape === 'rect' ? 512 : 256);
+      const H = def.portrait ? 512 : (def.shape === 'rect' ? 200 : 256);
+      const board = document.createElement('canvas'); board.width = W; board.height = H;
+      drawNewSignFace(board.getContext('2d'), e, def, 'board');
+      const icon = document.createElement('canvas'); icon.width = W; icon.height = H;
+      const ig = icon.getContext('2d', { willReadFrequently: true });
+      drawNewSignFace(ig, e, def, 'icon');
+      const px = ig.getImageData(0, 0, W, H).data;
+      let mnx = W, mny = H, mxx = -1, mxy = -1;
+      const pad = def.shape === 'tri' ? 26 : 12;                // 忽略边缘描边 / 抗锯齿碎点，只量图案主体
+      for (let y = pad; y < H - pad; y++) for (let x = pad; x < W - pad; x++) {
+        if (px[(y * W + x) * 4 + 3] < 60) continue;
+        mnx = Math.min(mnx, x); mxx = Math.max(mxx, x); mny = Math.min(mny, y); mxy = Math.max(mxy, y);
+      }
+      g.clearRect(0, 0, W, H); g.drawImage(board, 0, 0);
+      if (mxx < 0) return;                                     // 空心禁令（如禁止通行）无图案可居中
+      const tx = W / 2, ty = def.shape === 'tri' ? H * .62 : (def.shape === 'invtri' ? H * .36 : H / 2);
+      const dx = Math.round(tx - (mnx + mxx) / 2), dy = Math.round(ty - (mny + mxy) / 2);
+      if (Math.abs(dx) <= 2 && Math.abs(dy) <= 2) { g.drawImage(icon, 0, 0); return; }
+      g.save();
+      if (def.shape === 'tri') { g.beginPath(); g.moveTo(W / 2, 12); g.lineTo(W - 14, H - 16); g.lineTo(14, H - 16); g.closePath(); g.clip(); }
+      g.drawImage(icon, dx, dy); g.restore();
+    }
     function signFaceTexture(e) {                                // 交通标志牌面 Canvas 贴图：按类型 / 箭头样式 / 限速值 / 文字绘制
       const key = [e.type, e.style || '', e.limit ?? '', e.text || ''].join('|');
       if (signFaceCache.has(key)) return signFaceCache.get(key);
@@ -18866,7 +18997,7 @@
         const cc = document.createElement('canvas');
         cc.width = _def.portrait ? 256 : (_def.shape === 'rect' ? 512 : 256);
         cc.height = _def.portrait ? 512 : (_def.shape === 'rect' ? 200 : 256);
-        drawNewSignFace(cc.getContext('2d'), e, _def);
+        drawCenteredSignFace(cc.getContext('2d'), e, _def);
         const tt = new THREE.CanvasTexture(cc); tt.colorSpace = THREE.SRGBColorSpace; tt.anisotropy = 4;
         signFaceCache.set(key, tt); return tt;
       }
@@ -18905,15 +19036,19 @@
       } else if (e.type === 'signnoentry') {                      // 禁止驶入：红底白横杠
         g.fillStyle = RED; g.beginPath(); g.arc(128, 128, 110, 0, Math.PI * 2); g.fill();
         g.fillStyle = '#fff'; g.fillRect(36, 106, 184, 44);
-      } else if (e.type === 'signwarn') {                         // 注意行人：黄底黑边三角 + 简笔行人（画满画布，与 3D 板形贴合）
+      } else if (e.type === 'signwarn') {                         // 注意行人：黄底黑边三角 + 行人剪影 + 四根斜向斑马线
         g.fillStyle = YEL; g.strokeStyle = '#161616'; g.lineWidth = 20; g.lineJoin = 'round';
         g.beginPath(); g.moveTo(128, 0); g.lineTo(256, 256); g.lineTo(0, 256); g.closePath(); g.fill(); g.stroke();
         g.fillStyle = g.strokeStyle = '#161616'; g.lineCap = 'round';
-        g.beginPath(); g.arc(128, 106, 18, 0, Math.PI * 2); g.fill();          // 头
-        g.lineWidth = 18;
-        g.beginPath(); g.moveTo(128, 128); g.lineTo(128, 166); g.stroke();      // 躯干
-        g.beginPath(); g.moveTo(128, 138); g.lineTo(98, 156); g.moveTo(128, 138); g.lineTo(158, 156); g.stroke();   // 手臂
-        g.beginPath(); g.moveTo(128, 166); g.lineTo(108, 202); g.moveTo(128, 166); g.lineTo(148, 202); g.stroke();  // 腿
+        g.lineWidth = 16; g.beginPath();                           // 斑马线（左下→右下斜条，位于人物脚下）
+        [66, 102, 138, 174].forEach(x => { g.moveTo(x, 180); g.lineTo(x + 20, 204); }); g.stroke();
+        g.beginPath(); g.arc(128, 86, 17, 0, Math.PI * 2); g.fill();            // 头
+        g.lineWidth = 17; g.beginPath();
+        g.moveTo(128, 106); g.lineTo(124, 146);                    // 躯干
+        g.moveTo(126, 118); g.lineTo(102, 132);                    // 后摆臂
+        g.moveTo(126, 118); g.lineTo(150, 128);                    // 前摆臂
+        g.moveTo(124, 146); g.lineTo(104, 172);                    // 后腿
+        g.moveTo(124, 146); g.lineTo(144, 174); g.stroke();        // 前腿
       } else {                                                    // 指路牌：蓝底白边白字，超长自动缩小
         g.fillStyle = BLUE; g.fillRect(0, 0, 512, 164);
         g.strokeStyle = '#fff'; g.lineWidth = 5; g.strokeRect(9, 9, 494, 146);
