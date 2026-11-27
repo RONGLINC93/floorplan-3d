@@ -6160,7 +6160,7 @@
       (state.rails || []).forEach(r => {
         const [ax, ay] = r.a, [bx, by] = r.b, L = seg2(r.a, r.b) || 1;
         const u = [(bx - ax) / L, (by - ay) / L], n = [-u[1], u[0]];
-        const on = ui.sel?.kind === 'rail' && ui.sel.id === r.id, col = on ? '#b5653a' : '#6a6256';
+        const on = ui.sel?.kind === 'rail' && ui.sel.id === r.id, col = on ? '#b5653a' : r.style === 'drain' ? '#6a6256' : r.color || '#6a6256';
         const cs = `stroke="${col}" stroke-width="${on ? 1.8 : 1}" vector-effect="non-scaling-stroke"`;
         let o;
         if (r.style === 'drain') {                               // 排水沟：槽体 + 两侧边线 + 格栅横线
@@ -6391,9 +6391,9 @@
         const u = [(bx - ax) / L, (by - ay) / L], side = c.side === -1 ? -1 : 1;
         const n = [-u[1] * side, u[0] * side], dep = Math.max(100, c.depth ?? 800);
         const A = [ax + n[0] * dep, ay + n[1] * dep], B = [bx + n[0] * dep, by + n[1] * dep];
-        const col = on ? '#b5653a' : '#6d7a6c';
+        const col = on ? '#b5653a' : c.color || '#6d7a6c';
         return `<g data-canopy="${c.id}" style="cursor:move">
-          <polygon points="${ax},${ay} ${bx},${by} ${B[0]},${B[1]} ${A[0]},${A[1]}" fill="#6d7a6c" fill-opacity=".07"
+          <polygon points="${ax},${ay} ${bx},${by} ${B[0]},${B[1]} ${A[0]},${A[1]}" fill="${c.color || '#6d7a6c'}" fill-opacity=".07"
             stroke="${col}" stroke-width="${on ? 1.8 : 1}" stroke-dasharray="90 60" vector-effect="non-scaling-stroke"/>
           <line x1="${ax}" y1="${ay}" x2="${bx}" y2="${by}" stroke="${col}" stroke-width="${on ? 2.6 : 2}" vector-effect="non-scaling-stroke"/>
         </g>`;
@@ -6407,7 +6407,7 @@
       };
       return (state.balconies || []).map(b => {
         const on = ui.sel?.kind === 'balcony' && ui.sel.id === b.id;
-        const w = Math.max(200, b.w || 200), d = Math.max(200, b.d || 200), col = on ? '#b5653a' : '#5d7b63';
+        const w = Math.max(200, b.w || 200), d = Math.max(200, b.d || 200), col = on ? '#b5653a' : b.color || '#5d7b63';
         const x0 = b.x - w / 2, y0 = b.y - d / 2, x1 = x0 + w, y1 = y0 + d, sd = b.sides || ['l', 't', 'r', 'b'];
         const gl = b.glaze ? sd.map(k => k === 'l' ? `<line x1="${x0 + 80}" y1="${y0}" x2="${x0 + 80}" y2="${y1}"/>`
           : k === 't' ? `<line x1="${x0}" y1="${y0 + 80}" x2="${x1}" y2="${y0 + 80}"/>`
@@ -6506,9 +6506,9 @@
         const on = ui.sel?.kind === 'planter' && ui.sel.id === p.id;
         const well = !!p.well;
         const w = Math.max(200, p.w || 200), d = Math.max(200, p.d || 200), t = Math.max(40, p.t ?? 100);
-        const col = on ? '#b5653a' : well ? '#4f7482' : '#6f8a5c', x0 = p.x - w / 2, y0 = p.y - d / 2;
+        const col = on ? '#b5653a' : well ? '#4f7482' : p.color || '#6f8a5c', x0 = p.x - w / 2, y0 = p.y - d / 2;
         return `<g data-planter="${p.id}" style="cursor:move">
-          <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${well ? '#7fa8b8' : '#7f9d6a'}" fill-opacity=".06"
+          <rect x="${x0}" y="${y0}" width="${w}" height="${d}" fill="${well ? '#7fa8b8' : p.color || '#7f9d6a'}" fill-opacity=".06"
             stroke="${col}" stroke-width="${on ? 2 : 1.3}" vector-effect="non-scaling-stroke"/>
           ${p.bench && !well ? `<rect x="${x0 - 350}" y="${y0 - 350}" width="${w + 700}" height="${d + 700}" fill="none" stroke="${col}" stroke-opacity=".55" stroke-width="1" stroke-dasharray="120 70" vector-effect="non-scaling-stroke"/>` : ''}
           <rect x="${x0 + t}" y="${y0 + t}" width="${Math.max(0, w - t * 2)}" height="${Math.max(0, d - t * 2)}"
@@ -6546,7 +6546,7 @@
         const P = (o, d) => [o[0] + (ux * cs + nx * sn) * d * leaf, o[1] + (uy * cs + ny * sn) * d * leaf];
         const Q = (o, d) => [o[0] + (-ux * cs + nx * sn) * d * leaf, o[1] + (-uy * cs + ny * sn) * d * leaf];
         const p1 = P(g.a, 1), p2 = Q(g.b, 1), c1 = [g.a[0] + ux * leaf, g.a[1] + uy * leaf], c2 = [g.b[0] - ux * leaf, g.b[1] - uy * leaf];
-        const col = on ? '#b5653a' : '#6a5b45', ps = 140;
+        const col = on ? '#b5653a' : g.color || '#6a5b45', ps = 140;
         const post = (p) => `<rect x="${p[0] - ps / 2}" y="${p[1] - ps / 2}" width="${ps}" height="${ps}" fill="${col}" fill-opacity=".3" stroke="${col}" stroke-width="1.2" vector-effect="non-scaling-stroke"/>`;
         return `<g data-gate="${g.id}" style="cursor:move">
           <line x1="${g.a[0]}" y1="${g.a[1]}" x2="${g.b[0]}" y2="${g.b[1]}" stroke="transparent" stroke-width="300"/>
@@ -6564,7 +6564,7 @@
       const out = [], T = (x, y, txt, col) => `<text x="${x}" y="${y}" font-size="190" text-anchor="middle" dominant-baseline="central" fill="${col}" stroke="#fbf9f4" stroke-width="42" paint-order="stroke" pointer-events="none">${txt}</text>`;
       (state.roofs || []).forEach(r => {
         const on = ui.sel?.kind === 'roof' && ui.sel.id === r.id, oh = Math.max(0, +r.overhang || 0);
-        const x0 = r.x - r.w / 2 - oh, y0 = r.y - r.d / 2 - oh, w = r.w + oh * 2, d = r.d + oh * 2, col = on ? '#b5653a' : '#8a5a44';
+        const x0 = r.x - r.w / 2 - oh, y0 = r.y - r.d / 2 - oh, w = r.w + oh * 2, d = r.d + oh * 2, col = on ? '#b5653a' : r.color || '#8a5a44';
         let ridge = '', hipLines = '';
         if (r.type === 'shed') {
           ridge = `<line x1="${x0}" y1="${y0 + d * .25}" x2="${x0 + w}" y2="${y0 + d * .25}" stroke="${col}" stroke-width="1" stroke-dasharray="120 70" vector-effect="non-scaling-stroke"/>`;
@@ -6585,19 +6585,19 @@
         const on = ui.sel?.kind === 'pool' && ui.sel.id === p.id, col = on ? '#2f6f86' : '#3f7f96';
         const x0 = p.x - p.w / 2, y0 = p.y - p.d / 2, cp = Math.min(p.coping || 300, Math.min(p.w, p.d) / 3);
         out.push(`<g data-pool="${p.id}" style="cursor:move"><rect x="${x0}" y="${y0}" width="${p.w}" height="${p.d}" fill="#cfe8ee" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>
-          <rect x="${x0 + cp}" y="${y0 + cp}" width="${p.w - cp * 2}" height="${p.d - cp * 2}" fill="#8fc9da" stroke="${col}" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke"/>
+          <rect x="${x0 + cp}" y="${y0 + cp}" width="${p.w - cp * 2}" height="${p.d - cp * 2}" fill="${p.color || '#8fc9da'}" stroke="${col}" stroke-opacity=".5" stroke-width="1" vector-effect="non-scaling-stroke"/>
           ${T(p.x, p.y, tr('泳池', 'Pool'), col)}</g>`);
       });
       (state.decks || []).forEach(k => {
-        const on = ui.sel?.kind === 'deck' && ui.sel.id === k.id, col = on ? '#b5653a' : '#a08256';
+        const on = ui.sel?.kind === 'deck' && ui.sel.id === k.id, col = on ? '#b5653a' : k.color || '#a08256';
         const x0 = k.x - k.w / 2, y0 = k.y - k.d / 2, n = Math.max(1, Math.round(k.w / 150));
         let planks = '';
         for (let i = 1; i < n; i++) planks += `<line x1="${x0 + k.w * i / n}" y1="${y0}" x2="${x0 + k.w * i / n}" y2="${y0 + k.d}" stroke="${col}" stroke-opacity=".35" stroke-width=".8" vector-effect="non-scaling-stroke"/>`;
-        out.push(`<g data-deck="${k.id}" style="cursor:move"><rect x="${x0}" y="${y0}" width="${k.w}" height="${k.d}" fill="#d8c6a8" fill-opacity=".55" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>${planks}
+        out.push(`<g data-deck="${k.id}" style="cursor:move"><rect x="${x0}" y="${y0}" width="${k.w}" height="${k.d}" fill="${k.color || '#d8c6a8'}" fill-opacity=".55" stroke="${col}" stroke-width="${on ? 2 : 1.2}" vector-effect="non-scaling-stroke"/>${planks}
           ${T(k.x, k.y, tr('露台', 'Deck'), col)}</g>`);
       });
       (state.pergolas || []).forEach(p => {
-        const on = ui.sel?.kind === 'pergola' && ui.sel.id === p.id, col = on ? '#b5653a' : '#7a6a4f';
+        const on = ui.sel?.kind === 'pergola' && ui.sel.id === p.id, col = on ? '#b5653a' : p.color || '#7a6a4f';
         const x0 = p.x - p.w / 2, y0 = p.y - p.d / 2, ps = Math.max(80, p.post || 150);
         const nx = Math.max(2, Math.round(p.w / 2400) + 1), ny = Math.max(2, Math.round(p.d / 2400) + 1);
         let posts = '';
@@ -6664,6 +6664,11 @@
       trail: { w: 1800, h: 80, fill: '#bfb39a', edge: '#9d937f', grid: 600 },
       sidewalk: { w: 2400, h: 150, fill: '#d9d1c1', edge: '#aaa08e', grid: 600, curb: true }
     };
+    /* 通用构件单独颜色：可设色类型 → 颜色选择器默认值（未设色时保持原外观，e.color 一旦写入则 2D / 3D 同步生效）。
+       实时换色与撤销提交复用给排水的 #exColor 绑定与 dpMatId 材质标记机制。 */
+    const EXTRA_COLOR_DEFS = { streetlamp: '#5f666b', solarlamp: '#5f666b', pavilion: '#8d7a5f', carport: '#8a939b', lawn: '#7d9668' };
+    const EXTRA_COLOR_TYPES = Object.keys(ROAD_STYLES).concat(Object.keys(EXTRA_COLOR_DEFS));
+    const exColorDefault = e => ROAD_STYLES[e.type]?.fill || EXTRA_COLOR_DEFS[e.type] || '#7a6a4f';
     /* 道路是否可并成一条：类型相同 + 实际宽度相同。绘制、拖端点、插拐点共用这一条规则，避免连接方式前后不一致。 */
     const sameRoadStyle = (a, b) => !!a && !!b && a.type === b.type && Math.abs((+a.w || 0) - (+b.w || 0)) < 1;
     /* 由构件当前宽度反推每条标线的横向偏移（单位 mm，正负两侧各一条）。
@@ -7364,6 +7369,7 @@
     const dpSystem = e => DP_SYSTEMS[e?.system] ? e.system : DP_TYPE_SYSTEM[e?.type] || 'drain';
     const dpAccent = e => DP_SYSTEMS[dpSystem(e)][2];
     const dpColor = e => e.color || dpAccent(e);   // 单独颜色（面板可设）优先，否则跟随系统配色
+    const uMat = (m, id) => { const c = m.clone(); c.dpMatId = c.carPaintId = id; return c; };   // 选色实时换色用：从 mat() 共享缓存克隆出对象专属材质再打标记，避免同色对象互相覆盖标记 / 拖动串色
     const isDpObject = e => DP_WALL_TYPES.includes(e?.type) || DP_POINT_TYPES.includes(e?.type) || e?.type === 'dpRoute' || e?.type === 'spout' || e?.type === 'well2';
     const DP_TAG_PREFIX = { drain: 'P', water: 'J', rain: 'Y', fire: 'X', sprinkler: 'Z' };
     const dpNextTag = type => { const s = dpSystem({ type }), n = (state.extras || []).filter(x => isDpObject(x) && dpSystem(x) === s).length + 1; return `${DP_TAG_PREFIX[s] || 'P'}-${String(n).padStart(3, '0')}`; };
@@ -7755,7 +7761,7 @@
       const out = [], T = (x, y, txt, col, fs = 180) => `<text x="${x}" y="${y}" font-size="${fs}" text-anchor="middle" dominant-baseline="central" fill="${col}" stroke="#fbf9f4" stroke-width="${Math.round(fs * .22)}" paint-order="stroke" pointer-events="none">${txt}</text>`;
       (state.extras || []).forEach(e => {
         if (e.type === 'slabhole') return;                       // 楼板洞口已移到洞口层 gWells（地板 / 楼板之上、其它对象之下）
-        const on = ui.sel?.kind === 'extra' && ui.sel.id === e.id, col = on ? '#b5653a' : isDpObject(e) && e.color ? e.color : '#7a6a4f';
+        const on = ui.sel?.kind === 'extra' && ui.sel.id === e.id, col = on ? '#b5653a' : e.color && e.color[0] === '#' ? e.color : '#7a6a4f';   // 单独颜色（hex）优先；车辆旧枚举键（white/black）不参与，未设置保持默认
         if (isExtraLin(e.type)) {
           const L = Math.hypot(e.b[0] - e.a[0], e.b[1] - e.a[1]) || 1;
           const ux = (e.b[0] - e.a[0]) / L, uy = (e.b[1] - e.a[1]) / L, nx = -uy, ny = ux;
@@ -7775,7 +7781,7 @@
             const lay = roadLayout(e);
             if (e.pts && e.pts.length > 2) {                      // 折线道路：圆角过渡路面 + 标线沿路径
               const sm = roadSamples(e).pts, RL = roadLen(e);
-              inner += roadRibbon2(sm, w, -w, `fill="${st.fill}" fill-opacity="1" stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"`);
+              inner += roadRibbon2(sm, w, -w, `fill="${e.color || st.fill}" fill-opacity="1" stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"`);
               if (!st.curb) { const eo = Math.max(0, w - Math.min(150, w * .12));[-1, 1].forEach(sd => { inner += roadLine2(sm, sd * eo, st.edge, 1.3); }); }
               if (lay.median > 0) inner += roadRibbon2(sm, lay.median / 2, -lay.median / 2, `fill="#b9b3a5" fill-opacity=".95" stroke="none" pointer-events="none"`);
               lay.lines.forEach(li => {                           // 车道分界虚线 / 分隔带与路肩边线
@@ -7800,7 +7806,7 @@
               }
             } else {
               const poly = arr => arr.map(p => p.map(v => v.toFixed(1)).join(',')).join(' ');
-              inner += `<polygon points="${poly([P(0, -w), P(1, -w), P(1, w), P(0, w)])}" fill="${st.fill}" fill-opacity="1"
+              inner += `<polygon points="${poly([P(0, -w), P(1, -w), P(1, w), P(0, w)])}" fill="${e.color || st.fill}" fill-opacity="1"
               stroke="${col}" stroke-width="${on ? 2 : 1.1}" vector-effect="non-scaling-stroke"/>`;
               const ln = (off, c, sw, dash2) => {
                 const p1 = P(0, off), p2 = P(1, off);
@@ -9798,6 +9804,7 @@
         if (['solar', 'equip', 'ac', 'fuelCanopy', 'fuelTank'].includes(e.type)) rows += `<label title="${tr('构件朝向；选中后按 R 键每次转 90°（Shift 反向）', 'Facing — with the item selected, press R to rotate 90° at a step (Shift reverses)')}">${tr('转向', 'Angle')} (°)<input type="number" id="exRot" value="${Math.round(e.rot || 0)}" min="-360" max="375" step="15"></label>`;
         if (e.type === 'solar') rows += `<label title="${tr('集热板倾角（默认约 26°）', 'Collector tilt (default ≈26°)')}">${tr('俯仰', 'Pitch')} (°)<input type="number" id="exPitch" value="${Math.round(e.pitch ?? 26)}" min="-360" max="375" step="15"></label>`;
       }
+      if (EXTRA_COLOR_TYPES.includes(e.type)) rows += `<label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 模型实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and 3D model live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="exColor" value="${e.color || exColorDefault(e)}"></label>`;
       const tip = isSecurity(e.type) ? (isCamType(e.type) ? tr('摄像头点击放置，支持吸顶 / 吊装 / 壁装 / 立杆四种安装方式（壁装 / 立杆时此处为镜头中心高度，吸顶 / 吊装为吸顶盘标高，吊装另可改吊杆长）。2D 画镜头 + 视场扇形并带安装标记，3D 按类型生成半球 / 球形云台 / 枪型模型与对应支架。把它加到录像机后，3D 里会以它的视角实时取景（可见人、动物、门、电梯运行）。安装方式 / 高度 / 朝向 / 视场角均可改。', 'Camera: click to place; ceiling / pendant / wall / pole mounts (wall & pole use lens-center height, ceiling & pendant use the plate level, pendant adds a drop-rod length). 2D shows lens + view cone with mount marks, 3D builds dome / PTZ / bullet model with matching bracket. Add it to an NVR and the 3D feed renders live from its viewpoint. Edit mount / height / angle / FOV.')
         : isNVR(e.type) ? tr('录像机是监控系统的中枢：在上方勾选「添加的摄像机」登记要录像的镜头，再勾选「连接的显示器」指定把画面送到哪些屏幕。只有既被录像机添加、又连到显示器的摄像机画面才会出现在 3D 屏幕上。', 'NVR is the hub: check "Cameras" to register feeds, then check "Connected monitors" to route them. A camera appears on a 3D screen only if it is added here and that monitor is connected.')
           : tr('监控显示器在 3D 里真实显示所连录像机的摄像机实时画面：自动分屏（1/2/4/9 路）、每路带通道名与移动时间戳、REC 指示与扫描线；无连接时显示雪花「无信号」。屏幕宽高 / 标高 / 朝向可改。', 'Monitor shows live feeds from the connected NVR in 3D: auto split screen (1/2/4/9), per-channel name and running timestamp, REC indicator and scanlines; "NO SIGNAL" snow when unconnected. Edit size / height / angle.'))
@@ -10194,7 +10201,8 @@
       ${isPart || isDrain ? '' : `<label>${tr('栏板样式', 'Infill')}<select id="rlStyle">
         <option value="bar" ${r.style !== 'glass' ? 'selected' : ''}>${tr('直杆', 'Bars')}</option>
         <option value="glass" ${r.style === 'glass' ? 'selected' : ''}>${tr('玻璃', 'Glass')}</option>
-      </select></label>`}
+      </select></label>
+      <label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 模型实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and 3D model live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="rlColor" value="${r.color || '#8b8172'}"></label>`}
     </div>
     <div class="muted" style="margin-top:8px">${isDrain
           ? tr('排水沟贴地布置，2D 为带格栅的槽体、3D 为下沉槽加不锈钢格栅；槽宽默认 80，长度可直接改（起点不动，终点沿原方向伸缩），拖动可整体移动。', 'A floor drain: grated channel in 2D, recessed channel with stainless grate in 3D. Default width 80. Length is editable (start fixed). Drag to move.')
@@ -10221,6 +10229,18 @@
           r.w = Math.max(40, Math.min(300, Math.round(v / 5) * 5));
         });
       };
+      const rc2 = $('#rlColor');                                   // 单独颜色：拖动即时预览，松手进撤销历史
+      if (rc2) {
+        let before = null;
+        rc2.oninput = () => {
+          const r = (state.rails || []).find(x => x.id === id); if (!r) return;
+          if (!before) before = snap();
+          r.color = rc2.value; markDirty(); scheduleAutoSave(); renderRails2();
+          const sc = window.View3D?.__dbg?.scene;
+          if (sc) sc.traverse(o => { const m = o.material; if (m && m.dpMatId === id) m.color.set(rc2.value); });
+        };
+        rc2.onchange = () => { if (before) { commit(before); before = null; } };
+      }
       const lEl = $('#rlL');                                      // 改长度：起点不动，沿原方向伸缩终点
       if (lEl) lEl.onchange = e => {
         const v = parseFloat(e.target.value); if (isNaN(v)) return;
@@ -10387,6 +10407,7 @@
       <label>${tr('门宽', 'Width')} (mm)<input type="number" id="gtL" value="${L}" min="800" max="6000" step="10"></label>
       <label>${tr('门高', 'Height')} (mm)<input type="number" id="gtH" value="${Math.round(g.h ?? 1800)}" min="1200" max="3000" step="50"></label>
       <label>${tr('开启角度', 'Opening angle')} (°)<input type="number" id="gtA" value="${Math.round(g.ang ?? 30)}" min="0" max="90" step="5"></label>
+      <label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 门柱 / 门扇实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and the 3D posts / leaves live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="gtColor" value="${g.color || '#8a7257'}"></label>
       <label>${tr('起点 X', 'Start X')} (mm)<input type="number" id="gtAX" value="${Math.round(g.a[0])}" step="10"></label>
       <label>${tr('起点 Y', 'Start Y')} (mm)<input type="number" id="gtAY" value="${Math.round(g.a[1])}" step="10"></label>
       <label>${tr('终点 X', 'End X')} (mm)<input type="number" id="gtBX" value="${Math.round(g.b[0])}" step="10"></label>
@@ -10418,6 +10439,18 @@
           setSegLen(g, Math.max(800, Math.min(6000, Math.round(v / 10) * 10)));
         });
       };
+      const gc = $('#gtColor');                                      // 单独颜色：拖动即时预览，松手进撤销历史
+      if (gc) {
+        let before = null;
+        gc.oninput = () => {
+          const g = (state.gates || []).find(x => x.id === id); if (!g) return;
+          if (!before) before = snap();
+          g.color = gc.value; markDirty(); scheduleAutoSave(); renderGates2();
+          const sc = window.View3D?.__dbg?.scene;
+          if (sc) sc.traverse(o => { const m = o.material; if (m && m.dpMatId === id) m.color.set(gc.value); });   // 只换打标记的材质，不整场景重建
+        };
+        gc.onchange = () => { if (before) { commit(before); before = null; } };
+      }
       $('#gtFlip').onclick = () => { mutate(() => { const q = (state.gates || []).find(x => x.id === id); if (q) q.flip = !q.flip; }); };
       $('#aDel').onclick = () => { ui.sel = { kind: 'gate', id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
@@ -10577,6 +10610,7 @@
       <label>${tr('挑出', 'Projection')} (mm)<input type="number" id="cpD" value="${Math.round(c.depth ?? 800)}" min="100" max="3000" step="50"></label>
       <label>${tr('板厚', 'Thickness')} (mm)<input type="number" id="cpT" value="${Math.round(c.thick ?? 100)}" min="40" max="500" step="10"></label>
       <label>${tr('底标高', 'Bottom')} (mm)<input type="number" id="cpZ" value="${Math.round(c.z ?? 2400)}" min="-5000" max="20000" step="50"></label>
+      <label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 模型实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and 3D model live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="cpColor" value="${c.color || '#b9c0b8'}"></label>
     </div>
     <div class="actions"><button class="btn" id="cpFlip">${tr('翻转挑出方向', 'Flip side')}</button></div>
     <div class="muted" style="margin-top:8px">${tr('贴在点击的那面墙上，基线只能沿墙调整；拖外侧手柄可自由调整挑出深度。长度 / 挑出 / 板厚 / 底标高也可在右侧改。', 'Sits against the clicked wall; the base only slides along the wall while the outer handle freely adjusts the projection. Length / projection / thickness / elevation can also be edited here.')}</div>
@@ -10593,6 +10627,18 @@
       num('cpD', 100, 3000, 10, (c, v) => c.depth = v);
       num('cpT', 40, 500, 10, (c, v) => c.thick = v);
       num('cpZ', -5000, 20000, 10, (c, v) => c.z = v);
+      const cc = $('#cpColor');                                    // 单独颜色：拖动即时预览，松手进撤销历史
+      if (cc) {
+        let before = null;
+        cc.oninput = () => {
+          const c = (state.canopies || []).find(x => x.id === id); if (!c) return;
+          if (!before) before = snap();
+          c.color = cc.value; markDirty(); scheduleAutoSave(); renderCanopies2();
+          const sc = window.View3D?.__dbg?.scene;
+          if (sc) sc.traverse(o => { const m = o.material; if (m && m.dpMatId === id) m.color.set(cc.value); });
+        };
+        cc.onchange = () => { if (before) { commit(before); before = null; } };
+      }
       const lEl = $('#cpL');
       if (lEl) lEl.onchange = e => {
         const v = parseFloat(e.target.value); if (isNaN(v)) return;
@@ -10623,6 +10669,7 @@
       </select></label>
       <label>X (mm)<input type="number" id="bcX" value="${Math.round(b.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="bcY" value="${Math.round(b.y)}" step="10"></label>
+      <label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 模型实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and 3D model live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="bcColor" value="${b.color || '#d8d2c6'}"></label>
     </div>
     <div class="form">
       <label class="chk"><input type="checkbox" id="bcL" ${has('l') ? 'checked' : ''}>${tr('左', 'Left')}</label>
@@ -10652,6 +10699,18 @@
       num('bcH', 200, 2000, 10, (b, v) => b.rh = v);
       num('bcX', -1e6, 1e6, 10, (b, v) => b.x = v);
       num('bcY', -1e6, 1e6, 10, (b, v) => b.y = v);
+      const bc = $('#bcColor');                                    // 单独颜色：拖动即时预览，松手进撤销历史
+      if (bc) {
+        let before = null;
+        bc.oninput = () => {
+          const b = (state.balconies || []).find(x => x.id === id); if (!b) return;
+          if (!before) before = snap();
+          b.color = bc.value; markDirty(); scheduleAutoSave(); renderBalconies2();
+          const sc = window.View3D?.__dbg?.scene;
+          if (sc) sc.traverse(o => { const m = o.material; if (m && m.dpMatId === id) m.color.set(bc.value); });
+        };
+        bc.onchange = () => { if (before) { commit(before); before = null; } };
+      }
       const st = $('#bcStyle');
       if (st) st.onchange = e => mutate(() => { const b = (state.balconies || []).find(x => x.id === id); if (b) b.style = e.target.value; });
       [['bcL', 'l'], ['bcT', 't'], ['bcR', 'r'], ['bcB', 'b']].forEach(([k, side]) => {
@@ -10680,7 +10739,8 @@
       <label>${tr('壁厚', 'Wall thickness')} (mm)<input type="number" id="plT" value="${Math.round(p.t ?? 100)}" min="40" max="500" step="10"></label>
       <label>${tr(well ? '井高' : '高', well ? 'Shaft height' : 'Height')} (mm)<input type="number" id="plH" value="${Math.round(p.h ?? (well ? 2800 : 450))}" min="${well ? 600 : 100}" max="${well ? 6000 : 1500}" step="10"></label>
       <label>${tr('底标高', 'Bottom')} (mm)<input type="number" id="plZ" value="${Math.round(p.z ?? 0)}" min="-5000" max="20000" step="50"></label>
-      ${well ? '' : `<label class="chk full"><input type="checkbox" id="plBench" ${p.bench ? 'checked' : ''}> ${tr('外围坐凳（沿长边一圈坐面）', 'Bench rim along the long sides')}</label>`}
+      ${well ? '' : `<label class="chk full"><input type="checkbox" id="plBench" ${p.bench ? 'checked' : ''}> ${tr('外围坐凳（沿长边一圈坐面）', 'Bench rim along the long sides')}</label>
+      <label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 模型实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and 3D model live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="plColor" value="${p.color || '#cfc6b4'}"></label>`}
       <label>X (mm)<input type="number" id="plX" value="${Math.round(p.x)}" step="10"></label>
       <label>Y (mm)<input type="number" id="plY" value="${Math.round(p.y)}" step="10"></label>
     </div>
@@ -10697,6 +10757,18 @@
           mutate(() => { const p = (state.planters || []).find(x => x.id === id); if (!p) return; fn(p, Math.max(min, Math.min(max, Math.round(v / step) * step))); });
         };
       };
+      const pc = $('#plColor');                                    // 单独颜色：拖动即时预览，松手进撤销历史
+      if (pc) {
+        let before = null;
+        pc.oninput = () => {
+          const p = (state.planters || []).find(x => x.id === id); if (!p) return;
+          if (!before) before = snap();
+          p.color = pc.value; markDirty(); scheduleAutoSave(); renderPlanters2();
+          const sc = window.View3D?.__dbg?.scene;
+          if (sc) sc.traverse(o => { const m = o.material; if (m && m.dpMatId === id) m.color.set(pc.value); });
+        };
+        pc.onchange = () => { if (before) { commit(before); before = null; } };
+      }
       num('plW', 200, 20000, 10, (p, v) => p.w = v);
       num('plD', 200, 20000, 10, (p, v) => p.d = v);
       num('plT', 40, 500, 10, (p, v) => p.t = v);
@@ -10824,6 +10896,7 @@
       pool: [['w', tr('宽', 'Width'), 500, 30000, 50], ['d', tr('进深', 'Depth'), 500, 30000, 50], ['depth', tr('水深', 'Depth'), 400, 3000, 50], ['coping', tr('池边石宽', 'Coping width'), 100, 800, 25]]
     };
     const outArr = (kind, st = state) => ({ roof: st.roofs, pergola: st.pergolas, deck: st.decks, pool: st.pools }[kind] || []);
+    const OUT_COLOR_DEFS = { roof: '#8a6a58', pergola: '#8d7355', deck: '#8d7355', pool: '#5fb3c8' };   // 户外构件颜色选择器默认值（未设色时保持原外观）
     function outdoorPanel(kind, it) {
       const N = { roof: tr('屋顶', 'Roof'), pergola: tr('廊架 / 花架', 'Pergola'), deck: tr('露台 / 木平台', 'Deck'), pool: tr('泳池', 'Pool') }[kind];
       const note = kind === 'roof' ? tr('双坡沿短边起脊，单坡从一侧檐口向另一侧升高；挑檐向四周外扩。', 'Gable: ridge along the short side; shed: rises from one eave to the other. Overhang extends on all sides.')
@@ -10837,6 +10910,7 @@
       <option value="shed" ${it.type === 'shed' ? 'selected' : ''}>${tr('单坡', 'Shed')}</option></select></label></div>` : ''}
     <div class="form">${nameField(it, N + ' ' + objNo(outArr(kind), it))}${(OUT_FIELDS[kind] || []).map(([k, lab, mn, mx, st]) =>
         `<label>${lab} (mm)<input type="number" class="oField" data-k="${k}" data-min="${mn}" data-max="${mx}" data-step="${st}" value="${Math.round(it[k] ?? 0)}"></label>`).join('')}
+      <label title="${tr('单独颜色：拖动选色时 2D 俯视与 3D 模型实时同步换色，松手进撤销历史', 'Custom colour: dragging the picker updates the 2D plan and 3D model live; release to add an undo step')}">${tr('颜色', 'Colour')}<input type="color" id="odColor" value="${it.color || OUT_COLOR_DEFS[kind]}"></label>
     </div>
     <div class="muted" style="margin-top:6px">${note}</div>
     <div class="actions"><button class="btn danger" id="aDel">${tr('删除', 'Delete')}</button><button class="btn" id="back">${tr('← 返回', '← Back')}</button></div></section>`;
@@ -10852,6 +10926,18 @@
           mutate(() => { const q = find(); if (q) q[k] = Math.max(mn, Math.min(mx, Math.round(v / st) * st)); });
         };
       });
+      const oc = $('#odColor');                                      // 单独颜色：拖动即时预览，松手进撤销历史
+      if (oc) {
+        let before = null;
+        oc.oninput = () => {
+          const q = find(); if (!q) return;
+          if (!before) before = snap();
+          q.color = oc.value; markDirty(); scheduleAutoSave(); renderOutdoor2();
+          const sc = window.View3D?.__dbg?.scene;
+          if (sc) sc.traverse(o => { const m = o.material; if (m && m.dpMatId === id) m.color.set(oc.value); });   // 只换打标记的材质，不整场景重建
+        };
+        oc.onchange = () => { if (before) { commit(before); before = null; } };
+      }
       $('#aDel').onclick = () => { ui.sel = { kind, id }; deleteSel(); };
       $('#back').onclick = () => { ui.sel = null; renderSel(); renderPanel(); };
     }
@@ -11568,7 +11654,17 @@
       num('#fD', (g, v) => g.d = Math.max(50, Math.round(v)));
       num('#fX', (g, v) => g.cx = v); num('#fY', (g, v) => g.cy = v);
       angleWrap($('#fR'), () => getF(f.id), 'rot');
-      $('#fC').onchange = e => upd(g => g.color = e.target.value);
+      const fc = $('#fC');                                           // 家具颜色：拖动即时预览（2D 直刷 + 3D 节流只重建家具组），松手进撤销历史
+      if (fc) {
+        let before = null, tt = 0;
+        fc.oninput = e => {
+          const g = getF(f.id); if (!g) return;
+          if (!before) before = snap();
+          g.color = e.target.value; markDirty(); scheduleAutoSave(); renderFurn();
+          if (!tt) tt = setTimeout(() => { tt = 0; window.View3D?.rebuildFurn?.(); }, 120);   // 只重建家具组，不整场景重建
+        };
+        fc.onchange = () => { if (tt) { clearTimeout(tt); tt = 0; window.View3D?.rebuildFurn?.(); } if (before) { commit(before); before = null; } };
+      }
       $('#aRot').onclick = () => rotateSel(90);
       $('#aDup').onclick = duplicateSel;
       $('#aDel').onclick = deleteSel;
@@ -20129,7 +20225,7 @@
         archUp.add(g); return;
       }
       if (isPart) {                                             // 玻璃隔断：上下边框 + 竖梃 + 通高玻璃
-        const fMat = mat('#5d6166', { metalness: .5, roughness: .42 });
+        const fMat = uMat(mat(r.color || '#5d6166', { metalness: .5, roughness: .42 }), r.id);   // 克隆打标记：选色拖动实时换色
         [.03, H - .03].forEach(y => {
           const bar = new THREE.Mesh(new THREE.BoxGeometry(L, .06, .09), fMat);
           bar.position.set(0, y, 0); bar.castShadow = true; g.add(bar);
@@ -20144,7 +20240,7 @@
         archUp.add(g); return;
       }
       addBarrier(A[0], A[1], B[0], B[1], 0, H, .2);               // 栏杆 / 玻璃隔断：带高度线段碰撞，漫游时拦人（排水沟可通行，前面已 return）
-      const mMat = mat('#8b8172', { metalness: .45, roughness: .45 }), pMat = mat('#79705f', { metalness: .4, roughness: .5 });
+      const mMat = uMat(mat(r.color || '#8b8172', { metalness: .45, roughness: .45 }), r.id), pMat = uMat(mat(r.color || '#79705f', { metalness: .4, roughness: .5 }), r.id);   // 克隆打标记：选色拖动实时换色
       const n = Math.max(1, Math.round(L / 1.05));
       for (let i = 0; i <= n; i++) {
         const post = new THREE.Mesh(new THREE.BoxGeometry(.05, H, .05), pMat);
@@ -20229,7 +20325,7 @@
       const dep = Math.max(.1, (c.depth ?? 800) / 1000), T = Math.max(.04, (c.thick ?? 100) / 1000), Y = Math.max(0, (c.z ?? 2400) / 1000);
       const side = c.side === -1 ? -1 : 1;
       const ux = (B[0] - A[0]) / L, uz = (B[1] - A[1]) / L;
-      const m = new THREE.Mesh(new THREE.BoxGeometry(L, T, dep), mat('#b9c0b8', { roughness: .8 }));
+      const m = new THREE.Mesh(new THREE.BoxGeometry(L, T, dep), uMat(mat(c.color || '#b9c0b8', { roughness: .8 }), c.id));   // 克隆打标记：选色拖动实时换色
       m.position.set((A[0] + B[0]) / 2 - uz * side * dep / 2, Y + T / 2, (A[1] + B[1]) / 2 + ux * side * dep / 2);
       m.rotation.y = Math.atan2(-uz, ux);
       m.castShadow = m.receiveShadow = true; tagPick(m, 'canopy', c.id); archUp.add(m);
@@ -20239,10 +20335,10 @@
       const T = Math.max(.06, (b.thick ?? 120) / 1000), Y = (b.z ?? 0) / 1000, RH = Math.max(.2, (b.rh ?? 900) / 1000);
       const g = new THREE.Group();
       g.position.set(wx(b.x), 0, wz(b.y)); tagPick(g, 'balcony', b.id);
-      const slab = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), mat('#d8d2c6', { roughness: .85 }));
+      const slab = new THREE.Mesh(new THREE.BoxGeometry(W, T, D), uMat(mat(b.color || '#d8d2c6', { roughness: .85 }), b.id));   // 克隆打标记：选色拖动实时换色
       slab.position.y = Y + T / 2; slab.castShadow = slab.receiveShadow = true; g.add(slab);
       const st = b.style || 'glass', sd = b.sides || ['l', 't', 'r', 'b'], base = Y + T;
-      const postMat = mat('#8b8172', { metalness: .45, roughness: .45 });
+      const postMat = uMat(mat(b.color || '#8b8172', { metalness: .45, roughness: .45 }), b.id);   // 克隆打标记：选色拖动实时换色
       const addSide = (len, x, z, rot) => {
         {                                                       // 阳台护栏带高度线段碰撞：拦人防坠落（阳台悬空，必须挡）
           const cr = Math.cos(rot), sr = Math.sin(rot);
@@ -20315,7 +20411,7 @@
         colliders.push([wx(p.x) - W / 2, wz(p.y) - D / 2, wx(p.x) + W / 2, wz(p.y) + D / 2, Y, Y + Hw]);
         archUp.add(g); return;
       }
-      const wallMat3 = mat('#cfc6b4', { roughness: .95 }), soilMat = mat('#5c4a34', { roughness: 1 });
+      const wallMat3 = uMat(mat(p.color || '#cfc6b4', { roughness: .95 }), p.id), soilMat = mat('#5c4a34', { roughness: 1 });   // 克隆打标记：选色拖动实时换色
       const add = (w, h, d, x, z) => {
         const m = new THREE.Mesh(new THREE.BoxGeometry(w, h, d), wallMat3);
         m.position.set(x, Y + h / 2, z); m.castShadow = m.receiveShadow = true; g.add(m);
@@ -22312,12 +22408,13 @@
       (state.roofs || []).forEach(r => {
         const s0 = archUp.children.length;
         const oh = M(Math.max(0, +r.overhang || 0)), hz = M(r.hz ?? 2800), rise = M(r.rise ?? 1200);
+        const roofM = r.color ? uMat(mat(r.color, { roughness: .85 }), r.id) : roofMat;   // 克隆打标记：选色拖动实时换色
         const x0 = wx(r.x - r.w / 2) - oh, x1 = wx(r.x + r.w / 2) + oh;
         const z0 = wz(r.y - r.d / 2) - oh, z1 = wz(r.y + r.d / 2) + oh;
         const xc = (x0 + x1) / 2, zc = (z0 + z1) / 2;
         // 屋脊方向与 2D 一致：永远沿 X（水平），坡向沿 Z（进深）
         const addPlane = (len, slope, ang, px, py, pz, rotAxis) => {
-          const b = new THREE.Mesh(new THREE.BoxGeometry(rotAxis === 'z' ? slope : len, .14, rotAxis === 'z' ? len : slope), roofMat);
+          const b = new THREE.Mesh(new THREE.BoxGeometry(rotAxis === 'z' ? slope : len, .14, rotAxis === 'z' ? len : slope), roofM);
           b.position.set(px, py, pz); b.rotation[rotAxis] = ang; b.castShadow = b.receiveShadow = true; archUp.add(b);
         };
         if (r.type === 'shed') {                                   // 单坡：屋脊在靠上 1/4 处（与 2D 一致），坡向另一侧下倾
@@ -22336,7 +22433,7 @@
             g.setAttribute('position', new THREE.Float32BufferAttribute(pts.flat(), 3));
             g.computeVertexNormals(); archUp.add(new THREE.Mesh(g, m));
           };
-          const rm = roofMat, gm = mat('#cfc8b8', { side: THREE.DoubleSide });
+          const rm = roofM, gm = mat('#cfc8b8', { side: THREE.DoubleSide });
           planeQ([[xs0, hz + rise, zc], [xs1, hz + rise, zc], [x1, hz, z1], [x0, hz, z1]], rm);   // 前坡
           planeQ([[xs0, hz + rise, zc], [xs1, hz + rise, zc], [x1, hz, z0], [x0, hz, z0]], rm);   // 后坡
           planeQ([[xs0, hz + rise, zc], [x0, hz, z0], [x0, hz, z1]], gm);                          // 左端坡
@@ -22361,21 +22458,22 @@
         const s0 = archUp.children.length;
         const x0 = wx(p.x - p.w / 2), x1 = wx(p.x + p.w / 2), z0 = wz(p.y - p.d / 2), z1 = wz(p.y + p.d / 2);
         const H = M(p.h ?? 2600), ps = M(p.post ?? 150), beam = .18;
+        const woodM = p.color ? uMat(mat('#8d7355', { roughness: .8 }), p.id) : outWood;   // 克隆打标记：选色拖动实时换色
         const nx = Math.max(2, Math.round((x1 - x0) / 2.4) + 1), ny = Math.max(2, Math.round((z1 - z0) / 2.4) + 1);
         for (let i = 0; i < nx; i++) for (let j = 0; j < ny; j++) {
-          const post = new THREE.Mesh(new THREE.BoxGeometry(ps, H, ps), outWood);
+          const post = new THREE.Mesh(new THREE.BoxGeometry(ps, H, ps), woodM);
           post.position.set(x0 + (x1 - x0 - ps) * i / (nx - 1) + ps / 2, H / 2, z0 + (z1 - z0 - ps) * j / (ny - 1) + ps / 2);
           post.castShadow = post.receiveShadow = true; archUp.add(post);
           colliders.push([post.position.x - ps / 2, post.position.z - ps / 2, post.position.x + ps / 2, post.position.z + ps / 2, 0, H]);   // 廊架立柱挡人（顶部格栅悬空不挡）
         }
         [z0, z1].forEach(z => {
-          const b = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, beam, beam), outWood);
+          const b = new THREE.Mesh(new THREE.BoxGeometry(x1 - x0, beam, beam), woodM);
           b.position.set((x0 + x1) / 2, H + beam / 2, z + (z === z0 ? beam / 2 : -beam / 2));
           b.castShadow = b.receiveShadow = true; archUp.add(b);
         });
         const nr = Math.max(2, Math.round((x1 - x0) / .4));
         for (let i = 0; i <= nr; i++) {
-          const b = new THREE.Mesh(new THREE.BoxGeometry(.06, .1, z1 - z0), outWood);
+          const b = new THREE.Mesh(new THREE.BoxGeometry(.06, .1, z1 - z0), woodM);
           b.position.set(x0 + (x1 - x0) * i / nr, H + beam + .05, (z0 + z1) / 2);
           b.castShadow = true; archUp.add(b);
         }
@@ -22385,7 +22483,8 @@
         const s0 = archUp.children.length;
         const x0 = wx(k.x - k.w / 2), z0 = wz(k.y - k.d / 2), w = M(k.w), d = M(k.d);
         const th = M(k.thick ?? 150), base = M(k.z ?? 0);
-        const slab = new THREE.Mesh(new THREE.BoxGeometry(w, th, d), outWood);
+        const deckM = k.color ? uMat(mat('#8d7355', { roughness: .8 }), k.id) : outWood;   // 克隆打标记：选色拖动实时换色
+        const slab = new THREE.Mesh(new THREE.BoxGeometry(w, th, d), deckM);
         slab.position.set(wx(k.x), base + th / 2, wz(k.y));
         slab.castShadow = slab.receiveShadow = true; archUp.add(slab);
         const seamMat = mat('#6f5a42', { roughness: .9 });
@@ -22400,7 +22499,7 @@
         const s0 = archUp.children.length;
         const x0 = wx(p.x - p.w / 2), z0 = wz(p.y - p.d / 2), w = M(p.w), d = M(p.d);
         const cp = M(Math.min(p.coping ?? 300, Math.min(p.w, p.d) / 3));
-        const copMat = mat('#cfc6b4', { roughness: .9 }), waterMat = mat('#5fb3c8', { roughness: .15, metalness: .1, transparent: true, opacity: .82 });
+        const copMat = mat('#cfc6b4', { roughness: .9 }), waterMat = p.color ? uMat(mat(p.color, { roughness: .15, metalness: .1, transparent: true, opacity: .82 }), p.id) : mat('#5fb3c8', { roughness: .15, metalness: .1, transparent: true, opacity: .82 });   // 克隆打标记：选色拖动实时换色
         const water = new THREE.Mesh(new THREE.PlaneGeometry(Math.max(.1, w - cp * 2), Math.max(.1, d - cp * 2)), waterMat);
         water.rotation.x = -Math.PI / 2; water.position.set(wx(p.x), .03, wz(p.y)); water.receiveShadow = true; archUp.add(water);
         const curb = (cw, cd, px, pz) => {
@@ -22420,7 +22519,7 @@
         const sd = g.flip ? -1 : 1;                               // 开向：翻转后朝另一侧
         const ang = Math.max(0, Math.min(90, g.ang ?? 30)) * Math.PI / 180;
         const GH = Math.max(1.2, Math.min(3, (g.h ?? 1800) / 1000));
-        const postMat = mat('#6f5a45', { roughness: .85 }), leafMat = mat('#8a7257', { roughness: .75 });
+        const postMat = g.color ? uMat(mat(g.color, { roughness: .85 }), g.id) : mat('#6f5a45', { roughness: .85 }), leafMat = g.color ? uMat(mat(g.color, { roughness: .75 }), g.id) : mat('#8a7257', { roughness: .75 });   // 克隆打标记：选色拖动实时换色（门柱 + 门扇）
         const PS = .16, PH = GH + .15;
         [A, B].forEach(P => {
           const post = new THREE.Mesh(new THREE.BoxGeometry(PS, PH, PS), postMat);
@@ -23863,8 +23962,7 @@
         } else if (T3 === 'carTruck') {                         // 卡车：平头驾驶室 + 厢式货箱（后双开门可开合）+ 车架六轮，共用车辆选中 / 灯光 / 驾驶交互
           const L = Math.max(2.5, W), Wd = Math.max(1.2, M(e.d || FACILITY_DEFS[T3].d)), BH = Math.max(1.1, h);
           const paintHex = carColor(e);
-          const paint = mat(paintHex, { metalness:.35, roughness:.32 }), paintDim = mat(paintHex, { metalness:.28, roughness:.45 });
-          paint.carPaintId = paintDim.carPaintId = e.id;      // 打车身漆材质标记：选色拖动时可直接改色刷新，不必整场景重建
+          const paint = uMat(mat(paintHex, { metalness:.35, roughness:.32 }), e.id), paintDim = uMat(mat(paintHex, { metalness:.28, roughness:.45 }), e.id);   // 克隆打标记：选色拖动时直接改色刷新，同色车辆互不影响
           const black = mat('#20242a', { roughness:.9 }), chrome = mat('#c6ced5', { metalness:.85, roughness:.18 });
           const tire = mat('#171a1d', { roughness:.98 }), rimM = mat('#adb6bd', { metalness:.82, roughness:.28 });
           const boxM = mat('#dde2e5', { metalness:.12, roughness:.55 }), boxDim = mat('#c8cdd1', { metalness:.12, roughness:.6 });
@@ -23973,8 +24071,7 @@
         } else if (isCar(T3)) {                                 // 轿车 / 越野车：连续壳体（侧板自带门窗框，门板与车身共面）+ 内饰 + 机舱 / 行李厢空腔
           const L = Math.max(2.5, W), Wd = Math.max(1.2, M(e.d || FACILITY_DEFS[T3].d)), BH = Math.max(1.1, h), suv = T3 === 'carSuv';
           const paintHex = carColor(e);
-          const paint = mat(paintHex, { metalness:.35, roughness:.32 }), paintDim = mat(paintHex, { metalness:.28, roughness:.45 });
-          paint.carPaintId = paintDim.carPaintId = e.id;      // 打车身漆材质标记：选色拖动时可直接改色刷新，不必整场景重建
+          const paint = uMat(mat(paintHex, { metalness:.35, roughness:.32 }), e.id), paintDim = uMat(mat(paintHex, { metalness:.28, roughness:.45 }), e.id);   // 克隆打标记：选色拖动时直接改色刷新，同色车辆互不影响
           const glassOp = k => Math.max(.05, Math.min(1, (+e[k] || 16) / 100));                                               // 各块玻璃独立不透明度（面板百分比，越大越不透明）
           const mkGlass = (col, k, rough, metal) => oneMat(new THREE.MeshPhysicalMaterial({ color:col, transparent:true, opacity:glassOp(k), roughness:rough, metalness:metal, side:THREE.DoubleSide }));
           const frontGlass = mkGlass(0x8fb2c6, 'opFront', .06, .02), rearGlass = mkGlass(0x8fb2c6, 'opRear', .06, .02), sunGlassM = mkGlass(0x8fb2c6, 'opSun', .06, .02);
@@ -24481,7 +24578,7 @@
               grp.userData.pick3d = { kind: e.type, id: e.id };        // 整杆可拾取：3D 点击切换开关（路灯 / 太阳能路灯）
               archUp.add(grp);
               const part = (geo, m, x, y, z) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.castShadow = o.receiveShadow = true; grp.add(o); return o; };
-              const poleM = mat('#5f666b', { metalness: .55, roughness: .5 });
+              const poleM = uMat(mat(e.color || '#5f666b', { metalness: .55, roughness: .5 }), e.id);   // 克隆打标记：选色拖动实时换色（灯杆 / 悬臂）
               const dark = mat('#3f4549', { metalness: .45, roughness: .55 });
               // 发光材质：一次性实例挂到 lampGlowMats，applyLight 按 on / 夜景统一控制亮度（白天亮灯头、夜景更亮、关灯转暗）
               const glowMat = (color, emissive, factor = 1) => {
@@ -24609,8 +24706,7 @@
             const pJoint = (P, rr, mm = PLM, shell = '#c9cdd1', tag) => {   // 转角接头：外壳只渲染正面，内球用 BackSide，从管口看进去仍是空腔
               rr = Math.max(.006, +rr || .02);                    // 半径兜底：漏传或非法值时退到 20mm，绝不生成 NaN 球壳（否则射线检测会反复报 computeBoundingSphere）
               const wt = pWT(rr);
-              const o = new THREE.Mesh(new THREE.SphereGeometry(rr, 16, 12), mat(shell, { metalness: .2, roughness: .55, side: THREE.FrontSide }));
-              if (tag) o.material.dpMatId = tag;                // 打标记：选色拖动实时换色
+              const o = new THREE.Mesh(new THREE.SphereGeometry(rr, 16, 12), tag ? uMat(mat(shell, { metalness: .2, roughness: .55, side: THREE.FrontSide }), tag) : mat(shell, { metalness: .2, roughness: .55, side: THREE.FrontSide }));   // 带标记时克隆打标记（选色实时换色），否则走共享缓存
               o.position.set(P[0], P[1], P[2]); o.castShadow = true; archUp.add(o);
               const b = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, rr - wt), 16, 12), mm.b);
               b.position.set(P[0], P[1], P[2]); archUp.add(b);
@@ -24715,7 +24811,7 @@
                 colliders.push([px - r * 1.8, pz - r * 1.8, px + r * 1.8, pz + r * 1.8, y0, y0 + top]);
               } else if (T3 === 'floorDrain') {                    // 地漏：不锈钢篦子 + 下沉水封壶（俯视能看到格栅）
                 const w = Math.max(.1, M(e.w || 150)), d = Math.max(.1, M(e.d || 150)), dep = Math.max(.15, M(e.h || 80) / 1000 + .12);
-                const acM = mat(dpColor(e), { metalness: .45, roughness: .45 }); acM.dpMatId = e.id;   // 打标记：选色拖动实时换色
+                const acM = uMat(mat(dpColor(e), { metalness: .45, roughness: .45 }), e.id);   // 克隆打标记：选色拖动实时换色
                 const bowl = new THREE.Mesh(new THREE.CylinderGeometry(w * .42, w * .32, dep, 16, 1, true), mat('#8d9499', { metalness: .3, roughness: .7, side: THREE.DoubleSide }));
                 bowl.position.set(px, -.02 - dep / 2, pz); archUp.add(bowl);
                 const rim = new THREE.Mesh(new THREE.TorusGeometry(w * .45, .02, 8, 20), acM); rim.rotation.x = Math.PI / 2; rim.position.set(px, .01, pz); archUp.add(rim);
@@ -24724,7 +24820,7 @@
                 colliders.push([px - w / 2, pz - d / 2, px + w / 2, pz + d / 2, -.02 - dep, .02]);
               } else if (T3 === 'ventCap') {                       // 通气帽：立管 + 蘑菇形风帽 + 防虫网圈
                 const hCap = Math.max(.15, M(e.h || 300)), rr = Math.max(.03, M(e.w || 110) / 2);
-                const acM = mat(dpColor(e), { metalness: .45, roughness: .45 }), yy = zb; acM.dpMatId = e.id;   // 打标记：选色拖动实时换色
+                const acM = uMat(mat(dpColor(e), { metalness: .45, roughness: .45 }), e.id), yy = zb;   // 克隆打标记：选色拖动实时换色
                 const stem = new THREE.Mesh(new THREE.CylinderGeometry(rr * .75, rr * .75, hCap, 14, 1, true), mat('#9aa1a6', { metalness: .4, roughness: .5, side: THREE.DoubleSide }));
                 stem.position.set(px, yy + hCap / 2, pz); archUp.add(stem);
                 const hood = new THREE.Mesh(new THREE.ConeGeometry(rr * 1.7, hCap * .38, 18, 1, true), acM);
@@ -24734,7 +24830,7 @@
                 colliders.push([px - rr * 1.7, pz - rr * 1.7, px + rr * 1.7, pz + rr * 1.7, yy, yy + hCap * 1.3]);
               } else if (T3 === 'dpTerminal') {                    // 末端试水：试水阀 + 压力表 + 排水漏斗
                 const w = Math.max(.15, M(e.w || 100)), hh = Math.max(.12, M(e.h || 220)), yy = zb;
-                const acM = mat(dpColor(e), { metalness: .45, roughness: .45 }), steel = mat('#9aa1a6', { metalness: .5, roughness: .45 }); acM.dpMatId = e.id;   // 打标记：选色拖动实时换色
+                const acM = uMat(mat(dpColor(e), { metalness: .45, roughness: .45 }), e.id), steel = mat('#9aa1a6', { metalness: .5, roughness: .45 });   // 克隆打标记：选色拖动实时换色
                 box(w, hh, w * .55, px, yy + hh / 2, pz, steel);
                 const gauge = new THREE.Mesh(new THREE.CylinderGeometry(w * .3, w * .3, .03, 18), mat('#f4f1e8', { roughness: .4 }));
                 gauge.position.set(px, yy + hh + w * .3, pz); gauge.rotation.z = Math.PI / 2; archUp.add(gauge);
@@ -24746,7 +24842,7 @@
               } else {                                            // 分水器：集管 + 多路支管阀
                 const n = Math.max(2, Math.min(12, +e.n || 4)), w = Math.max(.3, M(e.w || 400)), hh = Math.max(.15, M(e.h || 350));
                 pitchCy = zb + hh / 2;
-                const rr = Math.max(.02, M(e.dn || 32) / 2), mm = { p: mat(e.color || '#b9c2c8', { metalness: .6, roughness: .4 }), b: PLM.b, r: PLM.r }; mm.p.dpMatId = e.id;   // 打标记：选色拖动实时换色
+                const rr = Math.max(.02, M(e.dn || 32) / 2), mm = { p: uMat(mat(e.color || '#b9c2c8', { metalness: .6, roughness: .4 }), e.id), b: PLM.b, r: PLM.r };   // 克隆打标记：选色拖动实时换色
                 pTube([px - w / 2, zb + hh / 2, pz], [px + w / 2, zb + hh / 2, pz], rr, mm);   // 空心集管，两端可见管口
                 for (let i = 0; i < n; i++) {
                   const x = px - w / 2 + (i + .5) * w / n;
@@ -24766,7 +24862,7 @@
               const r = Math.max(.025, M(e.w || 110) / 2), zb = M(e.z || 0);   // zb = 管底标高（自由值，可为负：管底沉到地面以下）
               const pipeStart = archUp.children.length, pipeColStart = colliders.length;
               colliders.push([px - r - .02, pz - r - .02, px + r + .02, pz + r + .02, zb, zb + h]);
-              const pipeMat = mat(dpColor(e), { metalness: .2, roughness: .55 }); pipeMat.dpMatId = e.id;   // 打标记：选色拖动实时换色
+              const pipeMat = uMat(mat(dpColor(e), { metalness: .2, roughness: .55 }), e.id);   // 克隆打标记：选色拖动实时换色
               const wt = Math.min(.008, r * .22);               // 管壁厚（约 8mm，随管径折算）：管口能看到空腔
               const p = new THREE.Mesh(new THREE.CylinderGeometry(r, r, h, 16, 1, true), pipeMat);   // 外壁：上下开口的空管
               p.position.set(px, zb + h / 2, pz); p.castShadow = true; archUp.add(p);
@@ -24796,8 +24892,7 @@
               const wr = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180, dirx = Math.cos(wr), dirz = Math.sin(wr);   // 支管 / 出水口方向 = 墙外法线 + 转向偏移（转向不影响贴墙位置）
               const pit = (+e.pitch || 0) * Math.PI / 180;   // 俯仰角：整件绕侧向水平轴翻转（正=朝上、负=朝下）
               const fitStart = archUp.children.length, fitColStart = colliders.length;
-              const pMat = mat(e.color || '#c9cdd1', { metalness: .2, roughness: .55 }), bMat = mat('#5f676d', { metalness: .15, roughness: .75, side: THREE.BackSide }), rMat = mat(e.color || '#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide });
-              pMat.dpMatId = rMat.dpMatId = e.id;               // 打标记：选色拖动实时换色
+              const pMat = uMat(mat(e.color || '#c9cdd1', { metalness: .2, roughness: .55 }), e.id), bMat = mat('#5f676d', { metalness: .15, roughness: .75, side: THREE.BackSide }), rMat = uMat(mat(e.color || '#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide }), e.id);   // 克隆打标记：选色拖动实时换色
               const wtF = Math.min(.008, r * .22);
               const dpTube = (A, B) => {                        // 空心管段 A→B（米）：外壁 + 内腔 + 两端管口环面（支持斜向段）
                 const dx = B[0] - A[0], dy = B[1] - A[1], dz = B[2] - A[2], L = Math.hypot(dx, dy, dz);
@@ -24922,7 +25017,7 @@
                 glass.position.z = .008; glass.userData.pickGlass = true; g.add(glass);                 // 玻璃罩：半透明，不挡拾取
                 fitCol([[px, zbF, pz], [px, zbF + h, pz], [px + dirx * r * 1.5, yc, pz + dirz * r * 1.5]], zbF + h);
               } else if (DP_WALL_FIT_TYPES.includes(T3)) {      // 新增管件 / 设备：按系统配色建模，保留中空管腔与可拾取整组
-                const acM = mat(dpColor(e), { metalness: .45, roughness: .45 }), steel = mat('#9aa1a6', { metalness: .5, roughness: .45 }), darkM = mat('#4c545a', { roughness: .75 }); acM.dpMatId = e.id;   // 打标记：选色拖动实时换色
+                const acM = uMat(mat(dpColor(e), { metalness: .45, roughness: .45 }), e.id), steel = mat('#9aa1a6', { metalness: .5, roughness: .45 }), darkM = mat('#4c545a', { roughness: .75 });   // 克隆打标记：选色拖动实时换色
                 const yl = zbF + h * .45, L = r * 2.8, fx = px - dirx * L, fz = pz - dirz * L, ex = px + dirx * L, ez = pz + dirz * L;
                 const face = (geo, m, x, y, z, ry = -wr, rz = 0) => { const o = new THREE.Mesh(geo, m); o.position.set(x, y, z); o.rotation.y = ry; o.rotation.z = rz; o.castShadow = true; archUp.add(o); return o; };
                 if (T3 === 'dpCheck') {
@@ -25034,7 +25129,7 @@
               return;
             }
             const spoutStart = archUp.children.length, spoutColStart = colliders.length;
-            const r = Math.max(.02, M(e.w || 100) / 2), spoutM = { p: mat(e.color || '#9aa1a6', { metalness: .5, roughness: .45 }), b: PLM.b, r: PLM.r }; spoutM.p.dpMatId = e.id;   // 打标记：选色拖动实时换色
+            const r = Math.max(.02, M(e.w || 100) / 2), spoutM = { p: uMat(mat(e.color || '#9aa1a6', { metalness: .5, roughness: .45 }), e.id), b: PLM.b, r: PLM.r };   // 克隆打标记：选色拖动实时换色
             const wrS = ((+e.nrot || 0) + (+e.rot || 0)) * Math.PI / 180, dxS = Math.cos(wrS), dzS = Math.sin(wrS);
             colliders.push([px - r - .02, pz - r - .02, px + r + .02, pz + r + .02, 0, h]);   // 雨水管细管也占碰撞
             pTube([px, 0, pz], [px, h, pz], r, spoutM);          // 空心落水管：外壁 + 内腔 + 两端管口
@@ -25064,7 +25159,7 @@
             if (T3 === 'dpRoute') {                             // 连续画管：折线空心管段 + 空心转角接头，按坡度抬升
               const routeStart = archUp.children.length, routeColStart = colliders.length;
               const pts = roadPts(e), zb = M(e.z ?? 2500), slope = (+e.slope || 0) / 100, r = Math.max(.025, w / 2);
-              const pm = mat(dpColor(e), { metalness: .2, roughness: .55 }), bm = mat('#5f676d', { side: THREE.BackSide, metalness: .15, roughness: .75 }); pm.dpMatId = e.id;   // 打标记：选色拖动实时换色
+              const pm = uMat(mat(dpColor(e), { metalness: .2, roughness: .55 }), e.id), bm = mat('#5f676d', { side: THREE.BackSide, metalness: .15, roughness: .75 });   // 克隆打标记：选色拖动实时换色
               const rm = mat('#9aa1a6', { metalness: .2, roughness: .55, side: THREE.DoubleSide }), wt = Math.min(.008, r * .22), jr = r * 1.15;
               const tube = (A, B) => {
                 const g = new THREE.Group(); g.position.set(A[0], A[1], A[2]); g.rotation.order = 'YZX';
@@ -25086,7 +25181,7 @@
                   }
                 }
                 if (i && i < pts.length - 1) {
-                  const soM = mat(e.color || '#c9cdd1', { metalness: .2, roughness: .55, side: THREE.FrontSide }); soM.dpMatId = e.id;   // 打标记：选色拖动实时换色
+                  const soM = uMat(mat(e.color || '#c9cdd1', { metalness: .2, roughness: .55, side: THREE.FrontSide }), e.id);   // 克隆打标记：选色拖动实时换色
                   const so = new THREE.Mesh(new THREE.SphereGeometry(jr, 12, 8), soM);
                   so.position.copy(q); archUp.add(so);
                   const bi = new THREE.Mesh(new THREE.SphereGeometry(Math.max(.004, jr - wt), 12, 8), bm); bi.position.copy(q); archUp.add(bi);
@@ -25172,7 +25267,8 @@
                 };
                 const dash = st.dash ? [st.dash[0] / 1000, st.dash[1] / 1000] : null;
                 const half = w / 2, lay = roadLayout(e);
-                ribbon(sm, 0, w, h, mmat(st.fill, { roughness: .95 }));                     // 路面
+                const paveM = uMat(mmat(e.color || st.fill, { roughness: .95 }), e.id);   // 克隆打标记：选色拖动实时换色
+                ribbon(sm, 0, w, h, paveM);                                                 // 路面
                 if (!st.curb) { const eo = Math.max(0, half - Math.min(.15, half * .12)); [-1, 1].forEach(sd => stripe3(sd * eo, st.edge, .1, null)); }
                 if (lay.median > 0) ribbon(sm, 0, lay.median / 1000, h + .11, mmat('#b9b3a5', { roughness: .95 }));   // 中央分隔带顶面
                 lay.lines.forEach(li => {                          // 车道分界虚线 / 边线
@@ -25194,7 +25290,8 @@
                 }
                 return;
               }
-              box(L, h, w, mx, h / 2, mz, mat(st.fill, { roughness: .95 }), rot);
+              const paveM = uMat(mat(e.color || st.fill, { roughness: .95 }), e.id);   // 克隆打标记：选色拖动实时换色
+              box(L, h, w, mx, h / 2, mz, paveM, rot);
               const u = [(B[0] - A[0]) / L, (B[1] - A[1]) / L], n = [-u[1], u[0]];
               const pos = (t, off) => [mx + u[0] * t + n[0] * off, mz + u[1] * t + n[1] * off];
               const dash = st.dash ? [st.dash[0] / 1000, st.dash[1] / 1000] : null;
@@ -25291,7 +25388,7 @@
           }
           if (T3 === 'pavilion') {                              // 凉亭：四角立柱 + 顶盖（外挑 150）
             const h = Math.max(1.8, M(e.h || 2600)), cr = Math.max(.03, M(e.col || 150) / 2);
-            const colM = mat('#8d7a5f', { roughness: .85 }), roofM = mat('#7c6a52', { roughness: .9 });
+            const colM = uMat(mat(e.color || '#8d7a5f', { roughness: .85 }), e.id), roofM = uMat(mat(e.color || '#7c6a52', { roughness: .9 }), e.id);   // 克隆打标记：选色拖动实时换色
             [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
               const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 12), colM);
               c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
@@ -25303,7 +25400,7 @@
           }
           if (T3 === 'carport') {                               // 电动车棚：四角钢柱 + 轻钢平顶
             const h = Math.max(1.8, M(e.h || 2500)), cr = Math.max(.04, M(e.col || 100) / 2);
-            const colM = mat('#8a939b', { metalness: .45, roughness: .55 }), roofM = mat('#aab4bc', { roughness: .7, metalness: .2 });
+            const colM = uMat(mat(e.color || '#8a939b', { metalness: .45, roughness: .55 }), e.id), roofM = uMat(mat(e.color || '#aab4bc', { roughness: .7, metalness: .2 }), e.id);   // 克隆打标记：选色拖动实时换色
             [[x0 + cr, z0 + cr], [x0 + w - cr, z0 + cr], [x0 + cr, z0 + d - cr], [x0 + w - cr, z0 + d - cr]].forEach(([px, pz]) => {
               const c = new THREE.Mesh(new THREE.CylinderGeometry(cr, cr, h, 10), colM);
               c.position.set(px, h / 2, pz); c.castShadow = true; archUp.add(c);
@@ -25333,7 +25430,8 @@
           }
           if (T3 === 'lawn') {                                  // 草坪：绿色草皮薄层
             const h = Math.max(.01, M(e.h || 60));
-            box(w, h, d, cx, h / 2, cz, mat('#7d9668', { roughness: 1 }));
+            const grassM = uMat(mat(e.color || '#7d9668', { roughness: 1 }), e.id);   // 克隆打标记：选色拖动实时换色
+            box(w, h, d, cx, h / 2, cz, grassM);
             return;
           }
           if (T3 === 'well2') {                                 // 雨水井：井圈 + 井盖（篦子样式为 4 条篦条）
@@ -27835,7 +27933,7 @@
       const d = camera.getWorldDirection(new THREE.Vector3()), L = Math.hypot(d.x, d.z);
       return L > .05 ? { x: d.x / L, z: d.z / L } : { x: 1, z: 0 };
     }
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), onFloorChanged, shot, groundAt, projectMM, camDirH, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), rebuildFurn: () => buildFurn(), onFloorChanged, shot, groundAt, projectMM, camDirH, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
   </script>
 </body>
 

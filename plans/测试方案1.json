@@ -414,7 +414,8 @@
       "id": "fmwysja1m150",
       "x": 11790,
       "y": -7600,
-      "edist": 85
+      "edist": 85,
+      "open": true
     },
     {
       "type": "dpMeter",
@@ -425,11 +426,12 @@
       "nrot": 0,
       "rot": 0,
       "pitch": 0,
-      "reading": 0,
+      "reading": 2,
       "id": "fmwysjbpt151",
       "x": 11170,
       "y": -7680,
-      "edist": 85
+      "edist": 85,
+      "color": "#72dac3"
     },
     {
       "type": "hydrantIn",
@@ -441,7 +443,8 @@
       "doorOpen": false,
       "id": "fmwysjeua152",
       "x": 10900,
-      "y": -8350
+      "y": -8350,
+      "color": "#3e281d"
     },
     {
       "type": "dpTerminal",
@@ -921,7 +924,8 @@
           "id": "fmwysja1m150",
           "x": 11790,
           "y": -7600,
-          "edist": 85
+          "edist": 85,
+          "open": true
         },
         {
           "type": "dpMeter",
@@ -932,11 +936,12 @@
           "nrot": 0,
           "rot": 0,
           "pitch": 0,
-          "reading": 0,
+          "reading": 2,
           "id": "fmwysjbpt151",
           "x": 11170,
           "y": -7680,
-          "edist": 85
+          "edist": 85,
+          "color": "#72dac3"
         },
         {
           "type": "hydrantIn",
@@ -948,7 +953,8 @@
           "doorOpen": false,
           "id": "fmwysjeua152",
           "x": 10900,
-          "y": -8350
+          "y": -8350,
+          "color": "#3e281d"
         },
         {
           "type": "dpTerminal",
