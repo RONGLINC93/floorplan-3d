@@ -136,6 +136,27 @@
       white-space: nowrap
     }
 
+    /* 顶栏与楼层条按钮图标（lucide）：统一 13px，与文字垂直居中 */
+    header .btn,
+    #floorBar .flbtn {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px
+    }
+
+    header .btn svg,
+    #floorBar .flbtn svg {
+      width: 13px;
+      height: 13px;
+      flex: none;
+      display: block
+    }
+
+    /* 带图标的开关 chip 收紧一点，保证第二行在常见宽度不换行 */
+    header .btn.chip {
+      padding: 5px 6px
+    }
+
     .btn:hover {
       background: #f2ece2
     }
@@ -152,7 +173,8 @@
 
     #langSel .btn {
       min-width: 32px;
-      font-weight: 500
+      font-weight: 500;
+      justify-content: center
     }
 
     .btn.primary {
@@ -379,68 +401,57 @@
       display: none !important
     }
 
-    /* 楼层切换条：画板顶部居中悬浮，切层 / 复制 / 删除 / 层高设置 */
+    /* 楼层切换条：并入顶栏第二行工具条，容器与按钮样式与 .grp / .btn 保持一致 */
     #floorBar {
-      position: absolute;
-      left: 50%;
-      top: 10px;
-      transform: translateX(-50%);
-      z-index: 5;
       display: flex;
       align-items: center;
-      gap: 6px;
-      padding: 4px 8px;
-      background: rgba(255, 255, 255, .94);
+      flex-wrap: wrap;
+      gap: 2px;
+      padding: 2px;
+      background: #fff;
       border: 1px solid var(--line);
-      border-radius: 10px;
-      box-shadow: 0 2px 10px rgba(40, 30, 20, .14);
-      max-width: calc(100% - 40px);
-      overflow-x: auto
+      border-radius: 8px
     }
 
     #floorBar .flbtn {
-      border: 1px solid var(--line);
-      background: #fff;
-      color: #4a443c;
-      border-radius: 7px;
-      padding: 3px 9px;
-      font-size: 12px;
+      border: 0;
+      background: transparent;
+      color: inherit;
+      border-radius: 6px;
+      padding: 5px 9px;
       cursor: pointer;
       white-space: nowrap
     }
 
     #floorBar .flbtn:hover {
-      border-color: #b5653a
+      background: #f2ece2
     }
 
     #floorBar .flbtn.on {
-      background: #b5653a;
-      color: #fff;
-      border-color: #b5653a
+      background: var(--ink);
+      color: #fff
     }
 
     #floorBar .flsep {
       width: 1px;
       height: 18px;
       background: var(--line);
-      margin: 0 2px
+      margin: 0 4px
     }
 
     #floorBar .fllabel {
-      font-size: 12px;
-      color: #6b6459;
-      white-space: nowrap
+      white-space: nowrap;
+      margin: 0 3px
     }
 
     #floorBar input.fheight {
       width: 62px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      padding: 3px 5px;
-      font-size: 12px
+      padding: 4px 6px
     }
 
-    #stage.loading #floorBar {
+    body:has(#stage.loading) #floorBar {
       visibility: hidden
     }
 
@@ -685,31 +696,21 @@
       }
     }
 
-    /* 直角 / 自由 绘制方向模式：画板左上角，「预览 / 测量 / 设计」下一行 */
+    /* 直角 / 自由 绘制方向模式：并入顶栏第二行工具条（楼层前） */
     #dirPad {
-      position: absolute;
-      left: 14px;
-      top: 48px;
-      z-index: 5;
       display: flex;
       align-items: center;
       gap: 2px;
-      padding: 3px;
+      padding: 2px;
       border: 1px solid var(--line);
-      border-radius: 9px;
-      background: rgba(255, 253, 249, .94);
-      box-shadow: 0 2px 10px rgba(40, 30, 20, .12);
-      transition: opacity .2s;
-      animation: none
+      border-radius: 8px;
+      background: #fff
     }
 
     #dirPad .btn {
       display: flex;
       align-items: center;
-      gap: 4px;
-      padding: 4px 10px;
-      border-radius: 6px;
-      color: var(--muted)
+      gap: 4px
     }
 
     #dirPad .btn svg {
@@ -722,7 +723,7 @@
       color: var(--accent)
     }
 
-    #stage.loading #dirPad {
+    body:has(#stage.loading) #dirPad {
       visibility: hidden
     }
 
@@ -733,18 +734,6 @@
     @media (hover:hover) {
       #dirPad .btn:hover {
         background: #f2ece2
-      }
-    }
-
-    @media (pointer:coarse) {
-      #dirPad {
-        top: 50px;
-        padding: 4px
-      }
-
-      #dirPad .btn {
-        min-height: 34px;
-        padding: 6px 12px
       }
     }
 
@@ -1539,6 +1528,7 @@
       position: relative;
       z-index: 1;
       width: 82px;
+      justify-content: center;
       transition: color .45s
     }
 
@@ -1923,6 +1913,19 @@
       display: none
     }
 
+    /* 保存按钮：与文件菜单同款的描边白底样式 */
+    #quickSave {
+      border: 1px solid var(--line);
+      background: #fff;
+      border-radius: 8px;
+      padding: 6px 12px
+    }
+
+    #quickSave:hover {
+      background: #f2ece2;
+      border-color: #b5653a
+    }
+
     .menu-pop {
       position: absolute;
       right: 0;
@@ -1946,7 +1949,8 @@
     }
 
     .menu-pop .btn {
-      text-align: left
+      text-align: left;
+      justify-content: flex-start
     }
 
     .menu-pop .sep {
@@ -2379,7 +2383,8 @@
         gap: 8px
       }
 
-      .grp {
+      .grp,
+      #floorBar {
         padding: 3px;
         border-radius: 10px
       }
@@ -2499,6 +2504,11 @@
       display: none
     }
 
+    /* 图标按钮的 inline-flex 不能把桌面端「⋯ 工具」带出来 */
+    header .mobile-only.btn {
+      display: none
+    }
+
     #drawerMask {
       position: fixed;
       inset: 0;
@@ -2592,10 +2602,6 @@
         padding: 6px 8px
       }
 
-      #paneBtns {
-        order: 1
-      }
-
       .brand {
         order: 2;
         margin-right: 0
@@ -2613,13 +2619,9 @@
         display: none
       }
 
-      #quickSave {
-        order: 5;
-        margin-left: auto
-      }
-
       #mobileMore {
         order: 6;
+        margin-left: auto;
         border: 1px solid var(--line);
         background: #fff
       }
@@ -2641,9 +2643,13 @@
       #subbar,
       #editGrp,
       #langSel,
-      #fullscreen,
-      header details.menu {
+      #fullscreen {
         order: 8;
+        display: none
+      }
+
+      /* 文件菜单在第二行内，随「⋯ 工具」整体显隐 */
+      header details.menu {
         display: none
       }
 
@@ -2679,6 +2685,10 @@
 
       .mobile-only {
         display: inline-block
+      }
+
+      header .mobile-only.btn {
+        display: inline-flex
       }
 
       .drawer-close.mobile-only {
@@ -2752,25 +2762,9 @@
         width: 76px !important
       }
 
-      #dirPad {
-        top: 54px;
-        left: 8px;
-        transform: none;
-        padding: 2px
-      }
-
-      #dirPad .btn {
-        min-height: 34px;
-        padding: 5px 8px
-      }
-
-      /* 楼层条在窄屏放到工具行下面，避免横条占满顶部与左上角工具重叠 */
+      /* 楼层条已并入顶栏第二行，窄屏只需允许换行 */
       #floorBar {
-        top: 98px;
-        left: 8px;
-        transform: none;
-        max-width: calc(100% - 16px);
-        flex-wrap: wrap
+        max-width: 100%
       }
 
       /* 提示条放在楼层条上方、工具行下方的空档，不再与楼层条重叠 */
@@ -2973,10 +2967,6 @@
 <body>
   <div class="app">
     <header>
-      <div class="grp" id="paneBtns">
-        <button class="btn chip" id="tgLib" data-en="◧ Library">◧ 库</button>
-        <button class="btn chip" id="tgPanel" data-en="Properties ◨">属性 ◨</button>
-      </div>
       <div class="brand">
         <div class="tline"><b data-en="3BR 2LR 2BA · Interior Design">户型装修设计</b><span class="plan-tag"
             id="planTag"></span></div><span id="subtitle">原始户型 1:60 ·
@@ -2990,81 +2980,94 @@
       </div>
       <div class="spacer"></div>
       <div id="subbar">
+        <details class="menu">
+          <summary class="btn" data-en="File ▾"><i data-lucide="folder"></i>文件 ▾</summary>
+          <div class="menu-pop">
+            <button class="btn" id="newPlan" data-en="New empty plan">新建空方案</button>
+            <button class="btn" id="openPlan" data-en="Open plan…">打开方案…</button>
+            <button class="btn" id="cloudSave" data-en="Save plan">保存方案</button>
+            <button class="btn" id="closePlan" data-en="Close plan">关闭方案</button>
+            <div class="sep"></div>
+            <button class="btn" id="importJson" data-en="Import plan">导入方案</button>
+            <button class="btn" id="exportJson" data-en="Export plan JSON">导出方案 JSON</button>
+            <button class="btn" id="exportPng" data-en="Export image">导出图片</button>
+            <div class="sep"></div>
+            <button class="btn danger" id="reset" data-en="Reset to default">重置为默认方案</button>
+          </div>
+        </details>
+        <button class="btn" id="quickSave" title="保存方案 (Ctrl+S)" data-en="Save"><i data-lucide="save"></i>保存</button>
+        <div class="grp" id="paneBtns">
+          <button class="btn chip" id="tgLib" data-en="◧ Library"><i data-lucide="panel-left"></i>库</button>
+          <button class="btn chip" id="tgPanel" data-en="Properties ◨"><i data-lucide="panel-right"></i>属性</button>
+        </div>
         <div id="mainTools">
         <div class="grp only3d" id="modes3d">
-          <button class="btn on" data-mode="orbit" data-en="Orbit">鸟瞰</button>
-          <button class="btn" data-mode="walk" data-en="Walk">漫游</button>
+          <button class="btn on" data-mode="orbit" data-en="Orbit"><i data-lucide="orbit"></i>鸟瞰</button>
+          <button class="btn" data-mode="walk" data-en="Walk"><i data-lucide="footprints"></i>漫游</button>
         </div>
         <div class="grp only3d">
-          <button class="btn" id="vIso" data-en="Iso">斜视</button>
-          <button class="btn" id="vTop" data-en="Top">俯视</button>
+          <button class="btn" id="vIso" data-en="Iso"><i data-lucide="rotate-3d"></i>斜视</button>
+          <button class="btn" id="vTop" data-en="Top"><i data-lucide="eye"></i>俯视</button>
         </div>
         <div class="grp only2d" id="layers">
-          <button class="btn chip on" data-layer="dims" data-en="Dims">尺寸</button>
-          <button class="btn chip on" data-layer="labels" data-en="Rooms">房间</button>
-          <button class="btn chip on" data-layer="furn" data-en="Furniture">家具</button>
+          <button class="btn chip on" data-layer="dims" data-en="Dims"><i data-lucide="ruler"></i>尺寸</button>
+          <button class="btn chip on" data-layer="labels" data-en="Rooms"><i data-lucide="home"></i>房间</button>
+          <button class="btn chip on" data-layer="furn" data-en="Furniture"><i data-lucide="armchair"></i>家具</button>
           <button class="btn chip" data-layer="links" title="始终显示所有开关关联线（开关联络线 + 开关到灯的线）；关闭则仅选中时显示"
             data-en-title="Always show all switch link lines; when off, only show for the selected object"
-            data-en="Links">关联线</button>
+            data-en="Links"><i data-lucide="cable"></i>关联线</button>
           <button class="btn chip" data-layer="lightRadius" title="始终显示所有灯的照亮半径圈（含关着的灯）；关闭则仅显示亮着的灯与选中灯"
             data-en-title="Always show every lamp's light radius (including off lamps); when off, only lit and selected lamps"
-            data-en="Light radius">灯光半径</button>
-          <button class="btn chip" data-layer="grid" data-en="Grid">网格</button>
+            data-en="Light radius"><i data-lucide="lightbulb"></i>灯光半径</button>
+          <button class="btn chip" data-layer="grid" data-en="Grid"><i data-lucide="grid-3x3"></i>网格</button>
           <button class="btn chip on" data-layer="axis" title="在图纸左下角显示 X / Y 方向指示（跟着图纸一起平移、缩放、旋转）"
-            data-en-title="X / Y axis indicator at the plan's bottom-left corner" data-en="Axes">坐标轴</button>
-          <button class="btn chip" data-layer="bearing" data-en="Bearing walls">承重墙</button>
+            data-en-title="X / Y axis indicator at the plan's bottom-left corner" data-en="Axes"><i data-lucide="axis-3d"></i>坐标轴</button>
+          <button class="btn chip" data-layer="bearing" data-en="Bearing walls"><i data-lucide="brick-wall"></i>承重墙</button>
           <button class="btn chip on" data-layer="wallSnap" title="拖动家具时贴墙吸附"
-            data-en-title="Snap furniture to walls while dragging" data-en="Wall snap">贴墙吸附</button>
+            data-en-title="Snap furniture to walls while dragging" data-en="Wall snap"><i data-lucide="magnet"></i>贴墙吸附</button>
           <button class="btn chip on" data-layer="notes" title="显示 / 隐藏手动放置的标注（文字标注、手动尺寸、标高、引线 / 剖切符号、指北针）"
             data-en-title="Show / hide manually placed annotations (text notes, manual dims, levels, leaders / section marks, north arrow)"
-            data-en="Notes">标注</button>
+            data-en="Notes"><i data-lucide="tags"></i>标注</button>
         </div>
         <div class="grp only3d">
-          <button class="btn chip on" data-cut="2.8" data-en="Full walls">全高墙</button>
-          <button class="btn chip" data-cut="1.2" data-en="Cut walls">剖切墙</button>
+          <button class="btn chip on" data-cut="2.8" data-en="Full walls"><i data-lucide="rectangle-vertical"></i>全高墙</button>
+          <button class="btn chip" data-cut="1.2" data-en="Cut walls"><i data-lucide="scissors"></i>剖切墙</button>
         </div>
         <div class="grp only3d" id="toggles3d">
-          <button class="btn chip on" data-t="furn" data-en="Furniture">家具</button>
-          <button class="btn chip on" data-t="labels" data-en="Labels">房间名</button>
+          <button class="btn chip on" data-t="furn" data-en="Furniture"><i data-lucide="armchair"></i>家具</button>
+          <button class="btn chip on" data-t="labels" data-en="Labels"><i data-lucide="type"></i>房间名</button>
           <button class="btn chip on" data-t="slabs" data-en="Slabs" title="显示 / 隐藏 3D 里的地板 / 楼板与房间地面（便于俯视层间、查看楼梯洞口）"
-            data-en-title="Show / hide floors, slabs and room grounds in 3D (handy to look down between storeys and check stair openings)">楼板</button>
+            data-en-title="Show / hide floors, slabs and room grounds in 3D (handy to look down between storeys and check stair openings)"><i data-lucide="layers"></i>楼板</button>
           <button class="btn chip on" data-t="hi" data-en="Hover FX" title="悬停门 / 窗 / 灯具 / 电梯按钮等交互构件时显示橙色高亮框；关闭后悬停不再高亮，动作提示气泡保留（点击动作与漫游瞄准提示不受影响）"
-            data-en-title="Show an orange highlight when hovering interactive objects (doors / windows / lamps / lift buttons...); turn off for a clean view — tooltips, click actions and walk-aim tips are unaffected">交互高亮</button>
+            data-en-title="Show an orange highlight when hovering interactive objects (doors / windows / lamps / lift buttons...); turn off for a clean view — tooltips, click actions and walk-aim tips are unaffected"><i data-lucide="mouse-pointer-click"></i>交互高亮</button>
         </div>
       </div>
+        <div id="dirPad" class="only2d" hidden>
+          <button class="btn on" id="wallOrtho" title="直角：绘制线段与拖动对象都只走水平或垂直（适合大多数户型）；按住 Shift 同效"><i
+              data-lucide="corner-down-right"></i>直角</button>
+          <button class="btn" id="wallFree" title="自由：绘制与拖动可任意方向；按住 Shift 临时锁水平 / 垂直"><i
+              data-lucide="pencil-line"></i>自由</button>
+        </div>
+        <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
       </div>
       <div class="grp" id="editGrp">
-        <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo">撤销</button>
+        <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo"><i
+            data-lucide="undo-2"></i>撤销</button>
         <button class="btn" id="redo" title="重做 (Ctrl+Shift+Z)" data-en-title="Redo (Ctrl+Shift+Z)"
-          data-en="Redo">重做</button>
+          data-en="Redo"><i data-lucide="redo-2"></i>重做</button>
         <button class="btn danger" id="clearAll" title="清空所有家具家电（可撤销）"
-          data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear">清空布置</button>
+          data-en-title="Remove all furniture and appliances (undoable)" data-en="Clear"><i
+            data-lucide="eraser"></i>清空布置</button>
       </div>
-      <button class="btn" id="quickSave" title="保存方案 (Ctrl+S)" data-en="Save"
-        style="border:1px solid var(--line);background:#fff">保存</button>
-      <details class="menu">
-        <summary class="btn" data-en="File ▾">文件 ▾</summary>
-        <div class="menu-pop">
-          <button class="btn" id="newPlan" data-en="New empty plan">新建空方案</button>
-          <button class="btn" id="cloudList" data-en="Open plan…">打开方案…</button>
-          <button class="btn" id="cloudSave" data-en="Save plan">保存方案</button>
-          <button class="btn" id="closePlan" data-en="Close plan">关闭方案</button>
-          <div class="sep"></div>
-          <button class="btn" id="importJson" data-en="Import plan">导入方案</button>
-          <button class="btn" id="exportJson" data-en="Export plan JSON">导出方案 JSON</button>
-          <button class="btn" id="exportPng" data-en="Export image">导出图片</button>
-          <div class="sep"></div>
-          <button class="btn danger" id="reset" data-en="Reset to default">重置为默认方案</button>
-        </div>
-      </details>
       <div class="grp" id="langSel" role="group" aria-label="Language / 语言">
         <button class="btn chip" data-lang="zh" title="简体中文">简</button>
         <button class="btn chip" data-lang="zht" title="繁體中文">繁</button>
         <button class="btn chip" data-lang="en" title="English">EN</button>
       </div>
-      <button class="btn" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff">⛶
-        全屏</button>
-      <button class="btn mobile-only" id="mobileMore" aria-expanded="false" data-en="More">⋯ 工具</button>
+      <button class="btn" id="fullscreen" title="全屏 (Shift+F)" style="border:1px solid var(--line);background:#fff"><i
+          data-lucide="maximize"></i>全屏</button>
+      <button class="btn mobile-only" id="mobileMore" aria-expanded="false" data-en="More"><i
+          data-lucide="ellipsis"></i>工具</button>
       <div class="mobile-break" aria-hidden="true"></div>
       <input type="file" id="fileIn" accept=".json,application/json" hidden>
     </header>
@@ -3886,13 +3889,6 @@
         <button class="btn" data-tool="draw" title="设计：选择 / 画墙 / 房门 / 窗户 (W)"
           data-en-title="Design: select / draw walls, doors / windows (W)" data-en="Design">设计</button>
       </div>
-      <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
-      <div id="dirPad" class="only2d" hidden>
-          <button class="btn on" id="wallOrtho" title="直角：绘制线段与拖动对象都只走水平或垂直（适合大多数户型）；按住 Shift 同效"><i
-              data-lucide="corner-down-right"></i>直角</button>
-          <button class="btn" id="wallFree" title="自由：绘制与拖动可任意方向；按住 Shift 临时锁水平 / 垂直"><i
-              data-lucide="pencil-line"></i>自由</button>
-      </div>
       <div class="grp only3d" id="sunPad"><label class="range"><span data-en="Sun">日照</span> <input type="range"
             id="sun" min="7" max="18" step=".25" value="10" style="width:84px"><span
             id="sunT">10:00</span></label><button class="btn chip" data-t="night" data-en="Night">夜景</button></div>
@@ -3966,7 +3962,9 @@
 
   <script src="./libs/lucide.min.js"></script>
   <script>
-    lucide.createIcons({ icons: { ...lucide.icons, Ladder: [['path', { d: 'M6 3v18' }], ['path', { d: 'M18 3v18' }], ['path', { d: 'M6 7.5h12' }], ['path', { d: 'M6 12h12' }], ['path', { d: 'M6 16.5h12' }]] } });   // 本地打包的 lucide 没有 ladder 图标，补一个自绘的（两条立柱 + 三根踏棍）
+    const LUCIDE_EXTRA = { ...lucide.icons, Ladder: [['path', { d: 'M6 3v18' }], ['path', { d: 'M18 3v18' }], ['path', { d: 'M6 7.5h12' }], ['path', { d: 'M6 12h12' }], ['path', { d: 'M6 16.5h12' }]] };   // 本地打包的 lucide 没有 ladder 图标，补一个自绘的（两条立柱 + 三根踏棍）
+    const refreshIcons = () => lucide.createIcons({ icons: LUCIDE_EXTRA });   // 动态重建的 DOM（楼层条等）也用同一套图标集刷新
+    refreshIcons();
     /* ======================= 多语言（中文 / English，默认中文） ======================= */
     const LANG_KEY = 'huxing-lang';
     const LANGS = ['zh', 'zht', 'en'];             // 简体 / 繁體（台湾用字）/ English
@@ -9505,10 +9503,10 @@
         : '';
       const chips = fs.map((f, i) => `<button class="flbtn ${!allOn && f.id === cur.id ? 'on' : ''}" data-fl="${esc(f.id)}" title="${tr('层高', 'Height')} ${f.h} mm · ${tr('标高', 'Elevation')} ${f.z} mm">${esc(f.name)}</button>`).join('');
       bar.innerHTML = `<span class="fllabel">${tr('楼层', 'Floors')}</span>${allChip}${chips}
-        <button class="flbtn" id="flAdd" title="${tr('在当前层上方新增楼层', 'Add a floor above current')}">＋</button>
-        <button class="flbtn" id="flCopy" title="${tr('复制当前层（含全部对象）', 'Duplicate current floor with all objects')}">${tr('复制', 'Copy')}</button>
-        <button class="flbtn" id="flDel" title="${tr('删除当前楼层', 'Delete current floor')}">${tr('删除', 'Delete')}</button>
-        <button class="flbtn ${ui.layers.ghost ? 'on' : ''}" id="flGhost" title="${tr('显示 / 隐藏紧邻下层全部对象（墙 / 门窗 / 家具 / 柱 / 楼梯等）的半透明参照（2D 与 3D 同时生效）', 'Show / hide a translucent reference of everything on the floor below — walls, openings, furniture, pillars, stairs (2D and 3D)')}">${tr('下层参照', 'Below reference')}</button>
+        <button class="flbtn" id="flAdd" title="${tr('在当前层上方新增楼层', 'Add a floor above current')}"><i data-lucide="plus"></i></button>
+        <button class="flbtn" id="flCopy" title="${tr('复制当前层（含全部对象）', 'Duplicate current floor with all objects')}"><i data-lucide="copy"></i>${tr('复制', 'Copy')}</button>
+        <button class="flbtn" id="flDel" title="${tr('删除当前楼层', 'Delete current floor')}"><i data-lucide="trash-2"></i>${tr('删除', 'Delete')}</button>
+        <button class="flbtn ${ui.layers.ghost ? 'on' : ''}" id="flGhost" title="${tr('显示 / 隐藏紧邻下层全部对象（墙 / 门窗 / 家具 / 柱 / 楼梯等）的半透明参照（2D 与 3D 同时生效）', 'Show / hide a translucent reference of everything on the floor below — walls, openings, furniture, pillars, stairs (2D and 3D)')}"><i data-lucide="ghost"></i>${tr('下层参照', 'Below reference')}</button>
         <span class="flsep"></span>
         <label class="fllabel" title="${tr('当前层的楼层高度，影响层高与 3D 堆叠', 'Current floor height, affects ceiling and 3D stacking')}">${tr('层高', 'Height')} <input class="fheight" id="flHeight" type="number" min="1200" max="12000" step="100" value="${cur.h}"> mm</label>`;
       const allBtn = bar.querySelector('[data-fl-all]');
@@ -9549,6 +9547,7 @@
         toast(tr(`${f.name} 层高已设为 ${v} mm`, `${f.name} height set to ${v} mm`));
       };
       hIn.onkeydown = e => { if (e.key === 'Enter') { hIn.blur(); } };
+      refreshIcons();   // 楼层条 innerHTML 每次重建，需要重新转换 data-lucide 图标
     }
     /* 把源楼层的房间划分 / 面积复制到目标楼层数据；自画房间重生成 id，避免跨层串引用 */
     function copyRoomLayout(src, dst, srcId) {
@@ -17267,7 +17266,7 @@
       impB.onclick = () => { mask.classList.remove('open'); $('#importJson').click(); };
       mask.classList.add('open');
     }
-    $('#cloudList').onclick = () => showWelcome();
+    $('#openPlan').onclick = () => showWelcome();
     // 横竖屏切换、表头换行等都会改变画布尺寸；尺寸从 0 恢复（如首次布局）时重新适应窗口
     // 其余尺寸变化（收起 / 展开面板等）保持画面中心不动
     let lastW = 0, lastH = 0;
