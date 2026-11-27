@@ -19313,7 +19313,7 @@
         case 'noParking': case 'noLongPark': g.fillStyle = BLUE; g.beginPath(); g.arc(cx, cy, W / 2 - 20, 0, 7); g.fill(); g.strokeStyle = '#fff'; g.lineWidth = 24; g.beginPath(); g.arc(cx, cy, W / 2 - 20, 0, 7); g.stroke(); if (def.art === 'noParking') slash(RED, false); else slash(RED, true); break;
         case 'heightLimit': g.fillStyle = '#141414'; g.font = 'bold 40px Arial'; g.textAlign = 'center'; g.fillText('限高', cx, 100); text(String(e.limit ?? def.def), cx, 156, 74, '#141414'); break;
         case 'weightLimit': g.fillStyle = '#141414'; g.font = 'bold 40px Arial'; g.textAlign = 'center'; g.fillText('限重', cx, 100); text(String(e.limit ?? def.def) + 't', cx, 158, 66, '#141414'); break;
-        case 'noOvertake': carBody(104, 120, .8, INK); carBody(150, 176, .8, RED); slash(RED, true); break;
+        case 'noOvertake': carBody(96, 130, .8, RED); carBody(160, 130, .8, INK); slash(RED, true); break;   // GB 5768 禁34：左红车 / 右黑车并排同高（红 = 被禁止的超车方），不重叠
         case 'meetYield': {                                    // 会车让行：白底红圈，左黑箭头向下、右红箭头向上（按用户样图方向）
           g.save(); g.beginPath(); g.arc(cx, cy, W / 2 - 30, 0, 7); g.clip();
           // 左：黑色向下——粗杆 + 大三角头
