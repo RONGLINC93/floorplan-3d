@@ -699,6 +699,29 @@
       margin-top: 3px
     }
 
+    /* 画板左下角楼层水印：大号半透明字，不挡操作 */
+    #floorWatermark {
+      position: absolute;
+      left: 18px;
+      bottom: 100px;
+      z-index: 3;
+      font-size: 88px;
+      font-weight: 800;
+      line-height: 1;
+      letter-spacing: -2px;
+      color: var(--ink);
+      opacity: .1;
+      pointer-events: none;
+      user-select: none;
+      white-space: nowrap
+    }
+
+    main.is3d #floorWatermark {
+      color: var(--ink);
+      opacity: .28;
+      text-shadow: 0 1px 1px rgba(255, 255, 255, .75), 0 0 12px rgba(255, 255, 255, .4)
+    }
+
     .modehint {
       position: absolute;
       left: 50%;
@@ -1639,6 +1662,11 @@
       display: none !important
     }
 
+    /* 左下比例尺 / 右下缩放条在 3D 下也显示；右上旋转罗盘只用于 2D 平面，3D 下仍隐藏 */
+    body.m3d #zoomPad {
+      display: flex !important
+    }
+
     /* 3D 预览：右侧只留属性面板，整条隐藏「对象列表 / 属性」选项夹 */
     body.m3d.m3dprev #rightTabs {
       display: none !important
@@ -1675,7 +1703,7 @@
     }
 
     main.is3d .scalebar {
-      opacity: 0
+      opacity: 1
     }
 
     #view3d {
@@ -2897,6 +2925,12 @@
         bottom: 12px;
         padding: 4px 8px;
         font-size: 11px
+      }
+
+      #floorWatermark {
+        left: 10px;
+        bottom: 105px;
+        font-size: 56px
       }
 
       #fab {
@@ -4305,6 +4339,7 @@
       <div class="scalebar" id="scalebar"><span id="sbText">1 m</span>
         <div class="bar" id="sbBar"></div>
       </div>
+      <div id="floorWatermark"></div>
       <div class="modehint" id="modehint"></div>
       <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
       <div id="zoomPad" class="only2d">
@@ -9987,7 +10022,16 @@
     };
     $('#gizmo3d').addEventListener('pointerup', endGizmo3D);
     $('#gizmo3d').addEventListener('pointercancel', endGizmo3D);
-    (function gizmo3dLoop() { renderGizmo3D(); requestAnimationFrame(gizmo3dLoop); })();
+    let lastSb3d = '';
+    (function gizmo3dLoop() {
+      renderGizmo3D();
+      const m = document.body.classList.contains('m3d') ? window.View3D?.viewScale?.() : null;
+      if (m != null) {                                              // 3D 下比例尺按相机视距实时换算（屏幕 100px 对应米数）；退出 3D 后 viewScale 为 null，不再改写，交给 applyView 还原 2D 值
+        const txt = m >= 1 ? `${m.toFixed(1)} m` : `${Math.round(m * 1000)} mm`;
+        if (txt !== lastSb3d) { lastSb3d = txt; const sb = $('#sbText'); if (sb) sb.textContent = txt; const bar = $('#sbBar'); if (bar) bar.style.width = '100px'; }
+      } else lastSb3d = '';
+      requestAnimationFrame(gizmo3dLoop);
+    })();
 
     function renderAll() {
       renderGrid(); renderRooms(); renderGhostWalls2(); renderFurn(); renderWalls(); renderOpenings(); renderPillars(); renderStairs(); renderAxes(); renderLabels(); renderDims(); renderNotes(); renderMeasure(); renderSel(); renderPanel(); updateHeader();
@@ -10002,7 +10046,14 @@
       $('#subtitle').textContent = tr(`套内使用面积约 ${fmt(tot)} m² · 尺寸单位 mm · 原图比例 1:60`, `Net floor area ≈ ${fmt(tot)} m² · Units: mm · Original scale 1:60`) + floorTxt;
       $('#undo').disabled = !undoStack.length; $('#redo').disabled = !redoStack.length;
       $('#undo').style.opacity = undoStack.length ? 1 : .4; $('#redo').style.opacity = redoStack.length ? 1 : .4;
+      updateFloorWatermark();
       renderFloorBar();
+    }
+    function updateFloorWatermark() {                              // 左下角楼层水印：整栋模式显示「全楼层」，否则当前层名
+      const wm = $('#floorWatermark'); if (!wm) return;
+      const all = !!window.View3D?.getAllFloors?.();
+      const fl = currentFloor();
+      wm.textContent = all ? tr('全楼层', 'All floors') : fl ? fl.name : '';
     }
     /* 楼层条：切换 / 重命名 / 复制 / 删除 / 设置当前层层高 */
     function renderFloorBar() {
@@ -17395,8 +17446,8 @@
       renderObjList();
     }
 
-    $('#zoomIn').onclick = () => zoomCenter(1.25);
-    $('#zoomOut').onclick = () => zoomCenter(.8);
+    $('#zoomIn').onclick = () => { if (!(window.View3D?.zoomBy?.(1.25))) zoomCenter(1.25); };
+    $('#zoomOut').onclick = () => { if (!(window.View3D?.zoomBy?.(.8))) zoomCenter(.8); };
     $('#fit').onclick = fitView;
     document.querySelectorAll('#rotPad .rotarrow').forEach(b => b.onclick = () => setRot(+b.dataset.rot));   // 四个箭头 = 四个朝向
     $('#rotDeg').onclick = rotateView;                             // 圆心中间：顺时针转 90°
@@ -28515,6 +28566,7 @@
     function setAllFloors(on, fly = true) {
       opt.allFloors = !!on;
       if (typeof renderFloorBar === 'function') renderFloorBar();   // 同步楼层条中「全楼层 / 1F / 2F」的高亮
+      if (typeof updateFloorWatermark === 'function') updateFloorWatermark();
       if (inited) sync();
       if (fly && active && opt.mode === 'orbit') flyTo(opt.allFloors ? allFloorsPose() : isoWhole());
       toast(opt.allFloors
@@ -28544,7 +28596,20 @@
       const d = camera.getWorldDirection(new THREE.Vector3()), L = Math.hypot(d.x, d.z);
       return L > .05 ? { x: d.x / L, z: d.z / L } : { x: 1, z: 0 };
     }
-    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), rebuildFurn: () => buildFurn(), onFloorChanged, shot, groundAt, projectMM, camDirH, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk', __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
+    window.View3D = { enter, exit, relang, getAllFloors, setAllFloors, setSlabVis, sync: force => sync(force), rebuildFurn: () => buildFurn(), onFloorChanged, shot, groundAt, projectMM, camDirH, pick: (x, y) => pick({ clientX: x, clientY: y }), doorsRef: doors, flyToRoom: id => active && !anim && flyToRoom(id), walking: () => active && opt.mode === 'walk',
+      zoomBy: k => {                                               // 3D 缩放按钮：沿视线方向拉近 / 拉远相机（与滚轮一致）
+        if (!active || opt.mode === 'walk') return false;
+        const off = camera.position.clone().sub(orbit.target);
+        const d = THREE.MathUtils.clamp(off.length() / k, orbit.minDistance, orbit.maxDistance);
+        camera.position.copy(orbit.target).add(off.setLength(d)); orbit.update();
+        return true;
+      },
+      viewScale: () => {                                           // 3D 比例尺：屏幕 100px 在视点平面上对应的米数
+        if (!active) return null;
+        const d = camera.position.distanceTo(orbit.target);
+        return 2 * d * Math.tan(camera.fov * Math.PI / 360) / Math.max(1, renderer.domElement.clientHeight) * 100;
+      },
+      __dbg: { get scene() { return archUp; }, get furnG() { return furnG; }, get lampG() { return lampG; }, get escSteps() { return escSteps; }, stairH, stairLayout, worldDatasets, escCarry, blocked, ladderAt, toggleLamp, get floorWorlds() { return floorWorlds; }, get camera() { return camera; }, get orbit() { return orbit; }, get dbgLadder() { return { fallY, ladderOn: ladderOn && ladderOn.id, keysW: !!keys.KeyW, touchWalk, mode: opt.mode }; }, liftStart, setMode, enterCar: id => enterCar(id), get driveCar() { return driveCar; }, get state() { return state; }, get fallY() { return fallY; }, setFoot(v) { fallY = v; fallV = 0; jumpY = 0; jumpV = 0; camera.position.y = eyeH + v; } } };
   </script>
 </body>
 
