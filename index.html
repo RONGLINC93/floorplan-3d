@@ -401,26 +401,38 @@
       display: none !important
     }
 
-    /* 楼层切换条：并入顶栏第二行工具条，容器与按钮样式与 .grp / .btn 保持一致 */
+    /* 楼层切换条：画板底部 Excel 式工作表页签，点标签切层；管理与层高设置靠右 */
     #floorBar {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 6;
       display: flex;
       align-items: center;
-      flex-wrap: wrap;
       gap: 2px;
-      padding: 2px;
-      background: #fff;
-      border: 1px solid var(--line);
-      border-radius: 8px
+      height: 38px;
+      padding: 0 12px;
+      background: rgba(255, 253, 249, .97);
+      box-shadow: inset 0 1px 0 var(--line), 0 -2px 8px rgba(40, 30, 20, .06);
+      overflow-x: auto;
+      overflow-y: hidden;
+      scrollbar-width: thin
     }
 
     #floorBar .flbtn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      height: 30px;
       border: 0;
       background: transparent;
       color: inherit;
       border-radius: 6px;
-      padding: 5px 9px;
+      padding: 0 8px;
       cursor: pointer;
-      white-space: nowrap
+      white-space: nowrap;
+      flex: none
     }
 
     #floorBar .flbtn:hover {
@@ -432,11 +444,56 @@
       color: #fff
     }
 
+    /* 楼层标签：贴顶、底部圆角无上边框，选中画板色底 + 强调色文字与底线 */
+    #floorBar .flbtn[data-fl],
+    #floorBar .flbtn[data-fl-all] {
+      align-self: flex-start;
+      height: 30px;
+      margin: 0 2px;
+      padding: 0 14px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 6px 6px;
+      background: #efeae0;
+      color: var(--muted);
+      font-size: 12px
+    }
+
+    #floorBar .flbtn[data-fl]:hover,
+    #floorBar .flbtn[data-fl-all]:hover {
+      background: #e5ded1
+    }
+
+    #floorBar .flbtn[data-fl].on,
+    #floorBar .flbtn[data-fl-all].on {
+      background: var(--paper);
+      color: var(--accent);
+      font-weight: 600;
+      box-shadow: inset 0 -3px 0 var(--accent)
+    }
+
+    /* 「+」新增楼层：紧邻标签的小页签 */
+    #floorBar #flAdd {
+      align-self: flex-start;
+      height: 30px;
+      margin: 0 4px;
+      padding: 0 10px;
+      border: 1px solid var(--line);
+      border-top: 0;
+      border-radius: 0 0 6px 6px;
+      background: transparent
+    }
+
+    #floorBar #flCopy {
+      margin-left: auto
+    }
+
     #floorBar .flsep {
       width: 1px;
       height: 18px;
       background: var(--line);
-      margin: 0 4px
+      margin: 0 6px;
+      flex: none
     }
 
     #floorBar .fllabel {
@@ -444,7 +501,8 @@
       align-items: center;
       gap: 4px;
       white-space: nowrap;
-      margin: 0 3px
+      margin: 0 3px;
+      flex: none
     }
 
     #floorBar .fllabel svg {
@@ -458,7 +516,8 @@
       width: 62px;
       border: 1px solid var(--line);
       border-radius: 6px;
-      padding: 4px 6px
+      padding: 4px 6px;
+      flex: none
     }
 
     body:has(#stage.loading) #floorBar {
@@ -624,7 +683,7 @@
     .scalebar {
       position: absolute;
       left: 14px;
-      bottom: 12px;
+      bottom: 50px;
       background: rgba(255, 253, 249, .92);
       border: 1px solid var(--line);
       border-radius: 8px;
@@ -665,7 +724,7 @@
     #zoomPad {
       position: absolute;
       right: 14px;
-      bottom: 12px;
+      bottom: 48px;
       z-index: 5;
       display: flex;
       align-items: center;
@@ -696,7 +755,7 @@
     @media (pointer:coarse) {
       #zoomPad {
         right: 10px;
-        bottom: 78px;
+        bottom: 112px;
         padding: 4px
       }
 
@@ -2399,10 +2458,26 @@
         gap: 8px
       }
 
-      .grp,
-      #floorBar {
+      .grp {
         padding: 3px;
         border-radius: 10px
+      }
+
+      /* 底部楼层页签保持贴底样式，只加大标签与按钮点击区 */
+      #floorBar {
+        padding: 0 8px
+      }
+
+      #floorBar .flbtn[data-fl],
+      #floorBar .flbtn[data-fl-all] {
+        height: 36px;
+        padding: 0 16px;
+        line-height: 34px;
+        font-size: 13px
+      }
+
+      #floorBar #flAdd {
+        height: 34px
       }
 
       .btn {
@@ -2778,9 +2853,14 @@
         width: 76px !important
       }
 
-      /* 楼层条已并入顶栏第二行，窄屏只需允许换行 */
+      /* 底部楼层页签横向可滚动，窄屏只保留 Management 区的核心按钮 */
       #floorBar {
-        max-width: 100%
+        max-width: 100%;
+        height: 40px
+      }
+
+      #floorBar .fllabel {
+        margin: 0 2px
       }
 
       /* 提示条放在楼层条上方、工具行下方的空档，不再与楼层条重叠 */
@@ -3040,6 +3120,11 @@
               data-en-title="Show / hide manually placed annotations (text notes, manual dims, levels, leaders / section marks, north arrow)"
               data-en="Notes"><i data-lucide="tags"></i>标注</button>
           </div>
+          <div class="grp" id="ghostGrp">
+            <button class="btn chip" data-layer="ghost" id="flGhost" title="显示 / 隐藏紧邻下层全部对象（墙 / 门窗 / 家具 / 柱 / 楼梯等）的半透明参照（2D 与 3D 同时生效）"
+              data-en-title="Show / hide a translucent reference of everything on the floor below — walls, openings, furniture, pillars, stairs (2D and 3D)"
+              data-en="Below reference"><i data-lucide="ghost"></i>下层参照</button>
+          </div>
           <div class="grp only3d">
             <button class="btn chip on" data-cut="2.8" data-en="Full walls"><i
                 data-lucide="rectangle-vertical"></i>全高墙</button>
@@ -3071,7 +3156,6 @@
           <button class="btn" id="vIso" data-en="Iso"><i data-lucide="rotate-3d"></i>斜视</button>
           <button class="btn" id="vTop" data-en="Top"><i data-lucide="eye"></i>俯视</button>
         </div>
-        <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
       </div>
       <div class="grp" id="editGrp">
         <button class="btn" id="undo" title="撤销 (Ctrl+Z)" data-en-title="Undo (Ctrl+Z)" data-en="Undo"><i
@@ -4218,6 +4302,7 @@
         <div class="bar" id="sbBar"></div>
       </div>
       <div class="modehint" id="modehint"></div>
+      <div id="floorBar" title="楼层管理：切换 / 新增 / 复制 / 删除楼层，设置每层高度"></div>
       <div id="zoomPad" class="only2d">
         <button class="btn" id="zoomOut" title="缩小" data-en-title="Zoom out">−</button>
         <button class="btn" id="zoomIn" title="放大" data-en-title="Zoom in">＋</button>
@@ -4972,7 +5057,7 @@
       if (s) delete s.layers;                                    // 不留在 state 里，避免污染撤销/导出
       if (!ly) return;
       Object.assign(ui.layers, ly);
-      document.querySelectorAll('#layers .btn').forEach(b => b.classList.toggle('on', !!ui.layers[b.dataset.layer]));
+      document.querySelectorAll('#layers .btn, #ghostGrp .btn').forEach(b => b.classList.toggle('on', !!ui.layers[b.dataset.layer]));
       window.View3D?.setSlabVis?.(ui.layers.slab !== false);     // 楼板开关随图层设置同步到 3D
       renderAll();                                               // gDims 显隐在 renderDims 里同步
     }
@@ -9919,12 +10004,11 @@
       const allChip = showAllChip
         ? `<button class="flbtn ${allOn ? 'on' : ''}" data-fl-all="1" title="${tr('在 3D 场景显示所有楼层，可沿楼梯 / 电梯跨层漫游', 'Show all floors in 3D; walk between floors via stairs / lifts')}">${tr('全楼层', 'All floors')}</button>`
         : '';
-      const chips = fs.map((f, i) => `<button class="flbtn ${!allOn && f.id === cur.id ? 'on' : ''}" data-fl="${esc(f.id)}" title="${tr('层高', 'Height')} ${f.h} mm · ${tr('标高', 'Elevation')} ${f.z} mm">${esc(f.name)}</button>`).join('');
+      const chips = fs.map(f => `<button class="flbtn ${!allOn && f.id === cur.id ? 'on' : ''}" data-fl="${esc(f.id)}" title="${tr('层高', 'Height')} ${f.h} mm · ${tr('标高', 'Elevation')} ${f.z} mm">${esc(f.name)}</button>`).join('');
       bar.innerHTML = `<span class="fllabel"><i data-lucide="building-2"></i>${tr('楼层', 'Floors')}</span>${allChip}${chips}
         <button class="flbtn" id="flAdd" title="${tr('在当前层上方新增楼层', 'Add a floor above current')}"><i data-lucide="plus"></i></button>
         <button class="flbtn" id="flCopy" title="${tr('复制当前层（含全部对象）', 'Duplicate current floor with all objects')}"><i data-lucide="copy"></i>${tr('复制', 'Copy')}</button>
         <button class="flbtn" id="flDel" title="${tr('删除当前楼层', 'Delete current floor')}"><i data-lucide="trash-2"></i>${tr('删除', 'Delete')}</button>
-        <button class="flbtn ${ui.layers.ghost ? 'on' : ''}" id="flGhost" title="${tr('显示 / 隐藏紧邻下层全部对象（墙 / 门窗 / 家具 / 柱 / 楼梯等）的半透明参照（2D 与 3D 同时生效）', 'Show / hide a translucent reference of everything on the floor below — walls, openings, furniture, pillars, stairs (2D and 3D)')}"><i data-lucide="ghost"></i>${tr('下层参照', 'Below reference')}</button>
         <span class="flsep"></span>
         <label class="fllabel" title="${tr('当前层的楼层高度，影响层高与 3D 堆叠', 'Current floor height, affects ceiling and 3D stacking')}">${tr('层高', 'Height')} <input class="fheight" id="flHeight" type="number" min="1200" max="12000" step="100" value="${cur.h}"> mm</label>`;
       const allBtn = bar.querySelector('[data-fl-all]');
@@ -9948,12 +10032,8 @@
         if (!await uiConfirm(tr(`删除楼层「${f.name}」？该层全部对象会一并删除，可 Ctrl+Z 撤销。`, `Delete floor "${f.name}"? All objects on it will be removed (Ctrl+Z to undo).`), tr('删除', 'Delete'))) return;
         deleteFloor();
       };
-      $('#flGhost').onclick = () => {
-        ui.layers.ghost = !ui.layers.ghost;
-        scheduleAutoSave();
-        renderAll();
-        toast(tr(ui.layers.ghost ? '下层参照：开' : '下层参照：关', ui.layers.ghost ? 'Below reference: on' : 'Below reference: off'));
-      };
+      const ghostBtn = $('#flGhost');
+      if (ghostBtn) ghostBtn.classList.toggle('on', !!ui.layers.ghost);   // 下层参照按钮在顶栏第二行，只需同步高亮（点击绑定在图层开关初始化处）
       const hIn = $('#flHeight');
       hIn.onchange = () => {
         const v = Math.max(1200, Math.min(12000, Math.round(+hIn.value || 2800)));
@@ -17195,7 +17275,7 @@
       toast(tr('自由模式 · 绘制与拖动可任意方向（按住 Shift 临时锁水平 / 垂直）', 'Free: any angle for drawing and dragging, hold Shift to lock ortho'));
     };
     syncWallMode();
-    document.querySelectorAll('#layers .btn').forEach(b => {
+    document.querySelectorAll('#layers .btn, #ghostGrp .btn').forEach(b => {
       b.classList.toggle('on', !!ui.layers[b.dataset.layer]);              // 载入方案后按 layers 字段还原按钮高亮
       b.onclick = () => {
         const k = b.dataset.layer; ui.layers[k] = !ui.layers[k]; b.classList.toggle('on', ui.layers[k]);
@@ -17205,6 +17285,7 @@
           if (k === 'notes' && !ui.layers.notes && ui.sel && ['note', 'dim', 'level', 'leader', 'north'].includes(ui.sel.kind)) { ui.sel = null; const ne = $('#noteEditor'); if (ne) ne.style.display = 'none'; }   // 隐藏标注层时取消标注类选中，避免残留选中框 / 编辑框
           renderAll();
         }
+        if (k === 'ghost') toast(tr(ui.layers.ghost ? '下层参照：开' : '下层参照：关', ui.layers.ghost ? 'Below reference: on' : 'Below reference: off'));
       };
     });
 

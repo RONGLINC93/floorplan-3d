@@ -239,7 +239,7 @@
     "bearing": false,
     "wallSnap": true,
     "notes": true,
-    "ghost": true,
+    "ghost": false,
     "slab": true
   }
 }
