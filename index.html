@@ -3121,6 +3121,9 @@
               data-en="Notes"><i data-lucide="tags"></i>标注</button>
           </div>
           <div class="grp" id="ghostGrp">
+            <button class="btn chip" data-layer="ghostUp" id="flGhostUp" title="显示 / 隐藏紧邻上层全部对象的半透明参照（2D 与 3D 同时生效）"
+              data-en-title="Show / hide a translucent reference of everything on the floor above (2D and 3D)"
+              data-en="Above reference"><i data-lucide="ghost"></i>上层参照</button>
             <button class="btn chip" data-layer="ghost" id="flGhost" title="显示 / 隐藏紧邻下层全部对象（墙 / 门窗 / 家具 / 柱 / 楼梯等）的半透明参照（2D 与 3D 同时生效）"
               data-en-title="Show / hide a translucent reference of everything on the floor below — walls, openings, furniture, pillars, stairs (2D and 3D)"
               data-en="Below reference"><i data-lucide="ghost"></i>下层参照</button>
@@ -4247,6 +4250,7 @@
         <g id="gWells"></g>
         <g id="gRooms"></g>
         <g id="gGhost" pointer-events="none"></g>
+        <g id="gGhostUp" pointer-events="none"></g>
         <g id="gFurn"></g>
         <g id="gWalls"></g>
         <g id="gOpen"></g>
@@ -5049,7 +5053,7 @@
     const ui = {
       tool: 'select', drawTool: 'select', wallFree: false, sel: null, multi: [], mq: null, mA: null, mCur: null, dimA: null, dimCur: null, railA: null, railCur: null, beamA: null, beamCur: null, slabA: null, slabCur: null, parapetA: null, parapetCur: null, canopyA: null, canopyCur: null, rectA: null, rectCur: null, rectKind: null,
       rotBase: null, rotSnap: null, rotBefore: null, rotCur: null, rotAngle: 0, rotPick: false, rotMode: null, gizmoHover: null, pitches: null, pitchNow: 0,
-      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, notes: true, ghost: true, slab: true }
+      layers: { dims: true, labels: true, furn: true, links: false, lightRadius: false, grid: false, axis: true, bearing: false, wallSnap: true, notes: true, ghost: true, ghostUp: false, slab: true }
     };
     /* 图层开关随方案保存：存到服务器（挂在方案 JSON 的 layers 字段），打开方案时还原 */
     function applyLayers(s) {
@@ -5432,31 +5436,37 @@
       $('#gWalls').innerHTML = builtIn + drawn + renderArcWalls2();
     }
 
-    /* 2D 下层参照：半透明显示紧邻下方一层的全部对象（房间 / 墙体 / 门窗 / 柱 / 楼梯 / 家具 / 井洞 / 栏杆梁板 / 阳台花池 / 排水管件 / 文字标注等），作为当前层对位参照；只画不参与拾取 / 编辑 */
-    const GHOST_2D_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'bover', 'wallH', 'rooms', 'roomsExtra', 'pillars', 'stairs', 'furniture', 'extras', 'lamps', 'wells', 'rails', 'beams', 'parapets', 'canopies', 'balconies', 'planters', 'flues', 'gates', 'outdoor', 'slabs', 'levels', 'leaders', 'notes'];
-    function renderGhostWalls2() {
-      const g = $('#gGhost'); if (!g) return;
+    /* 2D 下层参照：半透明显示紧邻下方一层的全部对象（地板 / 房间 / 墙 / 门窗 / 柱 / 楼梯 / 家具 / 井洞 / 栏杆梁板 / 阳台花池 / 屋顶泳池 / 电箱灯具 / 标注等），作为当前层对位参照；只画不参与拾取 / 编辑 */
+    const GHOST_2D_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'removedB', 'demolished', 'bover', 'wallH', 'rooms', 'roomsExtra', 'pillars', 'stairs', 'furniture', 'extras', 'lamps', 'wells', 'rails', 'beams', 'parapets', 'canopies', 'balconies', 'planters', 'flues', 'gates', 'slabs', 'levels', 'leaders', 'notes', 'dims', 'powerBoxes', 'weakBoxes', 'roofs', 'pools', 'decks', 'pergolas', 'axes', 'north', 'entryDoor'];
+    function renderGhostLayer2(groupId, refFloor, up) {
+      const g = $('#' + groupId); if (!g) return;
       const clear = () => { g.innerHTML = ''; g.removeAttribute('data-ghost-of'); };
-      if (!ui.layers.ghost) { clear(); return; }
-      const fs = state.floors || [], idx = fs.findIndex(f => f.id === state.activeFloor);
-      const below = idx > 0 ? fs[idx - 1] : null;
-      const data = below ? state.byFloor?.[below.id] : null;
+      const data = refFloor ? state.byFloor?.[refFloor.id] : null;
       if (!data) { clear(); return; }
 
       const saved = {}; GHOST_2D_KEYS.forEach(k => saved[k] = state[k]);
+      const savedLifts = state.lifts;                            // 电梯是整栋共享（不在 FLOOR_KEYS），借出期间清空，避免画出当前层的电梯
       let s = '';
       try {
-        // 临时换入下层数据，复用当前层的全部 2D 渲染函数，把各组内容借入幽灵层（state 恢复后由 renderAll 的后续调用还原各组）
-        // 下层缺某类数据时用空集合而非当前层数据，避免旧方案把当前层对象误画成下层参照
+        // 临时换入参照层数据，复用当前层的全部 2D 渲染函数，把各组内容借入幽灵层（state 恢复后由 renderAll 的后续调用还原各组）
         GHOST_2D_KEYS.forEach(k => { state[k] = data[k] !== undefined ? data[k] : Array.isArray(saved[k]) ? [] : (k === 'bover' || k === 'roomsExtra' ? {} : saved[k]); });
+        state.lifts = [];
         renderRooms(); renderFurn(); renderWalls(); renderOpenings(); renderPillars(); renderStairs(); renderNotes();
-        s = `<g opacity=".3">` + ['gWells', 'gRooms', 'gFurn', 'gWalls', 'gOpen', 'gPillars', 'gStairs', 'gNotes'].map(id => { const el = $('#' + id); return el ? el.innerHTML : ''; }).join('') + `</g>`;
+        const inner = ['gFarea', 'gWells', 'gRooms', 'gFurn', 'gWalls', 'gOpen', 'gPillars', 'gStairs', 'gNotes'].map(id => { const el = $('#' + id); return el ? el.innerHTML : ''; }).join('');
+        s = up ? `<g opacity=".28" style="filter:hue-rotate(150deg)">${inner}</g>` : `<g opacity=".3">${inner}</g>`;
       } finally {
         GHOST_2D_KEYS.forEach(k => { state[k] = saved[k]; });
+        state.lifts = savedLifts;
         renderRooms();                                           // 房间层在 renderAll 里排在本函数之前，借出后要立刻还原
+        const gfa = $('#gFarea'); if (gfa) gfa.innerHTML = '';    // gFarea 由 renderNotes 在后面重画，这里先清空避免借出内容残留
       }
       g.innerHTML = s;
-      g.setAttribute('data-ghost-of', below.id);
+      g.setAttribute('data-ghost-of', refFloor.id);
+    }
+    function renderGhostWalls2() {
+      const fs = state.floors || [], idx = fs.findIndex(f => f.id === state.activeFloor);
+      renderGhostLayer2('gGhost', ui.layers.ghost ? fs[idx - 1] : null, false);
+      renderGhostLayer2('gGhostUp', ui.layers.ghostUp ? fs[idx + 1] : null, true);
     }
 
     /* 弧形墙：a / b 为两端点，bulge 为弦中点向法线方向的拱起量（mm，可正可负） */
@@ -10032,8 +10042,9 @@
         if (!await uiConfirm(tr(`删除楼层「${f.name}」？该层全部对象会一并删除，可 Ctrl+Z 撤销。`, `Delete floor "${f.name}"? All objects on it will be removed (Ctrl+Z to undo).`), tr('删除', 'Delete'))) return;
         deleteFloor();
       };
-      const ghostBtn = $('#flGhost');
-      if (ghostBtn) ghostBtn.classList.toggle('on', !!ui.layers.ghost);   // 下层参照按钮在顶栏第二行，只需同步高亮（点击绑定在图层开关初始化处）
+      const ghostBtn = $('#flGhost'), ghostUpBtn = $('#flGhostUp');
+      if (ghostBtn) ghostBtn.classList.toggle('on', !!ui.layers.ghost);   // 参照按钮在顶栏第二行，只需同步高亮（点击绑定在图层开关初始化处）
+      if (ghostUpBtn) ghostUpBtn.classList.toggle('on', !!ui.layers.ghostUp);
       const hIn = $('#flHeight');
       hIn.onchange = () => {
         const v = Math.max(1200, Math.min(12000, Math.round(+hIn.value || 2800)));
@@ -17286,6 +17297,7 @@
           renderAll();
         }
         if (k === 'ghost') toast(tr(ui.layers.ghost ? '下层参照：开' : '下层参照：关', ui.layers.ghost ? 'Below reference: on' : 'Below reference: off'));
+        if (k === 'ghostUp') toast(tr(ui.layers.ghostUp ? '上层参照：开' : '上层参照：关', ui.layers.ghostUp ? 'Above reference: on' : 'Above reference: off'));
       };
     });
 
@@ -26468,12 +26480,12 @@
       if (!inited || (!active && !force)) return;
       H = currentFloorH() / 1000;                                  // 当前层高（米）：墙体 / 天花 / 剖切都跟着层高
       if (opt.full && Math.abs(opt.cut - H) > 1e-6) { opt.cut = H; syncCutBtns(); }   // 全高墙模式：剖切高度始终贴当前楼层高度
-      const revKey = window.stateRev + ' ' + opt.cut + ' ' + opt.slabs + ' ' + opt.allFloors + ' ' + ui.layers.ghost;
+      const revKey = window.stateRev + ' ' + opt.cut + ' ' + opt.slabs + ' ' + opt.allFloors + ' ' + ui.layers.ghost + ' ' + ui.layers.ghostUp;
       if (force || revKey !== sigRevLast) {
         sigRevLast = revKey;
         // 数据版本号 / 视图开关未变时跳过下面 4 次全量 JSON.stringify（主循环每帧调用 sync，方案大时每帧序列化数白 KB 纯属浪费；
         // 未 bump 版本号的字段级变化——太阳能灯电量、信号灯相位、3D 拖动中的中间位置——由 applyLight / updateSolarVisuals / 松手 commit 直改或补齐，不需要重建）
-        curA = JSON.stringify([state.rooms, state.roomsExtra, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut, H, ui.layers.ghost, opt.slabs, opt.allFloors]);
+        curA = JSON.stringify([state.rooms, state.roomsExtra, state.walls, state.arcWalls, state.openings, state.deletedWalls, state.demolished, state.entryDoor, state.wallH, state.bover, state.stairs, state.pillars, state.rails, state.beams, state.slabs, state.parapets, state.canopies, state.lifts, state.balconies, state.planters, state.flues, state.lamps, state.extras, state.roofs, state.pools, state.decks, state.pergolas, state.gates, state.powerBoxes, state.weakBoxes, opt.cut, H, ui.layers.ghost, ui.layers.ghostUp, opt.slabs, opt.allFloors]);
         curF = JSON.stringify(state.furniture);
         curL = JSON.stringify([state.rooms, opt.cut, H]);
         curSF = JSON.stringify([opt.allFloors, state.activeFloor, state.floors, state.byFloor, floorY()]);
@@ -26497,66 +26509,67 @@
       if (force || f !== sigFurn) { sigFurn = f; buildFurn(); }
       if (force || l !== sigLabels) { sigLabels = l; buildLabels(); }
     }
-    /* 下层幽灵：半透明显示紧邻下方的那一层墙体，作为当前层对位参照（漫游 / 碰撞 / 拾取都只针对当前层，不受影响） */
-    let plateGroup = null, stackGroup = null;
-    const GHOST_FLOOR_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'demolished', 'wallH', 'rooms', 'roomsExtra', 'bover', 'pillars', 'furniture', 'stairs'];
+    /* 下层幽灵：半透明显示紧邻下方一层的全部对象，作为当前层对位参照（漫游 / 碰撞 / 拾取都只针对当前层，不受影响） */
+    let plateGroup = null, plateUpGroup = null, stackGroup = null;
+    const GHOST_FLOOR_KEYS = ['walls', 'arcWalls', 'openings', 'deletedWalls', 'removedB', 'demolished', 'wallH', 'rooms', 'roomsExtra', 'bover', 'pillars', 'furniture', 'stairs', 'rails', 'beams', 'slabs', 'parapets', 'canopies', 'balconies', 'planters', 'flues', 'gates', 'lamps', 'powerBoxes', 'weakBoxes', 'roofs', 'pools', 'decks', 'pergolas', 'extras', 'notes', 'dims', 'levels', 'leaders'];
+    function clearPlateGroup(g) {
+      if (!g) return;
+      g.children.slice().forEach(o => { o.geometry?.dispose?.(); scene.remove(o); });
+      scene.remove(g);
+    }
     function buildFloorPlates() {
       if (!scene) return;
-      if (!ui.layers.ghost || opt.allFloors) {                      // 开关关闭，或整栋模式：整栋模式下其它楼层已经是完整真实几何，再做半透明幽灵墙只会重复叠加，下层比上层宽处露出一堆碎片
-        if (plateGroup) { plateGroup.children.slice().forEach(o => { o.geometry?.dispose?.(); o.material?.dispose?.(); plateGroup.remove(o); }); scene.remove(plateGroup); plateGroup = null; }
-        return;
-      }
-      if (plateGroup) { plateGroup.children.slice().forEach(o => { o.geometry?.dispose?.(); o.material?.dispose?.(); plateGroup.remove(o); }); scene.remove(plateGroup); }
-      plateGroup = new THREE.Group(); scene.add(plateGroup);
-      const base = floorY();
       const fs = state.floors || [], idx = fs.findIndex(f => f.id === state.activeFloor);
-      const below = fs[idx - 1];                                    // 紧邻下方一层：切 2F 显示 1F，切 3F 显示 2F……
-      if (!below) return;
-      const data = state.byFloor[below.id]; if (!data) return;
-      const dy = below.z / 1000 - base;                             // 下层相对当前层的标高差（负，米）：below.z 是 mm，base=floorY() 已是米
-      // 临时把下层数据换入全局 state，复用墙体几何 helper（builtinSeg / wallSegs / cwGeom 都读 state）
-      const saved = {}; GHOST_FLOOR_KEYS.forEach(k => saved[k] = state[k]);
-      GHOST_FLOOR_KEYS.forEach(k => { state[k] = data[k] !== undefined ? data[k] : Array.isArray(saved[k]) ? [] : (k === 'bover' || k === 'roomsExtra' ? {} : saved[k]); });   // 下层缺类数据时用空集合，避免误把当前层对象画成幽灵
-      const ghostMat = new THREE.MeshStandardMaterial({ color: 0x8a97a8, transparent: true, opacity: .3, roughness: 1, depthWrite: false });
-      const addGhost = (P0, P1, T, ht) => {                          // 半透明墙段（与 wallSeg3D 相同的中线与旋转算法）
-        const L = Math.hypot(P1[0] - P0[0], P1[1] - P0[1]); if (L < 1 || ht <= .001) return;
-        const o = new THREE.Mesh(new THREE.BoxGeometry(M(L), ht, M(T)), ghostMat);
-        const [mx, mz] = wallMid(P0, P1);
-        o.position.set(mx, ht / 2, mz); o.rotation.y = wallAngle(P0, P1);
-        plateGroup.add(o);
-      };
-      const ht = Math.max(.6, (below.h || 2800) / 1000);        // 幽灵墙按下层层高（不设 2.8 上限）：墙顶正好接到当前层楼板底，对位参照才准确
-      try {
-        WALLS.forEach((w, i) => {                                    // 内置墙
-          const id = 'w' + i; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
-          const s = builtinSeg(i);
-          wallSegs(id, s.L).forEach(([c0, c1]) => { const [P0, P1] = segPts(s.A, s.B, c0, c1); addGhost(P0, P1, s.T, ht); });
-        });
-        (state.walls || []).forEach(w => {                          // 自画墙（含斜墙）
-          const id = 'CW' + w.id; if (state.deletedWalls.includes(id) || state.demolished.includes(id)) return;
-          const L = Math.hypot(w.b[0] - w.a[0], w.b[1] - w.a[1]);
-          wallSegs(id, L).forEach(([c0, c1]) => { const [P0, P1] = segPts(w.a, w.b, c0, c1); addGhost(P0, P1, cwT(w), ht); });
-        });
-        (state.pillars || []).forEach(c => {                        // 柱：圆 / 方 / L / 十字统一按柱径体量近似
-          const o = new THREE.Mesh(pillarShape(c) === 'round' ? new THREE.CylinderGeometry(M(c.w) / 2, M(c.w) / 2, ht, 16) : new THREE.BoxGeometry(M(c.w), ht, M(c.w)), ghostMat);
-          o.position.set(M(c.x), ht / 2, M(c.y)); plateGroup.add(o);
-        });
-        (state.furniture || []).forEach(f => {                      // 家具：直接用真实 3D 造型，整体替换为半透明幽灵材质
-          const g2 = buildFurniture(f); if (!g2) return;
-          const olds = new Set();
-          g2.traverse(o => { if (o.isMesh) { if (o.material) (Array.isArray(o.material) ? o.material : [o.material]).forEach(m => olds.add(m)); o.material = ghostMat; o.castShadow = false; } });
-          olds.forEach(m => m.dispose?.());
-          plateGroup.add(g2);
-        });
-        (state.stairs || []).forEach(st => {                        // 楼梯：按外接盒做半透明体量（对位参照足够）
-          const bb = stairBBox(stairLayout(st)); if (!bb || bb.x1 - bb.x0 < 1) return;
-          const sh = Math.min(1, ht);
-          const o = new THREE.Mesh(new THREE.BoxGeometry(M(bb.x1 - bb.x0), sh, M(bb.z1 - bb.z0)), ghostMat);
-          o.position.set(M((bb.x0 + bb.x1) / 2), sh / 2, M((bb.z0 + bb.z1) / 2)); plateGroup.add(o);
-        });
-      } finally { GHOST_FLOOR_KEYS.forEach(k => { state[k] = saved[k]; }); }
-      plateGroup.position.y = dy;                                   // 整组下移到下层标高
-      plateGroup.userData.ghostOf = below.id;
+      const refs = [
+        { key: 'ghost', floor: fs[idx - 1], mat: 0x8a97a8 },   // 下层：灰蓝
+        { key: 'ghostUp', floor: fs[idx + 1], mat: 0x7fa8b0 }   // 上层：偏青，与下层区分
+      ];
+      refs.forEach(r => {
+        const groupVar = r.key === 'ghost' ? 'plateGroup' : 'plateUpGroup';
+        if (window['__gp_' + r.key]) { clearPlateGroup(window['__gp_' + r.key]); window['__gp_' + r.key] = null; }
+        if (!r.floor || opt.allFloors || !ui.layers[r.key]) { if (r.key === 'ghost') plateGroup = null; else plateUpGroup = null; return; }
+        const data = state.byFloor[r.floor.id]; if (!data) return;
+        const target = new THREE.Group(); window['__gp_' + r.key] = target; if (r.key === 'ghost') plateGroup = target; else plateUpGroup = target;
+        scene.add(target);
+        const base = floorY(), dy = r.floor.z / 1000 - base;    // 参照层相对当前层的标高差（米）
+        const ghostMat = new THREE.MeshStandardMaterial({ color: r.mat, transparent: true, opacity: .3, roughness: 1, depthWrite: false });
+        const saved = {}; GHOST_FLOOR_KEYS.forEach(k => saved[k] = state[k]);
+        GHOST_FLOOR_KEYS.forEach(k => { state[k] = data[k] !== undefined ? data[k] : Array.isArray(saved[k]) ? [] : (k === 'bover' || k === 'roomsExtra' ? {} : saved[k]); });
+        // 完整快照全局状态，临时换成本层之外的数据跑一次 buildArch，生成参照层全部真实几何
+        const savedArchFloor = archFloor, savedArchUp = archUp, savedLampG = lampG;
+        const savedColliders = colliders, savedBarriers = barriers, savedSills = sills, savedSpins = revolveSpins, savedHit = revolveHit, savedEsc = escSteps;
+        const savedSurvRigs = survRigs, savedSurvScreens = survScreens, savedSurvMeshes = survScreenMeshes, savedSurvTexs = survTexs;
+        const savedH = H, savedCut = opt.cut, savedBFH = window.__buildFloorH, savedMode = opt.mode;
+        const savedDoors = doors.length, savedGates = gateArms.length, savedGlow = lampGlowMats.length, savedParkAnims = parkAnims.length;
+        const savedStackOps = stackOps.length, savedWtRuns = wtRuns.length;
+        const savedMaps = [parkLamps, stackCells, sanVisuals, wtVisuals, washVisuals].map(m => new Map(m));
+        const ghostFloor = new THREE.Group(), ghostArchUp = new THREE.Group(), ghostLamp = new THREE.Group();
+        try {
+          archFloor = ghostFloor; archUp = ghostArchUp; lampG = ghostLamp;
+          colliders = []; barriers = []; sills = []; revolveSpins = []; revolveHit = []; escSteps = [];
+          survRigs = []; survScreens = []; survScreenMeshes = []; survTexs = [];
+          doors.length = 0; gateArms.length = 0; lampGlowMats.length = 0; parkAnims.length = 0; stackOps.length = 0; wtRuns.length = 0;
+          [parkLamps, stackCells, sanVisuals, wtVisuals, washVisuals].forEach(m => m.clear());
+          H = Math.max(.6, (r.floor.h || 2800) / 1000); opt.cut = H; window.__buildFloorH = r.floor.h || 2800; opt.mode = 'orbit';
+          buildArch();
+          [ghostFloor, ghostArchUp, ghostLamp].forEach(g => g.traverse(o => {
+            if (o.isMesh || o.isLine || o.isPoints) {
+              o.material = ghostMat; o.castShadow = o.receiveShadow = false; o.userData.walkOnly = false; o.userData.pick3d = null;
+            }
+          }));
+          [ghostFloor, ghostArchUp, ghostLamp].forEach(g => { while (g.children.length) target.add(g.children[0]); });
+        } finally {
+          GHOST_FLOOR_KEYS.forEach(k => { state[k] = saved[k]; });
+          archFloor = savedArchFloor; archUp = savedArchUp; lampG = savedLampG;
+          colliders = savedColliders; barriers = savedBarriers; sills = savedSills; revolveSpins = savedSpins; revolveHit = savedHit; escSteps = savedEsc;
+          survRigs = savedSurvRigs; survScreens = savedSurvScreens; survScreenMeshes = savedSurvMeshes; survTexs = savedSurvTexs;
+          H = savedH; opt.cut = savedCut; window.__buildFloorH = savedBFH; opt.mode = savedMode;
+          doors.length = savedDoors; gateArms.length = savedGates; lampGlowMats.length = savedGlow; parkAnims.length = savedParkAnims; stackOps.length = savedStackOps; wtRuns.length = savedWtRuns;
+          [parkLamps, stackCells, sanVisuals, wtVisuals, washVisuals].forEach((m, i) => { m.clear(); savedMaps[i].forEach((v, k) => m.set(k, v)); });
+        }
+        target.position.y = dy;
+        target.userData.ghostOf = r.floor.id;
+      });
     }
     /* 全楼层漫游：其它楼层用完整几何按标高堆叠，并保存各层碰撞 / 楼梯 / 门数据 */
     function clearStackGroup() {
